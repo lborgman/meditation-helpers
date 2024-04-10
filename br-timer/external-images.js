@@ -362,7 +362,7 @@ export async function dialogImages(prefix, arrBuiltin) {
     } else {
         let checked = false;
 
-        recOld.arr.forEach(url => {
+        recOld.arr?.forEach(url => {
             const divRec = mkImgChoice(url, false);
             divOldUrls.appendChild(divRec);
         });
