@@ -96,7 +96,8 @@ export function getCurrentImageUrl(prefix, arrBuiltin) {
         // const idxGP = Math.floor(Math.random() * arrBuiltin.length);
 
         const lenB = arrBuiltin.length
-        const numChoices = lenB + arr.length;
+        const lenArr = arr? arr.length : 0;
+        const numChoices = lenB + lenArr;
         const a = new Uint32Array(6);
         self.crypto.getRandomValues(a);
         const idx1 = a[0] % numChoices
