@@ -73,30 +73,45 @@ export function dialogReason() {
     modMdc.mkMDCdialogAlert(bdy);
 }
 const KEY = "external-images";
-export function getImagesRec(prefix) {
-    if (typeof prefix != "string") throw Error("prefix is not a string");
-    if (prefix.length == 0) throw Error("prefix.length == 0");
-    const strJson = localStorage.getItem(prefix + KEY);
-    if (!strJson) return {};
+
+let storingPrefix;
+export function setStoringPrefix(prefix) {
+    const tofPrefix = typeof prefix;
+    if (tofPrefix != "string") throw Error(`setStoringPrefix, arg not string: ${tofPrefix}`);
+    if (storingPrefix != undefined) {
+        if (storingPrefix != prefix) {
+            throw Error(`setStoringPrefix new: ${prefix}, old: ${storingPrefix}`);
+        }
+    }
+    storingPrefix = prefix;
+}
+function checkStoringPrefix() {
+    if (typeof storingPrefix != "string") throw Error(`storingPrefix not set`);
+}
+
+
+function getImagesRec() {
+    checkStoringPrefix();
+    const strJson = localStorage.getItem(storingPrefix + KEY);
+    if (!strJson) return { choice: "random", arr: [] };
     const objJson = JSON.parse(strJson);
     return objJson;
 }
-function setImagesRec(prefix, objJson) {
-    if (typeof prefix != "string") throw Error("prefix is not a string");
-    if (prefix.length == 0) throw Error("prefix.length == 0");
+function setImagesRec(objJson) {
+    checkStoringPrefix();
     const strJson = JSON.stringify(objJson);
-    localStorage.setItem(prefix + KEY, strJson);
+    localStorage.setItem(storingPrefix + KEY, strJson);
 }
 
 const debounceSetImagesRec = debounce(setImagesRec, 1000);
 
-export function getCurrentImageUrl(prefix, arrBuiltin) {
-    const { choice, arr } = getImagesRec(prefix);
+export function getCurrentImageUrl(arrBuiltin) {
+    const { choice, arr } = getImagesRec();
     if (choice == "random") {
         // const idxGP = Math.floor(Math.random() * arrBuiltin.length);
 
         const lenB = arrBuiltin.length
-        const lenArr = arr? arr.length : 0;
+        const lenArr = arr ? arr.length : 0;
         const numChoices = lenB + lenArr;
         const a = new Uint32Array(6);
         self.crypto.getRandomValues(a);
@@ -112,8 +127,8 @@ export function getCurrentImageUrl(prefix, arrBuiltin) {
     return choice;
 }
 
-export async function dialogImages(prefix, arrBuiltin) {
-    const oldObj = getImagesRec(prefix);
+export async function dialogImages(arrBuiltin) {
+    const oldObj = getImagesRec();
     let okButton;
     const tellMeOkButton = (btn) => {
         okButton = btn;
@@ -166,9 +181,9 @@ export async function dialogImages(prefix, arrBuiltin) {
         function addImagesRec(val, catMark) {
             if (!["V", ""].includes(catMark)) throw Error(`Unknown category: "${catMark}"`);
             const valRec = catMark + val;
-            const obj = getImagesRec(prefix) || { choice: "random", arr: [] };
+            const obj = getImagesRec();
             obj.arr.push(valRec);
-            debounceSetImagesRec(prefix, obj);
+            debounceSetImagesRec(obj);
         }
     })
     const divNewPreview = mkElt("div", undefined, [
@@ -327,7 +342,7 @@ export async function dialogImages(prefix, arrBuiltin) {
                 const rad = div.querySelector("input");
                 console.log(rad);
                 const valUrl = rad.value;
-                const objRec = getImagesRec(prefix);
+                const objRec = getImagesRec();
                 const arr = objRec.arr;
                 const idx = arr.indexOf(valUrl);
                 arr.splice(idx, 1);
@@ -338,9 +353,9 @@ export async function dialogImages(prefix, arrBuiltin) {
                     radRandom.checked = true;
                     // radRandom.click();
                     objRec.choice = "random";
-                    debounceSetImagesRec(prefix, objRec);
+                    debounceSetImagesRec(objRec);
                 }
-                debounceSetImagesRec(prefix, objRec);
+                debounceSetImagesRec(objRec);
                 setTimeout(() => div.remove(), 1.2 * 1000);
             });
             eltHandle = btnDelete;
@@ -356,7 +371,7 @@ export async function dialogImages(prefix, arrBuiltin) {
         return mkElt("div", undefined, [lblImg]);
     }
 
-    const recOld = getImagesRec(prefix);
+    const recOld = getImagesRec();
     const numBuiltIn = arrBuiltin ? arrBuiltin.length : 0;
     if (recOld.length + numBuiltIn == 0) {
         divOldUrls.textContent = "No images.";
@@ -394,15 +409,15 @@ export async function dialogImages(prefix, arrBuiltin) {
     bdy.addEventListener("change", evt => {
         const target = evt.target;
         const val = target.value;
-        const obj = getImagesRec(prefix);
+        const obj = getImagesRec();
         console.log("bdy change", evt, target, val, obj);
         obj.choice = val;
-        debounceSetImagesRec(prefix, obj);
+        debounceSetImagesRec(obj);
     })
 
     const funHandleResult = () => {
         console.log({ oldObj });
-        const newObj = getImagesRec(prefix);
+        const newObj = getImagesRec();
         if (newObj.choice == oldObj.choice) return;
         return newObj.choice;
         // return "not ready";

@@ -57,6 +57,8 @@
     <script src="../src/js/error.js"></script>
     <!-- <script src="../public/src/js/mod/util-mdc.js"></script> -->
     <script>
+        const STORING_PREFIX = "MOVLIN-";
+
         // if (location.href != "http://localhost:8080/temptest/test-moving-lines.html") throw Error("run http-server . in firebase-r10m1h");
         // if (location.href != "http://localhost:8080/br-timer/moving-lines.html") throw Error("run http-server . in firebase-r10m1h");
 
@@ -236,7 +238,8 @@
 
         async function dialogImages() {
             const modExtImages = await import("external-images");
-            const url = await modExtImages.dialogImages("all-", myGooglePhotos);
+            modExtImages.setStoringPrefix(STORING_PREFIX);
+            const url = await modExtImages.dialogImages(myGooglePhotos);
             if (url && url != "random") updateCanvasBackground(url);
         }
         async function dialogPattern() {
@@ -479,7 +482,8 @@
 
         async function setCanvasBackgroundToCurrent() {
             const modExtImages = await import("external-images");
-            useImage = modExtImages.getCurrentImageUrl("all-", myGooglePhotos) || useImage;
+            modExtImages.setStoringPrefix(STORING_PREFIX);
+            useImage = modExtImages.getCurrentImageUrl(myGooglePhotos) || useImage;
             // eltCanvas.style.backgroundImage = `url(${useImage})`;
             updateCanvasBackground(useImage);
         };
