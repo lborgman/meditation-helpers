@@ -901,7 +901,12 @@
             setupCanvas(container);
             await setupControls(container);
             setCanvasSizes();
-            addEventListener("resize", evt => { setCanvasSizes(); });
+            const afterResize = () => {
+                 setCanvasSizes();
+                 if (!isRunning) initCurrentPattern();
+            }
+            const debounceAfterResize = debounce(afterResize);
+            addEventListener("resize", evt => { debounceAfterResize(); });
             setCanvasBackgroundToCurrent();
         }
 
