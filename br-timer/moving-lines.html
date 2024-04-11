@@ -738,9 +738,24 @@
             // btnSettings.classList.add("icon-button-30");
             btnSettings.addEventListener("click", async evt => {
                 // dialogPattern();
+                const btnCanvasBug = mkElt("button", undefined, "Set canvas bg color");
+                btnCanvasBug.addEventListener("click", evt => {
+                    const c = document.documentElement.querySelector("canvas");
+                    c.style.backgroundColor = "white";
+                });
+                const divDebug = mkElt("div", undefined, [
+                    mkElt("h3", undefined, "Debug"),
+                    mkElt("p", undefined, btnCanvasBug),
+                ]);
+                divDebug.style = `
+                    background-color: yellow;
+                    border: 3px solid red;
+                    padding: 10px;
+                `;
                 const bdy = mkElt("div", { class: "colored-dialog" }, [
                     mkElt("h2", undefined, "Breath speed"),
                     "not implemented yet",
+                    divDebug,
                 ]);
                 modMdc.mkMDCdialogConfirm(bdy);
             });
@@ -902,8 +917,8 @@
             await setupControls(container);
             setCanvasSizes();
             const afterResize = () => {
-                 setCanvasSizes();
-                 if (!isRunning) initCurrentPattern();
+                setCanvasSizes();
+                if (!isRunning) initCurrentPattern();
             }
             const debounceAfterResize = debounce(afterResize);
             addEventListener("resize", evt => { debounceAfterResize(); });
