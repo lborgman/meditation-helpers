@@ -637,7 +637,7 @@
             setCanvasBackgroundToCurrent();
             ctxCanvas = eltCanvas.getContext("2d");
         }
-        async function setupControls(container) {
+        async function setupControls(controlscontainer) {
             const modMdc = await import("util-mdc");
             // const modMdc = await import("http://localhost:8080/public/src/js/mod/util-mdc.js");
             // const btnStart = mkElt("button", undefined, "Start");
@@ -755,7 +755,7 @@
             eltPatternInfo.id = "elt-pattern-info";
 
             const eltPatternButtons = mkElt("span", undefined, [
-                fabImages,
+                // fabImages,
                 fabPattern,
             ]);
             eltPatternButtons.id = "pattern-buttons";
@@ -773,24 +773,22 @@
                 display: flex;
                 gap: 10px;
             `;
-            container.appendChild(divPattern);
             setTimeout(tellCurrentPattern, 100);
 
             tellInitialState();
 
-            const divControls = mkElt("p", undefined, [
+            const divControlsPlay = mkElt("p", undefined, [
                 btnStart,
                 btnReset,
                 divChangeTime,
                 btnSettings,
                 divProgress
             ]);
-            divControls.style = `
+            divControlsPlay.style = `
                 display: flex;
                 gap: 5px;
                 align-items: center;
             `;
-            container.appendChild(divControls);
 
             const chkUseFilter = mkElt("input", { type: "checkbox" });
             chkUseFilter.addEventListener("input", evt => {
@@ -800,8 +798,8 @@
                     document.documentElement.classList.remove("use-filter");
                 }
             });
-            chkUseFilter.style.marginRight = "10px";
-            const lblUseFilter = mkElt("label", undefined, [chkUseFilter, "Dusk/dawn"]);
+            chkUseFilter.style.marginRight = "7px";
+            const lblUseFilter = mkElt("label", undefined, [chkUseFilter, "Dawn"]);
 
 
             const chkSquare = mkElt("input", { type: "checkbox" });
@@ -810,19 +808,42 @@
                 updateCanvasBackground(usedImage);
                 setCanvasSizes();
             });
-            chkSquare.style.marginRight = "10px";
+            chkSquare.style.marginRight = "7px";
             const lblSquare = mkElt("label", undefined, [chkSquare, "Square"]);
 
-            const divControlFilter = mkElt("div", undefined, [
+            fabImages.style.backgroundColor = "transparent";
+            fabImages.style.color = "unset";
+
+            const divControlImage = mkElt("div", undefined, [
+                fabImages,
                 lblUseFilter,
                 lblSquare
             ]);
-            divControlFilter.style = `
+            divControlImage.style = `
                 NOdisplay: flex;
-                gap: 40px;
+                align-items: center;
+                gap: 20px;
+                outline: 1px dotted red;
+                outline: 1px solid #111;
+                border-radius: 20px;
+                min-height: 40px;
+                background: black;
+                padding: 0 15px 0 5px;
             `;
-            divControlFilter.id = "div-control-filter";
-            container.appendChild(divControlFilter);
+            divControlImage.id = "div-control-image";
+            const divOuterControlImage = mkElt("div", undefined, divControlImage);
+            divOuterControlImage.style = `
+                display: flex;
+                justify-content: center;
+                NOoutline: 1px dotted yellow;
+                margin-top: -20px;
+                height: 40px;
+                position: relative;
+            `;
+
+            controlscontainer.appendChild(divOuterControlImage);
+            controlscontainer.appendChild(divPattern);
+            controlscontainer.appendChild(divControlsPlay);
         }
         function setupThings() {
             // const container = document.body;
@@ -863,11 +884,11 @@
         }
 
 
-        #div-control-filter {
+        #div-control-image {
             display: flex;
         }
 
-        .running #div-control-filter {
+        .running #div-control-image {
             display: none;
         }
 
