@@ -117,6 +117,7 @@
         let eltCanvas;
         let ctxCanvas;
         let eltFilter;
+        let useDawnFilter = false;
         let useImage;
 
         let currentPointY = 0;
@@ -386,6 +387,10 @@
             ctxCanvas.lineWidth = 10;
             ctxCanvas.lineCap = "round"; // FIX-ME: does not work?? Bug???
             ctxCanvas.strokeStyle = "yellowgreen";
+            ctxCanvas.strokeStyle = useDawnFilter ?
+                // "orange"
+                "darkorange"
+                : "yellowgreen";
 
             // msLastDraw = Date.now();
             msLastDraw = document.timeline.currentTime;
@@ -795,10 +800,14 @@
             // const eltUseFilter = modMdc.mkMDCcheckboxElt(inpUseFilter, "test") ;
             chkUseFilter.addEventListener("input", evt => {
                 if (chkUseFilter.checked) {
-                    document.documentElement.classList.add("use-filter");
+                    document.documentElement.classList.add("use-dawn-filter");
+                    useDawnFilter = true;
                 } else {
-                    document.documentElement.classList.remove("use-filter");
+                    document.documentElement.classList.remove("use-dawn-filter");
+                    useDawnFilter = false;
                 }
+                // redraw();
+                initCurrentPattern();
             });
             chkUseFilter.style.marginRight = "7px";
             const lblUseFilter = mkElt("label", undefined, [chkUseFilter, "Dawn"]);
@@ -1041,7 +1050,7 @@
             opacity: 0;
         }
 
-        .use-filter #elt-filter {
+        .use-dawn-filter #elt-filter {
             opacity: 1;
         }
     </style>
