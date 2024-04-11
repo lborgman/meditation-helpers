@@ -133,7 +133,8 @@
             "Ujjayi": makeBreathPattern(7, 0, 7, 0),
             "Custom Exercis": makeBreathPattern(2, 4, 3, 5),
         }
-        let currentPattern = "Pranayama";
+        // let currentPattern = "Pranayama";
+        let settingPattern;
 
 
         let currentPointY = 0;
@@ -218,12 +219,14 @@
                 margin-right: 10px;
             `;
             divPatternInfo.textContent = "";
-            const eltName = mkElt("span", undefined, currentPattern);
+            // const eltName = mkElt("span", undefined, currentPattern);
+            const eltName = mkElt("span", undefined, settingPattern.value);
             eltName.style = `
                     font-weight: bold;
                 `;
             divPatternInfo.appendChild(eltName);
-            const strPatt = mkPattString(currentPattern);
+            // const strPatt = mkPattString(currentPattern);
+            const strPatt = mkPattString(settingPattern.value);
             const eltPatt = mkElt("span", { id: "current-patt-parts" }, strPatt);
             divPatternInfo.appendChild(eltPatt);
         }
@@ -283,6 +286,7 @@
                 divPattList,
             ]);
             bdy.id = "dialog-pattern";
+            const currentPattern = settingPattern.value;
             for (const pn in breathPatterns) {
                 console.log({ pn });
                 const rad = mkElt("input", { type: "radio", name: "pattName", value: pn });
@@ -300,7 +304,8 @@
                 funHandleResult,
                 // tellMeOkButton,
             );
-            currentPattern = pattName || currentPattern;
+            // currentPattern = pattName || currentPattern;
+            settingPattern.value = pattName || currentPattern;
             tellCurrentPattern();
             initCurrentPattern();
         }
@@ -876,6 +881,8 @@
                 }
             }
             ourLocalSetting = OurLocalSetting;
+            // let currentPattern = "Pranayama";
+            settingPattern = new ourLocalSetting("pattern", "Pranayama");
 
 
             const container = mkElt("section");
@@ -1089,7 +1096,8 @@
 
 
         function redraw() {
-            let myPatt = breathPatterns[currentPattern];
+            // let myPatt = breathPatterns[currentPattern];
+            let myPatt = breathPatterns[settingPattern.value];
             drawPattern(myPatt, 1.05);
         }
         // checkRedraw();
