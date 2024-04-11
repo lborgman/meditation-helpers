@@ -164,7 +164,12 @@
             ctxCanvas.strokeStyle = "yellow";
             ctxCanvas.strokeStyle = "black";
             ctxCanvas.fillStyle = "red";
-            const clrPoint = () => isRunning ? "yellow" : "yellowgreen";
+            const clrPoint = () => {
+                if (useDawnFilter) { return "darkorange"; }
+                if (isRunning) { return "yellow"; }
+                return "yellowgreen";
+            }
+
             ctxCanvas.fillStyle = clrPoint();
             ctxCanvas.lineWidth = 1;
             // const size = eltCanvas.height / 5;
