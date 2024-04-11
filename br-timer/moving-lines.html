@@ -899,7 +899,7 @@
             `;
             document.body.appendChild(container);
             setupCanvas(container);
-            setupControls(container);
+            await setupControls(container);
             setCanvasSizes();
             setCanvasBackgroundToCurrent();
         }
