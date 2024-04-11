@@ -215,13 +215,13 @@
 
         function mkPattString(pattName) {
             const p = breathPatterns[pattName].patt;
-            const strPatt = `(${p.breathIn}-${p.holdHigh}-${p.breathOut}-${p.holdLow})`;
+            // const strPatt = `(${p.breathIn}-${p.holdHigh}-${p.breathOut}-${p.holdLow})`;
             // return strPatt;
 
-            const eltBreathIn = mkElt("span", { class: "breathIn" }, p.breathIn);
-            const eltHoldHigh = mkElt("span", { class: "holdHigh" }, p.holdHigh);
-            const eltBreathOut = mkElt("span", { class: "breathOut" }, p.breathOut);
-            const eltHoldLow = mkElt("span", { class: "holdLow" }, p.holdLow);
+            const eltBreathIn = mkElt("span", { class: "breathIn" }, p.breathIn.toString());
+            const eltHoldHigh = mkElt("span", { class: "holdHigh" }, p.holdHigh.toString());
+            const eltBreathOut = mkElt("span", { class: "breathOut" }, p.breathOut.toString());
+            const eltHoldLow = mkElt("span", { class: "holdLow" }, p.holdLow.toString());
             const eltPatt = mkElt("span", undefined, [
                 "(",
                 eltBreathIn,
@@ -828,7 +828,7 @@
                 border-radius: 20px;
                 min-height: 40px;
                 background: black;
-                padding: 0 15px 0 5px;
+                padding: 0 15px 0 7px;
             `;
             divControlImage.id = "div-control-image";
             const divOuterControlImage = mkElt("div", undefined, divControlImage);
