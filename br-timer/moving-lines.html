@@ -50,6 +50,7 @@
         {
           "imports": {
             "util-mdc": "../src/js/mod/util-mdc.js",
+            "local-settings": "../src/js/mod/local-settings.js",
             "external-images": "./external-images.js"
           }
         }
@@ -117,8 +118,21 @@
         let eltCanvas;
         let ctxCanvas;
         let eltFilter;
-        let useDawnFilter = false;
         let useImage;
+        let modLocalSettings;
+        // let useDawnFilter = false;
+        let settingDawnFilter;
+
+        const breathPatterns = {
+            "Awake": makeBreathPattern(6, 0, 2, 0),
+            "Square": makeBreathPattern(4, 4, 4, 4),
+            "Deep Calm": makeBreathPattern(4, 7, 8, 0),
+            "Pranayama": makeBreathPattern(7, 4, 8, 4),
+            "Ujjayi": makeBreathPattern(7, 0, 7, 0),
+            "Custom Exercis": makeBreathPattern(2, 4, 3, 5),
+        }
+        let currentPattern = "Pranayama";
+
 
         let currentPointY = 0;
         let middleX;
@@ -126,6 +140,15 @@
         const currentPointCanvas = {
             cX: undefined,
             cY: undefined,
+        }
+
+        let stopRedraw = false;
+        let numChecks = 0;
+        const textForParts = {
+            holdLow: "Hold...",
+            breathIn: "Inhale",
+            holdHigh: "Hold...",
+            breathOut: "Exhale",
         }
 
         function drawCurrentPoint(color) {
@@ -165,7 +188,8 @@
             ctxCanvas.strokeStyle = "black";
             ctxCanvas.fillStyle = "red";
             const clrPoint = () => {
-                if (useDawnFilter) { return "darkorange"; }
+                // if (useDawnFilter) { return "darkorange"; }
+                if (settingDawnFilter.value) { return "darkorange"; }
                 if (isRunning) { return "yellow"; }
                 return "yellowgreen";
             }
@@ -182,15 +206,6 @@
         }
 
 
-        const breathPatterns = {
-            "Awake": makeBreathPattern(6, 0, 2, 0),
-            "Square": makeBreathPattern(4, 4, 4, 4),
-            "Deep Calm": makeBreathPattern(4, 7, 8, 0),
-            "Pranayama": makeBreathPattern(7, 4, 8, 4),
-            "Ujjayi": makeBreathPattern(7, 0, 7, 0),
-            "Custom Exercis": makeBreathPattern(2, 4, 3, 5),
-        }
-        let currentPattern = "Pranayama";
 
         function tellCurrentPattern() {
             const divPatternInfo = document.getElementById("elt-pattern-info");
@@ -288,14 +303,6 @@
             initCurrentPattern();
         }
 
-        let stopRedraw = false;
-        let numChecks = 0;
-        const textForParts = {
-            holdLow: "Hold...",
-            breathIn: "Inhale",
-            holdHigh: "Hold...",
-            breathOut: "Exhale",
-        }
         function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
             const pattY = {
                 holdLow: 0,
@@ -337,7 +344,6 @@
 
         let msLastDraw;
         let pxPerMs;
-        // const msStart = Date.now();
         let msStart = document.timeline.currentTime;
         let canvasSec;
 
@@ -376,7 +382,7 @@
             eltFilter.style.height = `${bcrCanvas.height}px`;
         }
         addEventListener("resize", evt => { setCanvasSizes(); });
-        addEventListener("load", evt => { setCanvasSizes(); });
+        // addEventListener("load", evt => { setCanvasSizes(); });
         function drawPattern(patt, numPatt) {
             // setCanvasSizes(); // FIX-ME: move this to event "resize"
 
@@ -392,12 +398,9 @@
             ctxCanvas.lineWidth = 10;
             ctxCanvas.lineCap = "round"; // FIX-ME: does not work?? Bug???
             ctxCanvas.strokeStyle = "yellowgreen";
-            ctxCanvas.strokeStyle = useDawnFilter ?
-                // "orange"
-                "darkorange"
-                : "yellowgreen";
+            // ctxCanvas.strokeStyle = useDawnFilter ?
+            ctxCanvas.strokeStyle = settingDawnFilter.value ? "darkorange" : "yellowgreen";
 
-            // msLastDraw = Date.now();
             msLastDraw = document.timeline.currentTime;
 
             const p0 = points[0];
@@ -800,22 +803,20 @@
                 align-items: center;
             `;
 
-            const chkUseFilter = mkElt("input", { type: "checkbox" });
-            // const inpUseFilter = modMdc.mkMDCcheckboxInput();
-            // const eltUseFilter = modMdc.mkMDCcheckboxElt(inpUseFilter, "test") ;
-            chkUseFilter.addEventListener("input", evt => {
-                if (chkUseFilter.checked) {
+            const chkUseDawnFilter = mkElt("input", { type: "checkbox" });
+            settingDawnFilter = new modLocalSettings.LocalSetting(STORING_PREFIX, "use-dawn-filter", true);
+            if (settingDawnFilter.value) { document.documentElement.classList.add("use-dawn-filter"); }
+            settingDawnFilter.bindToInput(chkUseDawnFilter);
+            chkUseDawnFilter.addEventListener("input", evt => {
+                if (chkUseDawnFilter.checked) {
                     document.documentElement.classList.add("use-dawn-filter");
-                    useDawnFilter = true;
                 } else {
                     document.documentElement.classList.remove("use-dawn-filter");
-                    useDawnFilter = false;
                 }
-                // redraw();
                 initCurrentPattern();
             });
-            chkUseFilter.style.marginRight = "7px";
-            const lblUseFilter = mkElt("label", undefined, [chkUseFilter, "Dawn"]);
+            chkUseDawnFilter.style.marginRight = "7px";
+            const lblUseFilter = mkElt("label", undefined, [chkUseDawnFilter, "Dawn"]);
 
 
             const chkSquare = mkElt("input", { type: "checkbox" });
@@ -862,8 +863,10 @@
             controlscontainer.appendChild(divPattern);
             controlscontainer.appendChild(divControlsPlay);
         }
-        function setupThings() {
-            // const container = document.body;
+        async function setupThings() {
+            await thePromiseDOMready;
+            modLocalSettings = await import("local-settings");
+
             const container = mkElt("section");
             container.style = `
                 max-height: 100%;
@@ -877,6 +880,7 @@
             `;
             document.body.appendChild(container);
             setupCanvas(container);
+            setCanvasSizes();
             setupControls(container);
         }
 
