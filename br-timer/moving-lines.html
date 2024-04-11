@@ -388,7 +388,7 @@
             eltCanvas.height = bcrCanvas.height;
             eltFilter.style.height = `${bcrCanvas.height}px`;
         }
-        addEventListener("resize", evt => { setCanvasSizes(); });
+        // addEventListener("resize", evt => { setCanvasSizes(); });
         // addEventListener("load", evt => { setCanvasSizes(); });
         function drawPattern(patt, numPatt) {
             // setCanvasSizes(); // FIX-ME: move this to event "resize"
@@ -901,6 +901,7 @@
             setupCanvas(container);
             await setupControls(container);
             setCanvasSizes();
+            addEventListener("resize", evt => { setCanvasSizes(); });
             setCanvasBackgroundToCurrent();
         }
 
