@@ -102,7 +102,10 @@
         const maxRedraw = 120 * 60; // FIX-ME: max 60 seconds 
 
         // let secDuration = 19;
-        let secDuration = 9;
+        let settingDurationSeconds;
+        let settingDurationMinutes;
+        let settingDurationIsInSeconds;
+
         let isRunning = false;
         function isRunningFun() { return document.documentElement.classList.contains("running"); }
         function setStateRunning(on) {
@@ -656,7 +659,11 @@
             // setCanvasBackgroundToCurrent();
             ctxCanvas = eltCanvas.getContext("2d");
         }
+        let secondsDuration;
         async function setupControls(controlscontainer) {
+            settingDurationSeconds = new ourLocalSetting("duration-seconds", 9);
+            settingDurationMinutes = new ourLocalSetting("duration-minutes", 1);
+            settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
             const modMdc = await import("util-mdc");
             // const modMdc = await import("http://localhost:8080/public/src/js/mod/util-mdc.js");
             // const btnStart = mkElt("button", undefined, "Start");
@@ -665,6 +672,10 @@
             // btnStart.classList.add("icon-button-30");
             btnStart.id = "start-button";
             btnStart.addEventListener("click", evt => {
+                secondsDuration = settingDurationIsInSeconds.value ?
+                    settingDurationSeconds.value
+                    :
+                    settingDurationMinutes.value * 60;
                 // document.documentElement.classList.add("running");
                 setStateRunning(true);
                 // console.log({ currentPattern });
@@ -684,12 +695,16 @@
             btnReset.id = "replay-button";
 
             function updateTimeNum() {
-                const elt = document.getElementById("elt-show-time");
-                elt.textContent = `${secDuration} sec`;
+                const elt = document.getElementById("elt-show-duration");
+                if (settingDurationIsInSeconds.value) {
+                    elt.textContent = `${settingDurationSeconds.value} sec`;
+                } else {
+                    elt.textContent = `${settingDurationMinutes.value} min`;
+                }
             }
             setTimeout(() => updateTimeNum(), 1000);
             const eltShowTimeNum = mkElt("span", undefined, "(time)");
-            eltShowTimeNum.id = "elt-show-time";
+            eltShowTimeNum.id = "elt-show-duration";
             eltShowTimeNum.style = `
                     background-color: #0004;
                     padding: 4px;
@@ -703,9 +718,13 @@
                 const iconLess = modMdc.mkMDCicon("expand_circle_down");
                 const btnLess = modMdc.mkMDCiconButton(iconLess, "Shorter");
                 btnLess.addEventListener("click", evt => {
-                    secDuration--;
+                    if (settingDurationIsInSeconds.value) {
+                        settingDurationSeconds.value--;
+                    } else {
+                        settingDurationMinutes.value--;
+                    }
                     updateTimeNum();
-                })
+                });
 
                 // const iconMore = modMdc.mkMDCicon("expand_circle_up");
                 // FIX-ME: For some reason the up version does not work??
@@ -714,7 +733,11 @@
                 iconMore.style.transform = "rotate(180deg)";
                 const btnMore = modMdc.mkMDCiconButton(iconMore, "Longer");
                 btnMore.addEventListener("click", evt => {
-                    secDuration++;
+                    if (settingDurationIsInSeconds.value) {
+                        settingDurationSeconds.value++;
+                    } else {
+                        settingDurationMinutes.value++;
+                    }
                     updateTimeNum();
                 })
 
@@ -742,11 +765,19 @@
                     const c = document.documentElement.querySelector("canvas");
                     c.style.backgroundColor = "white";
                 });
+                const inpMinOrSec = mkElt("input", { type: "checkbox" });
+                const settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
+                settingDurationIsInSeconds.bindToInput(inpMinOrSec);
+                const lblMinOrSec = mkElt("label", undefined, [
+                    inpMinOrSec, "Use seconds for duration (instead of minutes)",
+                ]);
+                ourLocalSetting
                 const divDebug = mkElt("div", undefined, [
                     mkElt("h3", undefined, "Debug"),
                     mkElt("p", undefined, [
                         mkElt("div", undefined, "https://issues.chromium.org/issues/40830060"),
-                        btnCanvasBug,
+                        mkElt("div", undefined, btnCanvasBug),
+                        mkElt("div", undefined, lblMinOrSec),
                     ]),
                 ]);
                 divDebug.style = `
@@ -1135,9 +1166,9 @@
             }
             // const ms = Date.now() - msStart;
             const ms = document.timeline.currentTime - msStart;
-            const partDone = ms / (secDuration * 1000);
+            const partDone = ms / (secondsDuration * 1000);
             progressElement.style.width = `${partDone * progressWidth}px`;
-            if (ms > secDuration * 1000) {
+            if (ms > secondsDuration * 1000) {
                 console.log("stopping time...");
                 clearTopText();
                 tellState("Finished");
