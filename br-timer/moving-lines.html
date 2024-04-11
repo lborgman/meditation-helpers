@@ -122,6 +122,7 @@
         let modLocalSettings;
         // let useDawnFilter = false;
         let settingDawnFilter;
+        let settingSquare;
 
         const breathPatterns = {
             "Awake": makeBreathPattern(6, 0, 2, 0),
@@ -501,8 +502,6 @@
             updateCanvasBackground(useImage);
         };
 
-        let bgStyleSquare = true;
-        bgStyleSquare = false;
         let usedImage;
         function updateCanvasBackground(useImage) {
             usedImage = useImage;
@@ -512,9 +511,9 @@
             const eltParent = eltCanvas.parentElement;
             const eltOldBg = eltParent.firstElementChild;
             if (eltOldBg?.classList.contains(clsBg)) eltOldBg.remove();
-            console.log({ bgStyleSquare, useImage });
             let eltBg;
-            if (bgStyleSquare) {
+            // if (bgStyleSquare) 
+            if (settingSquare.value) {
                 eltBg = mkElt("div");
                 eltBg.style.width = "100%";
                 eltBg.style.height = "100%";
@@ -546,7 +545,8 @@
             eltBg.style.borderRadius = "10px"; // FIX-ME:
 
             eltParent.insertBefore(eltBg, eltParent.firstElementChild);
-            if (bgStyleSquare) {
+            // if (bgStyleSquare) 
+            if (settingSquare.value) {
                 eltParent.style.aspectRatio = "1 / 1";
             } else {
                 eltParent.style.aspectRatio = "unset";
@@ -639,15 +639,15 @@
 
                 myOwn: "https://photos.app.goo.gl/jYiWHQ56oTDUfAcJA",
             };
-            useImage = availableImages.srYellowFlower;
-            useImage = availableImages.myOwn; // does not work, CORS
-            useImage = availableImages.srFlowerAndBees;
-            useImage = availableImages.srRedFlower;
+            // useImage = availableImages.srYellowFlower;
+            // useImage = availableImages.myOwn; // does not work, CORS
+            // useImage = availableImages.srFlowerAndBees;
+            // useImage = availableImages.srRedFlower;
 
 
-            useImage = myGooglePhotos[0];
+            // useImage = myGooglePhotos[0];
 
-            setCanvasBackgroundToCurrent();
+            // setCanvasBackgroundToCurrent();
             ctxCanvas = eltCanvas.getContext("2d");
         }
         async function setupControls(controlscontainer) {
@@ -818,10 +818,11 @@
             chkUseDawnFilter.style.marginRight = "7px";
             const lblUseFilter = mkElt("label", undefined, [chkUseDawnFilter, "Dawn"]);
 
-
             const chkSquare = mkElt("input", { type: "checkbox" });
+            settingSquare = new modLocalSettings.LocalSetting(STORING_PREFIX, "square-canvas", false);
+            settingSquare.bindToInput(chkSquare);
             chkSquare.addEventListener("input", evt => {
-                bgStyleSquare = chkSquare.checked;
+                // bgStyleSquare = chkSquare.checked;
                 updateCanvasBackground(usedImage);
                 setCanvasSizes();
             });
@@ -880,8 +881,9 @@
             `;
             document.body.appendChild(container);
             setupCanvas(container);
-            setCanvasSizes();
             setupControls(container);
+            setCanvasSizes();
+            setCanvasBackgroundToCurrent();
         }
 
     </script>
