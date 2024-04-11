@@ -120,6 +120,7 @@
         let eltFilter;
         let useImage;
         let modLocalSettings;
+        let ourLocalSetting;
         // let useDawnFilter = false;
         let settingDawnFilter;
         let settingSquare;
@@ -804,7 +805,8 @@
             `;
 
             const chkUseDawnFilter = mkElt("input", { type: "checkbox" });
-            settingDawnFilter = new modLocalSettings.LocalSetting(STORING_PREFIX, "use-dawn-filter", true);
+            // settingDawnFilter = new modLocalSettings.LocalSetting(STORING_PREFIX, "use-dawn-filter", true);
+            settingDawnFilter = new ourLocalSetting("use-dawn-filter", true);
             if (settingDawnFilter.value) { document.documentElement.classList.add("use-dawn-filter"); }
             settingDawnFilter.bindToInput(chkUseDawnFilter);
             chkUseDawnFilter.addEventListener("input", evt => {
@@ -819,7 +821,8 @@
             const lblUseFilter = mkElt("label", undefined, [chkUseDawnFilter, "Dawn"]);
 
             const chkSquare = mkElt("input", { type: "checkbox" });
-            settingSquare = new modLocalSettings.LocalSetting(STORING_PREFIX, "square-canvas", false);
+            // settingSquare = new modLocalSettings.LocalSetting(STORING_PREFIX, "square-canvas", false);
+            settingSquare = new ourLocalSetting("square-canvas", false);
             settingSquare.bindToInput(chkSquare);
             chkSquare.addEventListener("input", evt => {
                 // bgStyleSquare = chkSquare.checked;
@@ -867,6 +870,13 @@
         async function setupThings() {
             await thePromiseDOMready;
             modLocalSettings = await import("local-settings");
+            class OurLocalSetting extends modLocalSettings.LocalSetting {
+                constructor(key, defaultValue) {
+                    super(STORING_PREFIX, key, defaultValue);
+                }
+            }
+            ourLocalSetting = OurLocalSetting;
+
 
             const container = mkElt("section");
             container.style = `
