@@ -5,8 +5,10 @@
     <!-- This page © Copyright 2023, Lennart Borgman -->
     <meta name="author" content="Lennart Borgman">
     <meta name="description" content="Meditation breathing timer">
+    <!--
     <link rel="manifest" href="/tl/manifest-tl.json">
     <meta name="theme-color" content="#c0ca33">
+    -->
 
     <title>Meditation breathing timer</title>
     <link rel="icon" type="image/svg+xml" href="/img/tl.svg">
@@ -29,6 +31,7 @@
 
 
     <!-- Required styles for Material Web -->
+    <!-- <link rel="stylesheet" href="/ext/mdc/14.0.0/material-components-web.css"> -->
     <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.css">
 
     <!-- <script src="http://localhost:8080/public/ext/mdc/material-components-web.js"></script> -->
@@ -760,6 +763,52 @@
             const btnSettings = modMdc.mkMDCiconButton(iconSettings, "Start");
             // btnSettings.classList.add("icon-button-30");
             btnSettings.addEventListener("click", async evt => {
+                /*
+                Just useless. Impossible to get to work!
+                // mkMDCslider(min, max, now, step, label, onChange, onInput) 
+                // const eltSlider = await modMdc.mkMDCslider(0.8, 1.2, 1.0, 0.05, "Counts to seconds");
+                const eltSlider = await modMdc.mkMDCslider(80, 120, 100, undefined, "Counts to seconds");
+                const divSlider = mkElt("p", undefined, [
+                    "Counts to seconds:", eltSlider,
+                ]);
+                divSlider.style = `
+                    background-color: red;
+                `;
+                */
+
+
+                // https://www.w3schools.com/howto/howto_js_rangeslider.asp
+
+
+                // Looks like values should be integers.
+                const inpSpeed = mkElt("input", {
+                    type: "range",
+                    min: 80,
+                    max: 120,
+                    value: 100,
+                    class: "slider",
+                });
+                const settingSpeed = new ourLocalSetting("speed", 100);
+                settingSpeed.bindToInput(inpSpeed);
+                const eltOutSpeed = mkElt("span");
+                const tellSpeed = () => {
+                    eltOutSpeed.textContent = `${inpSpeed.value}%`;
+                }
+                tellSpeed();
+                inpSpeed.addEventListener("change", evt => {
+                    console.log("change inpRange", inpSpeed.value);
+                    tellSpeed();
+                });
+                /*
+                inpRange.addEventListener("input", evt => {
+                    console.log("input inpRange", inpRange.value);
+                });
+                */
+                const divSlider = mkElt("p", undefined, [
+                    "Counts to seconds", inpSpeed, eltOutSpeed
+                ]);
+
+
                 const btnCanvasBug = mkElt("button", undefined, "Set canvas bg color");
                 btnCanvasBug.addEventListener("click", evt => {
                     const c = document.documentElement.querySelector("canvas");
@@ -769,14 +818,13 @@
                 const settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
                 settingDurationIsInSeconds.bindToInput(inpMinOrSec);
                 const lblMinOrSec = mkElt("label", undefined, [
-                    inpMinOrSec, "Use seconds for duration (instead of minutes)",
+                    inpMinOrSec, "Duration in seconds",
                 ]);
-                ourLocalSetting
                 const divDebug = mkElt("div", undefined, [
                     mkElt("h3", undefined, "Debug"),
                     mkElt("p", undefined, [
-                        mkElt("div", undefined, "https://issues.chromium.org/issues/40830060"),
-                        mkElt("div", undefined, btnCanvasBug),
+                        // mkElt("div", undefined, "https://issues.chromium.org/issues/40830060"),
+                        // mkElt("div", undefined, btnCanvasBug),
                         mkElt("div", undefined, lblMinOrSec),
                     ]),
                 ]);
@@ -787,7 +835,8 @@
                 `;
                 const bdy = mkElt("div", { class: "colored-dialog" }, [
                     mkElt("h2", undefined, "Breath speed"),
-                    "not implemented yet",
+                    "not much implemented yet",
+                    divSlider,
                     divDebug,
                 ]);
                 modMdc.mkMDCdialogConfirm(bdy);
