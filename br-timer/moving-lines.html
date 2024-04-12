@@ -115,6 +115,7 @@
             if (on) {
                 document.documentElement.classList.add("running");
                 isRunning = true;
+                txtState = "Focus...";
             } else {
                 document.documentElement.classList.remove("running");
                 isRunning = false;
@@ -318,16 +319,16 @@
 
         function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
             const pattY = {
-                holdLow: 0,
                 breathIn: 0,
                 holdHigh: 1,
                 breathOut: 1,
+                holdLow: 0,
             }
             const patt = {
-                holdLow,
                 breathIn,
                 holdHigh,
                 breathOut,
+                holdLow,
             }
             for (const k in patt) {
                 const v = patt[k];
@@ -361,6 +362,7 @@
         let canvasSec;
 
         let txtState;
+        // txtState = "Focus...";
         function tellState(statePart, hideIt) {
             const divInstructions = document.getElementById("elt-instructions");
             txtState = textForParts[statePart] || statePart;
@@ -394,10 +396,9 @@
             eltCanvas.height = bcrCanvas.height;
             eltFilter.style.height = `${bcrCanvas.height}px`;
         }
-        // addEventListener("resize", evt => { setCanvasSizes(); });
-        // addEventListener("load", evt => { setCanvasSizes(); });
+
+        const msFocusLength = 5 * 1000;
         function drawPattern(patt, numPatt) {
-            // setCanvasSizes(); // FIX-ME: move this to event "resize"
 
             ctxCanvas.clearRect(0, 0, eltCanvas.width, eltCanvas.height);
 
@@ -411,7 +412,6 @@
             ctxCanvas.lineWidth = 10;
             ctxCanvas.lineCap = "round"; // FIX-ME: does not work?? Bug???
             ctxCanvas.strokeStyle = "yellowgreen";
-            // ctxCanvas.strokeStyle = useDawnFilter ?
             ctxCanvas.strokeStyle = settingDawnFilter.value ? "darkorange" : "yellowgreen";
 
             msLastDraw = document.timeline.currentTime;
@@ -475,7 +475,7 @@
                 return false;
             }
             function pnt2canvas(pnt) {
-                const sec = (msLastDraw - msStart) / 1000;
+                const sec = (msLastDraw - msStart - msFocusLength) / 1000;
                 const x = pnt.pointX - sec + canvasSec / 2;
                 const pntC = {
                     x: pattX2canvasX(x),
@@ -487,13 +487,15 @@
             function mkPxPerMs() {
                 pxPerMs = eltCanvas.width / (patt.pattW * numPatt);
             }
+
             function pattX2canvasX(pattX) {
-                const msElapsed = msLastDraw - msStart;
-                const msInpattern = msElapsed % Math.floor(patt.pattW * 1000);
-                const currX = pattX - msElapsed / 1000;
+                // const msElapsed = msLastDraw - msStart;
+                // const msElapsed = msLastDraw - (msStart + msFocusLength);
+                // const msInpattern = msElapsed % Math.floor(patt.pattW * 1000);
+                // const currX = pattX - msElapsed / 1000;
                 mkPxPerMs();
                 return pattX * pxPerMs;
-                return currX * pxPerMs;
+                // return currX * pxPerMs;
             }
             function pattY2canvasY(pattY) {
                 const bottom = eltCanvas.height * 0.15;
@@ -567,6 +569,7 @@
                 await wait4mutations(eltParent, 50, undefined, 1000);
                 setCanvasSizes();
                 msStart = document.timeline.currentTime;
+                // txtState = "Focus...";
                 redraw();
                 eltParent.closest("section").style.opacity = "1";
             }
@@ -1225,7 +1228,6 @@
             background: olive;
             cursor: pointer;
         }
-
     </style>
 </head>
 
@@ -1241,8 +1243,7 @@
 
 
         function redraw() {
-            // let myPatt = breathPatterns[currentPattern];
-            let myPatt = breathPatterns[settingPattern.value];
+            const myPatt = breathPatterns[settingPattern.value];
             drawPattern(myPatt, 1.05);
         }
         // checkRedraw();
@@ -1254,8 +1255,8 @@
                 const bcr = progressElement.parentElement.getBoundingClientRect();
                 progressWidth = bcr.width;
             }
-            // const ms = Date.now() - msStart;
-            const ms = document.timeline.currentTime - msStart;
+            // const ms = document.timeline.currentTime - msStart;
+            const ms = document.timeline.currentTime - (msStart + msFocusLength);
             const partDone = ms / (secondsDuration * 1000);
             progressElement.style.width = `${partDone * progressWidth}px`;
             if (ms > secondsDuration * 1000) {
