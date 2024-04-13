@@ -167,7 +167,7 @@ export async function dialogImages(arrBuiltin) {
     // eltNewContainer.tabindex = 0;
     eltNewContainer.setAttribute("tabindex", "0");
     eltNewContainer.style = `
-        width: 50%;
+        max-width: 150px;
         aspect-ratio: 1 / 1;
         outline: 1px dotted red;
         background-color: #80808060;
@@ -197,7 +197,8 @@ export async function dialogImages(arrBuiltin) {
         btnAddNew]);
     divNewPreview.id = "extimg-new-preview";
     divNewPreview.style = `
-        #display: flex;
+        display: grid;
+        grid-template-columns: 1fr min-content;
         gap: 10px;
         align-items: center;
     `;
