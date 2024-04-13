@@ -154,7 +154,7 @@ export async function dialogImages(arrBuiltin) {
     videoNewPreview.style = `
         width: 100%;
         NOheight: 100%;
-        aspect-ratio: 1.6 / 1;
+        NOaspect-ratio: 1.6 / 1;
         display: none;
     `;
     const imgNewPreview = mkElt("img");
