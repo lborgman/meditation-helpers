@@ -16,6 +16,9 @@ console.log("here is external-images.js");
 ///////////////////////////////////////////////////////////////////////
 //////////////////////// Videos ///////////////////////////////////////
 
+// https://github.com/cjpdesign/extract-video-poster/blob/master/js/main.js
+
+
 /////// YouTube (can't be used since it can only be used in an iframe.)
 // https://developers.google.com/youtube/player_parameters
 // https://developers.google.com/youtube/iframe_api_reference
@@ -145,7 +148,8 @@ export async function dialogImages(arrBuiltin) {
 
     const videoNewPreview = mkElt("video");
     videoNewPreview.muted = true;
-    videoNewPreview.autoplay = true;
+    // videoNewPreview.autoplay = true;
+    videoNewPreview.controls = true;
     videoNewPreview.loop = true;
     videoNewPreview.style = `
         width: 100%;
@@ -160,6 +164,8 @@ export async function dialogImages(arrBuiltin) {
         display: none;
     `;
     const eltNewContainer = mkElt("div", undefined, [imgNewPreview, videoNewPreview]);
+    // eltNewContainer.tabindex = 0;
+    eltNewContainer.setAttribute("tabindex", "0");
     eltNewContainer.style = `
         width: 50%;
         aspect-ratio: 1 / 1;
