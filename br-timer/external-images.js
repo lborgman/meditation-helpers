@@ -149,7 +149,7 @@ export async function dialogImages(arrBuiltin) {
     const videoNewPreview = mkElt("video");
     videoNewPreview.muted = true;
     // videoNewPreview.autoplay = true;
-    videoNewPreview.controls = true;
+    videoNewPreview.controls = false;
     videoNewPreview.loop = true;
     videoNewPreview.style = `
         width: 100%;
@@ -157,16 +157,30 @@ export async function dialogImages(arrBuiltin) {
         NOaspect-ratio: 1.6 / 1;
         display: none;
     `;
+
     const imgNewPreview = mkElt("img");
     imgNewPreview.style = `
         width: 100%;
         NOheight: 100%;
         display: none;
     `;
-    const eltNewContainer = mkElt("div", undefined, [imgNewPreview, videoNewPreview]);
+
+    const eltFeedbackImage = mkElt("span", undefined, "Image?");
+    const eltFeedbackVideo = mkElt("span", undefined, "Video?");
+    const divTestFeedback = mkElt("div", undefined, [eltFeedbackImage, eltFeedbackVideo]);
+    divTestFeedback.style = `
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        display: inline-flex;
+        gap: 5px;
+    `;
+
+    const eltNewContainer = mkElt("div", undefined, [divTestFeedback, imgNewPreview, videoNewPreview]);
     // eltNewContainer.tabindex = 0;
     eltNewContainer.setAttribute("tabindex", "0");
     eltNewContainer.style = `
+        position: relative;
         max-width: 150px;
         aspect-ratio: 1 / 1;
         outline: 1px dotted red;
@@ -191,10 +205,42 @@ export async function dialogImages(arrBuiltin) {
             obj.arr.push(valRec);
             debounceSetImagesRec(obj);
         }
-    })
+    });
+
+    const iconPlay = modMdc.mkMDCicon("play_circle");
+    const btnPlay = modMdc.mkMDCiconButton(iconPlay);
+    btnPlay.addEventListener("click", evt => {
+        if (videoNewPreview.readyState == 0) return;
+        if (videoNewPreview.getBoundingClientRect().width == 0) return;
+        videoNewPreview.play();
+        btnPlay.style.display = "none";
+        btnPause.style.display = null;
+    });
+    const iconPause = modMdc.mkMDCicon("pause_circle");
+    const btnPause = modMdc.mkMDCiconButton(iconPause);
+    btnPause.style.display = "none";
+    btnPause.addEventListener("click", evt => {
+        videoNewPreview.pause();
+        btnPlay.style.display = null;
+        btnPause.style.display = "none";
+    });
+    const divPlayButtons = mkElt("div", undefined, [btnPlay, btnPause,]);
+    divPlayButtons.style.visibility = "hidden";
+    const divPreviewButtons = mkElt("div", undefined, [
+        divPlayButtons,
+        btnAddNew,
+    ]);
+    divPreviewButtons.style = `
+        display: grid;
+        grid-template-rows: 1fr;
+        width: 100%;
+        background-color: red;
+        outline: 1px dotted blue;
+    `;
     const divNewPreview = mkElt("div", undefined, [
         eltNewContainer,
-        btnAddNew]);
+        divPreviewButtons
+    ]);
     divNewPreview.id = "extimg-new-preview";
     divNewPreview.style = `
         display: grid;
@@ -218,23 +264,44 @@ export async function dialogImages(arrBuiltin) {
         });
     }
 
-    const debounceCheckIsImage = debounce(checkIsImage, 700);
+    const debounceCheckIsImage = debounce(checkInpUrl, 700);
+
+    let stateInpUrl;
 
     const inpURL = modMdc.mkMDCtextFieldInput(undefined, "url");
-    async function checkIsImage(urlImage) {
-        // if (!inpURL.validity.valid) return;
+    async function checkInpUrl(urlImage) {
+        let newStateInpUrl = undefined;
         if (!inpURL.checkValidity()) return;
+
+        divTestFeedback.style.visibility = "visible";
+        imgNewPreview.style.display = "none";
+        videoNewPreview.style.display = "none";
+
+        eltFeedbackImage.style.fontSize = "1.3rem";
+        eltFeedbackImage.style.color = "red";
         let res = await isImage(urlImage);
+        eltFeedbackImage.style.fontSize = null;
+        eltFeedbackImage.style.color = null;
         console.log({ res }, "image");
         if (res) {
-            imgNewPreview.style.display = null;
+            newStateInpUrl = "image";
+            // imgNewPreview.style.display = null;
         } else {
+            eltFeedbackVideo.style.fontSize = "1.3rem";
+            eltFeedbackVideo.style.color = "red";
             res = await isVideo(urlImage);
+            eltFeedbackVideo.style.fontSize = null;
+            eltFeedbackVideo.style.color = null;
             console.log({ res }, "video");
             if (res) {
-                videoNewPreview.style.display = null;
+                newStateInpUrl = "video";
             }
         }
+
+        divTestFeedback.style.visibility = "hidden";
+
+        debounceTellUserAboutUrl(newStateInpUrl);
+        return;
         if (!res) {
             btnAddNew.style.display = "none";
             inpURL.setCustomValidity("Is this an image/video? Does CORS prevent access to it?");
@@ -247,7 +314,32 @@ export async function dialogImages(arrBuiltin) {
 
     // inpURL.classList.add("remember-url");
     const reportInpURLvalidity = () => inpURL.reportValidity();
-    const debounceReportInpURLvalidity = debounce(reportInpURLvalidity, 3000);
+    // const debounceReportInpURLvalidity = debounce(reportInpURLvalidity, 3000);
+
+    const tellUserAboutUrl = (state) => {
+        reportInpURLvalidity();
+        stateInpUrl = state;
+        btnPlay.style.display = null;
+        btnPause.style.display = "none";
+        divPlayButtons.style.visibility = "hidden";
+        imgNewPreview.style.display = "none";
+        videoNewPreview.style.display = "none";
+        switch (stateInpUrl) {
+            case undefined:
+                break;
+            case "image":
+                imgNewPreview.style.display = null;
+                break;
+            case "video":
+                divPlayButtons.style.visibility = null;
+                videoNewPreview.style.display = null;
+                break;
+            default:
+                throw Error(`Unknown stateInpUrl: ${stateInpUrl}`);
+        }
+    }
+    const debounceTellUserAboutUrl = debounce(tellUserAboutUrl, 3000);
+
     inpURL.addEventListener("input", evt => {
         const val = inpURL.value.trim();
         if (val.length < 15) {
@@ -262,28 +354,32 @@ export async function dialogImages(arrBuiltin) {
                 console.log("start https:");
                 inpURL.setCustomValidity("Link must start with https://");
                 // inpURL.reportValidity();
-                debounceReportInpURLvalidity();
+                // debounceReportInpURLvalidity();
+                debounceTellUserAboutUrl();
                 return;
             }
             if (u.hostname.search("\\.") == -1) {
                 console.log("top level");
                 inpURL.setCustomValidity("Link must contain a top level domain");
                 // inpURL.reportValidity();
-                debounceReportInpURLvalidity();
+                // debounceReportInpURLvalidity();
+                debounceTellUserAboutUrl();
                 return;
             }
         } catch (err) {
             console.log("not");
             inpURL.setCustomValidity("Not a valid URL");
             // inpURL.reportValidity();
-            debounceReportInpURLvalidity();
+            // debounceReportInpURLvalidity();
+            debounceTellUserAboutUrl();
             return;
         }
         inpURL.setCustomValidity("");
         const valid = inpURL.checkValidity();
         if (!valid) {
             evt.stopImmediatePropagation();
-            debounceReportInpURLvalidity();
+            // debounceReportInpURLvalidity();
+            debounceTellUserAboutUrl();
         }
         debounceCheckIsImage(val);
     });
