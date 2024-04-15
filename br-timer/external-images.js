@@ -177,7 +177,6 @@ export async function dialogImages(arrBuiltin) {
     `;
 
     const eltNewContainer = mkElt("div", undefined, [divTestFeedback, imgNewPreview, videoNewPreview]);
-    // eltNewContainer.tabindex = 0;
     eltNewContainer.setAttribute("tabindex", "0");
     eltNewContainer.style = `
         position: relative;
@@ -209,22 +208,33 @@ export async function dialogImages(arrBuiltin) {
 
     const iconPlay = modMdc.mkMDCicon("play_circle");
     const btnPlay = modMdc.mkMDCiconButton(iconPlay);
+    btnPlay.setAttribute("Xtabindex", 0);
     btnPlay.addEventListener("click", evt => {
+        // evt.stopImmediatePropagation();
+        // evt.stopPropagation();
+        // evt.preventDefault();
         if (videoNewPreview.readyState == 0) return;
         if (videoNewPreview.getBoundingClientRect().width == 0) return;
         videoNewPreview.play();
+        eltNewContainer.focus();
         btnPlay.style.display = "none";
         btnPause.style.display = null;
     });
     const iconPause = modMdc.mkMDCicon("pause_circle");
     const btnPause = modMdc.mkMDCiconButton(iconPause);
+    btnPause.setAttribute("Xtabindex", 0);
     btnPause.style.display = "none";
     btnPause.addEventListener("click", evt => {
+        // evt.stopImmediatePropagation();
+        // evt.stopPropagation();
+        // evt.preventDefault();
         videoNewPreview.pause();
+        eltNewContainer.focus();
         btnPlay.style.display = null;
         btnPause.style.display = "none";
     });
     const divPlayButtons = mkElt("div", undefined, [btnPlay, btnPause,]);
+    divPlayButtons.setAttribute("tabindex", 0);
     divPlayButtons.style.visibility = "hidden";
     const divPreviewButtons = mkElt("div", undefined, [
         divPlayButtons,
@@ -243,7 +253,7 @@ export async function dialogImages(arrBuiltin) {
     ]);
     divNewPreview.id = "extimg-new-preview";
     divNewPreview.style = `
-        display: grid;
+        NOdisplay: grid;
         grid-template-columns: 1fr min-content;
         gap: 10px;
         align-items: center;
@@ -276,6 +286,7 @@ export async function dialogImages(arrBuiltin) {
         divTestFeedback.style.visibility = "visible";
         imgNewPreview.style.display = "none";
         videoNewPreview.style.display = "none";
+        btnAddNew.style.display = "none";
 
         eltFeedbackImage.style.fontSize = "1.3rem";
         eltFeedbackImage.style.color = "red";
@@ -328,11 +339,13 @@ export async function dialogImages(arrBuiltin) {
             case undefined:
                 break;
             case "image":
-                imgNewPreview.style.display = null;
+                imgNewPreview.style.display = null
+                btnAddNew.style.display = null;
                 break;
             case "video":
                 divPlayButtons.style.visibility = null;
                 videoNewPreview.style.display = null;
+                btnAddNew.style.display = null;
                 break;
             default:
                 throw Error(`Unknown stateInpUrl: ${stateInpUrl}`);
