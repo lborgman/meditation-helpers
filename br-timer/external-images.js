@@ -191,11 +191,11 @@ export async function dialogImages(arrBuiltin) {
     btnAddNew.style.display = "none";
     btnAddNew.addEventListener("click", evt => {
         const val = inpURL.value.trim();
-        const isVideo = false;
+        const isVideo = videoNewPreview.getBoundingClientRect().width > 0;
         let catMark = "";
         if (isVideo) catMark = "V";
         addImagesRec(val, catMark);
-        const divRec = mkImgChoice(val, false, true);
+        const divRec = mkImgChoice(catMark + val, false);
         divOldUrls.appendChild(divRec);
         function addImagesRec(val, catMark) {
             if (!["V", ""].includes(catMark)) throw Error(`Unknown category: "${catMark}"`);
@@ -417,13 +417,25 @@ export async function dialogImages(arrBuiltin) {
         if (url.startsWith("https://lh3.googleusercontent.com")) {
             if (Array.from(url.matchAll("=")).length != 1) { debugger; }
             const lastEq = url.lastIndexOf("=");
-            const ending = url.slice(lastEq);
             // Resize to max 200 w/h, works 2024-04-09
             urlPreview = url.slice(0, lastEq) + "=s200"; // 20 kB
         }
-        const eltImg = mkElt("img", { src: urlPreview });
-        eltImg.style.width = "100%";
-        const eltImgContainer = mkElt("span", undefined, eltImg);
+        let eltBg;
+        if (url.startsWith("V")) {
+            debugger;
+            urlPreview = url.slice(1);
+            const eltVideo = mkElt("video");
+            eltVideo.loop = false;
+            eltVideo.autoplay = false;
+            eltVideo.controls = false;
+            eltBg = eltVideo;
+        } else {
+            const eltImg = mkElt("img");
+            eltBg = eltImg;
+        }
+        eltBg.src = urlPreview;
+        eltBg.style.width = "100%";
+        const eltImgContainer = mkElt("span", undefined, eltBg);
         eltImgContainer.style = `
             width: 30%;
             display: inline-block;
