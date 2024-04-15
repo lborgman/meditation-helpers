@@ -516,9 +516,28 @@
             updateCanvasBackground(useImage);
         };
 
-        let usedImage;
-        function updateCanvasBackground(useImage) {
-            usedImage = useImage;
+        let usedImageOrVideo;
+        async function updateCanvasBackground(useImageOrVideo) {
+            let eltVideo;
+            let videoH, videoW;
+            if (useImageOrVideo.startsWith("V")) {
+                eltVideo = mkElt("video");
+                eltVideo.muted = true;
+                eltVideo.controls = false;
+                eltVideo.loop = true;
+                eltVideo.autoplay = true;
+                await new Promise((resolve, reject) => {
+                    eltVideo.addEventListener("loadedmetadata", evt => {
+                        const targ = evt.target;
+                        videoH = targ.videoHeight;
+                        videoW = targ.videoWidth;
+                        resolve();
+                    });
+                    eltVideo.src = useImageOrVideo.slice(1);
+                });
+            }
+            // eltVideo = undefined;
+            usedImageOrVideo = useImageOrVideo;
             // eltCanvas.style.backgroundImage = `url(${useImage})`; return;
             const clsBg = "canvas-bg";
             const eltCanvas = document.getElementById("elt-canvas");
@@ -526,34 +545,47 @@
             const eltOldBg = eltParent.firstElementChild;
             if (eltOldBg?.classList.contains(clsBg)) eltOldBg.remove();
             let eltBg;
-            // if (bgStyleSquare) 
             if (settingSquare.value) {
-                eltBg = mkElt("div");
-                eltBg.style.width = "100%";
-                eltBg.style.height = "100%";
-                eltBg.style.backgroundPosition = "center";
-                eltBg.style.backgroundSize = "cover";
-                eltBg.style.backgroundRepeat = "no-repeat";
-                eltBg.style.backgroundImage = `url(${useImage})`;
-                // setTimeout(() => { showIt(); }, 500);
-                showIt();
-            } else {
-                eltBg = mkElt("img");
-                eltBg.style.maxWidth = "100%";
-                eltBg.style.maxWeight = "100%";
-                eltBg.onload = () => { showIt(); }
-                let testedTimout = false;
-                eltBg.onerror = () => {
-                    // FIX-ME: There seems to be timeout errors. How to handle them?
-                    console.log("Could not load image", useImage);
-                    if (!testedTimout) {
-                        testedTimout = true;
-                        setTimeout(() => eltBg.src = useImage, 500);
-                        return;
-                    }
+                if (eltVideo) {
+                    debugger;
+                    eltBg = eltVideo;
+                    eltBg.style.width = "100%";
+                    showIt();
+                } else {
+                    eltBg = mkElt("div");
+                    eltBg.style.width = "100%";
+                    eltBg.style.height = "100%";
+                    eltBg.style.backgroundPosition = "center";
+                    eltBg.style.backgroundSize = "cover";
+                    eltBg.style.backgroundRepeat = "no-repeat";
+                    eltBg.style.backgroundImage = `url(${useImageOrVideo})`;
                     showIt();
                 }
-                eltBg.src = useImage;
+            } else {
+                if (eltVideo) {
+                    debugger;
+                    eltBg = eltVideo;
+                    eltBg.style.maxWidth = "100%";
+                    eltBg.style.maxHeight = "100%";
+                    showIt();
+                } else {
+                    eltBg = mkElt("img");
+                    eltBg.style.maxWidth = "100%";
+                    eltBg.style.maxWeight = "100%";
+                    eltBg.onload = () => { showIt(); }
+                    let testedTimout = false;
+                    eltBg.onerror = () => {
+                        // FIX-ME: There seems to be timeout errors. How to handle them?
+                        console.log("Could not load image", useImageOrVideo);
+                        if (!testedTimout) {
+                            testedTimout = true;
+                            setTimeout(() => eltBg.src = useImageOrVideo, 500);
+                            return;
+                        }
+                        showIt();
+                    }
+                    eltBg.src = useImageOrVideo;
+                }
             }
             eltBg.classList.add(clsBg);
             eltBg.style.borderRadius = "10px"; // FIX-ME:
@@ -577,6 +609,7 @@
 
         function setupCanvas(container) {
             const container4canvas = mkElt("div");
+            container4canvas.id = "container-4-canvas";
             container4canvas.style = `
                 position: relative;
                 background-color: darkgoldenrod;
@@ -919,7 +952,6 @@
             `;
 
             const chkUseDawnFilter = mkElt("input", { type: "checkbox" });
-            // settingDawnFilter = new modLocalSettings.LocalSetting(STORING_PREFIX, "use-dawn-filter", true);
             settingDawnFilter = new ourLocalSetting("use-dawn-filter", true);
             if (settingDawnFilter.value) { document.documentElement.classList.add("use-dawn-filter"); }
             settingDawnFilter.bindToInput(chkUseDawnFilter);
@@ -940,7 +972,7 @@
             settingSquare.bindToInput(chkSquare);
             chkSquare.addEventListener("input", evt => {
                 // bgStyleSquare = chkSquare.checked;
-                updateCanvasBackground(usedImage);
+                updateCanvasBackground(usedImageOrVideo);
                 setCanvasSizes();
             });
             chkSquare.style.marginRight = "7px";

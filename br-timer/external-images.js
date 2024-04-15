@@ -422,7 +422,6 @@ export async function dialogImages(arrBuiltin) {
         }
         let eltBg;
         if (url.startsWith("V")) {
-            debugger;
             urlPreview = url.slice(1);
             const eltVideo = mkElt("video");
             eltVideo.loop = false;
