@@ -23,7 +23,7 @@ export class LocalSetting {
         this.#cachedValue = this.#defaultValue;
     }
     get value() {
-        console.warn("%cget value", "background:red;");
+        // console.warn("%cget value", "background:red;");
         return this.getCachedValue();
     }
     set value(val) {

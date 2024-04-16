@@ -240,8 +240,9 @@
 
         function initCurrentPattern() {
             setStateRunning(false);
-            msStart = document.timeline.currentTime;
             tellInitialState();
+            msStart = document.timeline.currentTime;
+            console.log("msStart =, initCurrentPattern");
             redraw();
         }
 
@@ -358,7 +359,7 @@
 
         let msLastDraw;
         let pxPerMs;
-        let msStart = document.timeline.currentTime;
+        let msStart;
         let canvasSec;
 
         let txtState;
@@ -489,13 +490,8 @@
             }
 
             function pattX2canvasX(pattX) {
-                // const msElapsed = msLastDraw - msStart;
-                // const msElapsed = msLastDraw - (msStart + msFocusLength);
-                // const msInpattern = msElapsed % Math.floor(patt.pattW * 1000);
-                // const currX = pattX - msElapsed / 1000;
                 mkPxPerMs();
                 return pattX * pxPerMs;
-                // return currX * pxPerMs;
             }
             function pattY2canvasY(pattY) {
                 const bottom = eltCanvas.height * 0.15;
@@ -600,9 +596,12 @@
             async function showIt() {
                 await wait4mutations(eltParent, 50, undefined, 1000);
                 setCanvasSizes();
+
+                // Needed for redraw:
                 msStart = document.timeline.currentTime;
-                // txtState = "Focus...";
+                console.log("msStart =, showIt");
                 redraw();
+
                 eltParent.closest("section").style.opacity = "1";
             }
         }
@@ -715,11 +714,22 @@
                     settingDurationSeconds.value
                     :
                     settingDurationMinutes.value * 60;
-                // document.documentElement.classList.add("running");
+
+                // Whole patterns:
+                const pattRec = breathPatterns[settingPattern.value];
+                const secPatt = pattRec.pattW;
+                const rest = secondsDuration % secPatt;
+                let repetitions = Math.floor(secondsDuration / secPatt);
+                if (rest > 0.01) repetitions++;
+                secondsDuration = repetitions * secPatt - 0.01;
+                const secLow = pattRec.patt.holdLow;
+                secondsDuration -= secLow;
+
+                debugger;
+
                 setStateRunning(true);
-                // console.log({ currentPattern });
-                // isRunning = true;
                 msStart = document.timeline.currentTime;
+                console.log("msStart =, btnStart");
                 numChecks = 0;
                 numRedraw = 0;
                 animateLines();
@@ -1285,13 +1295,6 @@
 <body>
     <script>
         setupThings();
-        /*
-        setTimeout(() => {
-            msStart = document.timeline.currentTime;
-            redraw();
-        }, 100);
-        */
-
 
         function redraw() {
             const myPatt = breathPatterns[settingPattern.value];
@@ -1306,7 +1309,6 @@
                 const bcr = progressElement.parentElement.getBoundingClientRect();
                 progressWidth = bcr.width;
             }
-            // const ms = document.timeline.currentTime - msStart;
             const ms = document.timeline.currentTime - (msStart + msFocusLength);
             const partDone = ms / (secondsDuration * 1000);
             progressElement.style.width = `${partDone * progressWidth}px`;
