@@ -858,19 +858,37 @@
                     const c = document.documentElement.querySelector("canvas");
                     c.style.backgroundColor = "white";
                 });
+
+
                 const inpMinOrSec = mkElt("input", { type: "checkbox" });
                 const settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
                 settingDurationIsInSeconds.bindToInput(inpMinOrSec);
                 const lblMinOrSec = mkElt("label", undefined, [
                     inpMinOrSec, "Duration in seconds",
                 ]);
+                const divMinOrSec = mkElt("p", undefined, [
+                    // mkElt("div", undefined, "https://issues.chromium.org/issues/40830060"),
+                    // mkElt("div", undefined, btnCanvasBug),
+                    mkElt("div", undefined, lblMinOrSec),
+                ]);
+
+                const divNW = mkElt("p", undefined, ['Navigator Connection API not supported']);
+                if (navigator.connection) {
+                    divNW.textContent = "";
+                    const nc = navigator.connection;
+                    const addRow = (str) => { divNW.appendChild(mkElt("div", undefined, str)); }
+                    addRow(`Effective network type: ${nc.effectiveType}`);
+                    addRow(`Downlink Speed: ${nc.downlink}Mb/s`);
+                    addRow(`Downlink Max Speed: ${nc.downlinkMax}Mb/s`);
+                    addRow(`Round Trip Time: ${nc.rtt}ms`);
+                    addRow(`Save data: ${nc.saveData}`);
+                }
+
                 const divDebug = mkElt("div", undefined, [
                     mkElt("h3", undefined, "Debug"),
-                    mkElt("p", undefined, [
-                        // mkElt("div", undefined, "https://issues.chromium.org/issues/40830060"),
-                        // mkElt("div", undefined, btnCanvasBug),
-                        mkElt("div", undefined, lblMinOrSec),
-                    ]),
+                    divMinOrSec,
+                    mkElt("h3", undefined, "Network"),
+                    divNW,
                 ]);
                 divDebug.style = `
                     background-color: yellow;
