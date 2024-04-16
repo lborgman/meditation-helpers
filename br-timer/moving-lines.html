@@ -878,8 +878,9 @@
                     const nc = navigator.connection;
                     const addRow = (str) => { divNW.appendChild(mkElt("div", undefined, str)); }
                     addRow(`Effective network type: ${nc.effectiveType}`);
+                    addRow(`⚠ Network type: ${nc.type}`);
                     addRow(`Downlink Speed: ${nc.downlink}Mb/s`);
-                    addRow(`Downlink Max Speed: ${nc.downlinkMax}Mb/s`);
+                    addRow(`⚠ Downlink Max Speed: ${nc.downlinkMax}Mb/s`);
                     addRow(`Round Trip Time: ${nc.rtt}ms`);
                     addRow(`Save data: ${nc.saveData}`);
                 }
