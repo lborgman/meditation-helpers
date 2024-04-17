@@ -111,21 +111,16 @@ const debounceSetImagesRec = debounce(setImagesRec, 1000);
 export function getCurrentImageUrl(arrBuiltin) {
     const { choice, arr } = getImagesRec();
     if (choice == "random") {
+        // Don't include videos:
+        const arrChoices = [...arrBuiltin, ...arr].filter(entry => {
+            // console.log({ entry });
+            return !entry.startsWith("V");
+        });
         // const idxGP = Math.floor(Math.random() * arrBuiltin.length);
-
-        const lenB = arrBuiltin.length
-        const lenArr = arr ? arr.length : 0;
-        const numChoices = lenB + lenArr;
         const a = new Uint32Array(6);
         self.crypto.getRandomValues(a);
-        const idx1 = a[0] % numChoices
-        if (idx1 < lenB) {
-            return arrBuiltin[idx1]
-        }
-        const idx2 = idx1 % lenB;
-        return arr[idx2];
-        // console.log({ idxGP: idx1 }, arrBuiltin.length, numChoices);
-
+        const idx1 = a[0] % arrChoices.length;
+        return arrChoices[idx1];
     }
     return choice;
 }
@@ -421,12 +416,14 @@ export async function dialogImages(arrBuiltin) {
             urlPreview = url.slice(0, lastEq) + "=s200"; // 20 kB
         }
         let eltBg;
-        if (url.startsWith("V")) {
+        const isVideoChoice = url.startsWith("V");
+        if (isVideoChoice) {
             urlPreview = url.slice(1);
             const eltVideo = mkElt("video");
             eltVideo.loop = false;
             eltVideo.autoplay = false;
             eltVideo.controls = false;
+            eltVideo.preload = "metadata";
             eltBg = eltVideo;
         } else {
             const eltImg = mkElt("img");
@@ -489,12 +486,18 @@ export async function dialogImages(arrBuiltin) {
         } else {
             eltHandle = mkElt("span", undefined, "Built in");
         }
-        const lblImg = mkElt("label", undefined, [radImg, eltImgContainer, eltHandle]);
+        const tellVideo = isVideoChoice ? mkElt("span", undefined, "(⚠ video)") : "";
+        if (tellVideo.tagName == "SPAN") {
+            tellVideo.style = `
+                color: darkred;
+                font-size: 1.2rem;
+            `;
+        }
+        const lblImg = mkElt("label", undefined, [radImg, eltImgContainer, eltHandle, tellVideo]);
         lblImg.style = `
                 display: flex;
                 gap: 10px;
             `;
-        // const divRec = mkElt("div", undefined, [lblImg]);
         return mkElt("div", undefined, [lblImg]);
     }
 
