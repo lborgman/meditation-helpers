@@ -128,7 +128,6 @@
         let useImage;
         let modLocalSettings;
         let ourLocalSetting;
-        // let useDawnFilter = false;
         let settingDawnFilter;
         let settingSquare;
 
@@ -661,7 +660,8 @@
 
             const filters = [];
             filters.push("brightness(0.6)");
-            filters.push("blur(1px)");
+            // filters.push("blur(1px)");
+            filters.push("blur(0.5px)");
             eltFilterFilter.style.backdropFilter = filters.join(" ");
 
             eltFilterColor.style.backgroundColor = "#f503";
