@@ -469,6 +469,7 @@
             function lineTo(pnt) {
                 // console.log("lineTo", pnt);
                 const pntCanvas = pnt2canvas(pnt);
+                if (!pntCanvas) return false;
                 ctxCanvas.lineTo(pntCanvas.x, pntCanvas.y);
                 if (pntCanvas.x < eltCanvas.width) {
                     return pntCanvas.x; // So we don't have to calculate it again...
@@ -476,8 +477,12 @@
                 return false;
             }
             function pnt2canvas(pnt) {
+                // secondsDur
                 const sec = (msLastDraw - msStart - msFocusLength) / 1000;
+                // if (sec > secondsDuration) { return; }
+                if (pnt.pointX > secondsDuration) { return; }
                 const x = pnt.pointX - sec + canvasSec / 2;
+                // if (x > secondsDuration) { return; }
                 const pntC = {
                     x: pattX2canvasX(x),
                     y: pattY2canvasY(pnt.pointY),
@@ -721,11 +726,11 @@
                 const rest = secondsDuration % secPatt;
                 let repetitions = Math.floor(secondsDuration / secPatt);
                 if (rest > 0.01) repetitions++;
-                secondsDuration = repetitions * secPatt - 0.01;
+                secondsDuration = repetitions * secPatt + 0.01;
                 const secLow = pattRec.patt.holdLow;
                 secondsDuration -= secLow;
 
-                debugger;
+                // debugger;
 
                 setStateRunning(true);
                 msStart = document.timeline.currentTime;
