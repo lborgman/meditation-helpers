@@ -137,7 +137,7 @@
             "Deep Calm": makeBreathPattern(4, 7, 8, 0),
             "Pranayama": makeBreathPattern(7, 4, 8, 4),
             "Ujjayi": makeBreathPattern(7, 0, 7, 0),
-            "Custom Exercis": makeBreathPattern(2, 4, 3, 5),
+            "Your own": makeBreathPattern(2, 4, 3, 5),
         }
         // let currentPattern = "Pranayama";
         let settingPattern;
@@ -294,13 +294,74 @@
             ]);
             bdy.id = "dialog-pattern";
             const currentPattern = settingPattern.value;
-            for (const pn in breathPatterns) {
+            const builtinPn = Object.keys(breathPatterns).sort();
+            builtinPn.forEach(pn => { addPn(pn); });
+
+            const settingYourPatt = new ourLocalSetting("your-patterns", []);
+
+            divPattList.appendChild(mkElt("h3", undefined, "Your Own:"));
+            const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
+            const divBtnAddPatt = mkElt("div", undefined, btnAddPatt);
+            divBtnAddPatt.addEventListener("click", evt => {
+                const bdy = mkElt("div", undefined, mkElt("h2", undefined, "Add your own pattern"));
+                const inpName = mkElt("input", {type:"text"});
+                const lblName = mkElt("label", undefined, ["Pattern name: ", inpName]);
+                bdy.appendChild(mkElt("p", undefined, lblName));
+
+                const parts = {}
+                const addAlt = (pattPart, pattLabel) => {
+                    /*
+                        holdLow: "Hold...",
+                        breathIn: "Inhale",
+                        holdHigh: "Hold...",
+                        breathOut: "Exhale",
+                    */
+                    const inp = mkElt("input", {
+                                    type: "number",
+                                    min: 0,
+                                    max: 8,
+                                    value: 4,
+                                    // placeholder: "0 sec",
+                                });
+                    inp.style = `
+                        width: 30px;
+                    `;
+                    const lbl = mkElt("label", undefined, [inp, pattLabel]);
+                    const divAlt = mkElt("div", undefined, lbl);
+                    bdy.appendChild(divAlt);
+                    parts[pattPart] = inp;
+                }
+                addAlt("breathIn", "Inhale");
+                addAlt("holdHigh", "Hold (high)");
+                addAlt("breathOut", "Exhale");
+                addAlt("holdLow", "Hold (low)");
+
+                modMdc.mkMDCdialogConfirm(bdy, "Save", undefined);
+            });
+
+
+            divPattList.appendChild(divBtnAddPatt);
+            // const yourPn = sortedPn.filter(pn => pn.startsWith(" "));
+            const yourPn = settingYourPatt.value;
+            yourPn.forEach(pn => { addPn(pn); });
+
+            function addPn(pn) {
                 console.log({ pn });
                 const rad = mkElt("input", { type: "radio", name: "pattName", value: pn });
                 if (currentPattern == pn) rad.checked = true;
                 const eltName = mkElt("b", undefined, pn);
                 eltName.style = `margin-right: 5px; margin-left: 5px;`;
-                const eltInfo = mkElt("span", undefined, [eltName, mkPattString(pn)]);
+                const strPatt = mkPattString(pn);
+                const isCustom = eltName.textContent.startsWith("Your");
+                let eltPatt = strPatt;
+                if (isCustom) {
+                    const btnCustom = modMdc.mkMDCbutton(strPatt, "outlined");
+                    eltPatt = btnCustom;
+                    btnCustom.addEventListener("click", evt => {
+                        alert("not ready");
+                    });
+                }
+                const eltInfo = mkElt("span", undefined, [eltName, eltPatt]);
                 // eltInfo.style = ` display: flex; gap: 5px; `;
                 // const lbl = mkElt("label", undefined, [rad, pn]);
                 const lbl = mkElt("label", undefined, [rad, eltInfo]);
