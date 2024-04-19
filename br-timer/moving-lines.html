@@ -302,12 +302,13 @@
             divPattList.appendChild(mkElt("h3", undefined, "Your Own:"));
             const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
             const divBtnAddPatt = mkElt("div", undefined, btnAddPatt);
-            divBtnAddPatt.addEventListener("click", evt => {
+            divBtnAddPatt.addEventListener("click", errorHandlerAsyncEvent(async evt => {
                 const bdy = mkElt("div", undefined, mkElt("h2", undefined, "Add your own pattern"));
-                const inpName = mkElt("input", {type:"text"});
+                const inpName = mkElt("input", { type: "text" });
                 const lblName = mkElt("label", undefined, ["Pattern name: ", inpName]);
                 bdy.appendChild(mkElt("p", undefined, lblName));
 
+                let saveButton;
                 const parts = {}
                 const addAlt = (pattPart, pattLabel) => {
                     /*
@@ -317,12 +318,12 @@
                         breathOut: "Exhale",
                     */
                     const inp = mkElt("input", {
-                                    type: "number",
-                                    min: 0,
-                                    max: 8,
-                                    value: 4,
-                                    // placeholder: "0 sec",
-                                });
+                        type: "number",
+                        min: 0,
+                        max: 8,
+                        value: 4,
+                        // placeholder: "0 sec",
+                    });
                     inp.style = `
                         width: 30px;
                     `;
@@ -336,8 +337,40 @@
                 addAlt("breathOut", "Exhale");
                 addAlt("holdLow", "Hold (low)");
 
-                modMdc.mkMDCdialogConfirm(bdy, "Save", undefined);
-            });
+                function currentValue() {
+                    const val = {};
+                    val.name = inpName.value;
+                    val.patt = {};
+                    for (pv in parts) {
+                        val.patt[pv] = parts[pv].value;
+                    }
+                    return JSON.stringify(val);
+                }
+                const initialValue = currentValue();
+                const checkCanSave = () => {
+                    const canSave = currentValue() != initialValue;
+                    saveButton.disabled = !canSave;
+                }
+                const debounceCheckCanSave = debounce(checkCanSave, 500);
+                bdy.addEventListener("input", evt => {
+                    debounceCheckCanSave();
+                });
+
+
+                const funResult = () => {
+                    return "this si the result";
+                };
+                const funOkButton = (btn) => {
+                    saveButton = btn;
+                    saveButton.disabled = true;
+                };
+                // mkMDCdialogConfirm(body, titleOk, titleCancel, noCancel, funHandleResult, tellMeOkButton) {
+                const res = await modMdc.mkMDCdialogConfirm(bdy, "Save", undefined, undefined, funResult, funOkButton);
+                debugger;
+                if (res != false) {
+                    debugger;
+                }
+            }));
 
 
             divPattList.appendChild(divBtnAddPatt);
