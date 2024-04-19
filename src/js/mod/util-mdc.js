@@ -906,22 +906,28 @@ export function mkMDCdialogActions(buttons) {
     return mkElt("div", { class: "mdc-dialog__actions" }, buttons);
 }
 
-export async function mkMDCdialogConfirm(body, titleOk, titleCancel, noCancel, funHandleResult, tellMeOkButton) {
+// async function mkMDCdialogConfirm(body, titleOk, titleCancel, noCancel, funHandleResult, tellMeOkButton)
+export async function mkMDCdialogConfirm(body, titleOk, titleCancel, funHandleResult, tellMeOkButton) {
     const tofTitle = typeof titleOk;
     accectValueType(tofTitle, "string");
     const tofCancel = typeof titleCancel;
-    accectValueType(tofCancel, "string");
-    const tofNoCancel = typeof noCancel;
-    accectValueType(tofNoCancel, "boolean");
+    // accectValueType(tofCancel, "string");
+    accectValueType(tofCancel, ["string", "boolean"]);
+    // const tofNoCancel = typeof noCancel;
+    // accectValueType(tofNoCancel, "boolean");
     const tofFun = typeof funHandleResult;
     accectValueType(tofFun, "function");
     function accectValueType(tof, valType) {
         if (tof == "undefined") return;
-        if (tof == valType) return;
-        throw Error(`Expected type ${valType}, got ${tof}`);
+        if (!Array.isArray(valType)) {
+            if (tof == valType) return;
+        } else {
+            if (valType.includes(tof)) return;
+        }
+        throw Error(`Expected type ${JSON.stringify(valType)}, got ${tof}`);
     }
     titleOk = titleOk || "Ok";
-    titleCancel = titleCancel || "Cancel";
+    if (titleCancel == true || tofCancel == "undefined") titleCancel = "Cancel";
     const btnOk = mkMDCdialogButton(titleOk, "confirm", true);
     if (tellMeOkButton) { tellMeOkButton(btnOk); }
     const btnCancel = mkMDCdialogButton(titleCancel, "close");
@@ -929,7 +935,8 @@ export async function mkMDCdialogConfirm(body, titleOk, titleCancel, noCancel, f
     // const handleResult = () => true;
     // const eltActions = mkMDCdialogActions([btnOk, btnCancel]);
     const arrBtns = [btnOk, btnCancel];
-    if (noCancel) arrBtns.length = 1;
+    // if (noCancel) arrBtns.length = 1;
+    if (titleCancel == false) arrBtns.length = 1;
     const eltActions = mkMDCdialogActions(arrBtns);
     const dlg = await mkMDCdialog(body, eltActions);
     return await new Promise((resolve, reject) => {

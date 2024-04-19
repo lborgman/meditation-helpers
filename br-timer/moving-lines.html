@@ -365,7 +365,7 @@
                     saveButton.disabled = true;
                 };
                 // mkMDCdialogConfirm(body, titleOk, titleCancel, noCancel, funHandleResult, tellMeOkButton) {
-                const res = await modMdc.mkMDCdialogConfirm(bdy, "Save", undefined, undefined, funResult, funOkButton);
+                const res = await modMdc.mkMDCdialogConfirm(bdy, "Save", true, funResult, funOkButton);
                 debugger;
                 if (res != false) {
                     debugger;
@@ -400,8 +400,8 @@
                 const lbl = mkElt("label", undefined, [rad, eltInfo]);
                 divPattList.appendChild(lbl);
             }
-            const { pattName } = await modMdc.mkMDCdialogConfirm(bdy, "Save",
-                undefined, undefined,
+            const { pattName } = await modMdc.mkMDCdialogConfirm(bdy, "Close",
+                false, 
                 funHandleResult,
                 // tellMeOkButton,
             );
@@ -1011,7 +1011,7 @@
                     divSpeed,
                     divDebug,
                 ]);
-                modMdc.mkMDCdialogConfirm(bdy);
+                modMdc.mkMDCdialogConfirm(bdy, "Close", false);
             });
             btnSettings.id = "settings-button";
 

@@ -553,7 +553,9 @@ export async function dialogImages(arrBuiltin) {
         // return "not ready";
     };
     return modMdc.mkMDCdialogConfirm(bdy, "Close",
-        undefined, true,
+        // undefined, true,
+        false,
+
         funHandleResult,
         tellMeOkButton,
     );
