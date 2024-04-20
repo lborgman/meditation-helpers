@@ -231,8 +231,8 @@
                     font-weight: bold;
                 `;
             divPatternInfo.appendChild(eltName);
-            // const strPatt = mkPattString(currentPattern);
-            const strPatt = mkPattString(settingPattern.value);
+            // const strPatt = mkPatternsPattString(currentPattern);
+            const strPatt = mkBreathPatternsPattString(settingPattern.value);
             const eltPatt = mkElt("span", { id: "current-patt-parts" }, strPatt);
             divPatternInfo.appendChild(eltPatt);
         }
@@ -246,15 +246,15 @@
         }
 
 
-        function mkPattString(pattName) {
-            const p = breathPatterns[pattName].patt;
-            // const strPatt = `(${p.breathIn}-${p.holdHigh}-${p.breathOut}-${p.holdLow})`;
-            // return strPatt;
-
-            const eltBreathIn = mkElt("span", { class: "breathIn" }, p.breathIn.toString());
-            const eltHoldHigh = mkElt("span", { class: "holdHigh" }, p.holdHigh.toString());
-            const eltBreathOut = mkElt("span", { class: "breathOut" }, p.breathOut.toString());
-            const eltHoldLow = mkElt("span", { class: "holdLow" }, p.holdLow.toString());
+        function mkBreathPatternsPattString(pattName) {
+            const patt = breathPatterns[pattName].patt;
+            return mkPattString(patt);
+        }
+        function mkPattString(patt) {
+            const eltBreathIn = mkElt("span", { class: "breathIn" }, patt.breathIn.toString());
+            const eltHoldHigh = mkElt("span", { class: "holdHigh" }, patt.holdHigh.toString());
+            const eltBreathOut = mkElt("span", { class: "breathOut" }, patt.breathOut.toString());
+            const eltHoldLow = mkElt("span", { class: "holdLow" }, patt.holdLow.toString());
             const eltPatt = mkElt("span", undefined, [
                 "(",
                 eltBreathIn,
@@ -298,6 +298,10 @@
             builtinPn.forEach(pn => { addPn(pn); });
 
             const settingYourPatt = new ourLocalSetting("your-patterns", {});
+            const yourPn = Object.keys(settingYourPatt.value).sort();
+            yourPn.forEach(pn => {
+                addPn(pn, settingYourPatt.value);
+            });
 
             divPattList.appendChild(mkElt("h3", undefined, "Your Own:"));
             const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
@@ -310,7 +314,7 @@
 
                 let saveButton;
                 const parts = {}
-                const addAlt = (pattPart, pattLabel) => {
+                const addPartInput = (pattPart, pattLabel) => {
                     /*
                         holdLow: "Hold...",
                         breathIn: "Inhale",
@@ -332,10 +336,10 @@
                     bdy.appendChild(divAlt);
                     parts[pattPart] = inp;
                 }
-                addAlt("breathIn", "Inhale");
-                addAlt("holdHigh", "Hold (high)");
-                addAlt("breathOut", "Exhale");
-                addAlt("holdLow", "Hold (low)");
+                addPartInput("breathIn", "Inhale");
+                addPartInput("holdHigh", "Hold (high)");
+                addPartInput("breathOut", "Exhale");
+                addPartInput("holdLow", "Hold (low)");
 
                 function currentValue() {
                     const val = {};
@@ -376,34 +380,40 @@
                 if (res != false) {
                     debugger;
                     // settingYourPatt, mkBreathPattern
-                    const rec = {
-                        name: inpName.value.trim,
-                        patt: {
-                            breathIn,
-                            holdHigh,
-                            breathOut,
-                            holdLow,
-                        }
-                    }
                     const yourPns = settingYourPatt.value;
+                    const yourPattName = inpName.value.trim();
+                    const patt = {
+                        // parts[pattPart] = inp;
+                        breathIn: parts.breathIn.value,
+                        holdHigh: parts.holdHigh.value,
+                        breathOut: parts.breathOut.value,
+                        holdLow: parts.holdLow.value,
+                    };
+                    yourPns[yourPattName] = patt;
+                    settingYourPatt.value = yourPns;
                 }
             }));
 
 
             divPattList.appendChild(divBtnAddPatt);
-            // const yourPn = sortedPn.filter(pn => pn.startsWith(" "));
             const yourPns = settingYourPatt.value;
-            yourPns.forEach(pn => { addPn(pn); });
+            // yourPns.forEach(pn => { addPn(pn); });
 
-            function addPn(pn) {
+            function addPn(pn, objPatts) {
+                if (objPatts) debugger;
                 console.log({ pn });
                 const rad = mkElt("input", { type: "radio", name: "pattName", value: pn });
                 if (currentPattern == pn) rad.checked = true;
                 const eltName = mkElt("b", undefined, pn);
                 eltName.style = `margin-right: 5px; margin-left: 5px;`;
-                const strPatt = mkPattString(pn);
+                let eltPatt;
+                if (!objPatts) {
+                    eltPatt = mkBreathPatternsPattString(pn);
+                } else {
+                    return;
+                }
+                /*
                 const isCustom = eltName.textContent.startsWith("Your");
-                let eltPatt = strPatt;
                 if (isCustom) {
                     const btnCustom = modMdc.mkMDCbutton(strPatt, "outlined");
                     eltPatt = btnCustom;
@@ -411,6 +421,7 @@
                         alert("not ready");
                     });
                 }
+                */
                 const eltInfo = mkElt("span", undefined, [eltName, eltPatt]);
                 // eltInfo.style = ` display: flex; gap: 5px; `;
                 // const lbl = mkElt("label", undefined, [rad, pn]);
