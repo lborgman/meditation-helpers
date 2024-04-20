@@ -51,7 +51,12 @@ export class LocalSetting {
         }
         */
         this.#cachedValue = val;
-        localStorage.setItem(this.#key, val.toString());
+        const defValType = typeof this.#defaultValue;
+        if (defValType == "object") {
+            localStorage.setItem(this.#key, JSON.stringify(val));
+        } else {
+            localStorage.setItem(this.#key, val.toString());
+        }
     }
     #get_itemValue() {
         const stored = localStorage.getItem(this.#key);
@@ -78,7 +83,10 @@ export class LocalSetting {
                     default:
                         throw Error(`String does not match boolean: ${stored}`);
                 }
+            case "object":
+                this.#cachedValue = JSON.parse(stored);
                 break;
+
             default:
                 throw Error(`Can't handle default value type: ${defValType}`);
         }

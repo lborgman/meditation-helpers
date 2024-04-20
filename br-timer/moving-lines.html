@@ -297,7 +297,7 @@
             const builtinPn = Object.keys(breathPatterns).sort();
             builtinPn.forEach(pn => { addPn(pn); });
 
-            const settingYourPatt = new ourLocalSetting("your-patterns", []);
+            const settingYourPatt = new ourLocalSetting("your-patterns", {});
 
             divPattList.appendChild(mkElt("h3", undefined, "Your Own:"));
             const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
@@ -348,7 +348,13 @@
                 }
                 const initialValue = currentValue();
                 const checkCanSave = () => {
-                    const canSave = currentValue() != initialValue;
+                    const hasNewInput = currentValue() != initialValue;
+                    // FIX-ME: check old names:
+                    const hasNewName = inpName.value.trim() != "";
+                    const counts = Object.keys(parts)
+                        .map(pn => parseFloat(parts[pn].value))
+                        .reduce((acc, next) => acc + next);
+                    const canSave = hasNewInput && hasNewName && counts > 8;
                     saveButton.disabled = !canSave;
                 }
                 const debounceCheckCanSave = debounce(checkCanSave, 500);
@@ -369,14 +375,25 @@
                 debugger;
                 if (res != false) {
                     debugger;
+                    // settingYourPatt, mkBreathPattern
+                    const rec = {
+                        name: inpName.value.trim;
+                        patt: {
+                            breathIn,
+                            holdHigh,
+                            breathOut,
+                            holdLow,
+                        }
+                    }
+                    const yourPns = settingYourPatt.value;
                 }
             }));
 
 
             divPattList.appendChild(divBtnAddPatt);
             // const yourPn = sortedPn.filter(pn => pn.startsWith(" "));
-            const yourPn = settingYourPatt.value;
-            yourPn.forEach(pn => { addPn(pn); });
+            const yourPns = settingYourPatt.value;
+            yourPns.forEach(pn => { addPn(pn); });
 
             function addPn(pn) {
                 console.log({ pn });
@@ -401,7 +418,7 @@
                 divPattList.appendChild(lbl);
             }
             const { pattName } = await modMdc.mkMDCdialogConfirm(bdy, "Close",
-                false, 
+                false,
                 funHandleResult,
                 // tellMeOkButton,
             );
