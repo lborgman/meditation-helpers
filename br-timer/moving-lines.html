@@ -216,6 +216,20 @@
         }
 
 
+        function getPatternByKey(key) {
+            const pattRec = breathPatterns[key];
+            if (pattRec) { return pattRec; }
+            const yourRec = settingYourPatt.value[key];
+            // makeBreathPattern(breathIn, holdHigh, breathOut, holdLow)
+            const p = yourRec.patt;
+            const n = makeBreathPattern(
+                parseFloat(p.breathIn),
+                parseFloat(p.holdHigh),
+                parseFloat(p.breathOut),
+                parseFloat(p.holdLow)
+            );
+            return n;
+        }
 
         function tellCurrentPattern() {
             const divPatternInfo = document.getElementById("elt-pattern-info");
@@ -233,14 +247,9 @@
                 `;
             divPatternInfo.appendChild(eltName);
 
-            // const strPatt = mkPatternsPattString(currentPattern);
-            // const strPatt = mkBreathPatternsPattString(settingPattern.value);
             const pattName = settingPattern.value;
-            const patt =
-                breathPatterns[pattName]?.patt
-                ||
-                settingYourPatt.value[pattName].patt;
-            const strPatt = mkPattString(patt);
+            const pattRec = getPatternByKey(pattName);
+            const strPatt = mkPattString(pattRec.patt);
             const eltPatt = mkElt("span", { id: "current-patt-parts" }, strPatt);
             divPatternInfo.appendChild(eltPatt);
         }
@@ -255,8 +264,9 @@
 
 
         function mkBreathPatternsPattString(pattName) {
-            const patt = breathPatterns[pattName].patt;
-            return mkPattString(patt);
+            // const patt = breathPatterns[pattName].patt;
+            const pattRec = getPatternByKey(pattName);
+            return mkPattString(pattRec.patt);
         }
         function mkPattString(patt) {
             const eltBreathIn = mkElt("span", { class: "breathIn" }, patt.breathIn.toString());
@@ -543,6 +553,11 @@
             if (txtState) topText(txtState);
 
             const points = patt.pattPoints;
+            if (!points) {
+                debugger;
+                return;
+            }
+
             canvasSec = patt.pattW * numPatt;
 
             ctxCanvas.beginPath();
@@ -859,7 +874,8 @@
                     settingDurationMinutes.value * 60;
 
                 // Whole patterns:
-                const pattRec = breathPatterns[settingPattern.value];
+                // const pattRec = breathPatterns[settingPattern.value];
+                const pattRec = getPatternByKey(settingPattern.value);
                 const secPatt = pattRec.pattW;
                 const rest = secondsDuration % secPatt;
                 let repetitions = Math.floor(secondsDuration / secPatt);
@@ -1453,7 +1469,8 @@
         setupThings();
 
         function redraw() {
-            const myPatt = breathPatterns[settingPattern.value];
+            // const myPatt = breathPatterns[settingPattern.value];
+            const myPatt = getPatternByKey(settingPattern.value);
             drawPattern(myPatt, 1.05);
         }
         // checkRedraw();
