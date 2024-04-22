@@ -374,7 +374,12 @@
                     btnDelete.addEventListener("click", errorHandlerAsyncEvent(async evt => {
                         const ans = await modMdc.mkMDCdialogConfirm(`Delete pattern ${existingPattName}?`);
                         if (ans) {
-                            alert("not implemented yet");
+                            const yourPatts = settingYourPatt.value;
+                            delete yourPatts[existingPattName];
+                            debugger;
+                            settingYourPatt.value = yourPatts;
+
+                            closeDialogViaButton("has result");
                         }
                     }));
                     const divName = mkElt("div", undefined, [
@@ -504,15 +509,27 @@
                     saveButton.disabled = true;
                 };
                 // mkMDCdialogConfirm(body, titleOk, titleCancel, noCancel, funHandleResult, tellMeOkButton)
-                const res = await modMdc.mkMDCdialogConfirm(bdy, "Save", true, funResult, funOkButton);
+                // const res = await modMdc.mkMDCdialogConfirm(bdy, "Save", true, funResult, funOkButton);
+                const dlg = modMdc.mkMDCdialogConfirm(bdy, "Save", true, funResult, funOkButton);
+                let closeResult;
+                function closeDialogViaButton(hasResult) {
+                    debugger;
+                    closeResult = hasResult;
+                    // dlg.mdc.close();
+                    saveButton.disabled = false;
+                    saveButton.click();
+                }
+                const res = await dlg;
                 debugger;
-                if (res != false) {
-                    const yourPns = settingYourPatt.value;
-                    const yourPattName =existingPattName || inpName.value.trim();
-                    const patt = getYourPatt();
-                    yourPns[yourPattName] = {};
-                    yourPns[yourPattName].patt = patt;
-                    settingYourPatt.value = yourPns;
+                if (res != false || closeResult) {
+                    if (!closeResult) {
+                        const yourPns = settingYourPatt.value;
+                        const yourPattName = existingPattName || inpName.value.trim();
+                        const patt = getYourPatt();
+                        yourPns[yourPattName] = {};
+                        yourPns[yourPattName].patt = patt;
+                        settingYourPatt.value = yourPns;
+                    }
 
                     refreshYourList();
                 }
