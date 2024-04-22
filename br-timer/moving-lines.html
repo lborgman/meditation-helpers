@@ -138,7 +138,7 @@
             "Deep Calm": makeBreathPattern(4, 7, 8, 0),
             "Pranayama": makeBreathPattern(7, 4, 8, 4),
             "Ujjayi": makeBreathPattern(7, 0, 7, 0),
-            "Your own": makeBreathPattern(2, 4, 3, 5),
+            // "Your own": makeBreathPattern(2, 4, 3, 5),
         }
         // let currentPattern = "Pranayama";
         let settingPattern;
@@ -344,6 +344,7 @@
             divPattList.appendChild(mkElt("h3", undefined, "Your Own:"));
             const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
             const divBtnAddPatt = mkElt("div", undefined, btnAddPatt);
+            divBtnAddPatt.style.marginTop = "-20px";
             divBtnAddPatt.addEventListener("click", errorHandlerAsyncEvent(async evt => {
                 const bdy = mkElt("div", undefined, mkElt("h2", undefined, "Add your own pattern"));
                 // const inpName = mkElt("input", { type: "text" });
@@ -489,20 +490,35 @@
                     yourPns[yourPattName] = {};
                     yourPns[yourPattName].patt = patt;
                     settingYourPatt.value = yourPns;
+
+                    refreshYourList();
                 }
             }));
 
 
             divPattList.appendChild(divBtnAddPatt);
 
-            const yourPatterns = settingYourPatt.value;
-            const yourPnames = Object.keys(yourPatterns).sort();
-            yourPnames.forEach(pn => { addPn(pn, yourPatterns); });
+            const divYourList = mkElt("div");
+            divYourList.style = `
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            `;
+            divPattList.appendChild(divYourList);
+            refreshYourList();
+
+            function refreshYourList() {
+                divYourList.textContent = "";
+                const yourPatterns = settingYourPatt.value;
+                const yourPnames = Object.keys(yourPatterns).sort();
+                yourPnames.forEach(pn => { addPn(pn, yourPatterns, divYourList); });
+            }
 
 
 
             function addPn(pn, objPatts, divList) {
                 // if (objPatts) debugger;
+                const isYour = objPatts != undefined;
                 objPatts = objPatts || breathPatterns;
                 divList = divList || divPattList;
                 console.log({ pn });
@@ -510,32 +526,21 @@
                 if (currentPattern == pn) rad.checked = true;
                 const eltName = mkElt("b", undefined, pn);
                 eltName.style = `margin-right: 5px; margin-left: 5px;`;
-                /*
-                let eltPatt;
-                if (!objPatts) {
-                    eltPatt = mkBreathPatternsPattString(pn);
-                } else {
-                    return;
-                }
-                */
                 const patt = objPatts[pn].patt;
                 const eltPatt = mkPattString(patt);
-                /*
-                const isCustom = eltName.textContent.startsWith("Your");
-                if (isCustom) {
-                    const btnCustom = modMdc.mkMDCbutton(strPatt, "outlined");
-                    eltPatt = btnCustom;
-                    btnCustom.addEventListener("click", evt => {
-                        alert("not ready");
-                    });
-                }
-                */
                 const eltInfo = mkElt("span", undefined, [eltName, eltPatt]);
-                // eltInfo.style = ` display: flex; gap: 5px; `;
-                // const lbl = mkElt("label", undefined, [rad, pn]);
                 const lbl = mkElt("label", undefined, [rad, eltInfo]);
-                // divPattList.appendChild(lbl);
-                divList.appendChild(lbl);
+                if (!isYour) {
+                    divList.appendChild(lbl);
+                } else {
+                    const iconEdit = modMdc.mkMDCicon("edit");
+                    const btnEdit = modMdc.mkMDCiconButton(iconEdit);
+                    btnEdit.addEventListener("click",errorHandlerAsyncEvent( async evt => {
+                        alert(`Edit pattern "${pn}"", not implemented yet`);
+                    }));
+                    const row = mkElt("div", undefined, [btnEdit, lbl]);
+                    divList.appendChild(row);
+                }
             }
             const { pattName } = await modMdc.mkMDCdialogConfirm(bdy, "Close",
                 false,
