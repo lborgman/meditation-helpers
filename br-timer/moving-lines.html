@@ -140,7 +140,6 @@
             "Ujjayi": makeBreathPattern(7, 0, 7, 0),
             // "Your own": makeBreathPattern(2, 4, 3, 5),
         }
-        // let currentPattern = "Pranayama";
         let settingPattern;
 
 
@@ -244,8 +243,12 @@
             const cy = cachedYourPatterns[name];
             if (cy) { return cy; }
 
-            const yourRec = settingYourPatt.value[name];
+            let yourRec = settingYourPatt.value[name];
             // makeBreathPattern(breathIn, holdHigh, breathOut, holdLow)
+            if (!yourRec) {
+                // debugger;
+                return;
+            }
             const p = yourRec.patt;
             const n = makeBreathPattern(
                 parseFloat(p.breathIn),
@@ -266,15 +269,20 @@
                 margin-right: 10px;
             `;
             divPatternInfo.textContent = "";
-            // const eltName = mkElt("span", undefined, currentPattern);
             const eltName = mkElt("span", undefined, settingPattern.value);
             eltName.style = `
                     font-weight: bold;
                 `;
             divPatternInfo.appendChild(eltName);
 
-            const pattName = settingPattern.value;
-            const pattRec = getPatternByName(pattName);
+            // const pattName = settingPattern.value;
+            let pattRec = getPatternByName(settingPattern.value);
+            // Check pattern exists
+            if (!pattRec) {
+                // settingPattern.value = settingPattern.defaultValue;
+                settingPattern.value = getAllPatternNames()[0];
+                pattRec = getPatternByName(settingPattern.value);
+            }
             const strPatt = mkPattString(pattRec.patt);
             const eltPatt = mkElt("span", { id: "current-patt-parts" }, strPatt);
             divPatternInfo.appendChild(eltPatt);
@@ -328,7 +336,11 @@
                     gap: 10px;
                 `;
             const funHandleResult = () => {
-                const rad = divPattList.querySelector("input[name=pattName]:checked");
+                const rad =
+                    divPattList.querySelector("input[name=pattName]:checked")
+                    ||
+                    divPattList.querySelector("input[name=pattName]")
+                    ;
                 return { pattName: rad.value };
             };
 
@@ -337,7 +349,7 @@
                 divPattList,
             ]);
             bdy.id = "dialog-pattern";
-            const currentPattern = settingPattern.value;
+            // const currentPattern = settingPattern.value;
             const builtinPn = Object.keys(breathPatterns).sort();
             builtinPn.forEach(pn => { addPn(pn); });
 
@@ -520,7 +532,6 @@
                     saveButton.click();
                 }
                 const res = await dlg;
-                debugger;
                 if (res != false || closeResult) {
                     if (!closeResult) {
                         const yourPns = settingYourPatt.value;
@@ -529,6 +540,8 @@
                         yourPns[yourPattName] = {};
                         yourPns[yourPattName].patt = patt;
                         settingYourPatt.value = yourPns;
+                        settingPattern.value = yourPattName;
+                        modMdc.mkMDCsnackbar(`Switching to new pattern ${yourPattName}`);
                     }
 
                     refreshYourList();
@@ -542,7 +555,7 @@
             divYourList.style = `
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
+                NOgap: 10px;
             `;
             divPattList.appendChild(divYourList);
             refreshYourList();
@@ -563,7 +576,8 @@
                 divList = divList || divPattList;
                 console.log({ pn });
                 const rad = mkElt("input", { type: "radio", name: "pattName", value: pn });
-                if (currentPattern == pn) rad.checked = true;
+                // if (currentPattern == pn) rad.checked = true;
+                if (settingPattern.value == pn) rad.checked = true;
                 const eltName = mkElt("b", undefined, pn);
                 eltName.style = `margin-right: 5px; margin-left: 5px;`;
                 const patt = objPatts[pn].patt;
@@ -587,8 +601,8 @@
                 funHandleResult,
                 // tellMeOkButton,
             );
-            // currentPattern = pattName || currentPattern;
-            settingPattern.value = pattName || currentPattern;
+            // settingPattern.value = pattName || currentPattern;
+            if (pattName) settingPattern.value = pattName;
             tellCurrentPattern();
             initCurrentPattern();
         }
