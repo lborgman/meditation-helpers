@@ -410,6 +410,7 @@ export async function dialogImages(arrBuiltin) {
     function mkImgChoice(url, isBuiltin) {
         let urlPreview = url;
         if (url.startsWith("https://lh3.googleusercontent.com")) {
+            // eslint-disable-next-line no-debugger
             if (Array.from(url.matchAll("=")).length != 1) { debugger; }
             const lastEq = url.lastIndexOf("=");
             // Resize to max 200 w/h, works 2024-04-09
@@ -472,6 +473,7 @@ export async function dialogImages(arrBuiltin) {
                 arr.splice(idx, 1);
                 if (rad.checked) {
                     // FIX-ME: check random
+                    // eslint-disable-next-line no-debugger
                     debugger;
                     const radRandom = divRandomUrl.querySelector("input[type=radio]");
                     radRandom.checked = true;

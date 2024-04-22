@@ -216,10 +216,35 @@
         }
 
 
-        function getPatternByKey(key) {
-            const pattRec = breathPatterns[key];
+        function getAllPatternNames() {
+            return [...Object.keys(breathPatterns), ...Object.keys(settingYourPatt.value)];
+        }
+        function findPatternValue(patt) {
+            const jsonPatt = JSON.stringify(patt)
+            const arrNames = getAllPatternNames();
+            for (let i = 0, len = arrNames.length; i < len; i++) {
+                const nameI = arrNames[i];
+                const pattI = getPatternByName(nameI);
+                const pattIpatt = pattI.patt;
+                const jsonI = JSON.stringify(pattIpatt);
+                console.log({ pattI, pattIpatt, jsonI, jsonPatt });
+                if (jsonI == jsonPatt) {
+                    return nameI;
+                }
+            }
+        }
+
+
+        const cachedYourPatterns = {};
+
+        function getPatternByName(name) {
+            const pattRec = breathPatterns[name];
             if (pattRec) { return pattRec; }
-            const yourRec = settingYourPatt.value[key];
+
+            const cy = cachedYourPatterns[name];
+            if (cy) { return cy; }
+
+            const yourRec = settingYourPatt.value[name];
             // makeBreathPattern(breathIn, holdHigh, breathOut, holdLow)
             const p = yourRec.patt;
             const n = makeBreathPattern(
@@ -228,6 +253,7 @@
                 parseFloat(p.breathOut),
                 parseFloat(p.holdLow)
             );
+            cachedYourPatterns[name] = n;
             return n;
         }
 
@@ -248,7 +274,7 @@
             divPatternInfo.appendChild(eltName);
 
             const pattName = settingPattern.value;
-            const pattRec = getPatternByKey(pattName);
+            const pattRec = getPatternByName(pattName);
             const strPatt = mkPattString(pattRec.patt);
             const eltPatt = mkElt("span", { id: "current-patt-parts" }, strPatt);
             divPatternInfo.appendChild(eltPatt);
@@ -265,7 +291,7 @@
 
         function mkBreathPatternsPattString(pattName) {
             // const patt = breathPatterns[pattName].patt;
-            const pattRec = getPatternByKey(pattName);
+            const pattRec = getPatternByName(pattName);
             return mkPattString(pattRec.patt);
         }
         function mkPattString(patt) {
@@ -315,23 +341,54 @@
             const builtinPn = Object.keys(breathPatterns).sort();
             builtinPn.forEach(pn => { addPn(pn); });
 
-            const yourPn = Object.keys(settingYourPatt.value).sort();
-            yourPn.forEach(pn => {
-                debugger;
-                addPn(pn, settingYourPatt.value);
-            });
-
             divPattList.appendChild(mkElt("h3", undefined, "Your Own:"));
             const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
             const divBtnAddPatt = mkElt("div", undefined, btnAddPatt);
             divBtnAddPatt.addEventListener("click", errorHandlerAsyncEvent(async evt => {
                 const bdy = mkElt("div", undefined, mkElt("h2", undefined, "Add your own pattern"));
-                const inpName = mkElt("input", { type: "text" });
-                const lblName = mkElt("label", undefined, ["Pattern name: ", inpName]);
-                bdy.appendChild(mkElt("p", undefined, lblName));
+                // const inpName = mkElt("input", { type: "text" });
+                // const lblName = mkElt("label", undefined, ["Pattern name: ", inpName]);
+
+                const inpName = modMdc.mkMDCtextFieldInput();
+                const tfName = modMdc.mkMDCtextFieldOutlined("Pattern name", inpName);
+
+                const arrNames = getAllPatternNames();
+                const checkInpName = () => {
+                    const newName = inpName.value.trim();
+                    let strValidity = "";
+                    if (newName.length == 0) {
+                        strValidity = "Please input a name";
+                    }
+                    if (arrNames.includes(newName)) {
+                        strValidity = `Name ${newName} is already used`;
+                    }
+                    inpName.setCustomValidity(strValidity);
+                    inpName.reportValidity();
+                    const valid = inpName.validity.valid;
+                    console.log(inpName.validity);
+                    console.log({ valid });
+                }
+                const debounceCheckInpName = debounce(checkInpName, 500);
+                inpName.addEventListener("input", evt => {
+                    // evt.stopPropagation();
+                    debounceCheckInpName();
+                });
+
+
+                // bdy.appendChild(mkElt("p", undefined, lblName));
+                bdy.appendChild(mkElt("p", undefined, tfName));
 
                 let saveButton;
-                const parts = {}
+                const partsNewPatt = {}
+                function getNewPatt() {
+                    return {
+                        breathIn: parseFloat(partsNewPatt.breathIn.value),
+                        holdHigh: parseFloat(partsNewPatt.holdHigh.value),
+                        breathOut: parseFloat(partsNewPatt.breathOut.value),
+                        holdLow: parseFloat(partsNewPatt.holdLow.value),
+                    }
+                }
+
                 const addPartInput = (pattPart, pattLabel) => {
                     /*
                         holdLow: "Hold...",
@@ -352,19 +409,24 @@
                     const lbl = mkElt("label", undefined, [inp, pattLabel]);
                     const divAlt = mkElt("div", undefined, lbl);
                     bdy.appendChild(divAlt);
-                    parts[pattPart] = inp;
+                    partsNewPatt[pattPart] = inp;
                 }
                 addPartInput("breathIn", "Inhale");
                 addPartInput("holdHigh", "Hold (high)");
                 addPartInput("breathOut", "Exhale");
                 addPartInput("holdLow", "Hold (low)");
 
+                const divOldPatt = mkElt("p", undefined, ".");
+                divOldPatt.textContent = '\xa0';
+                divOldPatt.style.color = "red";
+                bdy.appendChild(divOldPatt);
+
                 function currentValue() {
                     const val = {};
                     val.name = inpName.value;
                     val.patt = {};
-                    for (pv in parts) {
-                        val.patt[pv] = parts[pv].value;
+                    for (pv in partsNewPatt) {
+                        val.patt[pv] = partsNewPatt[pv].value;
                     }
                     return JSON.stringify(val);
                 }
@@ -372,14 +434,28 @@
                 const checkCanSave = () => {
                     const hasNewInput = currentValue() != initialValue;
                     // FIX-ME: check old names:
-                    const hasNewName = inpName.value.trim() != "";
-                    const counts = Object.keys(parts)
-                        .map(pn => parseFloat(parts[pn].value))
+                    // const hasNewName = inpName.value.trim() != "";
+                    const counts = Object.keys(partsNewPatt)
+                        .map(pn => parseFloat(partsNewPatt[pn].value))
                         .reduce((acc, next) => acc + next);
-                    const canSave = hasNewInput && hasNewName && counts > 8;
+                    const patt = getNewPatt();
+                    const oldName = findPatternValue(patt);
+                    if (oldName) {
+                        divOldPatt.textContent = `Pattern is used in ${oldName}`;
+                    } else {
+                        // divOldPatt.textContent = ".";
+                        // divOldPatt.textContent = ' ';
+                        divOldPatt.textContent = '\xa0';
+                    }
+                    const canSave = hasNewInput
+                        // && hasNewName
+                        && inpName.validity.valid
+                        && counts > 8
+                        && oldName == undefined
+                        ;
                     saveButton.disabled = !canSave;
                 }
-                const debounceCheckCanSave = debounce(checkCanSave, 500);
+                const debounceCheckCanSave = debounce(checkCanSave, 1000);
                 bdy.addEventListener("input", evt => {
                     debounceCheckCanSave();
                 });
@@ -400,14 +476,16 @@
                     // settingYourPatt, mkBreathPattern
                     const yourPns = settingYourPatt.value;
                     const yourPattName = inpName.value.trim();
+                    /*
                     const patt = {
                         // parts[pattPart] = inp;
-                        breathIn: parts.breathIn.value,
-                        holdHigh: parts.holdHigh.value,
-                        breathOut: parts.breathOut.value,
-                        holdLow: parts.holdLow.value,
+                        breathIn: partsNewPatt.breathIn.value,
+                        holdHigh: partsNewPatt.holdHigh.value,
+                        breathOut: partsNewPatt.breathOut.value,
+                        holdLow: partsNewPatt.holdLow.value,
                     };
-                    // yourPns[yourPattName] = patt;
+                    */
+                    const patt = getNewPatt();
                     yourPns[yourPattName] = {};
                     yourPns[yourPattName].patt = patt;
                     settingYourPatt.value = yourPns;
@@ -416,12 +494,17 @@
 
 
             divPattList.appendChild(divBtnAddPatt);
-            const yourPns = settingYourPatt.value;
-            // yourPns.forEach(pn => { addPn(pn); });
 
-            function addPn(pn, objPatts) {
+            const yourPatterns = settingYourPatt.value;
+            const yourPnames = Object.keys(yourPatterns).sort();
+            yourPnames.forEach(pn => { addPn(pn, yourPatterns); });
+
+
+
+            function addPn(pn, objPatts, divList) {
                 // if (objPatts) debugger;
                 objPatts = objPatts || breathPatterns;
+                divList = divList || divPattList;
                 console.log({ pn });
                 const rad = mkElt("input", { type: "radio", name: "pattName", value: pn });
                 if (currentPattern == pn) rad.checked = true;
@@ -451,7 +534,8 @@
                 // eltInfo.style = ` display: flex; gap: 5px; `;
                 // const lbl = mkElt("label", undefined, [rad, pn]);
                 const lbl = mkElt("label", undefined, [rad, eltInfo]);
-                divPattList.appendChild(lbl);
+                // divPattList.appendChild(lbl);
+                divList.appendChild(lbl);
             }
             const { pattName } = await modMdc.mkMDCdialogConfirm(bdy, "Close",
                 false,
@@ -875,7 +959,7 @@
 
                 // Whole patterns:
                 // const pattRec = breathPatterns[settingPattern.value];
-                const pattRec = getPatternByKey(settingPattern.value);
+                const pattRec = getPatternByName(settingPattern.value);
                 const secPatt = pattRec.pattW;
                 const rest = secondsDuration % secPatt;
                 let repetitions = Math.floor(secondsDuration / secPatt);
@@ -1470,7 +1554,7 @@
 
         function redraw() {
             // const myPatt = breathPatterns[settingPattern.value];
-            const myPatt = getPatternByKey(settingPattern.value);
+            const myPatt = getPatternByName(settingPattern.value);
             drawPattern(myPatt, 1.05);
         }
         // checkRedraw();

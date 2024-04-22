@@ -106,6 +106,7 @@ export function mkMdcTabsButton(txtLbl, icon) {
 export function mkMdcTabBarSimple(tabsRecs, contentElts, moreOnActivate) {
     const arrCont = [...contentElts.children];
     if (isNaN(tabsRecs.length) || (tabsRecs.length !== arrCont.length)) {
+        // eslint-disable-next-line no-debugger
         debugger;
         throw Error(`tabsRecs.length==${tabsRecs.length}, contentElts.children.length==${arrCont.length}}`);
     }
@@ -451,6 +452,7 @@ export function setMdcInputValid(input, valid) {
     if (tfObj) {
         tfObj.valid = valid;
     } else {
+        // eslint-disable-next-line no-debugger
         debugger; // FIXME: reminder, should every input be mdc???
     }
     input.dataset.ourValid = valid;
@@ -1077,7 +1079,9 @@ export function validateDownloadFilename(filename) {
     if (/^\./.test(filename)) return `Filename must not begin with "."`;
     if (/\.$/.test(filename)) return `Filename must not end with "."`;
     // Unix
-    if (/^-/.test(filename)) return `Filename must not begin with "-"`;
+    // if (/^-/.test(filename)) return `Filename must not begin with "-"`;
+    if (filename.startsWith("-")) return `Filename must not begin with "-"`;
+    // eslint-disable-next-line no-control-regex
     const reControl = /[\x00-\x1f\x80-\x9f]/g;
     if (reControl.test(filename)) {
         return `Control chars not allowed in filename`;
