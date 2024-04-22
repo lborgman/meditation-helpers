@@ -346,42 +346,80 @@
             const divBtnAddPatt = mkElt("div", undefined, btnAddPatt);
             divBtnAddPatt.style.marginTop = "-20px";
             divBtnAddPatt.addEventListener("click", errorHandlerAsyncEvent(async evt => {
-                const bdy = mkElt("div", undefined, mkElt("h2", undefined, "Add your own pattern"));
-                // const inpName = mkElt("input", { type: "text" });
-                // const lblName = mkElt("label", undefined, ["Pattern name: ", inpName]);
+                dialogYourPatt();
+            }));
 
-                const inpName = modMdc.mkMDCtextFieldInput();
-                const tfName = modMdc.mkMDCtextFieldOutlined("Pattern name", inpName);
+            async function dialogYourPatt(existingPattName) {
+                const action = existingPattName ? "Edit" : "Add";
+                const bdy = mkElt("div", undefined, mkElt("h2", undefined, `${action} your own pattern`));
+                let inpName, yourPatt;
+                if (existingPattName) {
+                    yourPatt = getPatternByName(existingPattName);
+                    if (!yourPatt) debugger;
 
-                const arrNames = getAllPatternNames();
-                const checkInpName = () => {
-                    const newName = inpName.value.trim();
-                    let strValidity = "";
-                    if (newName.length == 0) {
-                        strValidity = "Please input a name";
+                    const divNotReady = mkElt("p", undefined, "Not ready!");
+                    divNotReady.style = `
+                        color: red;
+                    `;
+                    bdy.appendChild(divNotReady);
+
+                    const eltName = mkElt("span", undefined, existingPattName);
+                    eltName.style = `
+                        font-size: 1.6rem;
+                        font-weight: bold;
+                        font-style: italic;
+                    `;
+                    const iconDelete = modMdc.mkMDCicon("delete_forever");
+                    const btnDelete = modMdc.mkMDCiconButton(iconDelete, "Delete");
+                    btnDelete.addEventListener("click", errorHandlerAsyncEvent(async evt => {
+                        const ans = await modMdc.mkMDCdialogConfirm(`Delete pattern ${existingPattName}?`);
+                        if (ans) {
+                            alert("not implemented yet");
+                        }
+                    }));
+                    const divName = mkElt("div", undefined, [
+                        eltName,
+                        btnDelete,
+                    ]);
+                    divName.style = `
+                        display: flex;
+                        flex-direction: row;
+                        gap: 10px;
+                        flex-wrap: wrap;
+                    `;
+                    bdy.appendChild(divName);
+                } else {
+                    inpName = modMdc.mkMDCtextFieldInput();
+                    const tfName = modMdc.mkMDCtextFieldOutlined("Pattern name", inpName);
+
+                    const arrNames = getAllPatternNames();
+                    const checkInpName = () => {
+                        const newName = inpName.value.trim();
+                        let strValidity = "";
+                        if (newName.length == 0) {
+                            strValidity = "Please input a name";
+                        }
+                        if (arrNames.includes(newName)) {
+                            strValidity = `Name ${newName} is already used`;
+                        }
+                        inpName.setCustomValidity(strValidity);
+                        inpName.reportValidity();
+                        const valid = inpName.validity.valid;
+                        console.log(inpName.validity);
+                        console.log({ valid });
                     }
-                    if (arrNames.includes(newName)) {
-                        strValidity = `Name ${newName} is already used`;
-                    }
-                    inpName.setCustomValidity(strValidity);
-                    inpName.reportValidity();
-                    const valid = inpName.validity.valid;
-                    console.log(inpName.validity);
-                    console.log({ valid });
+                    const debounceCheckInpName = debounce(checkInpName, 500);
+                    inpName.addEventListener("input", evt => {
+                        debounceCheckInpName();
+                    });
+
+
+                    bdy.appendChild(mkElt("p", undefined, tfName));
                 }
-                const debounceCheckInpName = debounce(checkInpName, 500);
-                inpName.addEventListener("input", evt => {
-                    // evt.stopPropagation();
-                    debounceCheckInpName();
-                });
-
-
-                // bdy.appendChild(mkElt("p", undefined, lblName));
-                bdy.appendChild(mkElt("p", undefined, tfName));
 
                 let saveButton;
                 const partsNewPatt = {}
-                function getNewPatt() {
+                function getYourPatt() {
                     return {
                         breathIn: parseFloat(partsNewPatt.breathIn.value),
                         holdHigh: parseFloat(partsNewPatt.holdHigh.value),
@@ -391,17 +429,12 @@
                 }
 
                 const addPartInput = (pattPart, pattLabel) => {
-                    /*
-                        holdLow: "Hold...",
-                        breathIn: "Inhale",
-                        holdHigh: "Hold...",
-                        breathOut: "Exhale",
-                    */
+                    const val = yourPatt ? yourPatt.patt[pattPart] : 4;
                     const inp = mkElt("input", {
                         type: "number",
                         min: 0,
                         max: 8,
-                        value: 4,
+                        value: val,
                         // placeholder: "0 sec",
                     });
                     inp.style = `
@@ -424,7 +457,7 @@
 
                 function currentValue() {
                     const val = {};
-                    val.name = inpName.value;
+                    val.name = inpName ? inpName.value : existingPattName;
                     val.patt = {};
                     for (pv in partsNewPatt) {
                         val.patt[pv] = partsNewPatt[pv].value;
@@ -439,9 +472,10 @@
                     const counts = Object.keys(partsNewPatt)
                         .map(pn => parseFloat(partsNewPatt[pn].value))
                         .reduce((acc, next) => acc + next);
-                    const patt = getNewPatt();
+                    const patt = getYourPatt();
                     const oldName = findPatternValue(patt);
-                    if (oldName) {
+                    const inUse = oldName && oldName != existingPattName;
+                    if (inUse) {
                         divOldPatt.textContent = `Pattern is used in ${oldName}`;
                     } else {
                         // divOldPatt.textContent = ".";
@@ -450,7 +484,7 @@
                     }
                     const canSave = hasNewInput
                         // && hasNewName
-                        && inpName.validity.valid
+                        && (existingPattName || inpName.validity.valid)
                         && counts > 8
                         && oldName == undefined
                         ;
@@ -469,31 +503,20 @@
                     saveButton = btn;
                     saveButton.disabled = true;
                 };
-                // mkMDCdialogConfirm(body, titleOk, titleCancel, noCancel, funHandleResult, tellMeOkButton) {
+                // mkMDCdialogConfirm(body, titleOk, titleCancel, noCancel, funHandleResult, tellMeOkButton)
                 const res = await modMdc.mkMDCdialogConfirm(bdy, "Save", true, funResult, funOkButton);
                 debugger;
                 if (res != false) {
-                    debugger;
-                    // settingYourPatt, mkBreathPattern
                     const yourPns = settingYourPatt.value;
-                    const yourPattName = inpName.value.trim();
-                    /*
-                    const patt = {
-                        // parts[pattPart] = inp;
-                        breathIn: partsNewPatt.breathIn.value,
-                        holdHigh: partsNewPatt.holdHigh.value,
-                        breathOut: partsNewPatt.breathOut.value,
-                        holdLow: partsNewPatt.holdLow.value,
-                    };
-                    */
-                    const patt = getNewPatt();
+                    const yourPattName =existingPattName || inpName.value.trim();
+                    const patt = getYourPatt();
                     yourPns[yourPattName] = {};
                     yourPns[yourPattName].patt = patt;
                     settingYourPatt.value = yourPns;
 
                     refreshYourList();
                 }
-            }));
+            }
 
 
             divPattList.appendChild(divBtnAddPatt);
@@ -535,8 +558,8 @@
                 } else {
                     const iconEdit = modMdc.mkMDCicon("edit");
                     const btnEdit = modMdc.mkMDCiconButton(iconEdit);
-                    btnEdit.addEventListener("click",errorHandlerAsyncEvent( async evt => {
-                        alert(`Edit pattern "${pn}"", not implemented yet`);
+                    btnEdit.addEventListener("click", errorHandlerAsyncEvent(async evt => {
+                        dialogYourPatt(pn);
                     }));
                     const row = mkElt("div", undefined, [btnEdit, lbl]);
                     divList.appendChild(row);
@@ -1359,7 +1382,6 @@
             width: 1rem;
             height: 20px;
             height: 1rem;
-            NOmargin: 6px;
             padding: 0;
             border: 2px solid var(--checkbox-border-color);
             appearance: none;
