@@ -105,8 +105,9 @@ export class LocalSetting {
     }
     bindToInput(inp) {
         if (this.#input) {
-            const doc = this.#input.getRootNode();
-            if (doc.nodeName == "#document") {
+            // const doc = this.#input.getRootNode();
+            // if (doc.nodeName == "#document") 
+            if (this.#input.isConnected) {
                 console.error("bindToInput, already has .#input", this.#key, this.#input);
                 throw Error("bindToInput, already has .#input");
             }
