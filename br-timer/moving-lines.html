@@ -565,6 +565,20 @@
                 const yourPatterns = settingYourPatt.value;
                 const yourPnames = Object.keys(yourPatterns).sort();
                 yourPnames.forEach(pn => { addPn(pn, yourPatterns, divYourList); });
+                chooseRadFromSetting();
+            }
+            function getActivePattern() {
+                const yourPatterns = settingYourPatt.value;
+                const arrNames = [...Object.keys(breathPatterns), ...Object.keys(yourPatterns)];
+                const val = settingPattern.value;
+                if (arrNames.includes(val)) { return val; }
+                settingPattern.value = settingPattern.defaultValue;
+                return settingPattern.value;
+            }
+            function chooseRadFromSetting() {
+                const val = getActivePattern();
+                const rad = divPattList.querySelector(`input[value="${val}"]`);
+                rad.checked = true;
             }
 
 
