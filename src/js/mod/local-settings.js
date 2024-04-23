@@ -105,8 +105,11 @@ export class LocalSetting {
     }
     bindToInput(inp) {
         if (this.#input) {
-            console.error("bindToInput, already has .#input", this.#key, this.#input);
-            throw Error("bindToInput, already has .#input");
+            const doc = this.#input.getRootNode();
+            if (doc.nodeName == "#document") {
+                console.error("bindToInput, already has .#input", this.#key, this.#input);
+                throw Error("bindToInput, already has .#input");
+            }
         }
         /*
         if (this.#onInputFun) {

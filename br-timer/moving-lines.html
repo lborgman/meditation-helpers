@@ -108,6 +108,7 @@
         let settingDurationSeconds;
         let settingDurationMinutes;
         let settingDurationIsInSeconds;
+        let settingSpeed;
 
         let isRunning = false;
         function isRunningFun() { return document.documentElement.classList.contains("running"); }
@@ -1014,6 +1015,7 @@
         }
         let secondsDuration;
         async function setupControls(controlscontainer) {
+            settingSpeed = new ourLocalSetting("speed", 100);
             settingDurationSeconds = new ourLocalSetting("duration-seconds", 9);
             settingDurationMinutes = new ourLocalSetting("duration-minutes", 1);
             settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
@@ -1150,7 +1152,6 @@
                     value: 100,
                     class: "slider",
                 });
-                const settingSpeed = new ourLocalSetting("speed", 100);
                 settingSpeed.bindToInput(inpSpeed);
                 const eltOutSpeed = mkElt("span");
                 const tellSpeed = () => {
