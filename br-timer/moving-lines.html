@@ -1426,7 +1426,12 @@
             const iconInfo = modMdc.mkMDCicon("info");
             iconInfo.style.fontSize = "2.5rem";
             iconInfo.style.color = "mediumslateblue";
-            const btnInfo = modMdc.mkMDCiconButton(iconInfo, "About");
+            const aInfo = mkElt("a", undefined, iconInfo);
+            const urlAbout = new URL(location);
+            urlAbout.pathname = "../../about.html";
+            aInfo.href = urlAbout.href;
+            // const btnInfo = modMdc.mkMDCiconButton(iconInfo, "About");
+            const btnInfo = modMdc.mkMDCiconButton(aInfo, "About Link 2");
             btnInfo.style = `
                 position: absolute;
                 top: -5px;
