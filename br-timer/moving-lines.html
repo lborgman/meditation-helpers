@@ -1397,8 +1397,8 @@
             settingYourPatt = new ourLocalSetting("your-patterns", {});
 
 
-            const container = mkElt("section");
-            container.style = `
+            const sectionContainer = mkElt("section");
+            sectionContainer.style = `
                 max-height: 100%;
                 max-width: 100%;
                 max-width: calc(100% - 40px);
@@ -1408,9 +1408,10 @@
                 opacity: 0;
                 transition: opacity 0.5s;
             `;
-            document.body.appendChild(container);
-            setupCanvas(container);
-            await setupControls(container);
+            document.body.appendChild(sectionContainer);
+            setupCanvas(sectionContainer);
+            await setupControls(sectionContainer);
+            addInfoButton(sectionContainer);
             setCanvasSizes();
             const afterResize = () => {
                 setCanvasSizes();
@@ -1419,6 +1420,21 @@
             const debounceAfterResize = debounce(afterResize);
             addEventListener("resize", evt => { debounceAfterResize(); });
             setCanvasBackgroundToCurrent();
+        }
+        async function addInfoButton(container) {
+            const modMdc = await import("util-mdc");
+            const iconInfo = modMdc.mkMDCicon("info");
+            iconInfo.style.fontSize = "2.5rem";
+            iconInfo.style.color = "mediumslateblue";
+            const btnInfo = modMdc.mkMDCiconButton(iconInfo, "About");
+            btnInfo.style = `
+                position: absolute;
+                top: -5px;
+                right: 5px;
+                NOfont-size: 2.5rem !important;
+            `;
+            container.appendChild(btnInfo);
+
         }
 
     </script>
