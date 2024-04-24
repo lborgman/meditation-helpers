@@ -716,8 +716,8 @@
                 return;
             }
 
-            canvasSec = patt.pattW * numPatt;
-            // settingCountsPerSecond
+            // canvasSec = patt.pattW * numPatt;
+            canvasSec = (patt.pattW * (100 / settingCountsPerSecond.value)) * numPatt;
 
             ctxCanvas.beginPath();
 
@@ -788,12 +788,12 @@
                 return false;
             }
             function pnt2canvas(pnt) {
-                // secondsDur
                 const sec = (msLastDraw - msStart - msFocusLength) / 1000;
-                // if (sec > secondsDuration) { return; }
-                // settingCountsPerSecond
-                if (pnt.pointX > secondsDuration) { return; }
-                const x = pnt.pointX - sec + canvasSec / 2;
+                const secPointX = pnt.pointX * (100 / settingCountsPerSecond.value);
+                // if (pnt.pointX > secondsDuration) { return; }
+                if (secPointX > secondsDuration) { return; }
+                // const x = pnt.pointX - sec + canvasSec / 2;
+                const x = secPointX - sec + canvasSec / 2;
                 // if (x > secondsDuration) { return; }
                 const pntC = {
                     x: pattX2canvasX(x),
