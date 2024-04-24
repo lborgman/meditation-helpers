@@ -108,7 +108,10 @@
         let settingDurationSeconds;
         let settingDurationMinutes;
         let settingDurationIsInSeconds;
+
         let settingCountsPerSecond;
+        const minCountsPerSeconds = 80;
+        const maxCountsPerSeconds = 120;
 
         let isRunning = false;
         function isRunningFun() { return document.documentElement.classList.contains("running"); }
@@ -814,7 +817,11 @@
             function pattY2canvasY(pattY) {
                 const bottom = eltCanvas.height * 0.15;
                 const top = eltCanvas.height * 0.30;
-                const height = eltCanvas.height - top - bottom;
+
+                // const height = eltCanvas.height - top - bottom;
+                const speedHeight = settingCountsPerSecond.value / maxCountsPerSeconds;
+                const height = (eltCanvas.height - top - bottom) * speedHeight;
+
                 const invertY = Math.abs(pattY - 1);
                 return invertY * height + top;
             }
@@ -1146,12 +1153,13 @@
 
                 // https://www.w3schools.com/howto/howto_js_rangeslider.asp
 
-
                 // Looks like values should be integers.
                 const inpSpeed = mkElt("input", {
                     type: "range",
-                    min: 80,
-                    max: 120,
+                    // min: 80,
+                    min: minCountsPerSeconds,
+                    // max: 120,
+                    max: maxCountsPerSeconds,
                     value: 100,
                     class: "slider",
                 });
