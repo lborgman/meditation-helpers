@@ -108,7 +108,7 @@
         let settingDurationSeconds;
         let settingDurationMinutes;
         let settingDurationIsInSeconds;
-        let settingSpeed;
+        let settingCountsPerSecond;
 
         let isRunning = false;
         function isRunningFun() { return document.documentElement.classList.contains("running"); }
@@ -717,6 +717,7 @@
             }
 
             canvasSec = patt.pattW * numPatt;
+            // settingCountsPerSecond
 
             ctxCanvas.beginPath();
 
@@ -790,6 +791,7 @@
                 // secondsDur
                 const sec = (msLastDraw - msStart - msFocusLength) / 1000;
                 // if (sec > secondsDuration) { return; }
+                // settingCountsPerSecond
                 if (pnt.pointX > secondsDuration) { return; }
                 const x = pnt.pointX - sec + canvasSec / 2;
                 // if (x > secondsDuration) { return; }
@@ -802,6 +804,7 @@
             }
             function mkPxPerMs() {
                 pxPerMs = eltCanvas.width / (patt.pattW * numPatt);
+                // settingCountsPerSecond
             }
 
             function pattX2canvasX(pattX) {
@@ -1015,7 +1018,7 @@
         }
         let secondsDuration;
         async function setupControls(controlscontainer) {
-            settingSpeed = new ourLocalSetting("speed", 100);
+            settingCountsPerSecond = new ourLocalSetting("counts-per-second", 100);
             settingDurationSeconds = new ourLocalSetting("duration-seconds", 9);
             settingDurationMinutes = new ourLocalSetting("duration-minutes", 1);
             settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
@@ -1152,7 +1155,7 @@
                     value: 100,
                     class: "slider",
                 });
-                settingSpeed.bindToInput(inpSpeed);
+                settingCountsPerSecond.bindToInput(inpSpeed);
                 const eltOutSpeed = mkElt("span");
                 const tellSpeed = () => {
                     eltOutSpeed.textContent = `${inpSpeed.value}%`;
