@@ -1427,8 +1427,9 @@
             iconInfo.style.fontSize = "2.5rem";
             iconInfo.style.color = "mediumslateblue";
             const aInfo = mkElt("a", undefined, iconInfo);
-            const urlAbout = new URL(location);
-            urlAbout.pathname = "../../about.html";
+            // const urlAbout = new URL(location);
+            // urlAbout.pathname = "../../about.html";
+            const urlAbout = new URL("../about.html", location);
             aInfo.href = urlAbout.href;
             // const btnInfo = modMdc.mkMDCiconButton(iconInfo, "About");
             const btnInfo = modMdc.mkMDCiconButton(aInfo, "About Link 2");
