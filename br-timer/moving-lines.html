@@ -1244,7 +1244,8 @@
                     divSpeed,
                     divDebug,
                 ]);
-                modMdc.mkMDCdialogConfirm(bdy, "Close", false);
+                await modMdc.mkMDCdialogConfirm(bdy, "Close", false);
+                initCurrentPattern();
             });
             btnSettings.id = "settings-button";
 
