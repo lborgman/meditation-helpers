@@ -269,23 +269,34 @@
             const dataUriSvgImage = mkElt("img");
             dataUriSvgImage.src = s;
 
-            function popupShare() {
-                const btnCopy = mkElt("button", { "class": "popup-button copy-button" }, "Copy");
+            async function popupShare() {
+                const modMdc = await importRelativeModule("./src/js/mod/util-mdc.js");
+                /*
+                const btnCopy = modMdc.mkMDCbutton("Copy", "raised");
                 btnCopy.addEventListener("click", evt => {
                     copyToClipboardAndNotify(spanLoc, spanLoc.innerText);
-                })
-                const spanLoc = mkElt("span", { "style": "display: inline-block;" },
+                });
+                */
+                const spanLoc = mkElt("span", undefined,
                     mkElt("a", { "href": urlHref, "target": "_blank", "rel": "noreferrer" }, urlHref));
-                const locDiv = mkElt("div", null, [spanLoc, btnCopy]);
-                const title = "QR Code for web address";
+                spanLoc.style = `
+                    display: inline-block;
+                    overflow-wrap: anywhere;
+                `;
+                const locDiv = mkElt("div", null, [
+                    spanLoc,
+                    // btnCopy
+                ]);
+                // const title = "QR Code for web address";
                 const body = mkElt("div", null,
                     [
+                        mkElt("h2", undefined, "Share this page"),
                         mkElt("p", null, locDiv),
                         dataUriSvgImage
                     ]
                 );
 
-                modMdc.mkMDCdialogAlert(body);
+                modMdc.mkMDCdialogAlert(body, "Close");
             }
             const btnShare = modMdc.mkMDCbutton("Share", "raised");
             btnShare.addEventListener("click", evt => {
