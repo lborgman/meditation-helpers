@@ -30,7 +30,19 @@
             }
     </script>
 
-    <script src="./src/js/error.js"></script>
+    <!-- <script src="./src/js/error.js"></script> -->
+    <script>
+        const urlErr = new URL("../src/js/error.js", location);
+        const urlErrHref = urlErr.href;
+        console.log({ urlErrHref }, urlErrHref);
+
+        const eltErr = document.createElement("script");
+        eltErr.src = urlErrHref;
+        document.currentScript.insertAdjacentElement("afterend", eltErr);
+    </script>
+
+
+
     <!-- 
     // <uniquifier>: Use a unique and descriptive class name
         // <weight>: Use a value from 200 to 1000
@@ -193,8 +205,8 @@
             Unfortunately I have not been able to find direct scientific supported
             for this type of exercises.
             There are however indirect support.
-            <div style="color:red; background:black; padding:2px;"> (I will add some links here later.)  </span>
-        </p>
+        <div style="color:red; background:black; padding:2px;"> (I will add some links here later.) </span>
+            </p>
 
     </section>
 
