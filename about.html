@@ -243,7 +243,7 @@
             const urlMdc = new URL("./src/js/mod/util-mdc.js", location);
             const modMdc = await import(urlMdc);
             if (!modMdc) throw Error("could not import modMdc");
-            const urlModQr = new URL("../ext/qr/qrjs2.js", location);
+            const urlModQr = new URL("./ext/qr/qrjs2.js", location);
             const linkModQr = urlModQr.href;
             console.log({ linkModQr }, linkModQr);
             const modQR = await import(urlModQr);
