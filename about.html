@@ -35,12 +35,12 @@
         addScriptSrcElement("./src/js/error.js");
         function addScriptSrcElement(relSrc) {
             // const urlErr = new URL("../src/js/error.js", location);
-            const urlErr = new URL(relSrc, location);
-            const urlErrHref = urlErr.href;
-            console.log("addScriptSrcElement:", urlErrHref);
+            const urlSrc = new URL(relSrc, location);
+            const urlSrcHref = urlSrc.href;
+            console.log("addScriptSrcElement:", urlSrcHref);
 
             const eltErr = document.createElement("script");
-            eltErr.src = urlErrHref;
+            eltErr.src = urlSrcHref;
             document.currentScript.insertAdjacentElement("afterend", eltErr);
         }
     </script>
@@ -240,7 +240,7 @@
         const currScript = document.currentScript;
         (async () => {
             // const modMdc = await import("util-mdc");
-            const urlMdc = new URL("../src/js/mod/util-mdc.js", location);
+            const urlMdc = new URL("./src/js/mod/util-mdc.js", location);
             const modMdc = await import(urlMdc);
             if (!modMdc) throw Error("could not import modMdc");
             const urlModQr = new URL("../ext/qr/qrjs2.js", location);
