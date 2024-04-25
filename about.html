@@ -37,7 +37,7 @@
             // const urlErr = new URL("../src/js/error.js", location);
             const urlErr = new URL(relSrc, location);
             const urlErrHref = urlErr.href;
-            console.log({ urlErrHref }, urlErrHref);
+            console.log("addScriptSrcElement:", urlErrHref);
 
             const eltErr = document.createElement("script");
             eltErr.src = urlErrHref;
