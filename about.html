@@ -32,17 +32,29 @@
 
     <!-- <script src="./src/js/error.js"></script> -->
     <script>
-        addScriptSrcElement("./src/js/error.js");
-        function addScriptSrcElement(relSrc) {
-            // const urlErr = new URL("../src/js/error.js", location);
+        function makeRelativeScriptLink(relSrc) {
             const urlSrc = new URL(relSrc, location);
             const urlSrcHref = urlSrc.href;
-            console.log("addScriptSrcElement:", urlSrcHref);
+            console.log("makeUsableRelativeLink:", urlSrcHref);
+            return urlSrcHref;
+        }
+        function addScriptSrcElement(relSrc) {
+            // const urlSrc = new URL(relSrc, location);
+            // const urlSrcHref = urlSrc.href;
+            const urlSrcHref = makeRelativeScriptLink(relSrc);
 
             const eltErr = document.createElement("script");
             eltErr.src = urlSrcHref;
             document.currentScript.insertAdjacentElement("afterend", eltErr);
         }
+        function importRelativeModule(relSrc) {
+            const urlSrcHref = makeRelativeScriptLink(relSrc);
+            return import(urlSrcHref);
+        }
+
+    </script>
+    <script>
+        addScriptSrcElement("./src/js/error.js");
     </script>
 
 
@@ -110,12 +122,11 @@
     </style>
     <script>
         function mkLinkHere(relLink, linkText) {
-            // const uMbt = new URL("./br-timer/moving-lines.html", location);
-            const uMbt = new URL(relLink, location);
             const elt = document.createElement("a");
-            // elt.textContent = "HERE";
             elt.textContent = linkText;
+            const uMbt = new URL(relLink, location);
             elt.href = uMbt.href;
+            elt.href = makeRelativeScriptLink(relLink);
             document.currentScript.insertAdjacentElement("afterend", elt);
         }
     </script>
@@ -163,10 +174,6 @@
             (It can be used offline since it is a
             <a href="https://en.wikipedia.org/wiki/Progressive_web_app">PWA</a>.)
         </div>
-        <script>
-            // mkLinkHere("./br-timer/moving-lines.html", "here it is");
-
-        </script>
     </section>
 
 
@@ -234,20 +241,27 @@
 
     <p>
         It is just a link to this web page that you share.
-        Hm. Some IT problem here...
+        Debug Note: new importRelativeModule used!
     </p>
     <script>
         const currScript = document.currentScript;
         (async () => {
             // const modMdc = await import("util-mdc");
-            const urlMdc = new URL("./src/js/mod/util-mdc.js", location);
-            const modMdc = await import(urlMdc);
+            // const urlMdc = new URL("./src/js/mod/util-mdc.js", location);
+
+            // const urlMdc = makeRelativeScriptLink("./src/js/mod/util-mdc.js");
+            // const modMdc = await import(urlMdc);
+            const modMdc = await importRelativeModule("./src/js/mod/util-mdc.js");
             if (!modMdc) throw Error("could not import modMdc");
-            const urlModQr = new URL("./ext/qr/qrjs2.js", location);
-            const linkModQr = urlModQr.href;
-            console.log({ linkModQr }, linkModQr);
-            const modQR = await import(urlModQr);
+
+            // const urlModQr = new URL("./ext/qr/qrjs2.js", location);
+            // const urlModQr = makeRelativeScriptLink("./ext/qr/qrjs2.js");
+            // const linkModQr = urlModQr.href;
+            // console.log({ linkModQr }, linkModQr);
+            // const modQR = await import(urlModQr);
+            const modQR = await importRelativeModule("./ext/qr/qrjs2.js");
             if (!modQR) throw Error("could not import modQR");
+
             const QRcode = modQR.default;
 
             const url = new URL(location);
