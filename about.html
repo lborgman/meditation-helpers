@@ -32,13 +32,17 @@
 
     <!-- <script src="./src/js/error.js"></script> -->
     <script>
-        const urlErr = new URL("../src/js/error.js", location);
-        const urlErrHref = urlErr.href;
-        console.log({ urlErrHref }, urlErrHref);
+        addScriptSrcElement("../src/js/error.js");
+        function addScriptSrcElement(relSrc) {
+            // const urlErr = new URL("../src/js/error.js", location);
+            const urlErr = new URL(relSrc, location);
+            const urlErrHref = urlErr.href;
+            console.log({ urlErrHref }, urlErrHref);
 
-        const eltErr = document.createElement("script");
-        eltErr.src = urlErrHref;
-        document.currentScript.insertAdjacentElement("afterend", eltErr);
+            const eltErr = document.createElement("script");
+            eltErr.src = urlErrHref;
+            document.currentScript.insertAdjacentElement("afterend", eltErr);
+        }
     </script>
 
 
@@ -78,7 +82,11 @@
 
     <!-- <script src="http://localhost:8080/public/ext/mdc/material-components-web.js"></script> -->
     <!-- <script src="/ext/mdc/material-components-web.js"></script> -->
-    <script src="../ext/mdc/material-components-web.js"></script>
+
+    <!-- <script src="../ext/mdc/material-components-web.js"></script> -->
+    <script>
+        addScriptSrcElement("../ext/mdc/material-components-web.js");
+    </script>
 
     <!-- <script src="//:8080/public/ext/mdc/material-components-web.js"></script> -->
     <!-- <script src="/src/js/error.js"></script> -->
