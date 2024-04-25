@@ -23,16 +23,16 @@
         rel="stylesheet">
 
     <script>
-        function makeAbsScriptLink(relSrc) {
-            const urlSrc = new URL(relSrc, location);
-            const urlSrcHref = urlSrc.href;
-            console.log("makeAbsScriptLink:", urlSrcHref);
-            return urlSrcHref;
+        function makeAbsLink(relLink) {
+            const urlLink = new URL(relLink, location);
+            const urlLinkHref = urlLink.href;
+            console.log("makeAbsScriptLink:", urlLinkHref);
+            return urlLinkHref;
         }
         function addRelativeScriptSrc(relSrc, eventName) {
             const eltScript = document.createElement("script");
             let prom;
-            const absSrc = makeAbsScriptLink(relSrc);
+            const absSrc = makeAbsLink(relSrc);
             if (eventName) {
                 prom = simpleBlockUntilEvent(window, eventName);
                 eltScript.onload = () => {
@@ -46,25 +46,19 @@
             return prom;
         }
         function importRelativeModule(relSrc) {
-            const urlSrcHref = makeAbsScriptLink(relSrc);
-            return import(urlSrcHref);
+            const absSrc = makeAbsLink(relSrc);
+            return import(absSrc);
         }
         function makeAbsLinkHere(relLink, linkText) {
             const eltA = document.createElement("a");
             eltA.textContent = linkText;
-            const uMbt = new URL(relLink, location);
-            eltA.href = uMbt.href;
-            eltA.href = makeAbsScriptLink(relLink);
+            eltA.href = makeAbsLink(relLink);
             document.currentScript.insertAdjacentElement("afterend", eltA);
             return eltA;
         }
         // https://dev.to/somedood/promises-and-events-some-pitfalls-and-workarounds-elp
-        function simpleBlockUntilEvent(target, event) {
-            return new Promise(resolve => target.addEventListener(
-                event,
-                resolve,
-                { passive: true, once: true, },
-            ));
+        function simpleBlockUntilEvent(targ, evt) {
+            return new Promise(resolve => targ.addEventListener(evt, resolve, { passive: true, once: true }));
         }
 
     </script>
@@ -92,15 +86,9 @@
     -->
 
     <!-- 
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Material+Icons&amp;display=block" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    -->
-    <!-- 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     -->
-
 
     <!-- Required styles for Material Web -->
     <!-- <link rel="stylesheet" href="/ext/mdc/14.0.0/material-components-web.css"> -->
@@ -243,7 +231,7 @@
     </section>
     <h2>Do you want to share this web app?</h2>
 
-    <div style="color:red;">(Debug Note: promise)</div>
+    <div style="color:red;">(Debug Note: cleanup)</div>
     <p>
         You just need a link to this web page.
         You can get it here:
