@@ -32,29 +32,26 @@
 
     <!-- <script src="./src/js/error.js"></script> -->
     <script>
-        function makeRelativeScriptLink(relSrc) {
+        function makeAbsScriptLink(relSrc) {
             const urlSrc = new URL(relSrc, location);
             const urlSrcHref = urlSrc.href;
-            console.log("makeUsableRelativeLink:", urlSrcHref);
+            console.log("makeAbsScriptLink:", urlSrcHref);
             return urlSrcHref;
         }
-        function addScriptSrcElement(relSrc) {
-            // const urlSrc = new URL(relSrc, location);
-            // const urlSrcHref = urlSrc.href;
-            const urlSrcHref = makeRelativeScriptLink(relSrc);
-
-            const eltErr = document.createElement("script");
-            eltErr.src = urlSrcHref;
-            document.currentScript.insertAdjacentElement("afterend", eltErr);
+        function addRelativeScriptSrc(relSrc) {
+            const eltScript = document.createElement("script");
+            const absSrc = makeAbsScriptLink(relSrc);
+            eltScript.src = absSrc;
+            document.currentScript.insertAdjacentElement("afterend", eltScript);
         }
         function importRelativeModule(relSrc) {
-            const urlSrcHref = makeRelativeScriptLink(relSrc);
+            const urlSrcHref = makeAbsScriptLink(relSrc);
             return import(urlSrcHref);
         }
 
     </script>
     <script>
-        addScriptSrcElement("./src/js/error.js");
+        addRelativeScriptSrc("./src/js/error.js");
     </script>
 
 
@@ -97,7 +94,7 @@
 
     <!-- <script src="../ext/mdc/material-components-web.js"></script> -->
     <script>
-        addScriptSrcElement("./ext/mdc/material-components-web.js");
+        addRelativeScriptSrc("./ext/mdc/material-components-web.js");
     </script>
 
     <!-- <script src="//:8080/public/ext/mdc/material-components-web.js"></script> -->
@@ -126,7 +123,7 @@
             elt.textContent = linkText;
             const uMbt = new URL(relLink, location);
             elt.href = uMbt.href;
-            elt.href = makeRelativeScriptLink(relLink);
+            elt.href = makeAbsScriptLink(relLink);
             document.currentScript.insertAdjacentElement("afterend", elt);
         }
     </script>
