@@ -22,15 +22,6 @@
         href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
         rel="stylesheet">
 
-    <script type="importmap">
-            {
-              "imports": {
-                "util-mdc": "../src/js/mod/util-mdc.js"
-              }
-            }
-    </script>
-
-    <!-- <script src="./src/js/error.js"></script> -->
     <script>
         function makeAbsScriptLink(relSrc) {
             const urlSrc = new URL(relSrc, location);
@@ -38,21 +29,46 @@
             console.log("makeAbsScriptLink:", urlSrcHref);
             return urlSrcHref;
         }
-        function addRelativeScriptSrc(relSrc) {
+        function addRelativeScriptSrc(relSrc, eventName) {
             const eltScript = document.createElement("script");
+            let prom;
             const absSrc = makeAbsScriptLink(relSrc);
+            if (eventName) {
+                prom = simpleBlockUntilEvent(window, eventName);
+                eltScript.onload = () => {
+                    console.log("loaded ", relSrc, eventName);
+                    window.dispatchEvent(new CustomEvent(eventName))
+                }
+            }
             eltScript.src = absSrc;
             document.currentScript.insertAdjacentElement("afterend", eltScript);
+            // FIX-ME: add timeout here:
+            return prom;
         }
         function importRelativeModule(relSrc) {
             const urlSrcHref = makeAbsScriptLink(relSrc);
             return import(urlSrcHref);
         }
+        function mkLinkHere(relLink, linkText) {
+            const elt = document.createElement("a");
+            elt.textContent = linkText;
+            const uMbt = new URL(relLink, location);
+            elt.href = uMbt.href;
+            elt.href = makeAbsScriptLink(relLink);
+            document.currentScript.insertAdjacentElement("afterend", elt);
+        }
+        // https://dev.to/somedood/promises-and-events-some-pitfalls-and-workarounds-elp
+        function simpleBlockUntilEvent(target, event) {
+            return new Promise(resolve => target.addEventListener(
+                event,
+                resolve,
+                { passive: true, once: true, },
+            ));
+        }
 
     </script>
-    <script>
-        addRelativeScriptSrc("./src/js/error.js");
-    </script>
+
+    <script> addRelativeScriptSrc("./src/js/error.js"); </script>
 
 
 
@@ -89,18 +105,17 @@
     <!-- <link rel="stylesheet" href="/ext/mdc/14.0.0/material-components-web.css"> -->
     <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.css">
 
-    <!-- <script src="http://localhost:8080/public/ext/mdc/material-components-web.js"></script> -->
-    <!-- <script src="/ext/mdc/material-components-web.js"></script> -->
-
-    <!-- <script src="../ext/mdc/material-components-web.js"></script> -->
     <script>
-        addRelativeScriptSrc("./ext/mdc/material-components-web.js");
+        /*
+        const onloadFun = () => {
+            console.log("loaded 1");
+            window.dispatchEvent(new CustomEvent("my-mcw-loaded"));
+        }
+        // const mcwPromise = simpleBlockUntilEvent(window, "my-mcw-loaded");
+        */
+        const mcwPromise = addRelativeScriptSrc("./ext/mdc/material-components-web.js", "loaded-mcw");
     </script>
 
-    <!-- <script src="//:8080/public/ext/mdc/material-components-web.js"></script> -->
-    <!-- <script src="/src/js/error.js"></script> -->
-
-    <!-- <link rel="stylesheet" href="http://localhost:8080/public/css/rem10m1h.css"> -->
     <style>
         :root {
             --icon-button-size: 48;
@@ -117,16 +132,6 @@
             margin-bottom: 80px;
         }
     </style>
-    <script>
-        function mkLinkHere(relLink, linkText) {
-            const elt = document.createElement("a");
-            elt.textContent = linkText;
-            const uMbt = new URL(relLink, location);
-            elt.href = uMbt.href;
-            elt.href = makeAbsScriptLink(relLink);
-            document.currentScript.insertAdjacentElement("afterend", elt);
-        }
-    </script>
 
 </head>
 
@@ -177,9 +182,7 @@
     <section>
         <h2 id="mbt">Meditation Breathing Timer</h2>
         You can
-        <script>
-            mkLinkHere("./br-timer/moving-lines.html", "start it here");
-        </script>
+        <script> mkLinkHere("./br-timer/moving-lines.html", "start it here"); </script>
         .
 
         <p>
@@ -238,24 +241,17 @@
 
     <p>
         It is just a link to this web page that you share.
-        Debug Note: new importRelativeModule used!
+        Debug Note: promise
     </p>
     <script>
         const currScript = document.currentScript;
         (async () => {
-            // const modMdc = await import("util-mdc");
-            // const urlMdc = new URL("./src/js/mod/util-mdc.js", location);
+            await mcwPromise;
+            console.log("after mcwPromise", mcwPromise);
 
-            // const urlMdc = makeRelativeScriptLink("./src/js/mod/util-mdc.js");
-            // const modMdc = await import(urlMdc);
             const modMdc = await importRelativeModule("./src/js/mod/util-mdc.js");
             if (!modMdc) throw Error("could not import modMdc");
 
-            // const urlModQr = new URL("./ext/qr/qrjs2.js", location);
-            // const urlModQr = makeRelativeScriptLink("./ext/qr/qrjs2.js");
-            // const linkModQr = urlModQr.href;
-            // console.log({ linkModQr }, linkModQr);
-            // const modQR = await import(urlModQr);
             const modQR = await importRelativeModule("./ext/qr/qrjs2.js");
             if (!modQR) throw Error("could not import modQR");
 
@@ -288,15 +284,12 @@
                     ]
                 );
 
-                // const popQR = new Popup(title, body, null, true, "qr-popup");
-                // popQR.show();
                 modMdc.mkMDCdialogAlert(body);
             }
             const btnShare = modMdc.mkMDCbutton("Share", "raised");
             btnShare.addEventListener("click", evt => {
                 popupShare();
             });
-            // document.currentScript.insertAdjacentElement("afterend", btnShare);
             if (!currScript) throw Error("currScript was undefined");
             currScript.insertAdjacentElement("afterend", btnShare);
         })();
