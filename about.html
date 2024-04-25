@@ -49,13 +49,14 @@
             const urlSrcHref = makeAbsScriptLink(relSrc);
             return import(urlSrcHref);
         }
-        function mkLinkHere(relLink, linkText) {
-            const elt = document.createElement("a");
-            elt.textContent = linkText;
+        function makeAbsLinkHere(relLink, linkText) {
+            const eltA = document.createElement("a");
+            eltA.textContent = linkText;
             const uMbt = new URL(relLink, location);
-            elt.href = uMbt.href;
-            elt.href = makeAbsScriptLink(relLink);
-            document.currentScript.insertAdjacentElement("afterend", elt);
+            eltA.href = uMbt.href;
+            eltA.href = makeAbsScriptLink(relLink);
+            document.currentScript.insertAdjacentElement("afterend", eltA);
+            return eltA;
         }
         // https://dev.to/somedood/promises-and-events-some-pitfalls-and-workarounds-elp
         function simpleBlockUntilEvent(target, event) {
@@ -182,7 +183,10 @@
     <section>
         <h2 id="mbt">Meditation Breathing Timer</h2>
         You can
-        <script> mkLinkHere("./br-timer/moving-lines.html", "start it here"); </script>
+        <script>
+            const eltA = makeAbsLinkHere("./br-timer/moving-lines.html", "start it here");
+            eltA.style.fontSize = "1.2rem";
+        </script>
         .
 
         <p>
