@@ -75,6 +75,17 @@
             background-color: #FFC107;
         }
     </style>
+    <script>
+        function mkLinkHere(relLink, linkText) {
+            // const uMbt = new URL("./br-timer/moving-lines.html", location);
+            const uMbt = new URL(relLink, location);
+            const elt = document.createElement("a");
+            // elt.textContent = "HERE";
+            elt.textContent = linkText;
+            elt.href = uMbt.href;
+            document.currentScript.insertAdjacentElement("afterend", elt);
+        }
+    </script>
 
 </head>
 
@@ -94,18 +105,54 @@
         </li>
         <li>
             <a href="#mbt">
-            Meditation Breathing Timer
+                Meditation Breathing Timer
             </a>
         </li>
     </ul>
 
+
+
     <h2 id="mmtt">Mindfullness Meditation Training Timer</h2>
+    <div style="color:red;">Not included here yet!</div>
+    <script>
+        // mkLinkHere("./br-timer/moving-lines.html", "here it is");
+    </script>
+
+    <p>
+        This app is based on a study that used a very similar app.
+        You can read all about it in the app.
+    </p>
+
+
     <h2 id="mbt">Meditation Breathing Timer</h2>
     <script>
-        const uMbt = new URL("./br-timer/moving-lines.html", location);
-        const elt = document.createElement("a");
-        elt.textContent = "HERE";
-        elt.href = uMbt.href;
-        document.currentScript.insertAdjacentElement("afterend", elt);
+        mkLinkHere("./br-timer/moving-lines.html", "here it is");
     </script>
+
+    <p>
+        This is my version of some similar apps I found on the internet:
+    </p>
+    <ul>
+        <li>
+            <b> SereneBreath: </b>
+            This was my first inspiration.
+            A beautiful app.
+            <p>
+                <a href="https://github.com/gsantiago/SereneBreath">GitHub</a>,
+                <a href="https://serenebreath.com/">Web app (seems to be down?)</a>
+            </p>
+        </li>
+        <li>
+            <b> Soothing Breathe: </b>
+            A nice and simple idea.
+            My version is visually very similar to this app.
+            I have made it a web app (and free open source)
+            and tried to make it a little bit easier to use.
+            <p>
+                <a href="https://www.instagram.com/soothing_breathe/">Instagram @soothing_breathe</a>,
+                <a href="https://pocketbreathcoach.com/">Native app (not a web app)</a>,
+                <a href="https://www.youtube.com/@Headfulness">YouTube, Headfulness</a>
+            </p>
+        </li>
+    </ul>
 </body>
