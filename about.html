@@ -214,6 +214,7 @@
 
     <p>
         It is just a link to this web page that you share.
+        Hm. Some IT problem here...
     </p>
     <script>
         const currScript = document.currentScript;
@@ -221,10 +222,12 @@
             // const modMdc = await import("util-mdc");
             const urlMdc = new URL("../src/js/mod/util-mdc.js", location);
             const modMdc = await import(urlMdc);
+            if (!modMdc) throw Error("could not import modMdc");
             const urlModQr = new URL("../ext/qr/qrjs2.js", location);
             const linkModQr = urlModQr.href;
             console.log({ linkModQr }, linkModQr);
             const modQR = await import(urlModQr);
+            if (!modQR) throw Error("could not import modQR");
             const QRcode = modQR.default;
 
             const url = new URL(location);
@@ -239,7 +242,6 @@
             dataUriSvgImage.src = s;
 
             function popupShare() {
-
                 const btnCopy = mkElt("button", { "class": "popup-button copy-button" }, "Copy");
                 btnCopy.addEventListener("click", evt => {
                     copyToClipboardAndNotify(spanLoc, spanLoc.innerText);
@@ -264,6 +266,7 @@
                 popupShare();
             });
             // document.currentScript.insertAdjacentElement("afterend", btnShare);
+            if (!currScript) throw Error("currScript was undefined");
             currScript.insertAdjacentElement("afterend", btnShare);
         })();
     </script>
