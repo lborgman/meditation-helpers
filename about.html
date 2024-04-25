@@ -22,6 +22,15 @@
         href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
         rel="stylesheet">
 
+    <script type="importmap">
+            {
+              "imports": {
+                "util-mdc": "../src/js/mod/util-mdc.js",
+              }
+            }
+    </script>
+
+    <script src="../src/js/error.js"></script>
     <!-- 
     // <uniquifier>: Use a unique and descriptive class name
         // <weight>: Use a value from 200 to 1000
@@ -74,6 +83,10 @@
             background-color: orange;
             background-color: #FFC107;
         }
+
+        section {
+            margin-bottom: 80px;
+        }
     </style>
     <script>
         function mkLinkHere(relLink, linkText) {
@@ -93,105 +106,167 @@
 
     <h1>About Some Meditation Tools</h1>
 
-    <p>
-        This is a collection of some simple tools that might help you begin meditating.
-        Currently these tools are available:
-    </p>
-    <ul>
-        <li>
-            <a href="#mmtt">
-                Mindfullness Meditation Training Timer
-            </a>
-        </li>
-        <li>
-            <a href="#mbt">
-                Meditation Breathing Timer
-            </a>
-        </li>
-    </ul>
+    <section>
+        <p>
+            This is a collection of some simple tools that might help you begin meditating.
+            Currently these tools are available:
+        </p>
+        <ul>
+            <li>
+                <a href="#mmtt">
+                    Mindfullness Meditation Training Timer
+                </a>
+            </li>
+            <li>
+                <a href="#mbt">
+                    Meditation Breathing Timer
+                </a>
+            </li>
+        </ul>
+
+    </section>
 
 
 
-    <h2 id="mmtt">Mindfullness Meditation Training Timer</h2>
-    <div>
-        This is currently a separate web app that you can find
-        <a href="https://medi-timer-81281.web.app/">here</a>.
-        It can be used offline.
-    </div>
-    <script>
-        // mkLinkHere("./br-timer/moving-lines.html", "here it is");
+    <section>
 
-    </script>
+        <h2 id="mmtt">Mindfullness Meditation Training Timer</h2>
+        <p>
+            The Mindfullness Meditation Training Timer app
+            is based on a scientific study that used a very similar app.
+            You can read all about it in the app.
+        </p>
 
-    <p>
-        This app is based on a scientific study that used a very similar app.
-        You can read all about it in the app.
-    </p>
-
-
-    <h2 id="mbt">Meditation Breathing Timer</h2>
-    <script>
-        mkLinkHere("./br-timer/moving-lines.html", "here it is");
-    </script>
-
-    <p>
-        This is my version of some similar apps I found on the internet:
-    </p>
-    <ul>
-        <li>
-            <b> SereneBreath: </b>
-            This was my first inspiration.
-            A beautiful app.
-            <p>
-                <a href="https://github.com/gsantiago/SereneBreath">GitHub</a>,
-                <a href="https://serenebreath.com/">Web app (seems to be down?)</a>
-            </p>
-        </li>
-        <li>
-            <b> Soothing Breathe: </b>
-            A nice and simple idea.
-            My version is visually very similar to this app.
-            I have made it a web app (and free open source)
-            and tried to make it a little bit easier to use.
-            <p>
-                <a href="https://www.instagram.com/soothing_breathe/">Instagram @soothing_breathe</a>,
-                <a href="https://pocketbreathcoach.com/">Native app (not a web app)</a>,
-                <a href="https://www.youtube.com/@Headfulness">YouTube, Headfulness</a>
-            </p>
-        </li>
-    </ul>
-
-
-
-    <h3>What do we know about these kind of exercises?</h3>
-
-    <p>
-        Unfortunately I have not been able to find direct scientific supported
-        for this type of exercises.
-        There are however indirect support.
-        I will add some links here later.
-    </p>
-
-
-
-    <h2>Source code</h2>
-    <p>
-        If you are interested in the souce code for this web app you can find it on
-        <a href="https://github.com/lborgman/meditation-helpers">GitHub</a>. 
-        It is all in JavaScript, HTML and CSS.
-    </p>
-
-
-    <h2>Do you want to share this web app?</h2>
-    <p>
-        Here is a link: 
+        <div>
+            This part is currently a separate (progressive) web app that you can
+            <a href="https://medi-timer-81281.web.app/">start here</a>.
+            (It can be used offline since it is a
+            <a href="https://en.wikipedia.org/wiki/Progressive_web_app">PWA</a>.)
+        </div>
         <script>
-            const eltA = document.createElement("a");
+            // mkLinkHere("./br-timer/moving-lines.html", "here it is");
+
+        </script>
+    </section>
+
+
+    <section>
+        <h2 id="mbt">Meditation Breathing Timer</h2>
+        You can
+        <script>
+            mkLinkHere("./br-timer/moving-lines.html", "start it here");
+        </script>
+        .
+
+        <p>
+            This is my version of some similar apps I found on the internet:
+        </p>
+        <ul>
+            <li>
+                <b> SereneBreath: </b>
+                This was my first inspiration.
+                A beautiful app.
+                <p>
+                    <a href="https://github.com/gsantiago/SereneBreath">GitHub</a>,
+                    <a href="https://serenebreath.com/">Web app (seems to be down?)</a>
+                </p>
+            </li>
+            <li>
+                <b> Soothing Breathe: </b>
+                A nice and simple idea.
+                My version is visually very similar to this app.
+                I have made it a web app (and free open source)
+                and tried to make it a little bit easier to use.
+                <p>
+                    <a href="https://www.instagram.com/soothing_breathe/">Instagram @soothing_breathe</a>,
+                    <a href="https://pocketbreathcoach.com/">Native app (not a web app)</a>,
+                    <a href="https://www.youtube.com/@Headfulness">YouTube, Headfulness</a>
+                </p>
+            </li>
+        </ul>
+
+
+
+        <h3>What do we know about these kind of exercises?</h3>
+
+        <p>
+            Unfortunately I have not been able to find direct scientific supported
+            for this type of exercises.
+            There are however indirect support.
+            <div style="color:red; background:black; padding:2px;"> (I will add some links here later.)  </span>
+        </p>
+
+    </section>
+
+
+    <section>
+        <h2>Source code</h2>
+        <p>
+            If you are interested in the souce code for this web app you can find it on
+            <a href="https://github.com/lborgman/meditation-helpers">GitHub</a>.
+            It is all in JavaScript, HTML and CSS.
+        </p>
+    </section>
+
+    <section>
+    </section>
+    <h2>Do you want to share this web app?</h2>
+
+    <p>
+        It is just a link to this web page that you share.
+    </p>
+    <script>
+        const currScript = document.currentScript;
+        (async () => {
+            // const modMdc = await import("util-mdc");
+            const urlMdc = new URL("../src/js/mod/util-mdc.js", location);
+            const modMdc = await import(urlMdc);
+            const urlModQr = new URL("../ext/qr/qrjs2.js", location);
+            const linkModQr = urlModQr.href;
+            console.log({ linkModQr }, linkModQr);
+            const modQR = await import(urlModQr);
+            const QRcode = modQR.default;
+
             const url = new URL(location);
             url.hash = "";
-            eltA.href = url.href;
-            eltA.textContent = url.href;
-            document.currentScript.insertAdjacentElement("afterend", eltA);
-        </script>
-    </p>
+            const urlHref = url.href;
+            const svg = QRcode.generateSVG(urlHref);
+
+            const XMLS = new XMLSerializer();
+            let s = XMLS.serializeToString(svg);
+            s = "data:image/svg+xml;base64," + window.btoa(unescape(encodeURIComponent(s)));
+            const dataUriSvgImage = mkElt("img");
+            dataUriSvgImage.src = s;
+
+            function popupShare() {
+
+                const btnCopy = mkElt("button", { "class": "popup-button copy-button" }, "Copy");
+                btnCopy.addEventListener("click", evt => {
+                    copyToClipboardAndNotify(spanLoc, spanLoc.innerText);
+                })
+                const spanLoc = mkElt("span", { "style": "display: inline-block;" },
+                    mkElt("a", { "href": urlHref, "target": "_blank", "rel": "noreferrer" }, urlHref));
+                const locDiv = mkElt("div", null, [spanLoc, btnCopy]);
+                const title = "QR Code for web address";
+                const body = mkElt("div", null,
+                    [
+                        mkElt("p", null, locDiv),
+                        dataUriSvgImage
+                    ]
+                );
+
+                // const popQR = new Popup(title, body, null, true, "qr-popup");
+                // popQR.show();
+                modMdc.mkMDCdialogAlert(body);
+            }
+            const btnShare = modMdc.mkMDCbutton("Share", "raised");
+            btnShare.addEventListener("click", evt => {
+                popupShare();
+            });
+            // document.currentScript.insertAdjacentElement("afterend", btnShare);
+            currScript.insertAdjacentElement("afterend", btnShare);
+        })();
+    </script>
+
+    </section>
 </body>
