@@ -17,13 +17,34 @@
 
     <!-- for MWC, https://github.com/material-components/material-web -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+
+    <!-- 
+    // <uniquifier>: Use a unique and descriptive class name
+        // <weight>: Use a value from 200 to 1000
+    -->
+    <!-- 
+    <style>
+        .nunito-sans-<uniquifier> {
+            font-family: "Nunito Sans", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: <weight>;
+            font-style: normal;
+            font-variation-settings:
+                "wdth" 100,
+                "YTLC" 500;
+        }
+    </style>
+    -->
+
+    <!-- 
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
-
-
-
     <link href="https://fonts.googleapis.com/css?family=Material+Icons&amp;display=block" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    -->
     <!-- 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
@@ -45,11 +66,46 @@
     <style>
         :root {
             --icon-button-size: 48;
+            font-size: 16px;
+            font-family: "Nunito Sans", sans-serif;
+        }
+
+        body {
+            background-color: orange;
+            background-color: #FFC107;
         }
     </style>
 
 </head>
+
 <body>
 
     <h1>About Some Meditation Tools</h1>
+
+    <p>
+        This is a collection of some simple tools that might help you begin meditating.
+        Currently these tools are available:
+    </p>
+    <ul>
+        <li>
+            <a href="#mmtt">
+                Mindfullness Meditation Training Timer
+            </a>
+        </li>
+        <li>
+            <a href="#mbt">
+            Meditation Breathing Timer
+            </a>
+        </li>
+    </ul>
+
+    <h2 id="mmtt">Mindfullness Meditation Training Timer</h2>
+    <h2 id="mbt">Meditation Breathing Timer</h2>
+    <script>
+        const uMbt = new URL("./br-timer/moving-lines.html", location);
+        const elt = document.createElement("a");
+        elt.textContent = "HERE";
+        elt.href = uMbt.href;
+        document.currentScript.insertAdjacentElement("afterend", elt);
+    </script>
 </body>
