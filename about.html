@@ -113,13 +113,18 @@
 
 
     <h2 id="mmtt">Mindfullness Meditation Training Timer</h2>
-    <div style="color:red;">Not included here yet!</div>
+    <div>
+        This is currently a separate web app that you can find
+        <a href="https://medi-timer-81281.web.app/">here</a>.
+        It can be used offline.
+    </div>
     <script>
         // mkLinkHere("./br-timer/moving-lines.html", "here it is");
+
     </script>
 
     <p>
-        This app is based on a study that used a very similar app.
+        This app is based on a scientific study that used a very similar app.
         You can read all about it in the app.
     </p>
 
@@ -155,4 +160,38 @@
             </p>
         </li>
     </ul>
+
+
+
+    <h3>What do we know about these kind of exercises?</h3>
+
+    <p>
+        Unfortunately I have not been able to find direct scientific supported
+        for this type of exercises.
+        There are however indirect support.
+        I will add some links here later.
+    </p>
+
+
+
+    <h2>Source code</h2>
+    <p>
+        If you are interested in the souce code for this web app you can find it on
+        <a href="https://github.com/lborgman/meditation-helpers">GitHub</a>. 
+        It is all in JavaScript, HTML and CSS.
+    </p>
+
+
+    <h2>Do you want to share this web app?</h2>
+    <p>
+        Here is a link: 
+        <script>
+            const eltA = document.createElement("a");
+            const url = new URL(location);
+            url.hash = "";
+            eltA.href = url.href;
+            eltA.textContent = url.href;
+            document.currentScript.insertAdjacentElement("afterend", eltA);
+        </script>
+    </p>
 </body>
