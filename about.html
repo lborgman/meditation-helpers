@@ -13,24 +13,51 @@
     <title>About Some Meditation Tools</title>
     <!-- <link rel="icon" type="image/svg+xml" href="/img/tl.svg"> -->
 
-
-
-    <!-- for MWC, https://github.com/material-components/material-web -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-        rel="stylesheet">
-
     <script>
+        /*
+            Helper functions for developing locally and serving from GitHub.
+            Should somehow be included early on every .html page.
+        */
+
         function makeAbsLink(relLink) {
             const urlLink = new URL(relLink, location);
-            const urlLinkHref = urlLink.href;
-            console.log("makeAbsScriptLink:", urlLinkHref);
-            return urlLinkHref;
+            const absLink = urlLink.href;
+            console.log("makeAbsScriptLink:", absLink);
+            return absLink;
         }
-        function addRelativeScriptSrc(relSrc, eventName) {
-            const eltScript = document.createElement("script");
+
+        function importModule(relSrc) {
+            const absSrc = makeAbsLink(relSrc);
+            return import(absSrc);
+        }
+        function insertHereImportmap(objRelMap) {
+            const objAbsMap = {
+                imports:
+                    Object.fromEntries(
+                        Object.entries(objRelMap).map(entry => [entry[0], makeAbsLink(entry[1])])
+                    )
+            }
+            const jsonAbsMap = JSON.stringify(objAbsMap);
+            console.log(jsonAbsMap);
+            const eltMap = insertHereElement("script");
+            eltMap.type = "importmap";
+            eltMap.textContent = jsonAbsMap;
+        }
+
+        function insertHereElement(tagName) {
+            const elt = document.createElement(tagName.toLowerCase());
+            document.currentScript.insertAdjacentElement("afterend", elt);
+            return elt;
+        }
+        function insertHereLink(relHref, rel) {
+            // FIX-ME: not tested yet
+            const eltLink = insertHereElement("link");
+            eltLink.rel = rel;
+            eltLink.href = makeAbsLink(relHref);
+            return eltLink;
+        }
+        function insertHereScript(relSrc, eventName) {
+            const eltScript = insertHereElement("script");
             let prom;
             const absSrc = makeAbsLink(relSrc);
             if (eventName) {
@@ -41,29 +68,37 @@
                 }
             }
             eltScript.src = absSrc;
-            document.currentScript.insertAdjacentElement("afterend", eltScript);
             // FIX-ME: add timeout here:
             return prom;
         }
-        function importRelativeModule(relSrc) {
-            const absSrc = makeAbsLink(relSrc);
-            return import(absSrc);
-        }
-        function makeAbsLinkHere(relLink, linkText) {
-            const eltA = document.createElement("a");
+        function insertHereA(relLink, linkText) {
+            const eltA = insertHereElement("A");
             eltA.textContent = linkText;
             eltA.href = makeAbsLink(relLink);
-            document.currentScript.insertAdjacentElement("afterend", eltA);
             return eltA;
         }
         // https://dev.to/somedood/promises-and-events-some-pitfalls-and-workarounds-elp
         function simpleBlockUntilEvent(targ, evt) {
             return new Promise(resolve => targ.addEventListener(evt, resolve, { passive: true, once: true }));
         }
-
+    </script>
+    <script>
+        insertHereImportmap({
+            "util-mdc": "./src/js/mod/util-mdc.js",
+            "qrjs2": "./ext/qr/qrjs2.js",
+        });
     </script>
 
-    <script> addRelativeScriptSrc("./src/js/error.js"); </script>
+
+    <!-- for MWC, https://github.com/material-components/material-web -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+
+
+    <script> insertHereScript("./src/js/error.js"); </script>
 
 
 
@@ -95,14 +130,7 @@
     <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.css">
 
     <script>
-        /*
-        const onloadFun = () => {
-            console.log("loaded 1");
-            window.dispatchEvent(new CustomEvent("my-mcw-loaded"));
-        }
-        // const mcwPromise = simpleBlockUntilEvent(window, "my-mcw-loaded");
-        */
-        const mcwPromise = addRelativeScriptSrc("./ext/mdc/material-components-web.js", "loaded-mcw");
+        const mcwPromise = insertHereScript("./ext/mdc/material-components-web.js", "loaded-mcw");
     </script>
 
     <style>
@@ -172,7 +200,7 @@
         <h2 id="mbt">Meditation Breathing Timer</h2>
         You can
         <script>
-            const eltA = makeAbsLinkHere("./br-timer/moving-lines.html", "start it here");
+            const eltA = insertHereA("./br-timer/moving-lines.html", "start it here");
             eltA.style.fontSize = "1.2rem";
         </script>
         .
@@ -242,10 +270,12 @@
             await mcwPromise;
             console.log("after mcwPromise", mcwPromise);
 
-            const modMdc = await importRelativeModule("./src/js/mod/util-mdc.js");
+            // const modMdc = await importModule("./src/js/mod/util-mdc.js");
+            const modMdc = await import("util-mdc");
             if (!modMdc) throw Error("could not import modMdc");
 
-            const modQR = await importRelativeModule("./ext/qr/qrjs2.js");
+            // const modQR = await importModule("./ext/qr/qrjs2.js");
+            const modQR = await import("qrjs2");
             if (!modQR) throw Error("could not import modQR");
 
             const QRcode = modQR.default;
@@ -262,7 +292,8 @@
             dataUriSvgImage.src = s;
 
             async function popupShare() {
-                const modMdc = await importRelativeModule("./src/js/mod/util-mdc.js");
+                // const modMdc = await importModule("./src/js/mod/util-mdc.js");
+                const modMdc = await import("util-mdc");
                 /*
                 const btnCopy = modMdc.mkMDCbutton("Copy", "raised");
                 btnCopy.addEventListener("click", evt => {
