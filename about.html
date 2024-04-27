@@ -13,12 +13,8 @@
     <title>About Some Meditation Tools</title>
     <!-- <link rel="icon" type="image/svg+xml" href="/img/tl.svg"> -->
 
+    <!-- 
     <script>
-        /*
-            Helper functions for developing locally and serving from GitHub.
-            Should somehow be included early on every .html page.
-        */
-
         function makeAbsLink(relLink) {
             const urlLink = new URL(relLink, location);
             const absLink = urlLink.href;
@@ -82,6 +78,9 @@
             return new Promise(resolve => targ.addEventListener(evt, resolve, { passive: true, once: true }));
         }
     </script>
+    -->
+    <script src="./make-abs.js"></script>
+
     <script>
         insertHereImportmap({
             "util-mdc": "./src/js/mod/util-mdc.js",
@@ -259,7 +258,7 @@
     </section>
     <h2>Do you want to share this web app?</h2>
 
-    <div style="color:red;">(Debug Note: cleanup)</div>
+    <div style="color:red;">(Debug Note: make-abs.js)</div>
     <p>
         You just need a link to this web page.
         You can get it here:
