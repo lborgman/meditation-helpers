@@ -11,7 +11,7 @@
     -->
 
     <title>About Some Meditation Tools</title>
-    <!-- <link rel="icon" type="image/svg+xml" href="/img/tl.svg"> -->
+    <link rel="icon" type="image/svg+xml" href="./img/ml.svg">
 
     <!-- 
     <script>
@@ -147,6 +147,18 @@
         section {
             margin-bottom: 80px;
         }
+
+        .logo {
+            width: 50px;
+            aspect-ratio: 1/1;
+            outline: 1px dotted red;
+            display: inline-block;
+        }
+
+        #logo-mbt {
+            background-image: url(./br-timer/img/ml.svg);
+            background-size: contain;
+        }
     </style>
 
 </head>
@@ -197,6 +209,7 @@
 
     <section>
         <h2 id="mbt">Meditation Breathing Timer</h2>
+        <span id="logo-mbt" class="logo"></span>
         You can
         <script>
             const eltA = insertHereA("./br-timer/moving-lines.html", "start it here");
