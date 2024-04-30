@@ -8,5 +8,6 @@
             "sizes": "any"
         }
     ],
+    "theme_color": "#6e9537",
     "start_url": "./moving-lines.html"
 }
