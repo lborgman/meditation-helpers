@@ -4,7 +4,7 @@
     "display": "fullscreen",
     "icons": [
         {
-            "src": "./br-timer/img/ml.svg",
+            "src": "./img/ml.svg",
             "sizes": "any"
         }
     ],
