@@ -9,5 +9,6 @@
         }
     ],
     "theme_color": "#6e9537",
+    "background_color": "#6e9537",
     "start_url": "./moving-lines.html"
 }
