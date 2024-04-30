@@ -1,0 +1,12 @@
+{
+    "name": "Meditation Breathing Timer",
+    "short_name": "Breathing Timer",
+    "display": "fullscreen",
+    "icons": [
+        {
+            "src": "./br-timer/img/ml.svg",
+            "sizes": "any"
+        }
+    ],
+    "start_url": "./br-timer/movinglines.html"
+}
