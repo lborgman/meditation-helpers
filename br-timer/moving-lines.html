@@ -723,14 +723,13 @@
 
             ctxCanvas.beginPath();
 
-            ctxCanvas.lineCap = "round"; // FIX-ME: does not work?? Bug???
             ctxCanvas.strokeStyle = settingDawnFilter.value ? "darkorange" : "yellowgreen";
 
             // const beforeStart = false;
             const beforeStart = pnt2canvas(p0).x > middleCanvasX;
             if (beforeStart) {
-                ctxCanvas.setLineDash([5, 15]);
-                ctxCanvas.lineWidth = 7;
+                ctxCanvas.setLineDash([5]);
+                ctxCanvas.lineWidth = 8;
                 const startY = pattY2canvasY(0);
                 ctxCanvas.moveTo(middleCanvasX, startY);
                 lineTo(p0);
@@ -738,6 +737,7 @@
 
                 ctxCanvas.beginPath();
                 ctxCanvas.setLineDash([]);
+                ctxCanvas.lineCap = "round"; // FIX-ME: does not work?? Bug???
             }
             ctxCanvas.lineWidth = 10;
 
@@ -1241,15 +1241,34 @@
                     addRow(`Save data: ${nc.saveData}`);
                 }
 
-                const btnClearData = mkElt("button", undefined, "Clear Data");
-                btnClearData.addEventListener("click", evt => {
-                    Object.keys(localStorage).forEach(k => {
-                        // ourLocalSetting
-                        if (k.startsWith(STORING_PREFIX)) {
-                            localStorage.removeItem(k);
-                        }
-                    });
-                });
+                // const btnClearData = mkElt("button", undefined, "Clear Data");
+                const btnClearData = modMdc.mkMDCbutton("Reset", "raised");
+                btnClearData.addEventListener("click", errorHandlerAsyncEvent(async evt => {
+                    const bdy = mkElt("div", undefined, [
+                        mkElt("h2", undefined, "Clear all your choices"),
+                        mkElt("p", undefined, "Reset everything to default values"),
+                    ]);
+                    const ans = await modMdc.mkMDCdialogConfirm(bdy);
+                    if (ans) {
+                        // modMdc.mkMDCsnackbar("Clearing all your choices...");
+                        Object.keys(localStorage).forEach(k => {
+                            // ourLocalSetting
+                            if (k.startsWith(STORING_PREFIX)) {
+                                localStorage.removeItem(k);
+                            }
+                        });
+                        const div = btnClearData.parentElement;
+                        div.textContent = `
+                            All your choices were reset to default values.
+                            Restarting app now for this to take effect...
+                        `;
+                        div.style = `
+                            color: red;
+                        `;
+                        await waitSeconds(3);
+                        location.reload();
+                    }
+                }));
                 const divClearData = mkElt("p", undefined, btnClearData);
 
                 const divDebug = mkElt("div", undefined, [
@@ -1257,7 +1276,6 @@
                     divMinOrSec,
                     mkElt("h3", undefined, "Network"),
                     divNW,
-                    divClearData,
                 ]);
                 divDebug.style = `
                     background-color: yellow;
@@ -1265,10 +1283,15 @@
                     padding: 10px;
                 `;
 
+                const divDebugDetails = mkElt("details", undefined, [
+                    mkElt("summary", undefined, "Debug"),
+                    divDebug
+                ]);
                 const divColumn = mkElt("div", undefined, [
                     divSpeed,
                     divNumPatts,
-                    divDebug,
+                    divClearData,
+                    divDebugDetails,
                 ]);
                 divColumn.style = `
                     display: flex;
@@ -1349,7 +1372,7 @@
             `;
 
             const chkUseDawnFilter = mkElt("input", { type: "checkbox" });
-            settingDawnFilter = new ourLocalSetting("use-dawn-filter", true);
+            settingDawnFilter = new ourLocalSetting("use-dawn-filter", false);
             if (settingDawnFilter.value) { document.documentElement.classList.add("use-dawn-filter"); }
             settingDawnFilter.bindToInput(chkUseDawnFilter);
             chkUseDawnFilter.addEventListener("input", evt => {
@@ -1365,7 +1388,7 @@
 
             const chkSquare = mkElt("input", { type: "checkbox" });
             // settingSquare = new modLocalSettings.LocalSetting(STORING_PREFIX, "square-canvas", false);
-            settingSquare = new ourLocalSetting("square-canvas", false);
+            settingSquare = new ourLocalSetting("square-canvas", true);
             settingSquare.bindToInput(chkSquare);
             chkSquare.addEventListener("input", evt => {
                 // bgStyleSquare = chkSquare.checked;
