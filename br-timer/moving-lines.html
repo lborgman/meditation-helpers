@@ -109,6 +109,8 @@
         let settingDurationMinutes;
         let settingDurationIsInSeconds;
 
+        let settingNumPatts;
+
         let settingCountsPerSecond;
         const minCountsPerSeconds = 80;
         const maxCountsPerSeconds = 120;
@@ -1029,6 +1031,7 @@
             settingDurationSeconds = new ourLocalSetting("duration-seconds", 9);
             settingDurationMinutes = new ourLocalSetting("duration-minutes", 1);
             settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
+            settingNumPatts = new ourLocalSetting("num-patts", 1.5);
             const modMdc = await import("util-mdc");
             // const modMdc = await import("http://localhost:8080/public/src/js/mod/util-mdc.js");
             // const btnStart = mkElt("button", undefined, "Start");
@@ -1181,14 +1184,25 @@
                     console.log("input inpRange", inpRange.value);
                 });
                 */
-                const divSpeed = mkElt("p", undefined, [
-                    "Speed, counts per seconds:", inpSpeedContainer, eltOutSpeed
+                const divSpeed = mkElt("div", undefined, [
+                    mkElt("div", undefined, [
+                        "Speed, counts per seconds (",
+                        eltOutSpeed,
+                        ")"
+                    ]),
+                    inpSpeedContainer,
                 ]);
                 divSpeed.style = `
                     display: flex;
                     flex-direction: column;
                     gap: 10px;
                 `;
+
+                // const inpNumPatts = mkElt("input", {type:"number"});
+                const inpNumPatts = modMdc.mkMDCtextFieldInput(undefined, "number");
+                settingNumPatts.bindToInput(inpNumPatts);
+                tfNumPatts = modMdc.mkMDCtextFieldOutlined("Show num patts", inpNumPatts);
+                const divNumPatts = mkElt("div", undefined, tfNumPatts);
 
 
                 const btnCanvasBug = mkElt("button", undefined, "Set canvas bg color");
@@ -1199,7 +1213,7 @@
 
 
                 const inpMinOrSec = mkElt("input", { type: "checkbox" });
-                const settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
+                // const settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
                 settingDurationIsInSeconds.bindToInput(inpMinOrSec);
                 const lblMinOrSec = mkElt("label", undefined, [
                     inpMinOrSec, "Duration in seconds",
@@ -1246,11 +1260,20 @@
                     border: 3px solid red;
                     padding: 10px;
                 `;
-                const bdy = mkElt("div", { class: "colored-dialog" }, [
-                    mkElt("h2", undefined, "Breath speed"),
-                    "not much implemented yet",
+
+                const divColumn = mkElt("div", undefined, [
                     divSpeed,
+                    divNumPatts,
                     divDebug,
+                ]);
+                divColumn.style = `
+                    display: flex;
+                    flex-direction: column;
+                    gap: 40px;
+                `;
+                const bdy = mkElt("div", { class: "colored-dialog" }, [
+                    mkElt("h2", undefined, "Play settings"),
+                    divColumn,
                 ]);
                 await modMdc.mkMDCdialogConfirm(bdy, "Close", false);
                 initCurrentPattern();
@@ -1662,7 +1685,8 @@
         function redraw() {
             // const myPatt = breathPatterns[settingPattern.value];
             const myPatt = getPatternByName(settingPattern.value);
-            drawPattern(myPatt, 1.05);
+            // drawPattern(myPatt, 1.05);
+            drawPattern(myPatt, settingNumPatts.value);
         }
         // checkRedraw();
         let progressElement;
