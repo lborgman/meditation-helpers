@@ -676,15 +676,6 @@
         function tellState(statePart, hideIt) {
             const divInstructions = document.getElementById("elt-instructions");
             txtState = textForParts[statePart] || statePart;
-            /*
-            divInstructions.textContent = txtState;
-            if (hideIt) {
-                divInstructions.style.visibility = "hidden";
-            } else {
-                divInstructions.style.visibility = null;
-            }
-            */
-            // holdlow
             const eltCurrentParts = document.getElementById("current-patt-parts");
             if (eltCurrentParts) {
                 for (const part in textForParts) {
@@ -696,7 +687,6 @@
             }
         }
         function tellInitialState() {
-            // tellState("Not started ", true);
             tellState("", true);
         }
 
@@ -723,24 +713,38 @@
 
             // canvasSec = patt.pattW * numPatt;
             canvasSec = (patt.pattW * (100 / settingCountsPerSecond.value)) * numPatt;
+            msLastDraw = document.timeline.currentTime;
+
+            middleX = numPatt * patt.pattW / 2;
+            const middleCanvasX = pattX2canvasX(middleX);
+            let middleY = 0.15;
+            const p0 = points[0];
+
 
             ctxCanvas.beginPath();
 
-            ctxCanvas.lineWidth = 10;
             ctxCanvas.lineCap = "round"; // FIX-ME: does not work?? Bug???
-            ctxCanvas.strokeStyle = "yellowgreen";
             ctxCanvas.strokeStyle = settingDawnFilter.value ? "darkorange" : "yellowgreen";
 
-            msLastDraw = document.timeline.currentTime;
+            // const beforeStart = false;
+            const beforeStart = pnt2canvas(p0).x > middleCanvasX;
+            if (beforeStart) {
+                ctxCanvas.setLineDash([5, 15]);
+                ctxCanvas.lineWidth = 7;
+                const startY = pattY2canvasY(0);
+                ctxCanvas.moveTo(middleCanvasX, startY);
+                lineTo(p0);
+                ctxCanvas.stroke();
 
-            const p0 = points[0];
+                ctxCanvas.beginPath();
+                ctxCanvas.setLineDash([]);
+            }
+            ctxCanvas.lineWidth = 10;
+
             moveTo(p0);
             let protect = 0;
             let lastCanvasX = true;
             let lastPoint;
-            middleX = numPatt * patt.pattW / 2;
-            const middleCanvasX = pattX2canvasX(middleX);
-            let middleY = 0.15;
             while (protect++ < 5 && lastCanvasX) {
                 for (let i = 0, len = points.length; i < len; i++) {
                     const pnt = points[i];
@@ -1683,7 +1687,6 @@
         setupThings();
 
         function redraw() {
-            // const myPatt = breathPatterns[settingPattern.value];
             const myPatt = getPatternByName(settingPattern.value);
             // drawPattern(myPatt, 1.05);
             drawPattern(myPatt, settingNumPatts.value);
