@@ -149,7 +149,7 @@
 
 
         let currentPointY = 0;
-        let middleX;
+        let middleSecondsX;
 
         const currentPointCanvas = {
             cX: undefined,
@@ -166,8 +166,6 @@
         }
 
         function drawCurrentPoint(color) {
-            // const cX = pattX2canvasX(middleX);
-            // const cY = pattY2canvasY(currentPointY);
             const cX = currentPointCanvas.cX;
             const cY = currentPointCanvas.cY;
             // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/ellipse
@@ -192,12 +190,11 @@
             return Math.min(eltCanvas.height, eltCanvas.width) / 5.2;
         }
         function clearTopText() {
-            // const size = eltCanvas.height / 5;
             const size = topTextFontSize();
             ctxCanvas.clearRect(0, 0, eltCanvas.width, size);
         }
-        function topText(txtState) {
-            if (!txtState) return;
+        function topText(txtTop) {
+            if (!txtTop) return;
             ctxCanvas.strokeStyle = "yellow";
             ctxCanvas.strokeStyle = "black";
             ctxCanvas.fillStyle = "red";
@@ -215,8 +212,8 @@
             ctxCanvas.font = `bold ${size}px Arial`;
             // ctxCanvas.font = `40px Verdana`;
             ctxCanvas.textAlign = "center";
-            ctxCanvas.fillText(txtState, eltCanvas.width / 2, size);
-            ctxCanvas.strokeText(txtState, eltCanvas.width / 2, size);
+            ctxCanvas.fillText(txtTop, eltCanvas.width / 2, size);
+            ctxCanvas.strokeText(txtTop, eltCanvas.width / 2, size);
         }
 
 
@@ -672,10 +669,12 @@
         let canvasSec;
 
         let txtState;
-        // txtState = "Focus...";
-        function tellState(statePart, hideIt) {
-            const divInstructions = document.getElementById("elt-instructions");
-            txtState = textForParts[statePart] || statePart;
+        let beforeStart;
+        function tellState(statePart) {
+            const txtPart = textForParts[statePart];
+            beforeStart = !!!txtPart;
+            // console.log("tellState", statePart, beforeStart);
+            txtState = txtPart || statePart;
             const eltCurrentParts = document.getElementById("current-patt-parts");
             if (eltCurrentParts) {
                 for (const part in textForParts) {
@@ -687,7 +686,7 @@
             }
         }
         function tellInitialState() {
-            tellState("", true);
+            tellState("");
         }
 
         const setCanvasSizes = () => {
@@ -698,12 +697,12 @@
         }
 
         const msFocusLength = 5 * 1000;
-        function drawPattern(patt, numPatt) {
+        function drawPattern(patt, drawNumPatts) {
             if (!patt) return;
 
             ctxCanvas.clearRect(0, 0, eltCanvas.width, eltCanvas.height);
 
-            if (txtState) topText(txtState);
+            if (txtState.length > 0) topText(txtState);
 
             const points = patt.pattPoints;
             if (!points) {
@@ -712,34 +711,32 @@
             }
 
             // canvasSec = patt.pattW * numPatt;
-            canvasSec = (patt.pattW * (100 / settingCountsPerSecond.value)) * numPatt;
+            canvasSec = (patt.pattW * (100 / settingCountsPerSecond.value)) * drawNumPatts;
             msLastDraw = document.timeline.currentTime;
 
-            middleX = numPatt * patt.pattW / 2;
-            const middleCanvasX = pattX2canvasX(middleX);
+            middleSecondsX = drawNumPatts * patt.pattW / 2;
+            const middleCanvasX = pattX2canvasX(middleSecondsX);
             let middleY = 0.15;
             const p0 = points[0];
 
 
-            ctxCanvas.beginPath();
 
             ctxCanvas.strokeStyle = settingDawnFilter.value ? "darkorange" : "yellowgreen";
+            ctxCanvas.lineWidth = 10;
 
-            // const beforeStart = false;
-            const beforeStart = pnt2canvas(p0).x > middleCanvasX;
             if (beforeStart) {
-                ctxCanvas.setLineDash([5]);
-                ctxCanvas.lineWidth = 8;
+                ctxCanvas.beginPath();
+                ctxCanvas.setLineDash([3, 5]);
+                ctxCanvas.lineCap = "butt";
                 const startY = pattY2canvasY(0);
                 ctxCanvas.moveTo(middleCanvasX, startY);
                 lineTo(p0);
                 ctxCanvas.stroke();
-
-                ctxCanvas.beginPath();
-                ctxCanvas.setLineDash([]);
-                ctxCanvas.lineCap = "round"; // FIX-ME: does not work?? Bug???
             }
-            ctxCanvas.lineWidth = 10;
+
+            ctxCanvas.beginPath();
+            ctxCanvas.setLineDash([]);
+            ctxCanvas.lineCap = "round"; // FIX-ME: does not work?? Bug???
 
             moveTo(p0);
             let protect = 0;
@@ -750,8 +747,6 @@
                     const pnt = points[i];
                     const nextPoint = { ...pnt }
                     nextPoint.pointX = pnt.pointX + (protect - 1) * patt.pattW;
-                    // if (nextPoint.pointX <= lastX) debugger;
-                    // lastX = nextX;
 
                     const nextCanvasX = lineTo(nextPoint);
                     if (!nextCanvasX) break;
@@ -764,8 +759,6 @@
                             const nextY = nextPoint.pointY;
                             const part = (middleCanvasX - lastCanvasX) / (nextCanvasX - lastCanvasX);
                             middleY = lastY + (nextY - lastY) * part;
-                            // const txtState = textForParts[lastPoint.part];
-                            // tellState(txtState);
                             tellState(lastPoint.part);
                         }
                     }
@@ -775,13 +768,19 @@
                 }
             }
             ctxCanvas.stroke();
-            currentPointY = middleY;
-            const clrPoint = isRunning ? "yellow" : "yellowgreen";
 
-            currentPointCanvas.cX = pattX2canvasX(middleX);
-            currentPointCanvas.cY = pattY2canvasY(currentPointY);
+
+
+            // currentPointCanvas.cX = pattX2canvasX(middleSecondsX);
             currentPointCanvas.cR = pattY2canvasY(0) / 30;
+            currentPointCanvas.cX = middleCanvasX;
+            currentPointY = middleY;
+            currentPointCanvas.cY = pattY2canvasY(currentPointY);
+            const clrPoint = isRunning ? "yellow" : "yellowgreen";
             drawCurrentPoint(clrPoint);
+
+
+
             function moveTo(pnt) {
                 const pntCanvas = pnt2canvas(pnt);
                 ctxCanvas.moveTo(pntCanvas.x, pntCanvas.y);
@@ -812,8 +811,7 @@
                 return pntC;
             }
             function mkPxPerMs() {
-                pxPerMs = eltCanvas.width / (patt.pattW * numPatt);
-                // settingCountsPerSecond
+                pxPerMs = eltCanvas.width / (patt.pattW * drawNumPatts);
             }
 
             function pattX2canvasX(pattX) {
@@ -1071,12 +1069,13 @@
             });
 
             const iconReplay = modMdc.mkMDCicon("stop");
-            const btnReset = modMdc.mkMDCiconButton(iconReplay, "Stop");
+            const btnReplay = modMdc.mkMDCiconButton(iconReplay, "Stop");
             // btnReset.classList.add("icon-button-30");
-            btnReset.addEventListener("click", evt => {
+            btnReplay.addEventListener("click", evt => {
+                tellInitialState();
                 initCurrentPattern();
             });
-            btnReset.id = "replay-button";
+            btnReplay.id = "replay-button";
 
             function updateTimeNum() {
                 const elt = document.getElementById("elt-show-duration");
@@ -1360,7 +1359,7 @@
 
             const divControlsPlay = mkElt("p", undefined, [
                 btnStart,
-                btnReset,
+                btnReplay,
                 divChangeTime,
                 btnSettings,
                 divProgress
