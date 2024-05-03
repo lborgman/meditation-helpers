@@ -61,6 +61,10 @@
     <script src="../src/js/error.js"></script>
     <!-- <script src="../public/src/js/mod/util-mdc.js"></script> -->
     <script>
+        /** @typedef {number} seconds */
+        /** @typedef {number} milliSeconds */
+        
+
         const STORING_PREFIX = "MOVLIN-";
 
         // if (location.href != "http://localhost:8080/temptest/test-moving-lines.html") throw Error("run http-server . in firebase-r10m1h");
@@ -663,9 +667,15 @@
             };
         }
 
+        /** @type {milliSeconds} */
         let msLastDraw;
+
         let pxPerMs;
+
+        /** @type {milliSeconds} */
         let msStart;
+
+        /** @type {seconds} */
         let canvasSec;
 
         let txtState;
@@ -673,7 +683,6 @@
         function tellState(statePart) {
             const txtPart = textForParts[statePart];
             beforeStart = !!!txtPart;
-            // console.log("tellState", statePart, beforeStart);
             txtState = txtPart || statePart;
             const eltCurrentParts = document.getElementById("current-patt-parts");
             if (eltCurrentParts) {
@@ -696,7 +705,9 @@
             eltFilter.style.height = `${bcrCanvas.height}px`;
         }
 
+        /** @type {milliSeconds} */
         const msFocusLength = 5 * 1000;
+
         function drawPattern(patt, drawNumPatts) {
             if (!patt) return;
 
@@ -715,7 +726,7 @@
             msLastDraw = document.timeline.currentTime;
 
             middleSecondsX = drawNumPatts * patt.pattW / 2;
-            const middleCanvasX = pattX2canvasX(middleSecondsX);
+            const middleCanvasX = pattX2canvasX(middleSecondsX); // FIX-ME:
             let middleY = 0.15;
             const p0 = points[0];
 
