@@ -333,6 +333,7 @@ function alertError(msg, e) {
 
     const isRejection = e instanceof PromiseRejectionEvent;
     if (isRejection) {
+        // eslint-disable-next-line no-debugger
         if (!e.reason) debugger;
     }
     const errObj = isRejection ? e.reason : e;
@@ -731,12 +732,14 @@ function removeTokensFromObject(obj) {
                 removeTokensFromObject(val);
             }
         } catch (err) {
+            // eslint-disable-next-line no-debugger
             debugger;
         }
     }
 }
 
 async function throwFetchError(url, response, result) {
+    // eslint-disable-next-line no-debugger
     debugger;
 
     let errResp = "";
@@ -798,6 +801,7 @@ async function throwFetchError(url, response, result) {
 
 class FetchError extends Error {
     constructor(message, errResp, thisIsNetworkTrouble) {
+        // eslint-disable-next-line no-debugger
         debugger;
         super(message); // (1)
         this.name = "FetchError"; // (2)
@@ -873,6 +877,7 @@ async function fetchSimpleJson(ifName, paramsObj) {
     // return fetchParamsJson(baseUrl, ifName, paramsObj);
     // FIXME: await here to catch network errors.
     const result = await fetchParamsJson(baseUrl, ifName, paramsObj);
+    // eslint-disable-next-line no-debugger
     if (result === undefined) debugger;
     return result;
     /*
@@ -1004,6 +1009,7 @@ async function fetchJson(url, options, nothrow) {
         // FIXME: Is this the best way for Gateway timeout, 504?
         // if (response.status === 504) return result;
         await throwFetchError(url, response, result);
+        // eslint-disable-next-line no-debugger
         debugger;
         return;
     }
@@ -1127,6 +1133,7 @@ async function popupDialog(title, body, severity) {
                             });
                         }
                     } catch (err) {
+                        // eslint-disable-next-line no-debugger
                         debugger;
                     }
                 })();
