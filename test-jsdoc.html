@@ -1,8 +1,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="./test-jsdoc.js"></script>
     <script>
         // @ts-check
+
+        console.log("testing mkElt...");
+        const div = mkElt("div");
+        console.log({div});
+
+        console.log("testing dummy...", dummy);
+
+
 
         /*
          https://stackoverflow.com/questions/78424788/milliseconds-vs-seconds-can-jsdoc-tell-me-when-i-mix-things-up/78424849#78424849
@@ -16,19 +25,19 @@
         /** @typedef {number&{_tag: 'TSseconds'}} TSseconds */
 
         /** @param {number} value */
-        const toMilliSeconds = (value) => /** @type TSmilliSeconds */(value);
+        const toMilliSecondsHtml = (value) => /** @type TSmilliSeconds */(value);
         /** @param {number} value */
-        const toSeconds = (value) => /** @type TSseconds */(value);
+        const toSecondsHtml = (value) => /** @type TSseconds */(value);
 
         /** @type {TSmilliSeconds} */
-        let ms = toMilliSeconds(1);
+        let msHtml = toMilliSecondsHtml(1);
 
         /** @type {TSseconds} */
-        let sec = toSeconds(2);
+        let secHtml = toSecondsHtml(2);
         // sec = 2;
 
 
-        ms = toMilliSeconds(sec);
+        msHtml = toMilliSecondsHtml(secHtml);
 
         /**
          * 
@@ -37,20 +46,19 @@
          */
         function sec2ms(secVal) {
             console.log("sec2ms", secVal);
-            return toMilliSeconds(1000 * secVal);
+            return toMilliSecondsHtml(1000 * secVal);
         }
 
         /** @type {TSmilliSeconds} */
-        let ms2;
+        let ms2Html;
         // ms2 = sec2ms(ms);
-        ms2 = ms;
+        ms2Html = msHtml;
 
         /** @type {TSseconds} */
-        let sec2;
+        let sec2Html;
         // sec2 = sec2ms(ms);
 
     </script>
-    <script src="./test-jsdoc.js"></script>
 </head>
 
 <body>

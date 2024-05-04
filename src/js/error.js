@@ -1,4 +1,5 @@
 "use strict";
+// @ts-check
 
 // https://firebase.google.com/docs/reference/js/firebase.auth.Error
 
@@ -166,6 +167,13 @@ function wait4mutations(elt, ms, observeWhat, msMaxWait) {
     });
 }
 
+/**
+ * 
+ * @param {*} type 
+ * @param {*} attrib 
+ * @param {*} inner 
+ * @returns {*}
+ */
 function mkElt(type, attrib, inner) {
     var elt = document.createElement(type);
 
@@ -712,7 +720,8 @@ function removeTokensFromObject(obj) {
     const keys = Object.keys(obj)
     for (const key of keys) {
         const val = obj[key];
-        if (!!val) continue;
+        // if (!!val) continue;
+        if (val) continue;
         try {
             if (typeof val === "string") {
                 if (val.indexOf("\n") === -1) {
