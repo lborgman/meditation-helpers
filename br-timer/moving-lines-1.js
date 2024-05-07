@@ -4,6 +4,46 @@
 /** @typedef {number&{_tag: 'TSseconds'}} TSseconds */
 /** @typedef {number&{_tag: 'TScounts'}} TScounts */
 
+/** @param {number} value */
+const TScounts = (value) => /** @type TScounts */(value);
+
+/** @param {number} value */
+const TSseconds = (value) => /** @type TSseconds */(value);
+
+/** @param {number} value */
+const TSmilliSeconds = (value) => /** @type TSmilliSeconds */(value);
+
+/*
+    Unfortunately the JSDoc parser does not ask the JavaScript compiler for info.
+    So we have to add special wrapper functions to global function declared in
+    other files just for this purpose. 
+    Not a big job, but totally unnecessary.
+    I will name them "TSoldName".
+
+    Or? Maybe something like this instead:
+
+      // @ts-ignore
+      const mkElt = globalThis.mkElt;
+
+    https://stackoverflow.com/questions/78436085/how-can-i-make-jsdoc-typescript-understand-javascript-imports
+
+    const testDiv = mkEltTS("div");
+    console.log({ testDiv });
+*/
+
+// const mkElt = globalThis.mkElt;
+// const mkElt = window.mkElt;
+// @ts-ignore
+const TSmkElt = mkElt;
+// @ts-ignore
+const TSerrorHandlerAsyncEvent = errorHandlerAsyncEvent;
+// @ts-ignore
+const TSdebounce = debounce;
+// const TSimport = import;
+// @ts-ignore
+const TSimport = async (url) => { return import(url); }
+// @ts-ignore
+const TSwait4mutations = wait4mutations;
 
 const STORING_PREFIX = "MOVLIN-";
 
@@ -218,6 +258,7 @@ function getPatternByName(name) {
 
 function tellCurrentPattern() {
     const divPatternInfo = document.getElementById("elt-pattern-info");
+    if (!divPatternInfo) throw Error("Could not find 'elt-pattern-info'");
     // @ts-ignore
     divPatternInfo.style = `
                 display: inline-flex;
@@ -225,14 +266,11 @@ function tellCurrentPattern() {
                 flex-wrap: wrap;
                 margin-right: 10px;
             `;
-    // @ts-ignore
     divPatternInfo.textContent = "";
-    // @ts-ignore
-    const eltName = mkElt("span", undefined, settingPattern.value);
+    const eltName = TSmkElt("span", undefined, settingPattern.value);
     eltName.style = `
                     font-weight: bold;
                 `;
-    // @ts-ignore
     divPatternInfo.appendChild(eltName);
 
     // const pattName = settingPattern.value;
@@ -244,8 +282,7 @@ function tellCurrentPattern() {
         pattRec = getPatternByName(settingPattern.value);
     }
     const strPatt = mkPattString(pattRec.patt);
-    // @ts-ignore
-    const eltPatt = mkElt("span", { id: "current-patt-parts" }, strPatt);
+    const eltPatt = TSmkElt("span", { id: "current-patt-parts" }, strPatt);
     // @ts-ignore
     divPatternInfo.appendChild(eltPatt);
 }
@@ -266,16 +303,11 @@ function mkBreathPatternsPattString(pattName) {
     return mkPattString(pattRec.patt);
 }
 function mkPattString(patt) {
-    // @ts-ignore
-    const eltBreathIn = mkElt("span", { class: "breathIn" }, patt.breathIn.toString());
-    // @ts-ignore
-    const eltHoldHigh = mkElt("span", { class: "holdHigh" }, patt.holdHigh.toString());
-    // @ts-ignore
-    const eltBreathOut = mkElt("span", { class: "breathOut" }, patt.breathOut.toString());
-    // @ts-ignore
-    const eltHoldLow = mkElt("span", { class: "holdLow" }, patt.holdLow.toString());
-    // @ts-ignore
-    const eltPatt = mkElt("span", undefined, [
+    const eltBreathIn = TSmkElt("span", { class: "breathIn" }, patt.breathIn.toString());
+    const eltHoldHigh = TSmkElt("span", { class: "holdHigh" }, patt.holdHigh.toString());
+    const eltBreathOut = TSmkElt("span", { class: "breathOut" }, patt.breathOut.toString());
+    const eltHoldLow = TSmkElt("span", { class: "holdLow" }, patt.holdLow.toString());
+    const eltPatt = TSmkElt("span", undefined, [
         "(",
         eltBreathIn,
         "-",
@@ -290,17 +322,14 @@ function mkPattString(patt) {
 }
 
 async function dialogImages() {
-    // @ts-ignore
-    const modExtImages = await import("external-images");
+    const modExtImages = await TSimport("external-images");
     modExtImages.setStoringPrefix(STORING_PREFIX);
     const url = await modExtImages.dialogImages(myGooglePhotos);
     if (url && url != "random") updateCanvasBackground(url);
 }
 async function dialogPattern() {
-    // @ts-ignore
-    const modMdc = await import("util-mdc");
-    // @ts-ignore
-    const divPattList = mkElt("div");
+    const modMdc = await TSimport("util-mdc");
+    const divPattList = TSmkElt("div");
     divPattList.style = `
                     display: flex;
                     flex-direction: column;
@@ -315,10 +344,8 @@ async function dialogPattern() {
         return { pattName: rad.value };
     };
 
-    // @ts-ignore
-    const bdy = mkElt("div", { class: "colored-dialog" }, [
-        // @ts-ignore
-        mkElt("h2", undefined, "Breathing pattern"),
+    const bdy = TSmkElt("div", { class: "colored-dialog" }, [
+        TSmkElt("h2", undefined, "Breathing pattern"),
         divPattList,
     ]);
     bdy.id = "dialog-pattern";
@@ -329,18 +356,15 @@ async function dialogPattern() {
     // @ts-ignore
     divPattList.appendChild(mkElt("h3", undefined, "Your Own:"));
     const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
-    // @ts-ignore
-    const divBtnAddPatt = mkElt("div", undefined, btnAddPatt);
+    const divBtnAddPatt = TSmkElt("div", undefined, btnAddPatt);
     divBtnAddPatt.style.marginTop = "-20px";
-    // @ts-ignore
-    divBtnAddPatt.addEventListener("click", errorHandlerAsyncEvent(async evt => {
+    divBtnAddPatt.addEventListener("click", TSerrorHandlerAsyncEvent(async evt => {
         dialogYourPatt();
     }));
 
     async function dialogYourPatt(existingPattName) {
         const action = existingPattName ? "Edit" : "Add";
-        // @ts-ignore
-        const bdy = mkElt("div", undefined, mkElt("h2", undefined, `${action} your own pattern`));
+        const bdy = TSmkElt("div", undefined, TSmkElt("h2", undefined, `${action} your own pattern`));
         bdy.classList.add("colored-dialog");
         let inpName, yourPatt;
         if (existingPattName) {
@@ -348,15 +372,13 @@ async function dialogPattern() {
             // eslint-disable-next-line no-debugger
             if (!yourPatt) debugger;
 
-            // @ts-ignore
-            const divNotReady = mkElt("p", undefined, "Not ready!");
+            const divNotReady = TSmkElt("p", undefined, "Not ready!");
             divNotReady.style = `
                         color: red;
                     `;
             bdy.appendChild(divNotReady);
 
-            // @ts-ignore
-            const eltName = mkElt("span", undefined, existingPattName);
+            const eltName = TSmkElt("span", undefined, existingPattName);
             eltName.style = `
                         font-size: 1.6rem;
                         font-weight: bold;
@@ -364,8 +386,7 @@ async function dialogPattern() {
                     `;
             const iconDelete = modMdc.mkMDCicon("delete_forever");
             const btnDelete = modMdc.mkMDCiconButton(iconDelete, "Delete");
-            // @ts-ignore
-            btnDelete.addEventListener("click", errorHandlerAsyncEvent(async evt => {
+            btnDelete.addEventListener("click", TSerrorHandlerAsyncEvent(async evt => {
                 const ans = await modMdc.mkMDCdialogConfirm(`Delete pattern ${existingPattName}?`);
                 if (ans) {
                     const yourPatts = settingYourPatt.value;
@@ -377,8 +398,7 @@ async function dialogPattern() {
                     closeDialogViaButton("has result");
                 }
             }));
-            // @ts-ignore
-            const divName = mkElt("div", undefined, [
+            const divName = TSmkElt("div", undefined, [
                 eltName,
                 btnDelete,
             ]);
@@ -409,8 +429,7 @@ async function dialogPattern() {
                 console.log(inpName.validity);
                 console.log({ valid });
             }
-            // @ts-ignore
-            const debounceCheckInpName = debounce(checkInpName, 500);
+            const debounceCheckInpName = TSdebounce(checkInpName, 500);
             inpName.addEventListener("input", evt => {
                 debounceCheckInpName();
             });
@@ -433,8 +452,7 @@ async function dialogPattern() {
 
         const addPartInput = (pattPart, pattLabel) => {
             const val = yourPatt ? yourPatt.patt[pattPart] : 4;
-            // @ts-ignore
-            const inp = mkElt("input", {
+            const inp = TSmkElt("input", {
                 type: "number",
                 min: 0,
                 max: 8,
@@ -444,10 +462,8 @@ async function dialogPattern() {
             inp.style = `
                         width: 30px;
                     `;
-            // @ts-ignore
-            const lbl = mkElt("label", undefined, [inp, pattLabel]);
-            // @ts-ignore
-            const divAlt = mkElt("div", undefined, lbl);
+            const lbl = TSmkElt("label", undefined, [inp, pattLabel]);
+            const divAlt = TSmkElt("div", undefined, lbl);
             bdy.appendChild(divAlt);
             partsNewPatt[pattPart] = inp;
         }
@@ -456,8 +472,7 @@ async function dialogPattern() {
         addPartInput("breathOut", "Exhale");
         addPartInput("holdLow", "Hold (low)");
 
-        // @ts-ignore
-        const divOldPatt = mkElt("p", undefined, ".");
+        const divOldPatt = TSmkElt("p", undefined, ".");
         divOldPatt.textContent = '\xa0';
         divOldPatt.style.color = "red";
         bdy.appendChild(divOldPatt);
@@ -497,8 +512,7 @@ async function dialogPattern() {
                 ;
             saveButton.disabled = !canSave;
         }
-        // @ts-ignore
-        const debounceCheckCanSave = debounce(checkCanSave, 1000);
+        const debounceCheckCanSave = TSdebounce(checkCanSave, 1000);
         bdy.addEventListener("input", evt => {
             debounceCheckCanSave();
         });
@@ -543,8 +557,7 @@ async function dialogPattern() {
 
     divPattList.appendChild(divBtnAddPatt);
 
-    // @ts-ignore
-    const divYourList = mkElt("div");
+    const divYourList = TSmkElt("div");
     divYourList.style = `
                 display: flex;
                 flex-direction: column;
@@ -582,30 +595,24 @@ async function dialogPattern() {
         objPatts = objPatts || breathPatterns;
         divList = divList || divPattList;
         console.log({ pn });
-        // @ts-ignore
-        const rad = mkElt("input", { type: "radio", name: "pattName", value: pn });
+        const rad = TSmkElt("input", { type: "radio", name: "pattName", value: pn });
         // if (currentPattern == pn) rad.checked = true;
         if (settingPattern.value == pn) rad.checked = true;
-        // @ts-ignore
-        const eltName = mkElt("b", undefined, pn);
+        const eltName = TSmkElt("b", undefined, pn);
         eltName.style = `margin-right: 5px; margin-left: 5px;`;
         const patt = objPatts[pn].patt;
         const eltPatt = mkPattString(patt);
-        // @ts-ignore
-        const eltInfo = mkElt("span", undefined, [eltName, eltPatt]);
-        // @ts-ignore
-        const lbl = mkElt("label", undefined, [rad, eltInfo]);
+        const eltInfo = TSmkElt("span", undefined, [eltName, eltPatt]);
+        const lbl = TSmkElt("label", undefined, [rad, eltInfo]);
         if (!isYour) {
             divList.appendChild(lbl);
         } else {
             const iconEdit = modMdc.mkMDCicon("edit");
             const btnEdit = modMdc.mkMDCiconButton(iconEdit);
-            // @ts-ignore
-            btnEdit.addEventListener("click", errorHandlerAsyncEvent(async evt => {
+            btnEdit.addEventListener("click", TSerrorHandlerAsyncEvent(async evt => {
                 dialogYourPatt(pn);
             }));
-            // @ts-ignore
-            const row = mkElt("div", undefined, [btnEdit, lbl]);
+            const row = TSmkElt("div", undefined, [btnEdit, lbl]);
             divList.appendChild(row);
         }
     }
@@ -620,7 +627,18 @@ async function dialogPattern() {
     initCurrentPattern();
 }
 
-
+/**
+ * 
+ * @param {number} breathIn 
+ * @param {number} holdHigh 
+ * @param {number} breathOut 
+ * @param {number} holdLow 
+ * @returns {{
+ *      patt: any,
+ *      countsWpatt: TScounts,
+ *      pattPoints: any
+ * }}
+ */
 function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
     const pattY = {
         breathIn: 0,
@@ -643,8 +661,8 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
     }
 
     /** @type {TScounts} */
-    const countsWpatt = Object.values(patt)
-        .reduce((acc, next) => acc = acc + next, 0);
+    const countsWpatt = TScounts(Object.values(patt)
+        .reduce((acc, next) => acc = acc + next, 0));
 
     const pattPoints = [];
     let pointY;
@@ -703,8 +721,7 @@ const setCanvasSizes = () => {
 }
 
 /** @type {TSmilliSeconds} */
-// @ts-ignore
-const msFocusLength = 5 * 1000;
+const msFocusLength = TSmilliSeconds(5 * 1000);
 
 function drawPattern(patt, drawNumPatts) {
     if (!patt) return;
@@ -721,8 +738,7 @@ function drawPattern(patt, drawNumPatts) {
     }
 
     // canvasSec = patt.pattW * numPatt;
-    secWCanvas = (patt.countsWpatt * (100 / settingCountsPerSecond.value)) * drawNumPatts;
-    // ccc(secWCanvas, Object.keys({secWCanvas}));
+    secWCanvas = TSseconds((patt.countsWpatt * (100 / settingCountsPerSecond.value)) * drawNumPatts);
     expectNumber(secWCanvas, Object.keys({ secWCanvas }));
     function expectNumber(variable, varName) {
         if (Number.isNaN(variable)) {
@@ -732,7 +748,7 @@ function drawPattern(patt, drawNumPatts) {
     }
 
     // @ts-ignore
-    msLastDraw = document.timeline.currentTime;
+    msLastDraw = TSmilliSeconds(document.timeline.currentTime);
 
     middleSecondsX = drawNumPatts * patt.countsWpatt / 2;
     const middleCanvasX = pattX2canvasX(middleSecondsX); // FIX-ME:
@@ -856,8 +872,7 @@ function drawPattern(patt, drawNumPatts) {
 
 
 async function setCanvasBackgroundToCurrent() {
-    // @ts-ignore
-    const modExtImages = await import("external-images");
+    const modExtImages = await TSimport("external-images");
     modExtImages.setStoringPrefix(STORING_PREFIX);
     useImage = modExtImages.getCurrentImageUrl(myGooglePhotos) || useImage;
     // eltCanvas.style.backgroundImage = `url(${useImage})`;
@@ -869,8 +884,7 @@ async function updateCanvasBackground(useImageOrVideo) {
     let eltVideo;
     let videoH, videoW;
     if (useImageOrVideo.startsWith("V")) {
-        // @ts-ignore
-        eltVideo = mkElt("video");
+        eltVideo = TSmkElt("video");
         eltVideo.muted = true;
         eltVideo.controls = false;
         eltVideo.loop = true;
@@ -904,8 +918,7 @@ async function updateCanvasBackground(useImageOrVideo) {
             eltBg.style.width = "100%";
             showIt();
         } else {
-            // @ts-ignore
-            eltBg = mkElt("div");
+            eltBg = TSmkElt("div");
             eltBg.style.width = "100%";
             eltBg.style.height = "100%";
             eltBg.style.backgroundPosition = "center";
@@ -923,8 +936,7 @@ async function updateCanvasBackground(useImageOrVideo) {
             eltBg.style.maxHeight = "100%";
             showIt();
         } else {
-            // @ts-ignore
-            eltBg = mkElt("img");
+            eltBg = TSmkElt("img");
             eltBg.style.maxWidth = "100%";
             eltBg.style.maxWeight = "100%";
             eltBg.onload = () => { showIt(); }
@@ -956,8 +968,7 @@ async function updateCanvasBackground(useImageOrVideo) {
         eltParent.style.aspectRatio = "unset";
     }
     async function showIt() {
-        // @ts-ignore
-        await wait4mutations(eltParent, 50, undefined, 1000);
+        await TSwait4mutations(eltParent, 50, undefined, 1000);
         setCanvasSizes();
 
         // Needed for redraw:
@@ -980,8 +991,7 @@ function redraw() {
 
 
 function setupCanvas(container) {
-    // @ts-ignore
-    const container4canvas = mkElt("div");
+    const container4canvas = TSmkElt("div");
     container4canvas.id = "container-4-canvas";
     container4canvas.style = `
                 position: relative;
@@ -1005,15 +1015,13 @@ function setupCanvas(container) {
                 border-radius: 10px;
             `;
 
-    // @ts-ignore
-    const eltFilterFilter = mkElt("div");
+    const eltFilterFilter = TSmkElt("div");
     eltFilterFilter.id = "elt-filter-filter";
     eltFilterFilter.style.width = "inherit";
     eltFilterFilter.style.height = "inherit";
     eltFilterFilter.style.borderRadius = "inherit";
 
-    // @ts-ignore
-    const eltFilterColor = mkElt("div");
+    const eltFilterColor = TSmkElt("div");
     eltFilterColor.id = "elt-filter-color";
     eltFilterColor.style.position = "absolute";
     eltFilterColor.style.top = "0";
@@ -1022,8 +1030,7 @@ function setupCanvas(container) {
     eltFilterColor.style.height = "inherit";
     eltFilterColor.style.borderRadius = "inherit";
 
-    // @ts-ignore
-    eltFilter = mkElt("div", undefined, [eltFilterColor, eltFilterFilter]);
+    eltFilter = TSmkElt("div", undefined, [eltFilterColor, eltFilterFilter]);
     eltFilter.id = "elt-filter";
     eltFilter.style.width = "100%";
     eltFilter.style.position = "absolute";
@@ -1083,10 +1090,8 @@ async function setupControls(controlscontainer) {
     settingDurationMinutes = new ourLocalSetting("duration-minutes", 1);
     settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
     settingNumPatts = new ourLocalSetting("num-patts", 1.5);
-    // @ts-ignore
-    const modMdc = await import("util-mdc");
+    const modMdc = await TSimport("util-mdc");
     // const modMdc = await import("http://localhost:8080/public/src/js/mod/util-mdc.js");
-    // const btnStart = mkElt("button", undefined, "Start");
     const iconStart = modMdc.mkMDCicon("play_arrow");
     const btnStart = modMdc.mkMDCiconButton(iconStart, "Start");
     // btnStart.classList.add("icon-button-30");
@@ -1143,8 +1148,7 @@ async function setupControls(controlscontainer) {
         }
     }
     setTimeout(() => updateTimeNum(), 1000);
-    // @ts-ignore
-    const eltShowTimeNum = mkElt("span", undefined, "(time)");
+    const eltShowTimeNum = TSmkElt("span", undefined, "(time)");
     eltShowTimeNum.id = "elt-show-duration";
     eltShowTimeNum.style = `
                     background-color: #0004;
@@ -1153,10 +1157,8 @@ async function setupControls(controlscontainer) {
                     text-align: center;
                 `;
 
-    // @ts-ignore
-    const divProgress = mkElt("div", { id: "progress" },
-        // @ts-ignore
-        mkElt("div", { id: "current-progress" }));
+    const divProgress = TSmkElt("div", { id: "progress" },
+        TSmkElt("div", { id: "current-progress" }));
     const divChangeTime = (() => {
         const iconLess = modMdc.mkMDCicon("expand_circle_down");
         const btnLess = modMdc.mkMDCiconButton(iconLess, "Shorter");
@@ -1184,8 +1186,7 @@ async function setupControls(controlscontainer) {
             updateTimeNum();
         })
 
-        // @ts-ignore
-        const div = mkElt("div", { class: "mdc-card", id: "set-time" }, [
+        const div = TSmkElt("div", { class: "mdc-card", id: "set-time" }, [
             btnLess, eltShowTimeNum, btnMore
         ]);
         div.style = `
@@ -1209,7 +1210,7 @@ async function setupControls(controlscontainer) {
         // mkMDCslider(min, max, now, step, label, onChange, onInput) 
         // const eltSlider = await modMdc.mkMDCslider(0.8, 1.2, 1.0, 0.05, "Counts to seconds");
         const eltSlider = await modMdc.mkMDCslider(80, 120, 100, undefined, "Counts to seconds");
-        const divSlider = mkElt("p", undefined, [
+        const divSlider = TSmkElt("p", undefined, [
             "Counts to seconds:", eltSlider,
         ]);
         divSlider.style = `
@@ -1221,8 +1222,7 @@ async function setupControls(controlscontainer) {
         // https://www.w3schools.com/howto/howto_js_rangeslider.asp
 
         // Looks like values should be integers.
-        // @ts-ignore
-        const inpSpeed = mkElt("input", {
+        const inpSpeed = TSmkElt("input", {
             type: "range",
             // min: 80,
             min: minCountsPerSeconds,
@@ -1232,8 +1232,7 @@ async function setupControls(controlscontainer) {
             class: "slider",
         });
         settingCountsPerSecond.bindToInput(inpSpeed);
-        // @ts-ignore
-        const eltOutSpeed = mkElt("span");
+        const eltOutSpeed = TSmkElt("span");
         const tellSpeed = () => {
             eltOutSpeed.textContent = `${inpSpeed.value}%`;
         }
@@ -1243,18 +1242,15 @@ async function setupControls(controlscontainer) {
             tellSpeed();
         });
 
-        // @ts-ignore
-        const inpSpeedContainer = mkElt("div", undefined, inpSpeed);
+        const inpSpeedContainer = TSmkElt("div", undefined, inpSpeed);
         inpSpeedContainer.classList.add("slidecontainer");
         /*
         inpRange.addEventListener("input", evt => {
             console.log("input inpRange", inpRange.value);
         });
         */
-        // @ts-ignore
-        const divSpeed = mkElt("div", undefined, [
-            // @ts-ignore
-            mkElt("div", undefined, [
+        const divSpeed = TSmkElt("div", undefined, [
+            TSmkElt("div", undefined, [
                 "Speed, counts per seconds (",
                 eltOutSpeed,
                 ")"
@@ -1267,16 +1263,13 @@ async function setupControls(controlscontainer) {
                     gap: 10px;
                 `;
 
-        // const inpNumPatts = mkElt("input", {type:"number"});
         const inpNumPatts = modMdc.mkMDCtextFieldInput(undefined, "number");
         settingNumPatts.bindToInput(inpNumPatts);
         const tfNumPatts = modMdc.mkMDCtextFieldOutlined("Show num patts", inpNumPatts);
-        // @ts-ignore
-        const divNumPatts = mkElt("div", undefined, tfNumPatts);
+        const divNumPatts = TSmkElt("div", undefined, tfNumPatts);
 
 
-        // @ts-ignore
-        const btnCanvasBug = mkElt("button", undefined, "Set canvas bg color");
+        const btnCanvasBug = TSmkElt("button", undefined, "Set canvas bg color");
         btnCanvasBug.addEventListener("click", evt => {
             const c = document.documentElement.querySelector("canvas");
             // @ts-ignore
@@ -1284,24 +1277,19 @@ async function setupControls(controlscontainer) {
         });
 
 
-        // @ts-ignore
-        const inpMinOrSec = mkElt("input", { type: "checkbox" });
+        const inpMinOrSec = TSmkElt("input", { type: "checkbox" });
         // const settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
         settingDurationIsInSeconds.bindToInput(inpMinOrSec);
-        // @ts-ignore
-        const lblMinOrSec = mkElt("label", undefined, [
+        const lblMinOrSec = TSmkElt("label", undefined, [
             inpMinOrSec, "Duration in seconds",
         ]);
-        // @ts-ignore
-        const divMinOrSec = mkElt("p", undefined, [
-            // mkElt("div", undefined, "https://issues.chromium.org/issues/40830060"),
-            // mkElt("div", undefined, btnCanvasBug),
-            // @ts-ignore
-            mkElt("div", undefined, lblMinOrSec),
+        const divMinOrSec = TSmkElt("p", undefined, [
+            // TSmkElt("div", undefined, "https://issues.chromium.org/issues/40830060"),
+            // TSmkElt("div", undefined, btnCanvasBug),
+            TSmkElt("div", undefined, lblMinOrSec),
         ]);
 
-        // @ts-ignore
-        const divNW = mkElt("p", undefined, ['Navigator Connection API not supported']);
+        const divNW = TSmkElt("p", undefined, ['Navigator Connection API not supported']);
         // @ts-ignore
         if (navigator.connection) {
             divNW.textContent = "";
@@ -1317,16 +1305,11 @@ async function setupControls(controlscontainer) {
             addRow(`Save data: ${nc.saveData}`);
         }
 
-        // const btnClearData = mkElt("button", undefined, "Clear Data");
         const btnClearData = modMdc.mkMDCbutton("Reset", "raised");
-        // @ts-ignore
-        btnClearData.addEventListener("click", errorHandlerAsyncEvent(async evt => {
-            // @ts-ignore
-            const bdy = mkElt("div", undefined, [
-                // @ts-ignore
-                mkElt("h2", undefined, "Clear all your choices"),
-                // @ts-ignore
-                mkElt("p", undefined, "Reset everything to default values"),
+        btnClearData.addEventListener("click", TSerrorHandlerAsyncEvent(async evt => {
+            const bdy = TSmkElt("div", undefined, [
+                TSmkElt("h2", undefined, "Clear all your choices"),
+                TSmkElt("p", undefined, "Reset everything to default values"),
             ]);
             const ans = await modMdc.mkMDCdialogConfirm(bdy);
             if (ans) {
@@ -1350,16 +1333,12 @@ async function setupControls(controlscontainer) {
                 location.reload();
             }
         }));
-        // @ts-ignore
-        const divClearData = mkElt("p", undefined, btnClearData);
+        const divClearData = TSmkElt("p", undefined, btnClearData);
 
-        // @ts-ignore
-        const divDebug = mkElt("div", undefined, [
-            // @ts-ignore
-            mkElt("h3", undefined, "Debug"),
+        const divDebug = TSmkElt("div", undefined, [
+            TSmkElt("h3", undefined, "Debug"),
             divMinOrSec,
-            // @ts-ignore
-            mkElt("h3", undefined, "Network"),
+            TSmkElt("h3", undefined, "Network"),
             divNW,
         ]);
         divDebug.style = `
@@ -1368,14 +1347,11 @@ async function setupControls(controlscontainer) {
                     padding: 10px;
                 `;
 
-        // @ts-ignore
-        const divDebugDetails = mkElt("details", undefined, [
-            // @ts-ignore
-            mkElt("summary", undefined, "Debug"),
+        const divDebugDetails = TSmkElt("details", undefined, [
+            TSmkElt("summary", undefined, "Debug"),
             divDebug
         ]);
-        // @ts-ignore
-        const divColumn = mkElt("div", undefined, [
+        const divColumn = TSmkElt("div", undefined, [
             divSpeed,
             divNumPatts,
             divClearData,
@@ -1386,10 +1362,8 @@ async function setupControls(controlscontainer) {
                     flex-direction: column;
                     gap: 40px;
                 `;
-        // @ts-ignore
-        const bdy = mkElt("div", { class: "colored-dialog" }, [
-            // @ts-ignore
-            mkElt("h2", undefined, "Play settings"),
+        const bdy = TSmkElt("div", { class: "colored-dialog" }, [
+            TSmkElt("h2", undefined, "Play settings"),
             divColumn,
         ]);
         await modMdc.mkMDCdialogConfirm(bdy, "Close", false);
@@ -1421,12 +1395,10 @@ async function setupControls(controlscontainer) {
     fabImages.style.backgroundColor = "#ffa500a1";
 
 
-    // @ts-ignore
-    const eltPatternInfo = mkElt("span", undefined, "Wait")
+    const eltPatternInfo = TSmkElt("span", undefined, "Wait")
     eltPatternInfo.id = "elt-pattern-info";
 
-    // @ts-ignore
-    const eltPatternButtons = mkElt("span", undefined, [
+    const eltPatternButtons = TSmkElt("span", undefined, [
         // fabImages,
         fabPattern,
     ]);
@@ -1437,8 +1409,7 @@ async function setupControls(controlscontainer) {
             `;
 
 
-    // @ts-ignore
-    const divPattern = mkElt("p", undefined, [
+    const divPattern = TSmkElt("p", undefined, [
         eltPatternButtons,
         eltPatternInfo,
     ]);
@@ -1451,8 +1422,7 @@ async function setupControls(controlscontainer) {
 
     tellInitialState();
 
-    // @ts-ignore
-    const divControlsPlay = mkElt("p", undefined, [
+    const divControlsPlay = TSmkElt("p", undefined, [
         btnStart,
         btnReplay,
         divChangeTime,
@@ -1465,8 +1435,7 @@ async function setupControls(controlscontainer) {
                 align-items: center;
             `;
 
-    // @ts-ignore
-    const chkUseDawnFilter = mkElt("input", { type: "checkbox" });
+    const chkUseDawnFilter = TSmkElt("input", { type: "checkbox" });
     settingDawnFilter = new ourLocalSetting("use-dawn-filter", false);
     if (settingDawnFilter.value) { document.documentElement.classList.add("use-dawn-filter"); }
     settingDawnFilter.bindToInput(chkUseDawnFilter);
@@ -1479,11 +1448,9 @@ async function setupControls(controlscontainer) {
         initCurrentPattern();
     });
     chkUseDawnFilter.style.marginRight = "7px";
-    // @ts-ignore
-    const lblUseFilter = mkElt("label", undefined, [chkUseDawnFilter, "Dawn"]);
+    const lblUseFilter = TSmkElt("label", undefined, [chkUseDawnFilter, "Dawn"]);
 
-    // @ts-ignore
-    const chkSquare = mkElt("input", { type: "checkbox" });
+    const chkSquare = TSmkElt("input", { type: "checkbox" });
     // settingSquare = new modLocalSettings.LocalSetting(STORING_PREFIX, "square-canvas", false);
     settingSquare = new ourLocalSetting("square-canvas", true);
     settingSquare.bindToInput(chkSquare);
@@ -1493,14 +1460,12 @@ async function setupControls(controlscontainer) {
         setCanvasSizes();
     });
     chkSquare.style.marginRight = "7px";
-    // @ts-ignore
-    const lblSquare = mkElt("label", undefined, [chkSquare, "Square"]);
+    const lblSquare = TSmkElt("label", undefined, [chkSquare, "Square"]);
 
     fabImages.style.backgroundColor = "transparent";
     fabImages.style.color = "unset";
 
-    // @ts-ignore
-    const divControlImage = mkElt("div", undefined, [
+    const divControlImage = TSmkElt("div", undefined, [
         fabImages,
         lblUseFilter,
         // eltUseFilter,
@@ -1518,8 +1483,7 @@ async function setupControls(controlscontainer) {
                 padding: 0 15px 0 7px;
             `;
     divControlImage.id = "div-control-image";
-    // @ts-ignore
-    const divOuterControlImage = mkElt("div", undefined, divControlImage);
+    const divOuterControlImage = TSmkElt("div", undefined, divControlImage);
     divOuterControlImage.style = `
                 display: flex;
                 justify-content: center;
@@ -1536,8 +1500,7 @@ async function setupControls(controlscontainer) {
 async function setupThings() {
     // @ts-ignore
     await thePromiseDOMready;
-    // @ts-ignore
-    modLocalSettings = await import("local-settings");
+    modLocalSettings = await TSimport("local-settings");
     class OurLocalSetting extends modLocalSettings.LocalSetting {
         constructor(key, defaultValue) {
             super(STORING_PREFIX, key, defaultValue);
@@ -1549,8 +1512,7 @@ async function setupThings() {
     settingYourPatt = new ourLocalSetting("your-patterns", {});
 
 
-    // @ts-ignore
-    const sectionContainer = mkElt("section");
+    const sectionContainer = TSmkElt("section");
     sectionContainer.style = `
                 max-height: 100%;
                 max-width: 100%;
@@ -1570,19 +1532,16 @@ async function setupThings() {
         setCanvasSizes();
         if (!isRunning) initCurrentPattern();
     }
-    // @ts-ignore
-    const debounceAfterResize = debounce(afterResize);
+    const debounceAfterResize = TSdebounce(afterResize);
     addEventListener("resize", evt => { debounceAfterResize(); });
     setCanvasBackgroundToCurrent();
 }
 async function addInfoButton(container) {
-    // @ts-ignore
-    const modMdc = await import("util-mdc");
+    const modMdc = await TSimport("util-mdc");
     const iconInfo = modMdc.mkMDCicon("info");
     iconInfo.style.fontSize = "2.5rem";
     iconInfo.style.color = "mediumslateblue";
-    // @ts-ignore
-    const aInfo = mkElt("a", undefined, iconInfo);
+    const aInfo = TSmkElt("a", undefined, iconInfo);
     // const urlAbout = new URL(location);
     // urlAbout.pathname = "../../about.html";
     // @ts-ignore

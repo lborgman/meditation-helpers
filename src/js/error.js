@@ -170,10 +170,11 @@ function wait4mutations(elt, ms, observeWhat, msMaxWait) {
 /**
  * 
  * @param {*} type 
- * @param {*} attrib 
- * @param {*} inner 
+ * @param {*} [attrib]
+ * @param {*} [inner]
  * @returns {*}
  */
+
 function mkElt(type, attrib, inner) {
     var elt = document.createElement(type);
 

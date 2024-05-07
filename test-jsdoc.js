@@ -8,18 +8,18 @@
 */
 
 
-/** @typedef {number&{_tag: 'TSmilliSeconds'}} TSmilliSeconds */
-/** @typedef {number&{_tag: 'TSseconds'}} TSseconds */
+/** @typedef {number&{_tag: 'TSTESTmilliSeconds'}} TSTESTmilliSeconds */
+/** @typedef {number&{_tag: 'TSTESTseconds'}} TSTESTseconds */
 
 /** @param {number} value */
-const toMilliSeconds = (value) => /** @type TSmilliSeconds */(value);
+const toMilliSeconds = (value) => /** @type TSTESTmilliSeconds */(value);
 /** @param {number} value */
-const toSeconds = (value) => /** @type TSseconds */(value);
+const toSeconds = (value) => /** @type TSTESTseconds */(value);
 
-/** @type {TSmilliSeconds} */
+/** @type {TSTESTmilliSeconds} */
 let ms = toMilliSeconds(1);
 
-/** @type {TSseconds} */
+/** @type {TSTESTseconds} */
 let sec = toSeconds(2);
 
 
@@ -27,20 +27,20 @@ ms = toMilliSeconds(sec);
 
 /**
  * 
- * @param {TSseconds} secVal 
- * @returns {TSmilliSeconds}
+ * @param {TSTESTseconds} secVal 
+ * @returns {TSTESTmilliSeconds}
  */
 function sec2ms(secVal) {
     console.log("sec2ms", secVal);
     return toMilliSeconds(1000 * secVal);
 }
 
-/** @type {TSmilliSeconds} */
+/** @type {TSTESTmilliSeconds} */
 let ms2;
 // ms2 = sec2ms(ms);
 ms2 = ms;
 
-/** @type {TSseconds} */
+/** @type {TSTESTseconds} */
 let sec2;
 // sec2 = sec2ms(ms);
 
