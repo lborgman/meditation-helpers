@@ -7,6 +7,13 @@
  https://devclass.com/2023/05/11/typescript-is-not-worth-it-for-developing-libraries-says-svelte-author-as-team-switches-to-javascript-and-jsdoc/
 */
 
+/** @type {number} */
+let x = 0;
+x = document.createElement("div");
+
+/** @type {HTMLElement} */
+let y;
+y = document.createElement("div");
 
 /** @typedef {number&{_tag: 'TSTESTmilliSeconds'}} TSTESTmilliSeconds */
 /** @typedef {number&{_tag: 'TSTESTseconds'}} TSTESTseconds */

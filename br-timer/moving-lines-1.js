@@ -20,30 +20,46 @@ const TSmilliSeconds = (value) => /** @type TSmilliSeconds */(value);
     Not a big job, but totally unnecessary.
     I will name them "TSoldName".
 
-    Or? Maybe something like this instead:
-
-      // @ts-ignore
-      const mkElt = globalThis.mkElt;
-
     https://stackoverflow.com/questions/78436085/how-can-i-make-jsdoc-typescript-understand-javascript-imports
 
     const testDiv = mkEltTS("div");
     console.log({ testDiv });
 */
 
-// const mkElt = globalThis.mkElt;
-// const mkElt = window.mkElt;
-// @ts-ignore
-const TSmkElt = mkElt;
+/**
+ * 
+ * @param {string} type 
+ * @param {*} [attrib]
+ * @param {*} [inner]
+ * @returns {HTMLElement}
+ */
+function TSmkElt(type, attrib, inner) {
+    // @ts-ignore
+    return mkElt(type, attrib, inner);
+}
+
 // @ts-ignore
 const TSerrorHandlerAsyncEvent = errorHandlerAsyncEvent;
+
 // @ts-ignore
 const TSdebounce = debounce;
-// const TSimport = import;
+
+// @ts-ignore
+const TSwaitSeconds = waitSeconds;
+
 // @ts-ignore
 const TSimport = async (url) => { return import(url); }
 // @ts-ignore
 const TSwait4mutations = wait4mutations;
+
+/**
+ * 
+ * @returns {TSmilliSeconds}
+ */
+const msDoc = () => {
+    // @ts-ignore
+    return document.timeline.currentTime;
+}
 
 const STORING_PREFIX = "MOVLIN-";
 
@@ -257,9 +273,24 @@ function getPatternByName(name) {
 }
 
 function tellCurrentPattern() {
+    /**
+     * 
+     * @param {string} id 
+     * @param {string} txtThrow 
+     * @returns  {HTMLElement}
+     */
+    function TSgetElementByIdOrThrow(id, txtThrow) {
+        const elt = document.getElementById(id);
+        if (!elt) throw Error(txtThrow)
+        /** @type {HTMLElement} */
+        const element = elt;
+        return element;
+    }
+
     const divPatternInfo = document.getElementById("elt-pattern-info");
     if (!divPatternInfo) throw Error("Could not find 'elt-pattern-info'");
-    // @ts-ignore
+    // const divPatternInfo = TSgetElementByIdOrThrow( "elt-pattern-info", "Could not find 'elt-pattern-info'");
+    // @ts-ignore style
     divPatternInfo.style = `
                 display: inline-flex;
                 gap: 10px;
@@ -268,6 +299,7 @@ function tellCurrentPattern() {
             `;
     divPatternInfo.textContent = "";
     const eltName = TSmkElt("span", undefined, settingPattern.value);
+    // @ts-ignore style
     eltName.style = `
                     font-weight: bold;
                 `;
@@ -283,15 +315,14 @@ function tellCurrentPattern() {
     }
     const strPatt = mkPattString(pattRec.patt);
     const eltPatt = TSmkElt("span", { id: "current-patt-parts" }, strPatt);
-    // @ts-ignore
     divPatternInfo.appendChild(eltPatt);
 }
 
 function initCurrentPattern() {
     setStateRunning(false);
     tellInitialState();
-    // @ts-ignore
-    msStart = document.timeline.currentTime;
+    // msStart = document.timeline.currentTime;
+    msStart = msDoc();
     console.log("msStart =, initCurrentPattern");
     redraw();
 }
@@ -330,6 +361,7 @@ async function dialogImages() {
 async function dialogPattern() {
     const modMdc = await TSimport("util-mdc");
     const divPattList = TSmkElt("div");
+    // @ts-ignore style
     divPattList.style = `
                     display: flex;
                     flex-direction: column;
@@ -341,6 +373,7 @@ async function dialogPattern() {
             ||
             divPattList.querySelector("input[name=pattName]")
             ;
+        // @ts-ignore
         return { pattName: rad.value };
     };
 
@@ -353,7 +386,6 @@ async function dialogPattern() {
     const builtinPn = Object.keys(breathPatterns).sort();
     builtinPn.forEach(pn => { addPn(pn); });
 
-    // @ts-ignore
     divPattList.appendChild(mkElt("h3", undefined, "Your Own:"));
     const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
     const divBtnAddPatt = TSmkElt("div", undefined, btnAddPatt);
@@ -373,12 +405,14 @@ async function dialogPattern() {
             if (!yourPatt) debugger;
 
             const divNotReady = TSmkElt("p", undefined, "Not ready!");
+            // @ts-ignore style
             divNotReady.style = `
                         color: red;
                     `;
             bdy.appendChild(divNotReady);
 
             const eltName = TSmkElt("span", undefined, existingPattName);
+            // @ts-ignore style
             eltName.style = `
                         font-size: 1.6rem;
                         font-weight: bold;
@@ -402,6 +436,7 @@ async function dialogPattern() {
                 eltName,
                 btnDelete,
             ]);
+            // @ts-ignore style
             divName.style = `
                         display: flex;
                         flex-direction: row;
@@ -435,7 +470,6 @@ async function dialogPattern() {
             });
 
 
-            // @ts-ignore
             bdy.appendChild(mkElt("p", undefined, tfName));
         }
 
@@ -459,6 +493,7 @@ async function dialogPattern() {
                 value: val,
                 // placeholder: "0 sec",
             });
+            // @ts-ignore style
             inp.style = `
                         width: 30px;
                     `;
@@ -558,6 +593,7 @@ async function dialogPattern() {
     divPattList.appendChild(divBtnAddPatt);
 
     const divYourList = TSmkElt("div");
+    // @ts-ignore style
     divYourList.style = `
                 display: flex;
                 flex-direction: column;
@@ -584,6 +620,7 @@ async function dialogPattern() {
     function chooseRadFromSetting() {
         const val = getActivePattern();
         const rad = divPattList.querySelector(`input[value="${val}"]`);
+        // @ts-ignore
         rad.checked = true;
     }
 
@@ -596,9 +633,10 @@ async function dialogPattern() {
         divList = divList || divPattList;
         console.log({ pn });
         const rad = TSmkElt("input", { type: "radio", name: "pattName", value: pn });
-        // if (currentPattern == pn) rad.checked = true;
+        // @ts-ignore
         if (settingPattern.value == pn) rad.checked = true;
         const eltName = TSmkElt("b", undefined, pn);
+        // @ts-ignore style
         eltName.style = `margin-right: 5px; margin-left: 5px;`;
         const patt = objPatts[pn].patt;
         const eltPatt = mkPattString(patt);
@@ -747,8 +785,8 @@ function drawPattern(patt, drawNumPatts) {
         }
     }
 
-    // @ts-ignore
-    msLastDraw = TSmilliSeconds(document.timeline.currentTime);
+    // msLastDraw = TSmilliSeconds(document.timeline.currentTime);
+    msLastDraw = msDoc();
 
     middleSecondsX = drawNumPatts * patt.countsWpatt / 2;
     const middleCanvasX = pattX2canvasX(middleSecondsX); // FIX-ME:
@@ -820,7 +858,6 @@ function drawPattern(patt, drawNumPatts) {
 
     function moveTo(pnt) {
         const pntCanvas = pnt2canvas(pnt);
-        // @ts-ignore
         ctxCanvas.moveTo(pntCanvas.x, pntCanvas.y);
     }
     function lineTo(pnt) {
@@ -881,36 +918,40 @@ async function setCanvasBackgroundToCurrent() {
 
 let usedImageOrVideo;
 async function updateCanvasBackground(useImageOrVideo) {
+    /** @type {HTMLVideoElement} */
     let eltVideo;
     let videoH, videoW;
     if (useImageOrVideo.startsWith("V")) {
-        eltVideo = TSmkElt("video");
+        // eltVideo = TSmkElt("video");
+        eltVideo = document.createElement("video");
         eltVideo.muted = true;
         eltVideo.controls = false;
         eltVideo.loop = true;
         eltVideo.autoplay = true;
         await new Promise((resolve, reject) => {
             eltVideo.addEventListener("loadedmetadata", evt => {
-                const targ = evt.target;
-                videoH = targ.videoHeight;
-                videoW = targ.videoWidth;
+                // const targ = evt.target;
+                // if (!targ) throw Error("loadmetadata evt.target is null");
+                // videoH = targ.videoHeight;
+                // videoW = targ.videoWidth;
+                videoH = eltVideo.videoHeight;
+                videoW = eltVideo.videoWidth;
                 resolve(undefined);
             });
             eltVideo.src = useImageOrVideo.slice(1);
         });
     }
-    // eltVideo = undefined;
     usedImageOrVideo = useImageOrVideo;
-    // eltCanvas.style.backgroundImage = `url(${useImage})`; return;
     const clsBg = "canvas-bg";
     const eltCanvas = document.getElementById("elt-canvas");
-    // @ts-ignore
+    if (eltCanvas == null) throw Error("Did not find elt-canvas");
     const eltParent = eltCanvas.parentElement;
-    // @ts-ignore
+    if (eltParent == null) throw Error("eltParent == null");
     const eltOldBg = eltParent.firstElementChild;
     if (eltOldBg?.classList.contains(clsBg)) eltOldBg.remove();
     let eltBg;
     if (settingSquare.value) {
+        // @ts-ignore undefined
         if (eltVideo) {
             // eslint-disable-next-line no-debugger
             debugger;
@@ -928,6 +969,7 @@ async function updateCanvasBackground(useImageOrVideo) {
             showIt();
         }
     } else {
+        // @ts-ignore undefined
         if (eltVideo) {
             // eslint-disable-next-line no-debugger
             debugger;
@@ -936,9 +978,10 @@ async function updateCanvasBackground(useImageOrVideo) {
             eltBg.style.maxHeight = "100%";
             showIt();
         } else {
-            eltBg = TSmkElt("img");
+            // eltBg = TSmkElt("img");
+            eltBg = document.createElement("img");
             eltBg.style.maxWidth = "100%";
-            eltBg.style.maxWeight = "100%";
+            eltBg.style.maxHeight = "100%";
             eltBg.onload = () => { showIt(); }
             let testedTimout = false;
             eltBg.onerror = () => {
@@ -957,14 +1000,10 @@ async function updateCanvasBackground(useImageOrVideo) {
     eltBg.classList.add(clsBg);
     eltBg.style.borderRadius = "10px"; // FIX-ME:
 
-    // @ts-ignore
     eltParent.insertBefore(eltBg, eltParent.firstElementChild);
-    // if (bgStyleSquare) 
     if (settingSquare.value) {
-        // @ts-ignore
         eltParent.style.aspectRatio = "1 / 1";
     } else {
-        // @ts-ignore
         eltParent.style.aspectRatio = "unset";
     }
     async function showIt() {
@@ -972,12 +1011,12 @@ async function updateCanvasBackground(useImageOrVideo) {
         setCanvasSizes();
 
         // Needed for redraw:
-        // @ts-ignore
-        msStart = document.timeline.currentTime;
+        // msStart = document.timeline.currentTime;
+        msStart = msDoc();
         console.log("msStart =, showIt");
         redraw();
 
-        // @ts-ignore
+        // @ts-ignore bad
         eltParent.closest("section").style.opacity = "1";
     }
 
@@ -993,6 +1032,7 @@ function redraw() {
 function setupCanvas(container) {
     const container4canvas = TSmkElt("div");
     container4canvas.id = "container-4-canvas";
+    // @ts-ignore style
     container4canvas.style = `
                 position: relative;
                 background-color: darkgoldenrod;
@@ -1007,7 +1047,7 @@ function setupCanvas(container) {
 
     eltCanvas = document.createElement("canvas");
     eltCanvas.id = "elt-canvas";
-    // @ts-ignore
+    // @ts-ignore style
     eltCanvas.style = `
                 position: absolute;
                 top: 0;
@@ -1120,8 +1160,8 @@ async function setupControls(controlscontainer) {
         // debugger;
 
         setStateRunning(true);
-        // @ts-ignore
-        msStart = document.timeline.currentTime;
+        // msStart = document.timeline.currentTime;
+        msStart = msDoc();
         console.log("msStart =, btnStart");
         numChecks = 0;
         numRedraw = 0;
@@ -1139,17 +1179,17 @@ async function setupControls(controlscontainer) {
 
     function updateTimeNum() {
         const elt = document.getElementById("elt-show-duration");
+        if (elt == null) throw Error("Did not find elt-show-duration");
         if (settingDurationIsInSeconds.value) {
-            // @ts-ignore
             elt.textContent = `${settingDurationSeconds.value} sec`;
         } else {
-            // @ts-ignore
             elt.textContent = `${settingDurationMinutes.value} min`;
         }
     }
     setTimeout(() => updateTimeNum(), 1000);
     const eltShowTimeNum = TSmkElt("span", undefined, "(time)");
     eltShowTimeNum.id = "elt-show-duration";
+    // @ts-ignore style
     eltShowTimeNum.style = `
                     background-color: #0004;
                     padding: 4px;
@@ -1189,6 +1229,7 @@ async function setupControls(controlscontainer) {
         const div = TSmkElt("div", { class: "mdc-card", id: "set-time" }, [
             btnLess, eltShowTimeNum, btnMore
         ]);
+        // @ts-ignore style
         div.style = `
                     background-color: rgba(255, 255, 0, 0.2);
                     NOdisplay: inline-flex;
@@ -1222,15 +1263,20 @@ async function setupControls(controlscontainer) {
         // https://www.w3schools.com/howto/howto_js_rangeslider.asp
 
         // Looks like values should be integers.
-        const inpSpeed = TSmkElt("input", {
+        const OLDinpSpeed = TSmkElt("input", {
             type: "range",
-            // min: 80,
             min: minCountsPerSeconds,
-            // max: 120,
             max: maxCountsPerSeconds,
             value: 100,
             class: "slider",
         });
+        const inpSpeed = document.createElement("input");
+        inpSpeed.type = "range";
+        inpSpeed.min = minCountsPerSeconds.toString();
+        inpSpeed.max = maxCountsPerSeconds.toString();
+        inpSpeed.value = "100";
+        inpSpeed.classList.add("slider");
+
         settingCountsPerSecond.bindToInput(inpSpeed);
         const eltOutSpeed = TSmkElt("span");
         const tellSpeed = () => {
@@ -1257,6 +1303,7 @@ async function setupControls(controlscontainer) {
             ]),
             inpSpeedContainer,
         ]);
+        // @ts-ignore style
         divSpeed.style = `
                     display: flex;
                     flex-direction: column;
@@ -1272,7 +1319,7 @@ async function setupControls(controlscontainer) {
         const btnCanvasBug = TSmkElt("button", undefined, "Set canvas bg color");
         btnCanvasBug.addEventListener("click", evt => {
             const c = document.documentElement.querySelector("canvas");
-            // @ts-ignore
+            if (c == null) throw Error("Did not find canvas");
             c.style.backgroundColor = "white";
         });
 
@@ -1290,12 +1337,11 @@ async function setupControls(controlscontainer) {
         ]);
 
         const divNW = TSmkElt("p", undefined, ['Navigator Connection API not supported']);
-        // @ts-ignore
+        // @ts-ignore navigator.connection
         if (navigator.connection) {
             divNW.textContent = "";
-            // @ts-ignore
+            // @ts-ignore navigator.connection
             const nc = navigator.connection;
-            // @ts-ignore
             const addRow = (str) => { divNW.appendChild(mkElt("div", undefined, str)); }
             addRow(`Effective network type: ${nc.effectiveType}`);
             addRow(`⚠ Network type: ${nc.type}`);
@@ -1325,11 +1371,11 @@ async function setupControls(controlscontainer) {
                             All your choices were reset to default values.
                             Restarting app now for this to take effect...
                         `;
+                // @ts-ignore style
                 div.style = `
                             color: red;
                         `;
-                // @ts-ignore
-                await waitSeconds(3);
+                await TSwaitSeconds(3);
                 location.reload();
             }
         }));
@@ -1341,6 +1387,7 @@ async function setupControls(controlscontainer) {
             TSmkElt("h3", undefined, "Network"),
             divNW,
         ]);
+        // @ts-ignore style
         divDebug.style = `
                     background-color: yellow;
                     border: 3px solid red;
@@ -1357,6 +1404,7 @@ async function setupControls(controlscontainer) {
             divClearData,
             divDebugDetails,
         ]);
+        // @ts-ignore style
         divColumn.style = `
                     display: flex;
                     flex-direction: column;
@@ -1403,6 +1451,7 @@ async function setupControls(controlscontainer) {
         fabPattern,
     ]);
     eltPatternButtons.id = "pattern-buttons";
+    // @ts-ignore style
     eltPatternButtons.style = `
                 display: inline-flex;
                 gap: 5px;
@@ -1413,6 +1462,7 @@ async function setupControls(controlscontainer) {
         eltPatternButtons,
         eltPatternInfo,
     ]);
+    // @ts-ignore style
     divPattern.style = `
                 display: flex;
                 gap: 10px;
@@ -1429,13 +1479,16 @@ async function setupControls(controlscontainer) {
         btnSettings,
         divProgress
     ]);
+    // @ts-ignore style
     divControlsPlay.style = `
                 display: flex;
                 gap: 5px;
                 align-items: center;
             `;
 
-    const chkUseDawnFilter = TSmkElt("input", { type: "checkbox" });
+    // const chkUseDawnFilter = TSmkElt("input", { type: "checkbox" });
+    const chkUseDawnFilter = document.createElement("input");
+    chkUseDawnFilter.type = "checkbox";
     settingDawnFilter = new ourLocalSetting("use-dawn-filter", false);
     if (settingDawnFilter.value) { document.documentElement.classList.add("use-dawn-filter"); }
     settingDawnFilter.bindToInput(chkUseDawnFilter);
@@ -1471,6 +1524,7 @@ async function setupControls(controlscontainer) {
         // eltUseFilter,
         lblSquare
     ]);
+    // @ts-ignore style
     divControlImage.style = `
                 NOdisplay: flex;
                 align-items: center;
@@ -1484,6 +1538,7 @@ async function setupControls(controlscontainer) {
             `;
     divControlImage.id = "div-control-image";
     const divOuterControlImage = TSmkElt("div", undefined, divControlImage);
+    // @ts-ignore style
     divOuterControlImage.style = `
                 display: flex;
                 justify-content: center;
@@ -1498,7 +1553,6 @@ async function setupControls(controlscontainer) {
     controlscontainer.appendChild(divControlsPlay);
 }
 async function setupThings() {
-    // @ts-ignore
     await thePromiseDOMready;
     modLocalSettings = await TSimport("local-settings");
     class OurLocalSetting extends modLocalSettings.LocalSetting {
@@ -1513,6 +1567,7 @@ async function setupThings() {
 
 
     const sectionContainer = TSmkElt("section");
+    // @ts-ignore style
     sectionContainer.style = `
                 max-height: 100%;
                 max-width: 100%;
@@ -1541,14 +1596,15 @@ async function addInfoButton(container) {
     const iconInfo = modMdc.mkMDCicon("info");
     iconInfo.style.fontSize = "2.5rem";
     iconInfo.style.color = "mediumslateblue";
-    const aInfo = TSmkElt("a", undefined, iconInfo);
-    // const urlAbout = new URL(location);
-    // urlAbout.pathname = "../../about.html";
-    // @ts-ignore
-    const urlAbout = new URL("../about.html", location);
+    // const aInfo = TSmkElt("a", undefined, iconInfo);
+    const aInfo = document.createElement("a");
+    aInfo.appendChild(iconInfo);
+    // const urlAbout = new URL("../about.html", location);
+    const urlAbout = new URL("../about.html", location.href);
     aInfo.href = urlAbout.href;
     // const btnInfo = modMdc.mkMDCiconButton(iconInfo, "About");
     const btnInfo = modMdc.mkMDCiconButton(aInfo, "About Link 2");
+    // @ts-ignore style
     btnInfo.style = `
                 position: absolute;
                 top: -5px;
