@@ -386,7 +386,7 @@ async function dialogPattern() {
     const builtinPn = Object.keys(breathPatterns).sort();
     builtinPn.forEach(pn => { addPn(pn); });
 
-    divPattList.appendChild(mkElt("h3", undefined, "Your Own:"));
+    divPattList.appendChild(TSmkElt("h3", undefined, "Your Own:"));
     const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
     const divBtnAddPatt = TSmkElt("div", undefined, btnAddPatt);
     divBtnAddPatt.style.marginTop = "-20px";
@@ -470,7 +470,7 @@ async function dialogPattern() {
             });
 
 
-            bdy.appendChild(mkElt("p", undefined, tfName));
+            bdy.appendChild(TSmkElt("p", undefined, tfName));
         }
 
         let saveButton;
@@ -1028,6 +1028,53 @@ function redraw() {
     drawPattern(myPatt, settingNumPatts.value);
 }
 
+let progressElement;
+let progressWidth;
+function checkRedraw() {
+    if (!progressElement) {
+        progressElement = document.getElementById("current-progress");
+        // @ts-ignore
+        const bcr = progressElement.parentElement.getBoundingClientRect();
+        progressWidth = bcr.width;
+    }
+    /** @type {TSmilliSeconds} */
+    // @ts-ignore
+    const ms = document.timeline.currentTime - (msStart + msFocusLength);
+    const partDone = ms / (secondsDuration * 1000);
+    progressElement.style.width = `${partDone * progressWidth}px`;
+    if (ms > secondsDuration * 1000) {
+        console.log("stopping time...");
+        clearTopText();
+        tellState("Finished");
+        drawCurrentPoint("gray");
+        setStateRunning(false);
+        topText("Finished");
+        // isRunning = false;
+        stopRedraw = true;
+        return false;
+    }
+    if (numChecks > 100) {
+        console.log("stopping num...");
+        stopRedraw = true;
+        return false;
+    }
+    redraw();
+    return true;
+}
+
+function animateLines() {
+    if (!isRunning) return;
+    const ok = checkRedraw();
+    if (!ok) return;
+    requestAnimationFrame(() => {
+        if (numRedraw++ > maxRedraw) {
+            console.log("stopping sec check", { numRedraw });
+            return;
+        }
+        animateLines();
+    });
+}
+
 
 function setupCanvas(container) {
     const container4canvas = TSmkElt("div");
@@ -1342,7 +1389,7 @@ async function setupControls(controlscontainer) {
             divNW.textContent = "";
             // @ts-ignore navigator.connection
             const nc = navigator.connection;
-            const addRow = (str) => { divNW.appendChild(mkElt("div", undefined, str)); }
+            const addRow = (str) => { divNW.appendChild(TSmkElt("div", undefined, str)); }
             addRow(`Effective network type: ${nc.effectiveType}`);
             addRow(`⚠ Network type: ${nc.type}`);
             addRow(`Downlink Speed: ${nc.downlink}Mb/s`);
