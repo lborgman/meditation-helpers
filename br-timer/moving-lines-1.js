@@ -34,22 +34,23 @@ const TSmilliSeconds = (value) => /** @type TSmilliSeconds */(value);
  * @returns {HTMLElement}
  */
 function TSmkElt(type, attrib, inner) {
-    // @ts-ignore
+    // @ts-ignore file
     return mkElt(type, attrib, inner);
 }
 
-// @ts-ignore
+// @ts-ignore file
 const TSerrorHandlerAsyncEvent = errorHandlerAsyncEvent;
 
-// @ts-ignore
+// @ts-ignore file
 const TSdebounce = debounce;
 
-// @ts-ignore
+// @ts-ignore file
 const TSwaitSeconds = waitSeconds;
 
-// @ts-ignore
+// @ts-ignore file
 const TSimport = async (url) => { return import(url); }
-// @ts-ignore
+
+// @ts-ignore file
 const TSwait4mutations = wait4mutations;
 
 /**
@@ -57,9 +58,24 @@ const TSwait4mutations = wait4mutations;
  * @returns {TSmilliSeconds}
  */
 const msDoc = () => {
-    // @ts-ignore
-    return document.timeline.currentTime;
+    let ms = document.timeline.currentTime || 0;
+    // @ts-ignore typescript
+    return TSmilliSeconds(ms);
 }
+
+/** @typedef {number} canvasX */
+/** @typedef {number} canvasY */
+/** @typedef {{ canvasX: canvasX, cY: canvasY }} canvasPoint */
+
+/** @typedef {number} pattX */
+/** @typedef {number} pattY */
+/** @typedef {string} part */
+// https://github.com/microsoft/TypeScript/issues/39906
+/** @typedef {{ pointX: pattX, pointY: pattY, part: part }} pattPoint */
+/** @typedef {pattPoint[]} pattPoints*/
+
+
+
 
 const STORING_PREFIX = "MOVLIN-";
 
@@ -161,8 +177,9 @@ let settingPattern;
 let currentPointY = 0;
 let middleSecondsX;
 
+/** @type {canvasPoint} */
 const currentPointCanvas = {
-    cX: -100,
+    canvasX: -100,
     cY: -100,
 }
 
@@ -176,7 +193,7 @@ const textForParts = {
 }
 
 function drawCurrentPoint(color) {
-    const cX = currentPointCanvas.cX;
+    const cX = currentPointCanvas.canvasX;
     const cY = currentPointCanvas.cY;
     // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/ellipse
     // const cR = pattY2canvasY(0) / 20;
@@ -368,12 +385,13 @@ async function dialogPattern() {
                     gap: 10px;
                 `;
     const funHandleResult = () => {
+        /** @type {HTMLInputElement | null} */
         const rad =
             divPattList.querySelector("input[name=pattName]:checked")
             ||
             divPattList.querySelector("input[name=pattName]")
             ;
-        // @ts-ignore
+        if (rad == null) throw Error("Did not find input[name=pattName]");
         return { pattName: rad.value };
     };
 
@@ -620,7 +638,7 @@ async function dialogPattern() {
     function chooseRadFromSetting() {
         const val = getActivePattern();
         const rad = divPattList.querySelector(`input[value="${val}"]`);
-        // @ts-ignore
+        // @ts-ignore DOM
         rad.checked = true;
     }
 
@@ -633,7 +651,7 @@ async function dialogPattern() {
         divList = divList || divPattList;
         console.log({ pn });
         const rad = TSmkElt("input", { type: "radio", name: "pattName", value: pn });
-        // @ts-ignore
+        // @ts-ignore DOM
         if (settingPattern.value == pn) rad.checked = true;
         const eltName = TSmkElt("b", undefined, pn);
         // @ts-ignore style
@@ -674,7 +692,7 @@ async function dialogPattern() {
  * @returns {{
  *      patt: any,
  *      countsWpatt: TScounts,
- *      pattPoints: any
+ *      pattPoints: pattPoints
  * }}
  */
 function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
@@ -703,11 +721,16 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
         .reduce((acc, next) => acc = acc + next, 0));
 
     const pattPoints = [];
+    /** @type {pattY} */
     let pointY;
+    /** @type {pattX} */
     let pointX = 0;
     for (const part in patt) {
         pointY = pattY[part];
-        pattPoints.push({ pointX, pointY, part });
+        /** @type {pattPoint} */
+        const pattPoint = { pointX, pointY, part }
+        // pattPoints.push({ pointX, pointY, part });
+        pattPoints.push(pattPoint);
         const diffX = patt[part];
         pointX += diffX;
     }
@@ -761,6 +784,7 @@ const setCanvasSizes = () => {
 /** @type {TSmilliSeconds} */
 const msFocusLength = TSmilliSeconds(5 * 1000);
 
+/** @typedef  */
 function drawPattern(patt, drawNumPatts) {
     if (!patt) return;
 
@@ -848,38 +872,52 @@ function drawPattern(patt, drawNumPatts) {
 
     // currentPointCanvas.cX = pattX2canvasX(middleSecondsX);
     currentPointCanvas.cR = pattY2canvasY(0) / 30;
-    currentPointCanvas.cX = middleCanvasX;
+    currentPointCanvas.canvasX = middleCanvasX;
     currentPointY = middleY;
     currentPointCanvas.cY = pattY2canvasY(currentPointY);
     const clrPoint = isRunning ? "yellow" : "yellowgreen";
     drawCurrentPoint(clrPoint);
 
 
-
-    function moveTo(pnt) {
-        const pntCanvas = pnt2canvas(pnt);
-        ctxCanvas.moveTo(pntCanvas.x, pntCanvas.y);
+    /**
+     * 
+     * @param {pattPoint} pattPoint 
+     * @returns 
+     */
+    function moveTo(pattPoint) {
+        const pntCanvas = pnt2canvas(pattPoint);
+        if (pntCanvas == null) return;
+        ctxCanvas.moveTo(pntCanvas.canvasX, pntCanvas.y);
     }
-    function lineTo(pnt) {
-        // console.log("lineTo", pnt);
-        const pntCanvas = pnt2canvas(pnt);
+
+    /**
+     * 
+     * @param {pattPoint} pattPoint 
+     * @returns 
+     */
+    function lineTo(pattPoint) {
+        const pntCanvas = pnt2canvas(pattPoint);
         if (!pntCanvas) return false;
-        ctxCanvas.lineTo(pntCanvas.x, pntCanvas.y);
-        if (pntCanvas.x < eltCanvas.width) {
-            return pntCanvas.x; // So we don't have to calculate it again...
+        ctxCanvas.lineTo(pntCanvas.canvasX, pntCanvas.y);
+        if (pntCanvas.canvasX < eltCanvas.width) {
+            return pntCanvas.canvasX; // So we don't have to calculate it again...
         }
         return false;
     }
+
+    /**
+     * 
+     * @param {pattPoint} pnt 
+     * @returns {canvasPoint | null}
+     */
     function pnt2canvas(pnt) {
         const sec = (msLastDraw - msStart - msFocusLength) / 1000;
         const secPointX = pnt.pointX * (100 / settingCountsPerSecond.value);
-        // if (pnt.pointX > secondsDuration) { return; }
-        if (secPointX > secondsDuration) { return; }
-        // const x = pnt.pointX - sec + canvasSec / 2;
+        if (secPointX > secondsDuration) { return null; }
         const x = secPointX - sec + secWCanvas / 2;
-        // if (x > secondsDuration) { return; }
+        /** @type {canvasPoint} */
         const pntC = {
-            x: pattX2canvasX(x),
+            canvasX: pattX2canvasX(x),
             y: pattY2canvasY(pnt.pointY),
         }
         // console.log({ pntC });
@@ -1016,7 +1054,7 @@ async function updateCanvasBackground(useImageOrVideo) {
         console.log("msStart =, showIt");
         redraw();
 
-        // @ts-ignore bad
+        // @ts-ignore DOM, style
         eltParent.closest("section").style.opacity = "1";
     }
 
@@ -1033,13 +1071,19 @@ let progressWidth;
 function checkRedraw() {
     if (!progressElement) {
         progressElement = document.getElementById("current-progress");
-        // @ts-ignore
-        const bcr = progressElement.parentElement.getBoundingClientRect();
+        const parent = progressElement?.parentElement;
+        if (parent == null) throw Error("progressElement.parentElement == null");
+        const bcr = parent.getBoundingClientRect();
         progressWidth = bcr.width;
     }
+
+
+    // https://stackoverflow.com/questions/78453740/can-i-make-jsdoc-trust-me-that-1-egg-1-egg-2-eggs
+    // const ms = document.timeline.currentTime - (msStart + msFocusLength);
     /** @type {TSmilliSeconds} */
-    // @ts-ignore
-    const ms = document.timeline.currentTime - (msStart + msFocusLength);
+    const ms = TSmilliSeconds(msDoc() - (msStart + msFocusLength));
+
+
     const partDone = ms / (secondsDuration * 1000);
     progressElement.style.width = `${partDone * progressWidth}px`;
     if (ms > secondsDuration * 1000) {
@@ -1600,6 +1644,7 @@ async function setupControls(controlscontainer) {
     controlscontainer.appendChild(divControlsPlay);
 }
 async function setupThings() {
+    // @ts-ignore file
     await thePromiseDOMready;
     modLocalSettings = await TSimport("local-settings");
     class OurLocalSetting extends modLocalSettings.LocalSetting {

@@ -1,7 +1,7 @@
 // @ts-check
 
 /*
- https://stackoverflow.com/questions/78424788/milliseconds-vs-seconds-can-jsdoc-tell-me-when-i-mix-things-up/78424849#78424849
+ https://stackoverflow.com/questions/78424788/numberOfEggs-vs-seconds-can-jsdoc-tell-me-when-i-mix-things-up/78424849#78424849
  https://stackoverflow.com/questions/77622612/defining-tagged-types-aka-branded-types-in-jsdoc
  https://github.com/microsoft/TypeScript/issues/43576
  https://devclass.com/2023/05/11/typescript-is-not-worth-it-for-developing-libraries-says-svelte-author-as-team-switches-to-javascript-and-jsdoc/
@@ -15,34 +15,57 @@ x = document.createElement("div");
 let y;
 y = document.createElement("div");
 
-/** @typedef {number&{_tag: 'TSTESTmilliSeconds'}} TSTESTmilliSeconds */
 /** @typedef {number&{_tag: 'TSTESTseconds'}} TSTESTseconds */
 
 /** @param {number} value */
-const toMilliSeconds = (value) => /** @type TSTESTmilliSeconds */(value);
 /** @param {number} value */
 const toSeconds = (value) => /** @type TSTESTseconds */(value);
 
-/** @type {TSTESTmilliSeconds} */
-let ms = toMilliSeconds(1);
+
+
+/** @typedef {number&{_tag: 'numberOfEggs'}} numberOfEggs */
+
+/** @param {number} value */
+const numberOfEggs = (value) => /** @type numberOfEggs */(value);
+
+/** @type {numberOfEggs} */
+let nA = numberOfEggs(1);
+
+/** @type {numberOfEggs} */
+let nB = numberOfEggs(1);
+
+/** @type {numberOfEggs} */
+let nC = nA + nB;
+
+// For nC I get this JSDoc error:
+// Type 'number' is not assignable to type 'numberOfEggs'. ts(2322)
+
+/** @type {numberOfEggs} */
+let msD = nA;
+/** @type {numberOfEggs} */
+let msE = nA + msD;
+
+
+
+
 
 /** @type {TSTESTseconds} */
 let sec = toSeconds(2);
 
 
-ms = toMilliSeconds(sec);
+ms = numberOfEggs(sec);
 
 /**
  * 
  * @param {TSTESTseconds} secVal 
- * @returns {TSTESTmilliSeconds}
+ * @returns {numberOfEggs}
  */
 function sec2ms(secVal) {
     console.log("sec2ms", secVal);
-    return toMilliSeconds(1000 * secVal);
+    return numberOfEggs(1000 * secVal);
 }
 
-/** @type {TSTESTmilliSeconds} */
+/** @type {numberOfEggs} */
 let ms2;
 // ms2 = sec2ms(ms);
 ms2 = ms;
