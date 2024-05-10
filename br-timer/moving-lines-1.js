@@ -5,13 +5,13 @@
 /** @typedef {number&{_tag: 'TScounts'}} TScounts */
 
 /** @param {number} value */
-const TScounts = (value) => /** @type TScounts */(value);
+const TSFIXcounts = (value) => /** @type TScounts */(value);
 
 /** @param {number} value */
-const TSseconds = (value) => /** @type TSseconds */(value);
+const TSFIXseconds = (value) => /** @type TSseconds */(value);
 
 /** @param {number} value */
-const TSmilliSeconds = (value) => /** @type TSmilliSeconds */(value);
+const TSFIXmilliSeconds = (value) => /** @type TSmilliSeconds */(value);
 
 /*
     Unfortunately the JSDoc parser does not ask the JavaScript compiler for info.
@@ -39,19 +39,19 @@ function TSmkElt(type, attrib, inner) {
 }
 
 // @ts-ignore file
-const TSerrorHandlerAsyncEvent = errorHandlerAsyncEvent;
+const TSDEFerrorHandlerAsyncEvent = errorHandlerAsyncEvent;
 
 // @ts-ignore file
-const TSdebounce = debounce;
+const TSDEFdebounce = debounce;
 
 // @ts-ignore file
-const TSwaitSeconds = waitSeconds;
+const TSDEFwaitSeconds = waitSeconds;
 
 // @ts-ignore file
-const TSimport = async (url) => { return import(url); }
+const TSDEFimport = async (url) => { return import(url); }
 
 // @ts-ignore file
-const TSwait4mutations = wait4mutations;
+const TSDEFwait4mutations = wait4mutations;
 
 /**
  * 
@@ -60,15 +60,30 @@ const TSwait4mutations = wait4mutations;
 const msDoc = () => {
     let ms = document.timeline.currentTime || 0;
     // @ts-ignore typescript
-    return TSmilliSeconds(ms);
+    return TSFIXmilliSeconds(ms);
 }
 
-/** @typedef {number} canvasX */
-/** @typedef {number} canvasY */
-/** @typedef {{ canvasX: canvasX, cY: canvasY }} canvasPoint */
+// /** @typedef {number} canvasX */
+/** @typedef {number&{_tag: 'canvasX'}} canvasX */
+/** @param {number} value */
+const TSFIXcanvasX = (value) => /** @type canvasX */(value);
 
-/** @typedef {number} pattX */
-/** @typedef {number} pattY */
+
+// /** @typedef {number} canvasY */
+/** @typedef {number&{_tag: 'canvasY'}} canvasY */
+/** @param {number} value */
+const TSFIXcanvasY = (value) => /** @type canvasY */(value);
+
+/** @typedef {{ canvasX: canvasX, canvasY: canvasY }} canvasPoint */
+
+/** @typedef {number&{_tag: 'pattX'}} pattX */
+/** @param {number} value */
+const TSFIXpattX = (value) => /** @type pattX */(value);
+
+/** @typedef {number&{_tag: 'pattY'}} pattY */
+/** @param {number} value */
+const TSFIXpattY = (value) => /** @type pattY */(value);
+
 /** @typedef {string} part */
 // https://github.com/microsoft/TypeScript/issues/39906
 /** @typedef {{ pointX: pattX, pointY: pattY, part: part }} pattPoint */
@@ -174,13 +189,14 @@ const breathPatterns = {
 let settingPattern;
 
 
-let currentPointY = 0;
+/** @type {pattY} */
+let currentPattY = TSFIXpattY(0);
 let middleSecondsX;
 
 /** @type {canvasPoint} */
 const currentPointCanvas = {
-    canvasX: -100,
-    cY: -100,
+    canvasX: TSFIXcanvasX(-100),
+    canvasY: TSFIXcanvasY(-100),
 }
 
 let stopRedraw = false;
@@ -194,7 +210,7 @@ const textForParts = {
 
 function drawCurrentPoint(color) {
     const cX = currentPointCanvas.canvasX;
-    const cY = currentPointCanvas.cY;
+    const cY = currentPointCanvas.canvasY;
     // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/ellipse
     // const cR = pattY2canvasY(0) / 20;
     const cR = currentPointCanvas.cR;
@@ -370,13 +386,13 @@ function mkPattString(patt) {
 }
 
 async function dialogImages() {
-    const modExtImages = await TSimport("external-images");
+    const modExtImages = await TSDEFimport("external-images");
     modExtImages.setStoringPrefix(STORING_PREFIX);
     const url = await modExtImages.dialogImages(myGooglePhotos);
     if (url && url != "random") updateCanvasBackground(url);
 }
 async function dialogPattern() {
-    const modMdc = await TSimport("util-mdc");
+    const modMdc = await TSDEFimport("util-mdc");
     const divPattList = TSmkElt("div");
     // @ts-ignore style
     divPattList.style = `
@@ -408,7 +424,7 @@ async function dialogPattern() {
     const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
     const divBtnAddPatt = TSmkElt("div", undefined, btnAddPatt);
     divBtnAddPatt.style.marginTop = "-20px";
-    divBtnAddPatt.addEventListener("click", TSerrorHandlerAsyncEvent(async evt => {
+    divBtnAddPatt.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
         dialogYourPatt();
     }));
 
@@ -438,7 +454,7 @@ async function dialogPattern() {
                     `;
             const iconDelete = modMdc.mkMDCicon("delete_forever");
             const btnDelete = modMdc.mkMDCiconButton(iconDelete, "Delete");
-            btnDelete.addEventListener("click", TSerrorHandlerAsyncEvent(async evt => {
+            btnDelete.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
                 const ans = await modMdc.mkMDCdialogConfirm(`Delete pattern ${existingPattName}?`);
                 if (ans) {
                     const yourPatts = settingYourPatt.value;
@@ -482,7 +498,7 @@ async function dialogPattern() {
                 console.log(inpName.validity);
                 console.log({ valid });
             }
-            const debounceCheckInpName = TSdebounce(checkInpName, 500);
+            const debounceCheckInpName = TSDEFdebounce(checkInpName, 500);
             inpName.addEventListener("input", evt => {
                 debounceCheckInpName();
             });
@@ -565,7 +581,7 @@ async function dialogPattern() {
                 ;
             saveButton.disabled = !canSave;
         }
-        const debounceCheckCanSave = TSdebounce(checkCanSave, 1000);
+        const debounceCheckCanSave = TSDEFdebounce(checkCanSave, 1000);
         bdy.addEventListener("input", evt => {
             debounceCheckCanSave();
         });
@@ -665,7 +681,7 @@ async function dialogPattern() {
         } else {
             const iconEdit = modMdc.mkMDCicon("edit");
             const btnEdit = modMdc.mkMDCiconButton(iconEdit);
-            btnEdit.addEventListener("click", TSerrorHandlerAsyncEvent(async evt => {
+            btnEdit.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
                 dialogYourPatt(pn);
             }));
             const row = TSmkElt("div", undefined, [btnEdit, lbl]);
@@ -717,14 +733,14 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
     }
 
     /** @type {TScounts} */
-    const countsWpatt = TScounts(Object.values(patt)
+    const countsWpatt = TSFIXcounts(Object.values(patt)
         .reduce((acc, next) => acc = acc + next, 0));
 
     const pattPoints = [];
     /** @type {pattY} */
     let pointY;
     /** @type {pattX} */
-    let pointX = 0;
+    let pointX = TSFIXpattX(0);
     for (const part in patt) {
         pointY = pattY[part];
         /** @type {pattPoint} */
@@ -782,7 +798,7 @@ const setCanvasSizes = () => {
 }
 
 /** @type {TSmilliSeconds} */
-const msFocusLength = TSmilliSeconds(5 * 1000);
+const msFocusLength = TSFIXmilliSeconds(5 * 1000);
 
 /** @typedef  */
 function drawPattern(patt, drawNumPatts) {
@@ -800,7 +816,7 @@ function drawPattern(patt, drawNumPatts) {
     }
 
     // canvasSec = patt.pattW * numPatt;
-    secWCanvas = TSseconds((patt.countsWpatt * (100 / settingCountsPerSecond.value)) * drawNumPatts);
+    secWCanvas = TSFIXseconds((patt.countsWpatt * (100 / settingCountsPerSecond.value)) * drawNumPatts);
     expectNumber(secWCanvas, Object.keys({ secWCanvas }));
     function expectNumber(variable, varName) {
         if (Number.isNaN(variable)) {
@@ -813,9 +829,11 @@ function drawPattern(patt, drawNumPatts) {
     msLastDraw = msDoc();
 
     middleSecondsX = drawNumPatts * patt.countsWpatt / 2;
+    /** @type {canvasX} */
     const middleCanvasX = pattX2canvasX(middleSecondsX); // FIX-ME:
     expectNumber(middleCanvasX, Object.keys({ middleCanvasX }));
-    let middleY = 0.15;
+    /** @type {pattY} */
+    let middleY = TSFIXpattY(0.15);
     const p0 = points[0];
 
 
@@ -827,7 +845,7 @@ function drawPattern(patt, drawNumPatts) {
         ctxCanvas.beginPath();
         ctxCanvas.setLineDash([3, 5]);
         ctxCanvas.lineCap = "butt";
-        const startY = pattY2canvasY(0);
+        const startY = pattY2canvasY(TSFIXpattY(0));
         ctxCanvas.moveTo(middleCanvasX, startY);
         lineTo(p0);
         ctxCanvas.stroke();
@@ -852,7 +870,7 @@ function drawPattern(patt, drawNumPatts) {
 
             if (lastCanvasX < middleCanvasX && middleCanvasX <= nextCanvasX) {
                 if (!lastPoint) {
-                    middleY = 0;
+                    middleY = TSFIXpattY(0);
                 } else {
                     const lastY = lastPoint.pointY;
                     const nextY = nextPoint.pointY;
@@ -871,10 +889,10 @@ function drawPattern(patt, drawNumPatts) {
 
 
     // currentPointCanvas.cX = pattX2canvasX(middleSecondsX);
-    currentPointCanvas.cR = pattY2canvasY(0) / 30;
+    currentPointCanvas.cR = pattY2canvasY(TSFIXpattY(0)) / 30;
     currentPointCanvas.canvasX = middleCanvasX;
-    currentPointY = middleY;
-    currentPointCanvas.cY = pattY2canvasY(currentPointY);
+    currentPattY = middleY;
+    currentPointCanvas.canvasY = pattY2canvasY(currentPattY);
     const clrPoint = isRunning ? "yellow" : "yellowgreen";
     drawCurrentPoint(clrPoint);
 
@@ -887,7 +905,7 @@ function drawPattern(patt, drawNumPatts) {
     function moveTo(pattPoint) {
         const pntCanvas = pnt2canvas(pattPoint);
         if (pntCanvas == null) return;
-        ctxCanvas.moveTo(pntCanvas.canvasX, pntCanvas.y);
+        ctxCanvas.moveTo(pntCanvas.canvasX, pntCanvas.canvasY);
     }
 
     /**
@@ -898,7 +916,7 @@ function drawPattern(patt, drawNumPatts) {
     function lineTo(pattPoint) {
         const pntCanvas = pnt2canvas(pattPoint);
         if (!pntCanvas) return false;
-        ctxCanvas.lineTo(pntCanvas.canvasX, pntCanvas.y);
+        ctxCanvas.lineTo(pntCanvas.canvasX, pntCanvas.canvasY);
         if (pntCanvas.canvasX < eltCanvas.width) {
             return pntCanvas.canvasX; // So we don't have to calculate it again...
         }
@@ -918,7 +936,7 @@ function drawPattern(patt, drawNumPatts) {
         /** @type {canvasPoint} */
         const pntC = {
             canvasX: pattX2canvasX(x),
-            y: pattY2canvasY(pnt.pointY),
+            canvasY: pattY2canvasY(pnt.pointY),
         }
         // console.log({ pntC });
         return pntC;
@@ -927,10 +945,20 @@ function drawPattern(patt, drawNumPatts) {
         pxPerMs = eltCanvas.width / (patt.countsWpatt * drawNumPatts);
     }
 
+    /**
+     * 
+     * @param {pattX} pattX 
+     * @returns {canvasX}
+     */
     function pattX2canvasX(pattX) {
         mkPxPerMs();
-        return pattX * pxPerMs;
+        return TSFIXcanvasX(pattX * pxPerMs);
     }
+    /**
+     * 
+     * @param {pattY} pattY 
+     * @returns {canvasY}
+     */
     function pattY2canvasY(pattY) {
         const bottom = eltCanvas.height * 0.15;
         const top = eltCanvas.height * 0.30;
@@ -940,14 +968,14 @@ function drawPattern(patt, drawNumPatts) {
         const height = (eltCanvas.height - top - bottom) * speedHeight;
 
         const invertY = Math.abs(pattY - 1);
-        return invertY * height + top;
+        return TSFIXcanvasY(invertY * height + top);
     }
 }
 
 
 
 async function setCanvasBackgroundToCurrent() {
-    const modExtImages = await TSimport("external-images");
+    const modExtImages = await TSDEFimport("external-images");
     modExtImages.setStoringPrefix(STORING_PREFIX);
     useImage = modExtImages.getCurrentImageUrl(myGooglePhotos) || useImage;
     // eltCanvas.style.backgroundImage = `url(${useImage})`;
@@ -1045,7 +1073,7 @@ async function updateCanvasBackground(useImageOrVideo) {
         eltParent.style.aspectRatio = "unset";
     }
     async function showIt() {
-        await TSwait4mutations(eltParent, 50, undefined, 1000);
+        await TSDEFwait4mutations(eltParent, 50, undefined, 1000);
         setCanvasSizes();
 
         // Needed for redraw:
@@ -1081,7 +1109,7 @@ function checkRedraw() {
     // https://stackoverflow.com/questions/78453740/can-i-make-jsdoc-trust-me-that-1-egg-1-egg-2-eggs
     // const ms = document.timeline.currentTime - (msStart + msFocusLength);
     /** @type {TSmilliSeconds} */
-    const ms = TSmilliSeconds(msDoc() - (msStart + msFocusLength));
+    const ms = TSFIXmilliSeconds(msDoc() - (msStart + msFocusLength));
 
 
     const partDone = ms / (secondsDuration * 1000);
@@ -1221,7 +1249,7 @@ async function setupControls(controlscontainer) {
     settingDurationMinutes = new ourLocalSetting("duration-minutes", 1);
     settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
     settingNumPatts = new ourLocalSetting("num-patts", 1.5);
-    const modMdc = await TSimport("util-mdc");
+    const modMdc = await TSDEFimport("util-mdc");
     // const modMdc = await import("http://localhost:8080/public/src/js/mod/util-mdc.js");
     const iconStart = modMdc.mkMDCicon("play_arrow");
     const btnStart = modMdc.mkMDCiconButton(iconStart, "Start");
@@ -1443,7 +1471,7 @@ async function setupControls(controlscontainer) {
         }
 
         const btnClearData = modMdc.mkMDCbutton("Reset", "raised");
-        btnClearData.addEventListener("click", TSerrorHandlerAsyncEvent(async evt => {
+        btnClearData.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
             const bdy = TSmkElt("div", undefined, [
                 TSmkElt("h2", undefined, "Clear all your choices"),
                 TSmkElt("p", undefined, "Reset everything to default values"),
@@ -1466,7 +1494,7 @@ async function setupControls(controlscontainer) {
                 div.style = `
                             color: red;
                         `;
-                await TSwaitSeconds(3);
+                await TSDEFwaitSeconds(3);
                 location.reload();
             }
         }));
@@ -1646,7 +1674,7 @@ async function setupControls(controlscontainer) {
 async function setupThings() {
     // @ts-ignore file
     await thePromiseDOMready;
-    modLocalSettings = await TSimport("local-settings");
+    modLocalSettings = await TSDEFimport("local-settings");
     class OurLocalSetting extends modLocalSettings.LocalSetting {
         constructor(key, defaultValue) {
             super(STORING_PREFIX, key, defaultValue);
@@ -1679,12 +1707,12 @@ async function setupThings() {
         setCanvasSizes();
         if (!isRunning) initCurrentPattern();
     }
-    const debounceAfterResize = TSdebounce(afterResize);
+    const debounceAfterResize = TSDEFdebounce(afterResize);
     addEventListener("resize", evt => { debounceAfterResize(); });
     setCanvasBackgroundToCurrent();
 }
 async function addInfoButton(container) {
-    const modMdc = await TSimport("util-mdc");
+    const modMdc = await TSDEFimport("util-mdc");
     const iconInfo = modMdc.mkMDCicon("info");
     iconInfo.style.fontSize = "2.5rem";
     iconInfo.style.color = "mediumslateblue";

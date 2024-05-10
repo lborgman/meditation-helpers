@@ -24,6 +24,31 @@ const toSeconds = (value) => /** @type TSTESTseconds */(value);
 
 
 /** @typedef {number&{_tag: 'numberOfEggs'}} numberOfEggs */
+/** @typedef {number&{_tag: 'meter'}} meter */
+
+/**
+ * 
+ * @param {number} numMeters 
+ * @returns {meter}
+ */
+function meter(numMeters) {
+    // @ts-ignore
+    return numMeters;
+}
+
+/** @typedef {{numEggs: numberOfEggs}} parcelEgg */
+
+/** @type meter */
+// const oneMeter = 1;
+let oneMeter;
+oneMeter = meter(1);
+
+/** @type parcelEgg */
+const parcel = {
+    numEggs: oneMeter
+}
+
+
 
 /** @param {number} value */
 const numberOfEggs = (value) => /** @type numberOfEggs */(value);
