@@ -2,10 +2,10 @@
 
 /** @typedef {number&{_tag: 'TSmilliSeconds'}} TSmilliSeconds */
 /** @typedef {number&{_tag: 'TSseconds'}} TSseconds */
-/** @typedef {number&{_tag: 'TScounts'}} TScounts */
+// /** @typedef {number&{_tag: 'TScounts'}} TScounts */
 
-/** @param {number} value */
-const TSFIXcounts = (value) => /** @type TScounts */(value);
+// /** @param {number} value */
+// const TSFIXcounts = (value) => /** @type TScounts */(value);
 
 /** @param {number} value */
 const TSFIXseconds = (value) => /** @type TSseconds */(value);
@@ -90,6 +90,22 @@ const TSFIXpattY = (value) => /** @type pattY */(value);
 /** @typedef {pattPoint[]} pattPoints*/
 
 
+/**
+ * 
+ * @param {pattX} pattx 
+ * @returns {TSseconds}
+ */
+function pattX2seconds(pattx) {
+    return TSFIXseconds(pattx / (settingCountsPerSecond.value / 100));
+}
+/**
+ * 
+ * @param {TSseconds} seconds 
+ * @returns {pattX}
+ */
+function seconds2pattX(seconds) {
+    return TSFIXpattX(seconds * (settingCountsPerSecond.value / 100));
+}
 
 
 const STORING_PREFIX = "MOVLIN-";
@@ -191,13 +207,17 @@ let settingPattern;
 
 /** @type {pattY} */
 let currentPattY = TSFIXpattY(0);
-let middleSecondsX;
+
+/** @type {pattX} */
+let middlePattX;
 
 /** @type {canvasPoint} */
 const currentPointCanvas = {
     canvasX: TSFIXcanvasX(-100),
     canvasY: TSFIXcanvasY(-100),
 }
+/** @type {canvasY} */
+let currentPointRadius;
 
 let stopRedraw = false;
 let numChecks = 0;
@@ -213,7 +233,8 @@ function drawCurrentPoint(color) {
     const cY = currentPointCanvas.canvasY;
     // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/ellipse
     // const cR = pattY2canvasY(0) / 20;
-    const cR = currentPointCanvas.cR;
+    // const cR = currentPointCanvas.cR;
+    const cR = currentPointRadius;
     ctxCanvas.beginPath();
     ctxCanvas.ellipse(cX, cY, cR, cR, 0, 0, 2 * Math.PI);
     ctxCanvas.strokeStyle = "darkgoldenrod";
@@ -707,7 +728,7 @@ async function dialogPattern() {
  * @param {number} holdLow 
  * @returns {{
  *      patt: any,
- *      countsWpatt: TScounts,
+ *      pattXW: pattX,
  *      pattPoints: pattPoints
  * }}
  */
@@ -732,8 +753,9 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
         if (v >= 10) throw Error(`Value for ${k} is too big: ${v}`);
     }
 
-    /** @type {TScounts} */
-    const countsWpatt = TSFIXcounts(Object.values(patt)
+    // /** @type {TScounts} */
+    /** @type {pattX} */
+    const pattXW = TSFIXpattX(Object.values(patt)
         .reduce((acc, next) => acc = acc + next, 0));
 
     const pattPoints = [];
@@ -753,7 +775,7 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
     // console.log({ pattPoints });
     return {
         patt,
-        countsWpatt,
+        pattXW,
         pattPoints
     };
 }
@@ -815,8 +837,7 @@ function drawPattern(patt, drawNumPatts) {
         return;
     }
 
-    // canvasSec = patt.pattW * numPatt;
-    secWCanvas = TSFIXseconds((patt.countsWpatt * (100 / settingCountsPerSecond.value)) * drawNumPatts);
+    secWCanvas = pattX2seconds(TSFIXpattX(patt.pattXW * drawNumPatts));
     expectNumber(secWCanvas, Object.keys({ secWCanvas }));
     function expectNumber(variable, varName) {
         if (Number.isNaN(variable)) {
@@ -828,9 +849,9 @@ function drawPattern(patt, drawNumPatts) {
     // msLastDraw = TSmilliSeconds(document.timeline.currentTime);
     msLastDraw = msDoc();
 
-    middleSecondsX = drawNumPatts * patt.countsWpatt / 2;
+    middlePattX = TSFIXpattX(drawNumPatts * patt.pattXW / 2);
     /** @type {canvasX} */
-    const middleCanvasX = pattX2canvasX(middleSecondsX); // FIX-ME:
+    const middleCanvasX = pattX2canvasX(middlePattX); // FIX-ME:
     expectNumber(middleCanvasX, Object.keys({ middleCanvasX }));
     /** @type {pattY} */
     let middleY = TSFIXpattY(0.15);
@@ -863,7 +884,7 @@ function drawPattern(patt, drawNumPatts) {
         for (let i = 0, len = points.length; i < len; i++) {
             const pnt = points[i];
             const nextPoint = { ...pnt }
-            nextPoint.pointX = pnt.pointX + (protect - 1) * patt.countsWpatt;
+            nextPoint.pointX = pnt.pointX + (protect - 1) * patt.pattXW;
 
             const nextCanvasX = lineTo(nextPoint);
             if (!nextCanvasX) break;
@@ -888,8 +909,7 @@ function drawPattern(patt, drawNumPatts) {
 
 
 
-    // currentPointCanvas.cX = pattX2canvasX(middleSecondsX);
-    currentPointCanvas.cR = pattY2canvasY(TSFIXpattY(0)) / 30;
+    currentPointRadius = TSFIXcanvasY(pattY2canvasY(TSFIXpattY(0)) / 30);
     currentPointCanvas.canvasX = middleCanvasX;
     currentPattY = middleY;
     currentPointCanvas.canvasY = pattY2canvasY(currentPattY);
@@ -929,20 +949,29 @@ function drawPattern(patt, drawNumPatts) {
      * @returns {canvasPoint | null}
      */
     function pnt2canvas(pnt) {
-        const sec = (msLastDraw - msStart - msFocusLength) / 1000;
-        const secPointX = pnt.pointX * (100 / settingCountsPerSecond.value);
+        /** @type {TSseconds} */
+        const sec = TSFIXseconds((msLastDraw - msStart - msFocusLength) / 1000);
+
+        const secPointX = pattX2seconds(pnt.pointX);
         if (secPointX > secondsDuration) { return null; }
-        const x = secPointX - sec + secWCanvas / 2;
+        // const pattXsec = secPointX - sec + secWCanvas / 2;
+
+        /** @type {TSseconds} */
+        const secX = TSFIXseconds((secPointX - sec + secWCanvas / 2));
+
+        /** @type {pattX} */
+        const pattXfromSec = seconds2pattX(secX);
+
         /** @type {canvasPoint} */
         const pntC = {
-            canvasX: pattX2canvasX(x),
+            canvasX: pattX2canvasX(pattXfromSec),
             canvasY: pattY2canvasY(pnt.pointY),
         }
         // console.log({ pntC });
         return pntC;
     }
     function mkPxPerMs() {
-        pxPerMs = eltCanvas.width / (patt.countsWpatt * drawNumPatts);
+        pxPerMs = eltCanvas.width / (patt.pattXW * drawNumPatts);
     }
 
     /**
@@ -963,7 +992,6 @@ function drawPattern(patt, drawNumPatts) {
         const bottom = eltCanvas.height * 0.15;
         const top = eltCanvas.height * 0.30;
 
-        // const height = eltCanvas.height - top - bottom;
         const speedHeight = settingCountsPerSecond.value / maxCountsPerSeconds;
         const height = (eltCanvas.height - top - bottom) * speedHeight;
 
@@ -1242,6 +1270,8 @@ function setupCanvas(container) {
     // setCanvasBackgroundToCurrent();
     ctxCanvas = eltCanvas.getContext("2d");
 }
+
+/** @type {TSseconds} */
 let secondsDuration;
 async function setupControls(controlscontainer) {
     settingCountsPerSecond = new ourLocalSetting("counts-per-second", 100);
@@ -1266,15 +1296,18 @@ async function setupControls(controlscontainer) {
         const pattRec = getPatternByName(settingPattern.value);
 
 
+        /** @type {pattX} */
+        const countsPatt = pattRec.pattXW;
         /** @type {TSseconds} */
-        const secPatt = pattRec.countsWpatt;
+        const secPatt = pattX2seconds(countsPatt);
 
         const rest = secondsDuration % secPatt;
         let repetitions = Math.floor(secondsDuration / secPatt);
         if (rest > 0.01) repetitions++;
-        secondsDuration = repetitions * secPatt + 0.01;
+        secondsDuration = TSFIXseconds(repetitions * secPatt + 0.01);
         const secLow = pattRec.patt.holdLow;
-        secondsDuration -= secLow;
+        // secondsDuration -=TSFIXseconds( secLow);
+        secondsDuration = TSFIXseconds(secondsDuration - secLow);
 
         // debugger;
 
