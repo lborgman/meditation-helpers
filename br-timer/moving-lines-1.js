@@ -4,6 +4,10 @@
 /** @typedef {number&{_tag: 'TSseconds'}} TSseconds */
 // /** @typedef {number&{_tag: 'TScounts'}} TScounts */
 
+
+
+// https://stackoverflow.com/questions/78453740/can-i-make-jsdoc-trust-me-that-1-egg-1-egg-2-eggs
+
 // /** @param {number} value */
 // const TSFIXcounts = (value) => /** @type TScounts */(value);
 
@@ -12,6 +16,8 @@ const TSFIXseconds = (value) => /** @type TSseconds */(value);
 
 /** @param {number} value */
 const TSFIXmilliSeconds = (value) => /** @type TSmilliSeconds */(value);
+
+
 
 /*
     Unfortunately the JSDoc parser does not ask the JavaScript compiler for info.
@@ -86,7 +92,7 @@ const TSFIXpattY = (value) => /** @type pattY */(value);
 
 /** @typedef {string} part */
 // https://github.com/microsoft/TypeScript/issues/39906
-/** @typedef {{ pointX: pattX, pointY: pattY, part: part }} pattPoint */
+/** @typedef {{ pattX: pattX, pointY: pattY, part: part }} pattPoint */
 /** @typedef {pattPoint[]} pattPoints*/
 
 
@@ -205,8 +211,8 @@ const breathPatterns = {
 let settingPattern;
 
 
-/** @type {pattY} */
-let currentPattY = TSFIXpattY(0);
+// /** @type {pattY} */
+// let currentPattY = TSFIXpattY(0);
 
 /** @type {pattX} */
 let middlePattX;
@@ -232,8 +238,6 @@ function drawCurrentPoint(color) {
     const cX = currentPointCanvas.canvasX;
     const cY = currentPointCanvas.canvasY;
     // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/ellipse
-    // const cR = pattY2canvasY(0) / 20;
-    // const cR = currentPointCanvas.cR;
     const cR = currentPointRadius;
     ctxCanvas.beginPath();
     ctxCanvas.ellipse(cX, cY, cR, cR, 0, 0, 2 * Math.PI);
@@ -721,16 +725,29 @@ async function dialogPattern() {
 }
 
 /**
+ * @typedef {{
+ *   breathIn: pattX,
+ *   holdHigh: pattX,
+ *   breathOut: pattX,
+ *   holdLow: pattX,
+ * }} pattTuple
+ */
+
+/**
+ * @typedef {{
+ *   patt: pattTuple,
+ *   pattXW: pattX,
+ *   pattPoints: pattPoints
+ * }} breathTuple
+ */
+
+/**
  * 
  * @param {number} breathIn 
  * @param {number} holdHigh 
  * @param {number} breathOut 
  * @param {number} holdLow 
- * @returns {{
- *      patt: any,
- *      pattXW: pattX,
- *      pattPoints: pattPoints
- * }}
+ * @returns {breathTuple}
  */
 function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
     const pattY = {
@@ -739,11 +756,12 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
         breathOut: 1,
         holdLow: 0,
     }
+    /** @type {pattTuple} */
     const patt = {
-        breathIn,
-        holdHigh,
-        breathOut,
-        holdLow,
+        breathIn: TSFIXpattX(breathIn),
+        holdHigh: TSFIXpattX(holdHigh),
+        breathOut: TSFIXpattX(breathOut),
+        holdLow: TSFIXpattX(holdLow),
     }
     for (const k in patt) {
         const v = patt[k];
@@ -762,15 +780,15 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
     /** @type {pattY} */
     let pointY;
     /** @type {pattX} */
-    let pointX = TSFIXpattX(0);
+    let pattX = TSFIXpattX(0);
     for (const part in patt) {
         pointY = pattY[part];
         /** @type {pattPoint} */
-        const pattPoint = { pointX, pointY, part }
+        const pattPoint = { pattX, pointY, part }
         // pattPoints.push({ pointX, pointY, part });
         pattPoints.push(pattPoint);
         const diffX = patt[part];
-        pointX += diffX;
+        pattX += diffX;
     }
     // console.log({ pattPoints });
     return {
@@ -783,8 +801,6 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
 /** @type {TSmilliSeconds} */
 let msLastDraw;
 
-let pxPerMs;
-
 /** @type {TSmilliSeconds} */
 let msStart;
 
@@ -793,6 +809,11 @@ let secWCanvas;
 
 let txtState;
 let beforeStart;
+
+/**
+ * 
+ * @param {string} statePart 
+ */
 function tellState(statePart) {
     const txtPart = textForParts[statePart];
     // beforeStart = !!!txtPart;
@@ -808,6 +829,7 @@ function tellState(statePart) {
         }
     }
 }
+
 function tellInitialState() {
     tellState("");
 }
@@ -822,7 +844,12 @@ const setCanvasSizes = () => {
 /** @type {TSmilliSeconds} */
 const msFocusLength = TSFIXmilliSeconds(5 * 1000);
 
-/** @typedef  */
+/**
+ * 
+ * @param {breathTuple} patt 
+ * @param {number} drawNumPatts 
+ * @returns 
+ */
 function drawPattern(patt, drawNumPatts) {
     if (!patt) return;
 
@@ -850,9 +877,11 @@ function drawPattern(patt, drawNumPatts) {
     msLastDraw = msDoc();
 
     middlePattX = TSFIXpattX(drawNumPatts * patt.pattXW / 2);
+
     /** @type {canvasX} */
     const middleCanvasX = pattX2canvasX(middlePattX); // FIX-ME:
     expectNumber(middleCanvasX, Object.keys({ middleCanvasX }));
+
     /** @type {pattY} */
     let middleY = TSFIXpattY(0.15);
     const p0 = points[0];
@@ -878,31 +907,32 @@ function drawPattern(patt, drawNumPatts) {
 
     moveTo(p0);
     let protect = 0;
-    let lastCanvasX = -100;
-    let lastPoint;
-    while (protect++ < 5 && lastCanvasX) {
+    let prevCanvasX = -100;
+    let prevPoint;
+    while (protect++ < 5 && prevCanvasX) {
         for (let i = 0, len = points.length; i < len; i++) {
             const pnt = points[i];
             const nextPoint = { ...pnt }
-            nextPoint.pointX = pnt.pointX + (protect - 1) * patt.pattXW;
+            nextPoint.pattX = TSFIXpattX(pnt.pattX + (protect - 1) * patt.pattXW);
+            if (Number.isNaN(nextPoint.pattX)) throw Error("nextPoint.pointX isNaN");
 
             const nextCanvasX = lineTo(nextPoint);
-            if (!nextCanvasX) break;
+            if (!nextCanvasX) { protect = 10; break; }
 
-            if (lastCanvasX < middleCanvasX && middleCanvasX <= nextCanvasX) {
-                if (!lastPoint) {
+            if (prevCanvasX < middleCanvasX && middleCanvasX <= nextCanvasX) {
+                if (!prevPoint) {
                     middleY = TSFIXpattY(0);
                 } else {
-                    const lastY = lastPoint.pointY;
+                    const lastY = prevPoint.pointY;
                     const nextY = nextPoint.pointY;
-                    const part = (middleCanvasX - lastCanvasX) / (nextCanvasX - lastCanvasX);
-                    middleY = lastY + (nextY - lastY) * part;
-                    tellState(lastPoint.part);
+                    const partOnLine = (middleCanvasX - prevCanvasX) / (nextCanvasX - prevCanvasX);
+                    middleY = TSFIXpattY(lastY + (nextY - lastY) * partOnLine);
+                    tellState(prevPoint.part);
                 }
             }
 
-            lastPoint = nextPoint;
-            lastCanvasX = nextCanvasX;
+            prevPoint = nextPoint;
+            prevCanvasX = nextCanvasX;
         }
     }
     ctxCanvas.stroke();
@@ -911,8 +941,9 @@ function drawPattern(patt, drawNumPatts) {
 
     currentPointRadius = TSFIXcanvasY(pattY2canvasY(TSFIXpattY(0)) / 30);
     currentPointCanvas.canvasX = middleCanvasX;
-    currentPattY = middleY;
-    currentPointCanvas.canvasY = pattY2canvasY(currentPattY);
+    // currentPattY = middleY;
+    // currentPointCanvas.canvasY = pattY2canvasY(currentPattY);
+    currentPointCanvas.canvasY = pattY2canvasY(middleY);
     const clrPoint = isRunning ? "yellow" : "yellowgreen";
     drawCurrentPoint(clrPoint);
 
@@ -952,7 +983,8 @@ function drawPattern(patt, drawNumPatts) {
         /** @type {TSseconds} */
         const sec = TSFIXseconds((msLastDraw - msStart - msFocusLength) / 1000);
 
-        const secPointX = pattX2seconds(pnt.pointX);
+        /** @type {TSseconds} */
+        const secPointX = pattX2seconds(pnt.pattX);
         if (secPointX > secondsDuration) { return null; }
         // const pattXsec = secPointX - sec + secWCanvas / 2;
 
@@ -970,9 +1002,6 @@ function drawPattern(patt, drawNumPatts) {
         // console.log({ pntC });
         return pntC;
     }
-    function mkPxPerMs() {
-        pxPerMs = eltCanvas.width / (patt.pattXW * drawNumPatts);
-    }
 
     /**
      * 
@@ -980,8 +1009,8 @@ function drawPattern(patt, drawNumPatts) {
      * @returns {canvasX}
      */
     function pattX2canvasX(pattX) {
-        mkPxPerMs();
-        return TSFIXcanvasX(pattX * pxPerMs);
+        const pxPerPattX = eltCanvas.width / (patt.pattXW * drawNumPatts);
+        return TSFIXcanvasX(pattX * pxPerPattX);
     }
     /**
      * 
@@ -1134,8 +1163,6 @@ function checkRedraw() {
     }
 
 
-    // https://stackoverflow.com/questions/78453740/can-i-make-jsdoc-trust-me-that-1-egg-1-egg-2-eggs
-    // const ms = document.timeline.currentTime - (msStart + msFocusLength);
     /** @type {TSmilliSeconds} */
     const ms = TSFIXmilliSeconds(msDoc() - (msStart + msFocusLength));
 
@@ -1304,7 +1331,9 @@ async function setupControls(controlscontainer) {
         const rest = secondsDuration % secPatt;
         let repetitions = Math.floor(secondsDuration / secPatt);
         if (rest > 0.01) repetitions++;
+        // FIX-ME:
         secondsDuration = TSFIXseconds(repetitions * secPatt + 0.01);
+        /** @type {TSseconds} */
         const secLow = pattRec.patt.holdLow;
         // secondsDuration -=TSFIXseconds( secLow);
         secondsDuration = TSFIXseconds(secondsDuration - secLow);
@@ -1415,13 +1444,6 @@ async function setupControls(controlscontainer) {
         // https://www.w3schools.com/howto/howto_js_rangeslider.asp
 
         // Looks like values should be integers.
-        const OLDinpSpeed = TSmkElt("input", {
-            type: "range",
-            min: minCountsPerSeconds,
-            max: maxCountsPerSeconds,
-            value: 100,
-            class: "slider",
-        });
         const inpSpeed = document.createElement("input");
         inpSpeed.type = "range";
         inpSpeed.min = minCountsPerSeconds.toString();
