@@ -807,17 +807,25 @@ let msStart;
 /** @type {TSseconds} */
 let secWCanvas;
 
+/** @type {string} */
 let txtState;
-let beforeStart;
+
+/** @type {boolean} */
+let beforeStart = true;
+
+/** @type {string} */
+let oldStatePart = "not started";
 
 /**
  * 
  * @param {string} statePart 
  */
-function tellState(statePart) {
+function setState(statePart) {
+    if (statePart == oldStatePart) return;
+    oldStatePart = statePart;
+    beforeStart = statePart == "";
+    console.log(`setState "${statePart}", ${beforeStart}`);
     const txtPart = textForParts[statePart];
-    // beforeStart = !!!txtPart;
-    beforeStart = !txtPart;
     txtState = txtPart || statePart;
     const eltCurrentParts = document.getElementById("current-patt-parts");
     if (eltCurrentParts) {
@@ -831,7 +839,7 @@ function tellState(statePart) {
 }
 
 function tellInitialState() {
-    tellState("");
+    setState("");
 }
 
 const setCanvasSizes = () => {
@@ -883,7 +891,7 @@ function drawPattern(patt, drawNumPatts) {
     expectNumber(middleCanvasX, Object.keys({ middleCanvasX }));
 
     /** @type {pattY} */
-    let middleY = TSFIXpattY(0.15);
+    let middleY = TSFIXpattY(0);
     const p0 = points[0];
 
 
@@ -919,15 +927,21 @@ function drawPattern(patt, drawNumPatts) {
             const nextCanvasX = lineTo(nextPoint);
             if (!nextCanvasX) { protect = 10; break; }
 
+            if (Number.isNaN(prevCanvasX)) throw Error("prevCanvasX is not a number");
+            if (Number.isNaN(middleCanvasX)) throw Error("middleCanvasX is not a number");
+            if (Number.isNaN(middleCanvasX)) throw Error("middleCanvasX is not a number");
             if (prevCanvasX < middleCanvasX && middleCanvasX <= nextCanvasX) {
                 if (!prevPoint) {
                     middleY = TSFIXpattY(0);
                 } else {
                     const lastY = prevPoint.pointY;
                     const nextY = nextPoint.pointY;
+                    if (Number.isNaN(lastY)) throw Error("lastY is not a number");
+                    if (Number.isNaN(nextY)) throw Error("nextY is not a number");
                     const partOnLine = (middleCanvasX - prevCanvasX) / (nextCanvasX - prevCanvasX);
+                    if (Number.isNaN(partOnLine)) throw Error("partOnLine is not a number");
                     middleY = TSFIXpattY(lastY + (nextY - lastY) * partOnLine);
-                    tellState(prevPoint.part);
+                    setState(prevPoint.part);
                 }
             }
 
@@ -1172,7 +1186,7 @@ function checkRedraw() {
     if (ms > secondsDuration * 1000) {
         console.log("stopping time...");
         clearTopText();
-        tellState("Finished");
+        setState("Finished");
         drawCurrentPoint("gray");
         setStateRunning(false);
         topText("Finished");
