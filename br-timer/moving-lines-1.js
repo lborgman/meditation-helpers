@@ -852,6 +852,9 @@ const setCanvasSizes = () => {
 /** @type {TSmilliSeconds} */
 const msFocusLength = TSFIXmilliSeconds(5 * 1000);
 
+/** @type {pattY} */
+let middleY = TSFIXpattY(0);
+
 /**
  * 
  * @param {breathTuple} patt 
@@ -891,8 +894,6 @@ function drawPattern(patt, drawNumPatts) {
     const middleCanvasX = pattX2canvasX(middlePattX); // FIX-ME:
     expectNumber(middleCanvasX, Object.keys({ middleCanvasX }));
 
-    /** @type {pattY} */
-    let middleY = TSFIXpattY(0);
 
     /** @type {pattPoint} */
     const p0 = points[0];
@@ -919,11 +920,14 @@ function drawPattern(patt, drawNumPatts) {
     moveTo(p0);
     let protect = 0;
 
-    /** @type {canvasX | boolean} */
+    /** @type {canvasX} */
     let prevCanvasX = TSFIXcanvasX(-100);
 
+    /** @type {pattPoint | undefined} */
     let prevPoint;
-    while (protect++ < 5 && (prevCanvasX != false)) {
+
+    // while (protect++ < 5 && (prevCanvasX != false)) {
+    while (protect++ < 5) {
         for (let i = 0, len = points.length; i < len; i++) {
             const pnt = points[i];
             const nextPoint = { ...pnt }
@@ -939,6 +943,7 @@ function drawPattern(patt, drawNumPatts) {
             if (Number.isNaN(middleCanvasX)) throw Error("middleCanvasX is not a number");
             if (prevCanvasX < middleCanvasX && middleCanvasX <= nextCanvasX) {
                 if (!prevPoint) {
+                    // console.log("no prevpoint");
                     middleY = TSFIXpattY(0);
                 } else {
                     const lastY = prevPoint.pointY;
@@ -952,6 +957,7 @@ function drawPattern(patt, drawNumPatts) {
                 }
             }
 
+            // console.log("middleY", middleY);
             prevPoint = nextPoint;
             prevCanvasX = nextCanvasX;
         }
@@ -962,8 +968,6 @@ function drawPattern(patt, drawNumPatts) {
 
     currentPointRadius = TSFIXcanvasY(pattY2canvasY(TSFIXpattY(0)) / 30);
     currentPointCanvas.canvasX = middleCanvasX;
-    // currentPattY = middleY;
-    // currentPointCanvas.canvasY = pattY2canvasY(currentPattY);
     currentPointCanvas.canvasY = pattY2canvasY(middleY);
     const clrPoint = isRunning ? "yellow" : "yellowgreen";
     drawCurrentPoint(clrPoint);
