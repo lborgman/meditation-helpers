@@ -52,12 +52,9 @@ async function promiseDOMready() { return thePromiseDOMready; }
 // Test for equality === instead!
 // if \(!?[a-z0-9_]+\.([a-z0-9_]+\.?)+\)
 
-// import { webJsonIf } from "./msj/webjsonif.mjs";
-// import { webJsonIf } from "./msj/webjsonif.mjs";
 var webJsonIf = {};
 let importWebJsonIf = async function () {
     if (Object.keys(webJsonIf).length > 0) return; // Why test this?
-    // const webjsonifURL = "./msj/webjsonif.mjs";
     const webjsonifURL = "/js/msj/webjsonif.mjs";
     try {
         const module = await import(webjsonifURL);
@@ -67,13 +64,7 @@ let importWebJsonIf = async function () {
     }
     // console.log("webJsonIf in fun", webJsonIf)
 };
-importWebJsonIf();
-/*
-import("./msj/webjsonif.mjs").then(module => {
-    webJsonIf = module.webJsonIf;
-    console.log("webJsonIf", webJsonIf)
-});
-*/
+// importWebJsonIf();
 
 
 // https://stackoverflow.com/questions/41802259/javascript-deep-check-objects-have-same-keys
@@ -131,6 +122,10 @@ function getLocalISOtime(dateTime) {
 // javascript - Performance of MutationObserver to detect nodes in entire DOM - Stack Overflow
 // https://stackoverflow.com/questions/31659567/performance-of-mutationobserver-to-detect-nodes-in-entire-dom/39332340
 // FIX-ME: Is not this just a version of debounce?
+
+const logMutations = (str) => {
+    // console.log(str);
+}
 function wait4mutations(elt, ms, observeWhat, msMaxWait) {
     observeWhat = observeWhat || { attributes: true, characterData: true, childList: true, subtree: true, };
     return new Promise(resolve => {
@@ -143,7 +138,7 @@ function wait4mutations(elt, ms, observeWhat, msMaxWait) {
             clearTimeout(tmr);
             nMu++;
             const newNow = Date.now();
-            console.log({ nMu }, mu == undefined, newNow - now);
+            logMutations({ nMu }, mu == undefined, newNow - now);
             if (msMaxWait && (newNow - now > msMaxWait)) {
                 fin("max wait");
                 return;
@@ -153,7 +148,7 @@ function wait4mutations(elt, ms, observeWhat, msMaxWait) {
                 mu = undefined;
             } else {
                 mu = new MutationObserver(mutations => {
-                    console.log("mutations!");
+                    logMutations("mutations!");
                     restartTimer();
                 });
             }

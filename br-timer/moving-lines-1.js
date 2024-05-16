@@ -865,6 +865,7 @@ function drawPattern(patt, drawNumPatts) {
 
     if (txtState.length > 0) topText(txtState);
 
+    /** @type {pattPoints} */
     const points = patt.pattPoints;
     if (!points) {
         // eslint-disable-next-line no-debugger
@@ -892,6 +893,8 @@ function drawPattern(patt, drawNumPatts) {
 
     /** @type {pattY} */
     let middleY = TSFIXpattY(0);
+
+    /** @type {pattPoint} */
     const p0 = points[0];
 
 
@@ -915,17 +918,21 @@ function drawPattern(patt, drawNumPatts) {
 
     moveTo(p0);
     let protect = 0;
-    let prevCanvasX = -100;
+
+    /** @type {canvasX | boolean} */
+    let prevCanvasX = TSFIXcanvasX(-100);
+
     let prevPoint;
-    while (protect++ < 5 && prevCanvasX) {
+    while (protect++ < 5 && (prevCanvasX != false)) {
         for (let i = 0, len = points.length; i < len; i++) {
             const pnt = points[i];
             const nextPoint = { ...pnt }
             nextPoint.pattX = TSFIXpattX(pnt.pattX + (protect - 1) * patt.pattXW);
             if (Number.isNaN(nextPoint.pattX)) throw Error("nextPoint.pointX isNaN");
 
+            /** @type {canvasX | boolean} */
             const nextCanvasX = lineTo(nextPoint);
-            if (!nextCanvasX) { protect = 10; break; }
+            if (nextCanvasX == false) { protect = 10; break; }
 
             if (Number.isNaN(prevCanvasX)) throw Error("prevCanvasX is not a number");
             if (Number.isNaN(middleCanvasX)) throw Error("middleCanvasX is not a number");
