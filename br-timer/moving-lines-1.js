@@ -296,7 +296,7 @@ function findPatternValue(patt) {
         const pattI = getPatternByName(nameI);
         const pattIpatt = pattI.patt;
         const jsonI = JSON.stringify(pattIpatt);
-        console.log({ pattI, pattIpatt, jsonI, jsonPatt });
+        // console.log({ pattI, pattIpatt, jsonI, jsonPatt });
         if (jsonI == jsonPatt) {
             return nameI;
         }
@@ -523,8 +523,8 @@ async function dialogPattern() {
                 inpName.setCustomValidity(strValidity);
                 inpName.reportValidity();
                 const valid = inpName.validity.valid;
-                console.log(inpName.validity);
-                console.log({ valid });
+                // console.log(inpName.validity);
+                // console.log({ valid });
             }
             const debounceCheckInpName = TSDEFdebounce(checkInpName, 500);
             inpName.addEventListener("input", evt => {
@@ -594,17 +594,17 @@ async function dialogPattern() {
             const patt = getYourPatt();
             const oldName = findPatternValue(patt);
             const inUse = oldName && oldName != existingPattName;
+            const tooShort = counts < 7;
             if (inUse) {
                 divOldPatt.textContent = `Pattern is used in ${oldName}`;
+            } else if (tooShort) {
+                divOldPatt.textContent = "Pattern is too short";
             } else {
-                // divOldPatt.textContent = ".";
-                // divOldPatt.textContent = ' ';
                 divOldPatt.textContent = '\xa0';
             }
             const canSave = hasNewInput
-                // && hasNewName
                 && (existingPattName || inpName.validity.valid)
-                && counts > 8
+                && !tooShort
                 && oldName == undefined
                 ;
             saveButton.disabled = !canSave;
@@ -693,7 +693,7 @@ async function dialogPattern() {
         const isYour = objPatts != undefined;
         objPatts = objPatts || breathPatterns;
         divList = divList || divPattList;
-        console.log({ pn });
+        // console.log({ pn });
         const rad = TSmkElt("input", { type: "radio", name: "pattName", value: pn });
         // @ts-ignore DOM
         if (settingPattern.value == pn) rad.checked = true;
