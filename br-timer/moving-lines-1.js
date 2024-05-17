@@ -330,7 +330,7 @@ function getPatternByName(name) {
     return n;
 }
 
-function tellCurrentPattern() {
+function tellCurrentPatternParts() {
     /**
      * 
      * @param {string} id 
@@ -379,7 +379,10 @@ function tellCurrentPattern() {
 function initCurrentPattern() {
     setStateRunning(false);
     tellInitialState();
-    // msStart = document.timeline.currentTime;
+
+    currentPatt = getPatternByName(settingPattern.value);
+    middlePattX = TSFIXpattX(settingNumPatts.value * currentPatt.pattXW / 2);
+
     msStart = msDoc();
     console.log("msStart =, initCurrentPattern");
     redraw();
@@ -720,7 +723,7 @@ async function dialogPattern() {
     );
     // settingPattern.value = pattName || currentPattern;
     if (pattName) settingPattern.value = pattName;
-    tellCurrentPattern();
+    tellCurrentPatternParts();
     initCurrentPattern();
 }
 
@@ -852,31 +855,31 @@ const setCanvasSizes = () => {
 /** @type {TSmilliSeconds} */
 const msFocusLength = TSFIXmilliSeconds(5 * 1000);
 
+// let middleY = TSFIXpattY(0);
 /** @type {pattY} */
-let middleY = TSFIXpattY(0);
+let middleY;
 
 /**
  * 
- * @param {breathTuple} patt 
  * @param {number} drawNumPatts 
  * @returns 
  */
-function drawPattern(patt, drawNumPatts) {
-    if (!patt) return;
+function drawPattern(drawNumPatts) {
+    if (!currentPatt) return;
 
     ctxCanvas.clearRect(0, 0, eltCanvas.width, eltCanvas.height);
 
     if (txtState.length > 0) topText(txtState);
 
     /** @type {pattPoints} */
-    const points = patt.pattPoints;
+    const points = currentPatt.pattPoints;
     if (!points) {
         // eslint-disable-next-line no-debugger
         debugger;
         return;
     }
 
-    secWCanvas = pattX2seconds(TSFIXpattX(patt.pattXW * drawNumPatts));
+    secWCanvas = pattX2seconds(TSFIXpattX(currentPatt.pattXW * drawNumPatts));
     expectNumber(secWCanvas, Object.keys({ secWCanvas }));
     function expectNumber(variable, varName) {
         if (Number.isNaN(variable)) {
@@ -887,8 +890,7 @@ function drawPattern(patt, drawNumPatts) {
 
     // msLastDraw = TSmilliSeconds(document.timeline.currentTime);
     msLastDraw = msDoc();
-
-    middlePattX = TSFIXpattX(drawNumPatts * patt.pattXW / 2);
+    console.log(currentPatt);
 
     /** @type {canvasX} */
     const middleCanvasX = pattX2canvasX(middlePattX); // FIX-ME:
@@ -931,7 +933,7 @@ function drawPattern(patt, drawNumPatts) {
         for (let i = 0, len = points.length; i < len; i++) {
             const pnt = points[i];
             const nextPoint = { ...pnt }
-            nextPoint.pattX = TSFIXpattX(pnt.pattX + (protect - 1) * patt.pattXW);
+            nextPoint.pattX = TSFIXpattX(pnt.pattX + (protect - 1) * currentPatt.pattXW);
             if (Number.isNaN(nextPoint.pattX)) throw Error("nextPoint.pointX isNaN");
 
             /** @type {canvasX | boolean} */
@@ -958,6 +960,7 @@ function drawPattern(patt, drawNumPatts) {
             }
 
             // console.log("middleY", middleY);
+            console.log("setting prevPoint", nextPoint.pattX);
             prevPoint = nextPoint;
             prevCanvasX = nextCanvasX;
         }
@@ -1034,7 +1037,7 @@ function drawPattern(patt, drawNumPatts) {
      * @returns {canvasX}
      */
     function pattX2canvasX(pattX) {
-        const pxPerPattX = eltCanvas.width / (patt.pattXW * drawNumPatts);
+        const pxPerPattX = eltCanvas.width / (currentPatt.pattXW * drawNumPatts);
         return TSFIXcanvasX(pattX * pxPerPattX);
     }
     /**
@@ -1157,6 +1160,7 @@ async function updateCanvasBackground(useImageOrVideo) {
     async function showIt() {
         await TSDEFwait4mutations(eltParent, 50, undefined, 1000);
         setCanvasSizes();
+        initCurrentPattern();
 
         // Needed for redraw:
         // msStart = document.timeline.currentTime;
@@ -1171,9 +1175,12 @@ async function updateCanvasBackground(useImageOrVideo) {
 }
 
 
+let currentPatt;
 function redraw() {
-    const myPatt = getPatternByName(settingPattern.value);
-    drawPattern(myPatt, settingNumPatts.value);
+    // const myPatt = getPatternByName(settingPattern.value);
+    // currentPatt = getPatternByName(settingPattern.value);
+    // drawPattern(myPatt, settingNumPatts.value);
+    drawPattern(settingNumPatts.value);
 }
 
 let progressElement;
@@ -1356,12 +1363,18 @@ async function setupControls(controlscontainer) {
         const rest = secondsDuration % secPatt;
         let repetitions = Math.floor(secondsDuration / secPatt);
         if (rest > 0.01) repetitions++;
+
         // FIX-ME:
         secondsDuration = TSFIXseconds(repetitions * secPatt + 0.01);
+
         /** @type {TSseconds} */
         const secLow = pattRec.patt.holdLow;
-        // secondsDuration -=TSFIXseconds( secLow);
+
         secondsDuration = TSFIXseconds(secondsDuration - secLow);
+
+        middleY = TSFIXpattY(0);
+
+
 
         // debugger;
 
@@ -1667,7 +1680,7 @@ async function setupControls(controlscontainer) {
                 gap: 10px;
                 margin-top: 40px;
             `;
-    setTimeout(tellCurrentPattern, 100);
+    setTimeout(tellCurrentPatternParts, 100);
 
     tellInitialState();
 
