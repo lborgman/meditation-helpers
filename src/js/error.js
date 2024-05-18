@@ -1289,7 +1289,7 @@ function throttleTO(fn, msDelay) {
     let timeoutId;
     return function (...args) {
         if (timeoutId) {
-            // return; // original
+            return; // original
             clearTimeout(timeoutId); // my own
         }
         timeoutId = setTimeout(() => {

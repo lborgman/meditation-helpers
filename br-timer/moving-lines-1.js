@@ -827,7 +827,7 @@ function setState(statePart) {
     if (statePart == oldStatePart) return;
     oldStatePart = statePart;
     beforeStart = statePart == "";
-    console.log(`setState "${statePart}", ${beforeStart}`);
+    // console.log(`setState "${statePart}", ${beforeStart}`);
     const txtPart = textForParts[statePart];
     txtState = txtPart || statePart;
     const eltCurrentParts = document.getElementById("current-patt-parts");
@@ -859,12 +859,18 @@ const msFocusLength = TSFIXmilliSeconds(5 * 1000);
 /** @type {pattY} */
 let middleY;
 
+const logTime = () => {
+    console.log(Math.floor((msLastDraw - msStart) / 100), txtState);
+}
+const throttleLogTime = throttleTO(logTime, 1000);
+const debounceLogTime = debounce(logTime, 1000);
+
+ // * @param {number} drawNumPatts 
 /**
  * 
- * @param {number} drawNumPatts 
  * @returns 
  */
-function drawPattern(drawNumPatts) {
+function drawPattern() {
     if (!currentPatt) return;
 
     ctxCanvas.clearRect(0, 0, eltCanvas.width, eltCanvas.height);
@@ -879,7 +885,8 @@ function drawPattern(drawNumPatts) {
         return;
     }
 
-    secWCanvas = pattX2seconds(TSFIXpattX(currentPatt.pattXW * drawNumPatts));
+    // secWCanvas = pattX2seconds(TSFIXpattX(currentPatt.pattXW * drawNumPatts));
+    secWCanvas = pattX2seconds(TSFIXpattX(currentPatt.pattXW * settingNumPatts.value));
     expectNumber(secWCanvas, Object.keys({ secWCanvas }));
     function expectNumber(variable, varName) {
         if (Number.isNaN(variable)) {
@@ -890,7 +897,10 @@ function drawPattern(drawNumPatts) {
 
     // msLastDraw = TSmilliSeconds(document.timeline.currentTime);
     msLastDraw = msDoc();
-    console.log(currentPatt);
+    // console.log(msLastDraw - msStart);
+    // logTime();
+    throttleLogTime();
+    // debounceLogTime();
 
     /** @type {canvasX} */
     const middleCanvasX = pattX2canvasX(middlePattX); // FIX-ME:
@@ -929,7 +939,7 @@ function drawPattern(drawNumPatts) {
     let prevPoint;
 
     // while (protect++ < 5 && (prevCanvasX != false)) {
-    while (protect++ < 5) {
+    while (protect++ < 10) {
         for (let i = 0, len = points.length; i < len; i++) {
             const pnt = points[i];
             const nextPoint = { ...pnt }
@@ -938,7 +948,8 @@ function drawPattern(drawNumPatts) {
 
             /** @type {canvasX | boolean} */
             const nextCanvasX = lineTo(nextPoint);
-            if (nextCanvasX == false) { protect = 10; break; }
+            // if (nextPoint.part == "holdHigh") console.log("after lineTo", nextPoint);
+            if (nextCanvasX == false) { protect = 100; break; }
 
             if (Number.isNaN(prevCanvasX)) throw Error("prevCanvasX is not a number");
             if (Number.isNaN(middleCanvasX)) throw Error("middleCanvasX is not a number");
@@ -960,7 +971,7 @@ function drawPattern(drawNumPatts) {
             }
 
             // console.log("middleY", middleY);
-            console.log("setting prevPoint", nextPoint.pattX);
+            // console.log("setting prevPoint", nextPoint.pattX);
             prevPoint = nextPoint;
             prevCanvasX = nextCanvasX;
         }
@@ -1037,7 +1048,8 @@ function drawPattern(drawNumPatts) {
      * @returns {canvasX}
      */
     function pattX2canvasX(pattX) {
-        const pxPerPattX = eltCanvas.width / (currentPatt.pattXW * drawNumPatts);
+        // const pxPerPattX = eltCanvas.width / (currentPatt.pattXW * drawNumPatts);
+        const pxPerPattX = eltCanvas.width / (currentPatt.pattXW * settingNumPatts.value);
         return TSFIXcanvasX(pattX * pxPerPattX);
     }
     /**
@@ -1161,6 +1173,7 @@ async function updateCanvasBackground(useImageOrVideo) {
         await TSDEFwait4mutations(eltParent, 50, undefined, 1000);
         setCanvasSizes();
         initCurrentPattern();
+        beforeStart = true;
 
         // Needed for redraw:
         // msStart = document.timeline.currentTime;
@@ -1180,7 +1193,8 @@ function redraw() {
     // const myPatt = getPatternByName(settingPattern.value);
     // currentPatt = getPatternByName(settingPattern.value);
     // drawPattern(myPatt, settingNumPatts.value);
-    drawPattern(settingNumPatts.value);
+    // drawPattern(settingNumPatts.value);
+    drawPattern();
 }
 
 let progressElement;
