@@ -233,11 +233,16 @@ const textForParts = {
     breathOut: "Exhale",
 }
 
+/**
+ * 
+ * @param {string} color 
+ */
 function drawCurrentPoint(color) {
     const cX = currentPointCanvas.canvasX;
     const cY = currentPointCanvas.canvasY;
     // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/ellipse
     const cR = currentPointRadius;
+    ctxCanvas.setLineDash([]);
     ctxCanvas.beginPath();
     ctxCanvas.ellipse(cX, cY, cR, cR, 0, 0, 2 * Math.PI);
     ctxCanvas.strokeStyle = "darkgoldenrod";
@@ -828,9 +833,7 @@ function setState(statePart) {
     // throttleLogTime();
     oldStatePart = statePart;
 
-    if (beforeStart && (statePart.length > 0)) {
-        beforeStart = false;
-    }
+    // if (beforeStart && (statePart.length > 0)) { beforeStart = false; }
 
     console.warn(`setState "${statePart}", ${beforeStart}`);
     const txtPart = textForParts[statePart];
@@ -860,8 +863,7 @@ const setCanvasSizes = () => {
 /** @type {TSmilliSeconds} */
 const msFocus = TSFIXmilliSeconds(5 * 1000);
 
-// let middleY = TSFIXpattY(0);
-/** @type {pattY} */ let middleY;
+/** @type {pattY} */ let middlePattY;
 /** @type {pattY} */ let prevY;
 /** @type {pattY} */ let nextY;
 // /** @type {pattPoint | undefined} */ let prevPoint;
@@ -892,27 +894,27 @@ const throttleLogTime = throttleTO(logTime, 1000);
  */
 function drawPattern() {
     if (!currentPatt) {
-        /** @ts-ignore */
+        // eslint-disable-next-line no-debugger
         debugger;
         return;
     }
     if (!beforeStart) {
         if (!isRunning) {
-            // /** @ts-ignore */ debugger;
+            // eslint-disable-next-line no-debugger
+            debugger;
             return;
         }
     }
-
-    ctxCanvas.clearRect(0, 0, eltCanvas.width, eltCanvas.height);
-
-    if (txtState.length > 0) topText(txtState);
-
     /** @type {pattPoints} */ const points = currentPatt.pattPoints;
     if (!points) {
         // eslint-disable-next-line no-debugger
         debugger;
         return;
     }
+
+
+    ctxCanvas.clearRect(0, 0, eltCanvas.width, eltCanvas.height);
+    if (txtState.length > 0) topText(txtState);
 
     secWCanvas = pattX2seconds(TSFIXpattX(currentPatt.pattXW * settingNumPatts.value));
     expectNumber(secWCanvas, Object.keys({ secWCanvas }));
@@ -933,34 +935,43 @@ function drawPattern() {
 
 
 
-    ctxCanvas.strokeStyle = settingDawnFilter.value ? "darkorange" : "yellowgreen";
-    ctxCanvas.lineWidth = 10;
 
     if (beforeStart) {
-        ctxCanvas.beginPath();
+        ctxCanvas.strokeStyle = settingDawnFilter.value ? "darkorange" : "yellowgreen";
+        ctxCanvas.lineWidth = 10;
         ctxCanvas.setLineDash([3, 5]);
         ctxCanvas.lineCap = "butt";
-        const startY = pattY2canvasY(TSFIXpattY(0));
-        ctxCanvas.moveTo(middleCanvasX, startY);
-        const cX = lineToPatt(p0);
+        ctxCanvas.beginPath();
+
+        /** @type {pattY} */
+        const startPattY = TSFIXpattY(0);
+        /** @type {canvasY} */
+        const startCanvasY = pattY2canvasY(startPattY);
+        // console.log("middleCanvasX:", middleCanvasX, "startY:", startY);
+        ctxCanvas.moveTo(middleCanvasX, startCanvasY);
         const pc0 = pntPatt2canvas(p0);
-        // console.log("middleCanvasX:", middleCanvasX, "pc0:", pc0, "cX:", cX, "p0:", p0);
+        // console.log("middleCanvasX:", middleCanvasX, "p0:", p0);
         if (pc0) {
             if (pc0.canvasX < middleCanvasX) {
                 beforeStart = false;
                 setState(p0.part);
             }
         }
+        lineToPatt(p0);
         ctxCanvas.stroke();
+        drawPoint(startPattY);
+        // return;
     }
 
-    ctxCanvas.beginPath();
+    ctxCanvas.strokeStyle = settingDawnFilter.value ? "darkorange" : "yellowgreen";
+    ctxCanvas.lineWidth = 10;
     ctxCanvas.setLineDash([]);
     ctxCanvas.lineCap = "round"; // FIX-ME: does not work?? Bug???
+    ctxCanvas.beginPath();
 
     moveTo(p0);
     // protectDraw = 0;
-    middleY = TSFIXpattY(0);
+    middlePattY = TSFIXpattY(0);
 
     let iPattern = 0;
     /** @type {pattPoint | undefined} */ let nextPoint;
@@ -977,11 +988,12 @@ function drawPattern() {
         if (res == -2) { break; }
         if (res == -3) { break; }
 
-        /** @type {canvasX} */ const prevCanvasX = pattX2canvasX(prevPoint.pattX);
+        /** @type {canvasX } */
+        const prevCanvasX = prevPoint ? pattX2canvasX(prevPoint.pattX) : TSFIXcanvasX(-100);
         /** @type {canvasX} */ const nextCanvasX = pattX2canvasX(nextPoint.pattX);
 
+        if (prevPoint) { if (isNaN(prevCanvasX)) debugAndThrow("prevCanvasX is not a number"); }
         if (isNaN(nextCanvasX)) throw Error("nextCanvasX isNaN");
-        if (isNaN(prevCanvasX)) debugAndThrow("prevCanvasX is not a number");
         if (isNaN(middleCanvasX)) debugAndThrow("middleCanvasX is not a number");
         if (isNaN(middleCanvasX)) debugAndThrow("middleCanvasX is not a number");
 
@@ -1002,10 +1014,10 @@ function drawPattern() {
                     const partOnLine = (middleCanvasX - prevCanvasX) / (nextCanvasX - prevCanvasX);
                     if (isNaN(partOnLine)) debugAndThrow("partOnLine is not a number");
                     /** @ts-ignore */
-                    middleY = TSFIXpattY(prevY + (nextY - prevY) * partOnLine);
+                    middlePattY = TSFIXpattY(prevY + (nextY - prevY) * partOnLine);
                     setState(prevPoint.part);
                     // throttleLogTime();
-                    drawPoint(middleY);
+                    drawPoint(middlePattY);
                 }
             }
         }
@@ -1013,10 +1025,14 @@ function drawPattern() {
     ctxCanvas.stroke();
 
 
-    function drawPoint(middleY) {
+    /**
+     * 
+     * @param {pattY} middlePattY 
+     */
+    function drawPoint(middlePattY) {
         currentPointRadius = TSFIXcanvasY(pattY2canvasY(TSFIXpattY(0)) / 30);
         currentPointCanvas.canvasX = middleCanvasX;
-        currentPointCanvas.canvasY = pattY2canvasY(middleY);
+        currentPointCanvas.canvasY = pattY2canvasY(middlePattY);
         const clrPoint = isRunning ? "yellow" : "yellowgreen";
         drawCurrentPoint(clrPoint);
     }
@@ -1039,7 +1055,7 @@ function drawPattern() {
      * @returns 
      */
     function lineToPatt(pntPatt) {
-        /** @type {canvasPoint} */
+        /** @type {canvasPoint | null} */
         const pntCanvas = pntPatt2canvas(pntPatt);
         if (!pntCanvas) return -2;
         if (isNaN(pntCanvas.canvasX)) debugAndThrow("LineToPatt: pntCanvas.canvasX isNaN");
@@ -1048,11 +1064,7 @@ function drawPattern() {
         if (pntCanvas.canvasX < eltCanvas.width) {
             if (isNaN(pntCanvas.canvasX)) debugAndThrow("LineToPatt 2: pntCanvas.canvasX isNaN");
             if (pntCanvas.canvasX <= 0) {
-                // FIX-ME: nothing special here... It is just the point moving out to the left.
-                // console.log("pntPatt", pntPatt );
-                // console.log("pntCanvas", pntCanvas);
                 const pnt2canvas = pntPatt2canvas(pntPatt);
-                // console.log("pnt2Canvas", pnt2canvas);
             }
             return pntCanvas.canvasX; // So we don't have to calculate it again...
         }
@@ -1069,11 +1081,10 @@ function drawPattern() {
  * @returns {canvasPoint | null}
  */
 function pntPatt2canvas(pnt) {
-    /** @type {TSseconds} */ const sec = TSFIXseconds((msLastDraw - msStart - msFocus) / 1000);
-
     /** @type {TSseconds} */ const secPointX = pattX2seconds(pnt.pattX);
     if (secPointX > secondsPattsDuration) { return null; }
 
+    /** @type {TSseconds} */ const sec = TSFIXseconds((msLastDraw - msStart - msFocus) / 1000);
     /** @type {TSseconds} */ const secX = TSFIXseconds((secPointX - sec + secWCanvas / 2));
 
     /** @type {pattX} */
@@ -1110,7 +1121,9 @@ function pattY2canvasY(pattY) {
     const height = (eltCanvas.height - top - bottom) * speedHeight;
 
     const invertY = Math.abs(pattY - 1);
-    return TSFIXcanvasY(invertY * height + top);
+    const canvasY = TSFIXcanvasY(invertY * height + top);
+    // console.log("pattY2canvasY", pattY, canvasY);
+    return canvasY;
 }
 // Old end of drawPattern
 // }
@@ -1431,7 +1444,7 @@ async function setupControls(controlscontainer) {
         secondsPattsDuration = TSFIXseconds(secondsPattsDuration - secLow);
         secondsTotalDuration = TSFIXseconds(secondsPattsDuration + msFocus / 1000);
 
-        middleY = TSFIXpattY(0);
+        middlePattY = TSFIXpattY(0);
 
 
 
@@ -1889,7 +1902,7 @@ async function addInfoButton(container) {
 
 function debugAndThrow(msg) {
     console.error(msg);
-    /** @ts-ignore */
+    // eslint-disable-next-line no-debugger
     debugger;
     throw Error(msg);
 }
