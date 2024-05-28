@@ -80,7 +80,7 @@ const TSFIXcanvasX = (value) => /** @type canvasX */(value);
 /** @param {number} value */
 const TSFIXcanvasY = (value) => /** @type canvasY */(value);
 
-/** @typedef {{ canvasX: canvasX, canvasY: canvasY }} canvasPoint */
+/** @typedef {{ canvasX: canvasX, canvasY: canvasY, afterCanvas: boolean }} canvasPoint */
 
 /** @typedef {number&{_tag: 'pattX'}} pattX */
 /** @param {number} value */
@@ -220,6 +220,7 @@ let settingPattern;
 const currentPointCanvas = {
     canvasX: TSFIXcanvasX(-100),
     canvasY: TSFIXcanvasY(-100),
+    afterCanvas: false
 }
 /** @type {canvasY} */
 let currentPointRadius;
@@ -387,6 +388,7 @@ function initCurrentPattern() {
     currentPatt = getPatternByName(settingPattern.value);
     middlePattX = TSFIXpattX(settingNumPatts.value * currentPatt.pattXW / 2);
     middleCanvasX = pattX2canvasX(middlePattX);
+    if (isNaN(middleCanvasX)) debugAndThrow("middleCanvasX is not a number");
 
     msStart = msDoc();
     console.log("msStart =, initCurrentPattern");
@@ -806,8 +808,8 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
     };
 }
 
-/** @type {TSmilliSeconds} */
-let msLastDraw;
+// /** @type {TSmilliSeconds} */
+// let msLastDraw;
 
 /** @type {TSmilliSeconds} */
 let msStart;
@@ -830,10 +832,7 @@ let oldStatePart = "not started";
  */
 function setState(statePart) {
     if (statePart == oldStatePart) return;
-    // throttleLogTime();
     oldStatePart = statePart;
-
-    // if (beforeStart && (statePart.length > 0)) { beforeStart = false; }
 
     console.warn(`setState "${statePart}", ${beforeStart}`);
     const txtPart = textForParts[statePart];
@@ -864,35 +863,39 @@ const setCanvasSizes = () => {
 const msFocus = TSFIXmilliSeconds(5 * 1000);
 
 /** @type {pattY} */ let middlePattY;
-/** @type {pattY} */ let prevY;
-/** @type {pattY} */ let nextY;
-// /** @type {pattPoint | undefined} */ let prevPoint;
-// /** @type {pattPoint | undefined} */ let nextPoint;
-// /** @type {boolean} */ let inMiddle = false;
-// /** @type {boolean} */ let middlePrev = false;
-// /** @type {boolean} */ let middleNext = false;
-// /** @type {number} */ let protectDraw = 0;
 
 // Time dependent {canvasX} must not be stored!
-// /** @type {canvasX} */ let prevCanvasX = TSFIXcanvasX(-100);
-// /** @type {canvasX} */ let nextCanvasX = TSFIXcanvasX(-100);
 /** @type {canvasX} */ let middleCanvasX = TSFIXcanvasX(-100);
 
-const logTime = () => {
-    console.log(Math.floor((msLastDraw - msStart) / 100), txtState,
-        "mcX:", middleCanvasX,
-    );
+/**
+ * 
+ * @param {string} txt 
+ */
+const logTime = (txt) => {
+    console.log(`%c${txt}`, "background:red; color:yellow;");
 }
 
 /** @ts-ignore */
 const throttleLogTime = throttleTO(logTime, 1000);
 
-// * @param {number} drawNumPatts 
 /**
  * 
+ * @param {number} sec 
+ */
+function testDrawPattern(sec) {
+    // /** @type {TSseconds} */ const sec = TSFIXseconds((msLastDraw - msStart - msFocus) / 1000);
+    msStart = msDoc();
+    /** @type {TSmilliSeconds} */
+    const msLastDraw = TSFIXmilliSeconds(msStart + sec * 1000);
+    drawPattern(msLastDraw);
+}
+
+/**
+ * 
+ * @param {TSmilliSeconds} msLastDraw 
  * @returns 
  */
-function drawPattern() {
+function drawPattern(msLastDraw) {
     if (!currentPatt) {
         // eslint-disable-next-line no-debugger
         debugger;
@@ -901,7 +904,7 @@ function drawPattern() {
     if (!beforeStart) {
         if (!isRunning) {
             // eslint-disable-next-line no-debugger
-            debugger;
+            // debugger;
             return;
         }
     }
@@ -928,13 +931,9 @@ function drawPattern() {
 
     msLastDraw = msDoc();
 
-    // expectNumber(middleCanvasX, Object.keys({ middleCanvasX }));
+    /** @type {pattPoint} */ const patternPoint0 = points[0];
 
-
-    /** @type {pattPoint} */ const p0 = points[0];
-
-
-
+    middlePattY = TSFIXpattY(0);
 
     if (beforeStart) {
         ctxCanvas.strokeStyle = settingDawnFilter.value ? "darkorange" : "yellowgreen";
@@ -943,24 +942,21 @@ function drawPattern() {
         ctxCanvas.lineCap = "butt";
         ctxCanvas.beginPath();
 
-        /** @type {pattY} */
-        const startPattY = TSFIXpattY(0);
+        // /** @type {pattY} */
+        // const startPattY = TSFIXpattY(0);
         /** @type {canvasY} */
-        const startCanvasY = pattY2canvasY(startPattY);
-        // console.log("middleCanvasX:", middleCanvasX, "startY:", startY);
+        const startCanvasY = pattY2canvasY(middlePattY);
         ctxCanvas.moveTo(middleCanvasX, startCanvasY);
-        const pc0 = pntPatt2canvas(p0);
-        // console.log("middleCanvasX:", middleCanvasX, "p0:", p0);
+        const pc0 = pntPatt2canvas(patternPoint0, msLastDraw);
         if (pc0) {
             if (pc0.canvasX < middleCanvasX) {
                 beforeStart = false;
-                setState(p0.part);
+                setState(patternPoint0.part);
             }
         }
-        lineToPatt(p0);
+        lineToPatt(patternPoint0, msLastDraw);
         ctxCanvas.stroke();
-        drawPoint(startPattY);
-        // return;
+        // drawPoint(startPattY);
     }
 
     ctxCanvas.strokeStyle = settingDawnFilter.value ? "darkorange" : "yellowgreen";
@@ -969,60 +965,80 @@ function drawPattern() {
     ctxCanvas.lineCap = "round"; // FIX-ME: does not work?? Bug???
     ctxCanvas.beginPath();
 
-    moveTo(p0);
-    // protectDraw = 0;
-    middlePattY = TSFIXpattY(0);
+    moveTo(patternPoint0, msLastDraw);
 
-    let iPattern = 0;
+    let iPatt = 0;
     /** @type {pattPoint | undefined} */ let nextPoint;
 
-    while (iPattern++ < 100) {
-        const iPnt = (iPattern - 1) % points.length;
-        const pnt = points[iPnt];
-        /** @type {pattPoint | undefined} */ const prevPoint = nextPoint;
+    while (iPatt++ < 100) {
+        const iPnt = (iPatt - 1) % points.length;
+        /** @type {pattPoint | undefined} */
+        let prevPoint;
+        if (!beforeStart) {
+            const pntPrev = points[iPnt - 1];
+            if (pntPrev) {
+                prevPoint = { ...pntPrev }
+                prevPoint.pattX = TSFIXpattX(pntPrev.pattX + (iPatt - 2) * currentPatt.pattXW);
+            }
+        }
 
-        nextPoint = { ...pnt }
-        nextPoint.pattX = TSFIXpattX(pnt.pattX + (iPattern - 1) * currentPatt.pattXW);
-        const res = TSFIXcanvasX(lineToPatt(nextPoint));
+        const pntNext = points[iPnt];
+        nextPoint = { ...pntNext }
+        nextPoint.pattX = TSFIXpattX(pntNext.pattX + (iPatt - 1) * currentPatt.pattXW);
 
-        if (res == -2) { break; }
-        if (res == -3) { break; }
+        // const msg = `iPnt:${iPnt}, iPatt:${iPatt}, "pX:",${prevPoint?.pattX}, "nX:${nextPoint.pattX}`;
+        // throttleLogTime(msg);
 
-        /** @type {canvasX } */
-        const prevCanvasX = prevPoint ? pattX2canvasX(prevPoint.pattX) : TSFIXcanvasX(-100);
-        /** @type {canvasX} */ const nextCanvasX = pattX2canvasX(nextPoint.pattX);
+        const res = lineToPatt(nextPoint, msLastDraw);
+        // const msgRes = `res:${res}`;
+        // throttleLogTime(msgRes);
 
-        if (prevPoint) { if (isNaN(prevCanvasX)) debugAndThrow("prevCanvasX is not a number"); }
+        switch (res) {
+            case "beforeCanvas":
+                continue;
+                break;
+            case "insideCanvas":
+                continue;
+                break;
+            case "afterCanvas":
+                iPatt = 100;
+                break;
+            default:
+                throw Error(`Unrecognized value from lineToPatt: "${res}"`);
+        }
+
+        /** @type {canvasX} */
+        const nextCanvasX = pattX2canvasX(nextPoint.pattX);
+        if (iPatt > 20) break;
         if (isNaN(nextCanvasX)) throw Error("nextCanvasX isNaN");
-        if (isNaN(middleCanvasX)) debugAndThrow("middleCanvasX is not a number");
-        if (isNaN(middleCanvasX)) debugAndThrow("middleCanvasX is not a number");
 
-        // let inMiddle = false;
-        if (prevCanvasX > 0) {
-            if (prevPoint) {
-                const middlePrev = prevCanvasX < middleCanvasX;
-                const middleNext = middleCanvasX <= nextCanvasX;
-                // const inMiddle = (prevCanvasX < middleCanvasX) && (middleCanvasX <= nextCanvasX);
-                const inMiddle = middlePrev && middleNext;
-                // throttleLogTime();
-                if (inMiddle) {
-                    throttleLogTime();
-                    prevY = prevPoint.pointY;
-                    nextY = nextPoint.pointY;
-                    if (isNaN(prevY)) debugAndThrow("lastY is not a number");
-                    if (isNaN(nextY)) debugAndThrow("nextY is not a number");
-                    const partOnLine = (middleCanvasX - prevCanvasX) / (nextCanvasX - prevCanvasX);
-                    if (isNaN(partOnLine)) debugAndThrow("partOnLine is not a number");
-                    /** @ts-ignore */
-                    middlePattY = TSFIXpattY(prevY + (nextY - prevY) * partOnLine);
-                    setState(prevPoint.part);
-                    // throttleLogTime();
-                    drawPoint(middlePattY);
-                }
+        // throttleLogTime(`before if prevPoint, iPatt:${iPatt}`);
+        if (prevPoint) {
+            throttleLogTime(`after if prevPoint, iPatt:${iPatt}`);
+            /** @type {canvasX } */
+            const prevCanvasX = pattX2canvasX(prevPoint.pattX);
+            if (isNaN(prevCanvasX)) debugAndThrow("prevCanvasX is not a number");
+            const middlePrev = prevCanvasX < middleCanvasX;
+            const middleNext = middleCanvasX <= nextCanvasX;
+            const inMiddle = middlePrev && middleNext;
+            const msg = `iPatt:${iPatt}, inMiddle:${inMiddle} middlePrev:${middlePrev} middleNext:${middleNext}`;
+            // throttleLogTime(msg);
+            if (inMiddle) {
+                setState(prevPoint.part);
+                const prevY = prevPoint.pointY;
+                const nextY = nextPoint.pointY;
+                if (isNaN(prevY)) debugAndThrow("lastY is not a number");
+                if (isNaN(nextY)) debugAndThrow("nextY is not a number");
+                const partOnLine = (middleCanvasX - prevCanvasX) / (nextCanvasX - prevCanvasX);
+                if (isNaN(partOnLine)) debugAndThrow("partOnLine is not a number");
+                middlePattY = TSFIXpattY(prevY + (nextY - prevY) * partOnLine);
+                // throttleLogTime(`middlePatty: ${middlePattY}`);
             }
         }
     }
     ctxCanvas.stroke();
+    // throttleLogTime(`after stroke, iPatt:${iPatt}`);
+    drawPoint(middlePattY);
 
 
     /**
@@ -1030,6 +1046,7 @@ function drawPattern() {
      * @param {pattY} middlePattY 
      */
     function drawPoint(middlePattY) {
+        // console.log("drawPoint", middlePattY);
         currentPointRadius = TSFIXcanvasY(pattY2canvasY(TSFIXpattY(0)) / 30);
         currentPointCanvas.canvasX = middleCanvasX;
         currentPointCanvas.canvasY = pattY2canvasY(middlePattY);
@@ -1041,10 +1058,11 @@ function drawPattern() {
     /**
      * 
      * @param {pattPoint} pattPoint 
+     * @param {TSmilliSeconds} msLastDraw 
      * @returns 
      */
-    function moveTo(pattPoint) {
-        const pntCanvas = pntPatt2canvas(pattPoint);
+    function moveTo(pattPoint, msLastDraw) {
+        const pntCanvas = pntPatt2canvas(pattPoint, msLastDraw);
         if (pntCanvas == null) return;
         ctxCanvas.moveTo(pntCanvas.canvasX, pntCanvas.canvasY);
     }
@@ -1052,24 +1070,22 @@ function drawPattern() {
     /**
      * 
      * @param {pattPoint} pntPatt 
-     * @returns 
+     * @param {TSmilliSeconds} msLastDraw 
+     * @returns {string} 
      */
-    function lineToPatt(pntPatt) {
-        /** @type {canvasPoint | null} */
-        const pntCanvas = pntPatt2canvas(pntPatt);
-        if (!pntCanvas) return -2;
+    function lineToPatt(pntPatt, msLastDraw) {
+        /** @type {canvasPoint} */
+        const pntCanvas = pntPatt2canvas(pntPatt, msLastDraw);
+        // if (!pntCanvas) return -2;
+        if (pntCanvas.afterCanvas) return "afterCanvas";
+
         if (isNaN(pntCanvas.canvasX)) debugAndThrow("LineToPatt: pntCanvas.canvasX isNaN");
         if (isNaN(pntCanvas.canvasY)) debugAndThrow("LineToPatt: pntCanvas.canvasY isNaN");
         ctxCanvas.lineTo(pntCanvas.canvasX, pntCanvas.canvasY);
         if (pntCanvas.canvasX < eltCanvas.width) {
-            if (isNaN(pntCanvas.canvasX)) debugAndThrow("LineToPatt 2: pntCanvas.canvasX isNaN");
-            if (pntCanvas.canvasX <= 0) {
-                const pnt2canvas = pntPatt2canvas(pntPatt);
-            }
-            return pntCanvas.canvasX; // So we don't have to calculate it again...
+            return "insideCanvas";
         }
-        // console.log("lineTo cX:", pntCanvas.canvasX, "mcX:", middleCanvasX, "cW:", eltCanvas.width, "cY:", pntCanvas.canvasY);
-        return -3;
+        return "beforeCanvas";
     }
 
     // New end of drawPattern
@@ -1078,11 +1094,12 @@ function drawPattern() {
 /**
  * 
  * @param {pattPoint} pnt 
- * @returns {canvasPoint | null}
+ * @param {TSmilliSeconds} msLastDraw 
+ * @returns {canvasPoint}
  */
-function pntPatt2canvas(pnt) {
+function pntPatt2canvas(pnt, msLastDraw) {
     /** @type {TSseconds} */ const secPointX = pattX2seconds(pnt.pattX);
-    if (secPointX > secondsPattsDuration) { return null; }
+    const afterCanvas = (secPointX > secondsPattsDuration);
 
     /** @type {TSseconds} */ const sec = TSFIXseconds((msLastDraw - msStart - msFocus) / 1000);
     /** @type {TSseconds} */ const secX = TSFIXseconds((secPointX - sec + secWCanvas / 2));
@@ -1094,6 +1111,7 @@ function pntPatt2canvas(pnt) {
     const pntC = {
         canvasX: pattX2canvasX(pattXfromSec),
         canvasY: pattY2canvasY(pnt.pointY),
+        afterCanvas
     }
     return pntC;
 }
@@ -1252,7 +1270,7 @@ async function updateCanvasBackground(useImageOrVideo) {
 
 let currentPatt;
 function redraw() {
-    drawPattern();
+    drawPattern(msDoc());
 }
 
 let progressElement;
@@ -1444,7 +1462,7 @@ async function setupControls(controlscontainer) {
         secondsPattsDuration = TSFIXseconds(secondsPattsDuration - secLow);
         secondsTotalDuration = TSFIXseconds(secondsPattsDuration + msFocus / 1000);
 
-        middlePattY = TSFIXpattY(0);
+        // middlePattY = TSFIXpattY(0);
 
 
 
