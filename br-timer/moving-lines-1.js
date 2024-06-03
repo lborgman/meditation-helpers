@@ -860,9 +860,9 @@ const setCanvasSizes = () => {
 }
 
 /** @type {TSmilliSeconds} */
-const msFocus = TSFIXmilliSeconds(0);
+const msFocus = TSFIXmilliSeconds(5 * 1000);
 // FIX-ME: temptest
-// const msFocus = TSFIXmilliSeconds(5 * 1000);
+// const msFocus = TSFIXmilliSeconds(0);
 
 /** @type {pattY} */ let thePointPattY;
 
@@ -981,7 +981,7 @@ function drawPattern(msDelayDrawP) {
     debugLog("beforeStart", beforeStart);
     if (beforeStart) {
         // eslint-disable-next-line no-debugger
-        if (doDebugLog) { debugger; }
+        // if (doDebugLog) { debugger; }
         ctxCanvas.strokeStyle = settingDawnFilter.value ? "darkorange" : "yellowgreen";
         ctxCanvas.lineWidth = 10;
         ctxCanvas.setLineDash([3, 5]);
