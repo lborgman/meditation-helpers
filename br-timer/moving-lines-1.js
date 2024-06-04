@@ -919,12 +919,12 @@ function getSecondsPattsDuration() {
     debugLog({ countsPatt, secPatt });
 
     const rest = secondsPattsDuration % secPatt;
-    let repetitions = Math.floor(secondsPattsDuration / secPatt);
-    if (rest > 0.01) repetitions++;
-    debugLog({ rest, repetitions });
+    numPattsDuration = Math.floor(secondsPattsDuration / secPatt);
+    if (rest > 0.01) numPattsDuration++;
+    debugLog({ rest, repetitions: numPattsDuration });
 
     // FIX-ME:
-    secondsPattsDuration = TSFIXseconds(repetitions * secPatt + 0.01);
+    secondsPattsDuration = TSFIXseconds(numPattsDuration * secPatt + 0.01);
 
     /** @type {TSseconds} */ const secLow = pattRec.patt.holdLow;
     debugLog({ secLow });
@@ -1063,9 +1063,9 @@ function drawPattern(msDelayDrawP) {
         const nextCanvasX = lineToPatt(nextPoint);
 
         if (prevPoint) {
-            // console.log("prevPoint.part", prevPoint.part);
             // FIX-ME: pattern border
             prevPoint.pattX = TSFIXpattX(pntPrev.pattX + iPattRepeat * currentPatt.pattXW);
+            // eslint-disable-next-line no-debugger
             if (possPrevCanvasX == undefined) debugger;
             if (possPrevCanvasX !== undefined && possPrevCanvasX < middleCanvasX) {
                 if (middleCanvasX < nextCanvasX) {
@@ -1108,33 +1108,7 @@ function drawPattern(msDelayDrawP) {
                 throw Error(`Unrecognized value from lineToPatt: "${res}"`);
         }
         debugLog(msgRes);
-
-        /*
-        debugLog(`before if prevPoint`, prevPoint);
-        if (false && prevPoint) {
-            debugLog(`after if prevPoint`);
-            const prevCanvasX = pattXlength2canvasX(prevPoint.pattX);
-            if (isNaN(prevCanvasX)) debugAndThrow("prevCanvasX is not a number");
-            const middlePrev = prevCanvasX < middleCanvasX;
-            const middleNext = middleCanvasX <= nextCanvasX;
-            const inMiddle = middlePrev && middleNext;
-            const msg = `inM:${inMiddle} mP:${middlePrev} mN:${middleNext}, pcX:${prevCanvasX}, ncX:${nextCanvasX}`;
-            debugLog(msg);
-
-            if (inMiddle) {
-                debugLog("inMiddle, before setState", txtState, prevPoint);
-                setState(prevPoint.part);
-                const prevY = prevPoint.pattY;
-                const nextY = nextPoint.pattY;
-                if (isNaN(prevY)) debugAndThrow("lastY is not a number");
-                if (isNaN(nextY)) debugAndThrow("nextY is not a number");
-                const partOnLine = (middleCanvasX - prevCanvasX) / (nextCanvasX - prevCanvasX);
-                if (isNaN(partOnLine)) debugAndThrow("partOnLine is not a number");
-                thePointPattY = TSFIXpattY(prevY + (nextY - prevY) * partOnLine);
-                debugLog(`mPY:${thePointPattY}, partOL:${partOnLine}, middleCX:${middleCanvasX}`);
-            }
-        }
-        */
+        if (iPattRepeat >= numPattsDuration) break;
     }
     ctxCanvas.stroke();
     // throttleLogTime(`after stroke, iPatt:${iPatt}`);
@@ -1533,6 +1507,7 @@ function setupCanvas(container) {
 
 /** @type {TSseconds} */ let secondsPattsDuration;
 /** @type {TSseconds} */ let secondsTotalDuration; // Including msFocus
+/** @type {number} */ let numPattsDuration;
 
 async function setupControls(controlscontainer) {
     settingCountsPerSecond = new ourLocalSetting("counts-per-second", 100);
