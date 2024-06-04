@@ -1950,7 +1950,7 @@ async function addInfoButton(container) {
     const aInfo = document.createElement("a");
     aInfo.appendChild(iconInfo);
     // const urlAbout = new URL("../about.html", location);
-    const urlAbout = new URL("../about.html", location.href);
+    const urlAbout = new URL("../index.html", location.href);
     aInfo.href = urlAbout.href;
     // const btnInfo = modMdc.mkMDCiconButton(iconInfo, "About");
     const btnInfo = modMdc.mkMDCiconButton(aInfo, "About Link 2");
