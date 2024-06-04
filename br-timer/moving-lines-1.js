@@ -172,7 +172,7 @@ let screenRefreshRate = 120;
 })();
 */
 
-const maxRedraw = 120 * 60; // FIX-ME: max 60 seconds 
+const maxRedraw = 120 * 60;
 
 let settingDurationSeconds;
 let settingDurationMinutes;
@@ -615,8 +615,6 @@ async function dialogPattern() {
         const initialValue = currentValue();
         const checkCanSave = () => {
             const hasNewInput = currentValue() != initialValue;
-            // FIX-ME: check old names:
-            // const hasNewName = inpName.value.trim() != "";
             const counts = Object.keys(partsNewPatt)
                 .map(pn => parseFloat(partsNewPatt[pn].value))
                 .reduce((acc, next) => acc + next);
@@ -881,12 +879,9 @@ const setCanvasSizes = () => {
 
 /** @type {TSmilliSeconds} */
 const msFocus = TSFIXmilliSeconds(5 * 1000);
-// FIX-ME: temptest
-// const msFocus = TSFIXmilliSeconds(0);
 
 /** @type {pattY} */ let thePointPattY;
 
-// Time dependent {canvasX} must not be stored!
 /** @type {canvasX} */ let middleCanvasX = TSFIXcanvasX(-100);
 
 /**
@@ -926,7 +921,7 @@ function getSecondsPattsDuration() {
     if (rest > 0.01) numPattsDuration++;
     debugLog({ rest, repetitions: numPattsDuration });
 
-    // FIX-ME:
+    // FIX-ME: How much to add?
     secondsPattsDuration = TSFIXseconds(numPattsDuration * secPatt + 0.01);
 
     /** @type {TSseconds} */ const secLow = pattRec.patt.holdLow;
@@ -934,7 +929,7 @@ function getSecondsPattsDuration() {
 
     // FIX-ME: temptest
     // secondsPattsDuration = TSFIXseconds(secondsPattsDuration - secLow);
-    // secondsTotalDuration = TSFIXseconds(secondsPattsDuration + msFocus / 1000);
+    secondsTotalDuration = TSFIXseconds(secondsPattsDuration + msFocus / 1000);
     console.log({ secondsPattsDuration });
 }
 
@@ -1061,16 +1056,13 @@ function drawPattern(msDelayDrawP) {
 
         debugLog(`**** iPatt:${iPattLoop}`, prevPoint, nextPoint);
 
-        // FIX-ME: pattern border
         nextPoint.pattX = TSFIXpattX(pntNext.pattX + iPattRepeat * currentPatt.pattXW);
         const nextCanvasX = lineToPatt(nextPoint);
 
         if (prevPoint) {
-            // FIX-ME: pattern border
             prevPoint.pattX = TSFIXpattX(pntPrev.pattX + iPattRepeat * currentPatt.pattXW);
-            // eslint-disable-next-line no-debugger
-            if (possPrevCanvasX == undefined) debugger;
-            if (possPrevCanvasX !== undefined && possPrevCanvasX < middleCanvasX) {
+            if (possPrevCanvasX == undefined) { throw Error(`possPrevCanvasX == undefined`); }
+            if (possPrevCanvasX < middleCanvasX) {
                 if (middleCanvasX < nextCanvasX) {
                     const partOnLine = (middleCanvasX - possPrevCanvasX) / (nextCanvasX - possPrevCanvasX);
                     const prevY = prevPoint.pattY;
@@ -1332,7 +1324,7 @@ async function updateCanvasBackground(useImageOrVideo) {
         }
     }
     eltBg.classList.add(clsBg);
-    eltBg.style.borderRadius = "10px"; // FIX-ME:
+    eltBg.style.borderRadius = "10px";
 
     eltParent.insertBefore(eltBg, eltParent.firstElementChild);
     if (settingSquare.value) {
@@ -1576,10 +1568,10 @@ async function setupControls(controlscontainer) {
         });
 
         // const iconMore = modMdc.mkMDCicon("expand_circle_up");
-        // FIX-ME: For some reason the up version does not work??
-        //    Using this workaround:
+        // The up version does not work?? Using this workaround:
         const iconMore = modMdc.mkMDCicon("expand_circle_down");
         iconMore.style.transform = "rotate(180deg)";
+
         const btnMore = modMdc.mkMDCiconButton(iconMore, "Longer");
         btnMore.addEventListener("click", evt => {
             if (settingDurationIsInSeconds.value) {
