@@ -155,7 +155,22 @@ The frequency of calls to the callback function will generally match the display
 The most common refresh rate is 60hz, (60 cycles/frames per second), though 75hz, 120hz, and 144hz are also widely used.
 */
 let numRedraw; // Protect about looping
+
 // https://ourcodeworld.com/articles/read/1390/how-to-determine-the-screen-refresh-rate-in-hz-of-the-monitor-with-javascript-in-the-browser#google_vignette
+// FIX-ME:
+let screenRefreshRate = 120;
+(async () => {
+    // @ts-ignore
+    const modRefreshRate = await import("refresh-rate");
+    // console.log({ modRefreshRate });
+    const rr = await modRefreshRate.promScreenRefreshRate(500);
+    // console.log({ rr });
+    screenRefreshRate = rr;
+    // @ts-ignore
+    const modMdc = await import("util-mdc");
+    modMdc.mkMDCsnackbar(`Refresh rate ${screenRefreshRate}`);
+})();
+
 const maxRedraw = 120 * 60; // FIX-ME: max 60 seconds 
 
 let settingDurationSeconds;
