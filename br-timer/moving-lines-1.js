@@ -156,8 +156,8 @@ The most common refresh rate is 60hz, (60 cycles/frames per second), though 75hz
 */
 let numRedraw; // Protect about looping
 
-// https://ourcodeworld.com/articles/read/1390/how-to-determine-the-screen-refresh-rate-in-hz-of-the-monitor-with-javascript-in-the-browser#google_vignette
-// FIX-ME:
+/*
+// Probably useless
 let screenRefreshRate = 120;
 (async () => {
     // @ts-ignore
@@ -170,6 +170,7 @@ let screenRefreshRate = 120;
     const modMdc = await import("util-mdc");
     modMdc.mkMDCsnackbar(`Refresh rate ${screenRefreshRate}`);
 })();
+*/
 
 const maxRedraw = 120 * 60; // FIX-ME: max 60 seconds 
 
@@ -849,6 +850,7 @@ function setState(statePart) {
     oldStatePart = statePart;
 
     debugLog(`setState "${statePart}", ${beforeStart}`);
+    // console.warn(`setState "${statePart}", ${beforeStart}`);
     const txtPart = textForParts[statePart];
     txtState = txtPart || statePart;
     const eltCurrentParts = document.getElementById("current-patt-parts");
@@ -875,9 +877,9 @@ const setCanvasSizes = () => {
 }
 
 /** @type {TSmilliSeconds} */
-const msFocus = TSFIXmilliSeconds(5 * 1000);
+const msFocus = TSFIXmilliSeconds(0);
 // FIX-ME: temptest
-// const msFocus = TSFIXmilliSeconds(0);
+// const msFocus = TSFIXmilliSeconds(5 * 1000);
 
 /** @type {pattY} */ let thePointPattY;
 
@@ -914,18 +916,18 @@ function getSecondsPattsDuration() {
 
     /** @type {pattX} */ const countsPatt = pattRec.pattXW;
     /** @type {TSseconds} */ const secPatt = pattX2seconds(countsPatt);
-    console.log({ countsPatt, secPatt });
+    debugLog({ countsPatt, secPatt });
 
     const rest = secondsPattsDuration % secPatt;
     let repetitions = Math.floor(secondsPattsDuration / secPatt);
     if (rest > 0.01) repetitions++;
-    console.log({ rest, repetitions });
+    debugLog({ rest, repetitions });
 
     // FIX-ME:
     secondsPattsDuration = TSFIXseconds(repetitions * secPatt + 0.01);
 
     /** @type {TSseconds} */ const secLow = pattRec.patt.holdLow;
-    console.log({ secLow });
+    debugLog({ secLow });
 
     // FIX-ME: temptest
     // secondsPattsDuration = TSFIXseconds(secondsPattsDuration - secLow);
@@ -1039,13 +1041,15 @@ function drawPattern(msDelayDrawP) {
 
     while (iPattLoop++ < 100) {
 
-        const iPnt = iPattLoop % points.length;
-        if (iPnt == 0) { iPattRepeat++; }
+        const iNextPnt = iPattLoop % points.length;
+        if (iNextPnt == 0) { iPattRepeat++; }
 
+        const iPrevPnt = iNextPnt == 0 ? points.length - 1 : iNextPnt - 1;
         /** @type {pattPoint | undefined} */
-        const pntPrev = points[iPnt - 1];
+        const pntPrev = points[iPrevPnt];
+
         /** @type {pattPoint} */
-        const pntNext = points[iPnt];
+        const pntNext = points[iNextPnt];
 
         /** @type {pattPoint | undefined} */
         const prevPoint = pntPrev ? { ...pntPrev } : undefined;
@@ -1059,6 +1063,7 @@ function drawPattern(msDelayDrawP) {
         const nextCanvasX = lineToPatt(nextPoint);
 
         if (prevPoint) {
+            // console.log("prevPoint.part", prevPoint.part);
             // FIX-ME: pattern border
             prevPoint.pattX = TSFIXpattX(pntPrev.pattX + iPattRepeat * currentPatt.pattXW);
             if (possPrevCanvasX == undefined) debugger;
@@ -1069,7 +1074,11 @@ function drawPattern(msDelayDrawP) {
                     const nextY = nextPoint.pattY;
                     thePointPattY = TSFIXpattY(prevY + (nextY - prevY) * partOnLine);
                     setState(prevPoint.part);
+                } else {
+                    // console.log("NOT middleCanvasX < nextCanvasX", prevPoint.part);
                 }
+            } else {
+                // console.log("NOT possPrevCanvasX < middleCanvasX ", prevPoint.part);
             }
         }
 
