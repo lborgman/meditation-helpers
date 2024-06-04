@@ -877,9 +877,9 @@ const setCanvasSizes = () => {
 }
 
 /** @type {TSmilliSeconds} */
-const msFocus = TSFIXmilliSeconds(0);
+const msFocus = TSFIXmilliSeconds(5 * 1000);
 // FIX-ME: temptest
-// const msFocus = TSFIXmilliSeconds(5 * 1000);
+// const msFocus = TSFIXmilliSeconds(0);
 
 /** @type {pattY} */ let thePointPattY;
 
