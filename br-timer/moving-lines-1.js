@@ -1550,6 +1550,7 @@ async function setupControls(controlscontainer) {
         getSecondsPattsDuration();
         setStateRunning(true);
         numRedraw = 0;
+        msStart = msDoc();
         animateLines();
     });
 
