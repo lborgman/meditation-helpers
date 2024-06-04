@@ -402,6 +402,8 @@ function tellCurrentPatternParts() {
 }
 
 function initCurrentPattern() {
+    beforeStart = true;
+    clearTopText();
     setStateRunning(false);
     tellInitialState();
 
@@ -1534,7 +1536,7 @@ async function setupControls(controlscontainer) {
     const btnReplay = modMdc.mkMDCiconButton(iconReplay, "Stop");
     // btnReset.classList.add("icon-button-30");
     btnReplay.addEventListener("click", evt => {
-        tellInitialState();
+        // tellInitialState();
         initCurrentPattern();
     });
     btnReplay.id = "replay-button";
