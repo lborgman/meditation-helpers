@@ -1,0 +1,369 @@
+#videos #timer-div {
+    opacity: 1;
+    background-color: olive;
+    background-color: chocolate;
+    background-color: darkgoldenrod;
+    background-color: #6cc8c0;
+    xtransition: background-color 2s, height 2s, width 2s;
+    transition: background-color 2s, opacity 1s, xheight 1s, xwidth 1s;
+    xheight: 120px;
+}
+#timer-div img {
+    margin-top: 20px;
+    width: 100%;
+    xmax-height: 160px;
+    object-fit: contain;
+    opacity: 0;
+    display: none;
+    transition-property: opacity;
+    transition-timing-function: linear;
+}
+
+#version {
+    xopacity: 0.3;
+    color: #3c3c3c;
+}
+#goal-info {
+    color: #3c3c3c;
+}
+#timer-div button#start-meditate {
+    font-size: 30px;
+    xdisplay: block;
+    max-width: 300px;
+    width: 100%;
+    margin-bottom: 40px;
+    background-color: #ff632f;
+    border-color: #fc5720;
+    border-color: #6cc8c0;
+    background-color: #4ee7f6;
+}
+#icon {
+    max-width: 64px;
+    max-height: 64px;
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 5px;
+}
+.starting-meditation #videos #timer-div {
+    opacity: 0;
+    xbackground: firebrick;
+}
+#videos #message {
+    transition: opacity 1s;
+    z-index: 10;
+}
+.starting-meditation #videos #message {
+    opacity: 0;
+}
+.meditating #videos #timer-div {
+    opacity: 1;
+    background: orange;
+}
+.asking #videos #timer-div {
+    background: rgb(100, 189, 4);
+}
+.replied #videos #timer-div {
+    background: rgb(100, 189, 4);
+}
+
+.asking #videos #timer-div,
+.meditating #videos #timer-div,
+.replied #videos #timer-div {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+.meditating #timer-div img {
+    opacity: 1;
+    display: inline-block;
+    width: 100%;
+}
+
+.meditating #start-meditate,
+.asking #start-meditate,
+.replied #start-meditate {
+    display: none;
+}
+.meditating #time-goal-info,
+.asking #time-goal-info,
+.replied #time-goal-info {
+    display: none;
+}
+
+#asking-div {
+    display: none;
+}
+.asking #asking-div {
+    display: block;
+}
+
+#progress-bar {
+    display: none;
+    width: 100%;
+}
+.meditating #progress-bar {
+    display: block;
+}
+
+#volume-div {
+    display: none;
+    position: fixed;
+    bottom: 60px;
+    width: 90vw;
+}
+.asking #volume-div {
+    display: flex;
+}
+#alarm-controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    margin-left: 25px;
+    width: 100%;
+}
+#alarm-controls input[type=checkbox] {
+    width: 25px;
+    height: 25px;
+    vertical-align: bottom;
+}
+#alarm-controls input[type=range] {
+}
+#volume {
+    height: 40px;
+    width: 100%;
+    xmax-width: 170px;
+}
+
+#alarm-controls .sound-on-off {
+    width: 40px;
+    xheight: 40px;
+    xline-height: 40px;
+    xtext-align: center;
+    xpadding: 0;
+}
+
+.center-me {
+    margin: 0 auto;
+}
+.center-children {
+    text-align: center;
+}
+
+#timer-div img#icon-timer-div {
+    display: none;
+}
+.meditating #timer-div img#icon-timer-div {
+    display: block;
+    position: fixed;
+    top: 40px;
+    left: 30px;
+    width: 70px;
+    opacity: 0.7;
+}
+.asking #timer-div img#icon-timer-div,
+.replied #timer-div img#icon-timer-div {
+    display: block;
+    width: 100px;
+    float: left;
+    opacity: 1;
+    margin-bottom: 20px;
+}
+p {
+    clear: both;
+}
+#meditator-on-btn {
+    height: 60px;
+    max-width: 60px;
+    vertical-align: text-top;
+}
+.meditator-instr {
+    height: 35px;
+    vertical-align: text-top;
+}
+.logo-instr {
+    height: 25px;
+    vertical-align: text-top;
+}
+
+footer {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    justify-items: center;
+    align-items: center;
+
+    position: fixed;
+    z-index: 20;
+    width: 100vw;
+    bottom: 0;
+    left: 0;
+    height: var(--footer-height);
+    background: black;
+    color: #c7cdfa;
+    color: #686b80;
+}
+footer > * {
+    width: 100%;
+    height: 100%;
+    line-height: var(--footer-height);
+    text-align: center;
+}
+
+section#videos {
+    margin-bottom: var(--footer-height);
+}
+:root {
+    --footer-height: 30px;
+}
+
+#share-body {
+    background: #f7951b;
+    padding: 8px;
+    border: 2px inset;
+    user-select: all;
+}
+
+.display-none {
+    display: none;
+}
+
+header {
+    background: white;
+    background: #ffffff24;
+    margin-top: 0;
+    padding: 10px;
+    text-align: center;
+}
+header > * {
+    background: transparent;
+    margin: 0;
+    padding: 0;
+}
+
+#about {
+    z-index: 10;
+}
+#about summary span.fa > * {
+    font-size: 1.7rem;
+}
+.fa > * {
+    color: black !important;
+}
+
+#timer-div * {
+    font-size: 1.5rem;
+}
+#timer-div button {
+    background-color: #529c02;
+    border-color: #529c02;
+    border-radius: 3px;
+    width: 40%;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+}
+.buttons > button {
+    flex-grow: 1;
+    margin-right: 5px;
+    max-width: 300px;
+}
+
+/* https://love2dev.com/blog/responsive-hero-background-opacity/ */
+.hero {
+    width: 100%;
+    height: 100%;
+    min-width: 100%;
+    min-height: 100%;
+    position: relative;
+}
+
+/* https://love2dev.com/blog/responsive-hero-background-opacity/ */
+:root {
+    --bg-image: url(/img/background-1932466_1920-320x212.jpg);
+}
+.hero::before {
+    background-image: var(--bg-image);
+    background-size: cover;
+    background-position: center;
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    filter: grayscale(0.5);
+    opacity: 0.3;
+}
+.hero::after {
+    xbackground-color: #563d7c;
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.4;
+}
+
+#the-cat {
+    font-size: 6rem;
+    opacity: 0.4;
+}
+
+.clipboard-notifier {
+    position: fixed;
+    z-index: 100;
+    opacity: 0.7;
+    font-size: 1rem;
+    width: 70px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background: black;
+    color: greenyellow;
+    transition-property: all;
+}
+html body .copy-button {
+    margin: 10px;
+    background-color: greenyellow;
+    border-color: greenyellow;
+}
+
+p.after-med-info {
+    padding: 5px;
+    xbackground: white;
+    background: #ffffff36;
+    text-align: center;
+}
+/************************** States */
+.meditating footer > *,
+.asking footer > *,
+.replied footer > *
+{
+    display: none;
+}
+
+.meditating #about,
+.asking #about,
+.replied #about
+{
+    display: none;
+}
+
+.meditating #message,
+.asking #message,
+.replied #message
+{
+    display: none;
+}
+
+#qr-popup {
+    max-width: 60vh;
+}

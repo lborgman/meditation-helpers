@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="chocolate">
+
+  <!-- This page © Copyright 2017, Lennart Borgman -->
+  <meta name="author" content="Lennart Borgman">
+
+
+  <title>Mindfulness Meditation Training Timer</title>
+
+  <!-- <link rel="manifest" href="/manifest.json"> -->
+
+  <!-- Lighthouse -->
+  <meta name="Description"
+    content="Tries to mimic the app described in the study Closed-loop digital meditation improves sustained attention in young adults" />
+
+
+  <script>
+    window.addEventListener('load', function () {
+      // navigator.serviceWorker.register('/service-worker.js');
+    });
+  </script>
+
+  <link rel="icon" type="image/svg" href="img/meditation-timer.svg">
+  <!-- <link rel="icon" type="image/png" sizes="512x512" href="favicons/meditation-timer-512.png"> -->
+
+  <!-- update the version number as needed -->
+  <!-- 
+  <script defer src="/__/firebase/6.1.1/firebase-app.js"></script>
+  <!- include only the Firebase features as you need ->
+  <script defer src="/__/firebase/6.1.1/firebase-auth.js"></script>
+  <script defer src="/__/firebase/6.1.1/firebase-database.js"></script>
+  <script defer src="/__/firebase/6.1.1/firebase-messaging.js"></script>
+  <script defer src="/__/firebase/6.1.1/firebase-storage.js"></script>
+  <!- initialize the SDK after all desired features are loaded ->
+  <script defer src="/__/firebase/init.js"></script>
+  -->
+
+  <link rel="stylesheet" href="css/caped.css">
+  <link rel="stylesheet" href="css/color.css">
+  <link rel="stylesheet" href="css/menu.css">
+  <link rel="stylesheet" href="css/popup.css">
+  <link rel="stylesheet" href="css/videos.css">
+  <link rel="stylesheet" href="css/timer.css">
+
+  <!--
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+    integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+  -->
+  <link rel="stylesheet" href="css/fontawesome/css/fontawesome.css">
+  <link rel="stylesheet" href="css/fontawesome/css/solid.css">
+  <link rel="stylesheet" href="css/fontawesome/css/brands.css">
+
+  <!-- <script src="js/promise-dom.js"></script> -->
+  <!-- <script src="js/popup.js"></script> -->
+  <script src="../src/js/error.js"></script>
+
+  <script src="js/meditimer.js"></script>
+
+  <!--
+  <script src="js/external/cookies.js"></script>
+  -->
+
+</head>
+
+<body class="signed-out">
+  <div id="too-old-browser" style="background:black; color:red; padding:15px; display:none;">
+    If this text text is shown then it means your web browser is too old too use for
+    Mindfulness Meditation Training timer.
+    A fresh version of Google Chrome or Firefox will work.
+  </div>
+  <script>
+    // es6?
+    console.log("es6?")
+    setTimeout(function () {
+      if (typeof Symbol === "undefined") {
+        var ee = document.getElementById("too-old-browser");
+        ee.style.display = "block";
+      }
+    }, 2000);
+  </script>
+  <header>
+    <span>
+      <img id="icon" alt="Logo" src="img/meditation-timer.svg">
+      <h1>Mindfulness Meditation<br>Training Timer</h1>
+    </span>
+  </header>
+
+  <section id="videos">
+
+    <div id="message" class="display-none">
+      <p style="overflow:auto">
+        <!-- https://vectr.com/ecap/f2dRxcG9j -->
+        This timing app can help you start training mindfulness meditation.
+        It should work similar to the app described in this
+        <a href="https://www.sciencedaily.com/releases/2019/06/190603124705.htm" target="_blank"
+          rel="noreferrer">study</a>.
+      </p>
+      <details>
+        <summary>Instructions&nbsp;&nbsp;
+          <img class="logo-instr" alt="Logo" src="img/meditation-timer.svg">
+          <img class="meditator-instr" alt="Meditator" src="img/wikimedia/Curious_Meditating_Cartoon_Man.svg" />
+        </summary>
+        <p>
+          If you want to do as in the study you should use this app several times each day,
+          for a total of at least 10&nbsp;minutes.
+          This app will keep track of how much time you have used the app each day.
+        </p>
+        <p>
+          <img class="logo-instr" alt="Logo" src="img/meditation-timer.svg">
+          Each time you use the app you meditate for as long as the app tells you.
+          After that you tell the app if you managed to keep your attention on the breath.
+        </p>
+        <p>
+          That is all. It is as simple as that.
+        </p>
+        <p id="version"></p>
+        <p>
+          <details>
+            <summary>But what should I do when I meditate?&nbsp;
+              <img class="meditator-instr" alt="Meditator" src="img/wikimedia/Curious_Meditating_Cartoon_Man.svg" />
+            </summary>
+            <p>
+              Just keep your attention on the breath -
+              wherever you most easily can feel it in your body.
+            </p>
+            <p>
+              Be aware if, at any point, your attention has fully wandered away from the breath. Without any judgement,
+              gently bring it back to the next breath.
+            </p>
+            <p>
+              There will be a gentle audible and visual alarm when the meditation time is over.
+            </p>
+          </details>
+          <details>
+            <summary>Can you please tell me more? 🕉️</summary>
+            <p>
+              You can find the study on
+              <a href="https://www.researchgate.net/publication/333587152_Closed-loop_digital_meditation_improves_sustained_attention_in_young_adults"
+                target="_blank" rel="noreferrer">ResearchGate</a>.
+            </p>
+            <p>
+              The
+              <a href="https://static-content.springer.com/esm/art%3A10.1038%2Fs41562-019-0611-9/MediaObjects/41562_2019_611_MOESM1_ESM.pdf"
+                target="_blank" rel="noreferrer">Supplementary Information</a> is freely available.
+              It contains the written instructions from
+              <a href="https://jackkornfield.com/" target="_blank" rel="noreferrer">Jack Kornfield</a>.
+              (Copied below.)
+            </p>
+
+            <details>
+              <summary>️Copy of Jack Kornfield´s instructions</summary>
+              <h3>Supplementary Methods</h3>
+              <p>
+                Mindfulness lessons by Jack Kornfield that preceded the MediTrain program:
+              </p>
+              <h3>
+                Initial Meditation Instructions
+              </h3>
+              <p>
+                For the next six weeks you will be using this app to practice mindfulness awareness of your breathing,
+                which is
+                a training in mindfulness attention.
+
+                <mark>
+                  During this training period, you will practice focusing your
+                  attention on the
+                  natural rhythms of the breath, using the breath as a way to develop attention and calm your
+                  concentration.
+                  This
+                  is not a breath control practice, but a practice of awareness.</mark>
+
+                Now I’ll give you some suggestions for
+                how
+                to start
+                in your journey of learning to mindfully attend to your breath.
+                The first step is to settle into your body. Find a way to sit that is both comfortable, relaxed, yet
+                also
+                alert and
+                present. As you find a stable posture and feel settled, try to let go and relax into the position. Now,
+                pay attention
+                to your body; scan your body and let go of any obvious tensions that you can easily release. Let the
+                eyes
+                and
+                face be soft, loosen the jaw, let the shoulders relax and rest your arms and hand rest comfortably. Now
+                let your
+                belly be soft and your breath natural.
+                Now the next step is to notice your body breathing; feel how the body breathes on its own in a natural
+                rhythm,
+                sometimes fast or slow, sometimes deep or shallow. Now simply bring your attention to wherever you can
+                most
+                easily sense this breathing rhythm. It might be coolness in your nostrils, or the swirling tingling in
+                the
+                back of
+                the throat, or the brush of the air against your upper lip. It might be the rise and fall of chest or
+                belly. It might
+                even be your whole body breathing. If it's difficult to feel the rhythm of your breath, then take one
+                hand
+                and
+                place it on your belly and feel the rise and fall of your belly in the palm of your hand, and rest it
+                there as your
+                place of awareness.
+                Now that you’ve settled in you body and begun to sense your breath, notice it's natural rhythms and
+                variations.
+                Some breaths might be shorter or longer than others. Let your body breathe as it wishes. As you feel
+                each
+                breath
+                with your attention, try to invite a calm and steadiness of body and mind so that each breath, breathing
+                in and
+                breathing out, brings a sense of calm and peace. Let other experiences that arise, such as sounds,
+                thoughts,
+                feelings, and body sensations come and go, rise and fall like waves of the ocean around the breath. Keep
+                your
+                attention resting on the natural rhythm of the breath.
+
+                <mark>
+                  Be aware if, at any point, your attention has
+                  fully
+                  wandered away from the breath. Without any judgement, gently bring it back to the next breath.</mark>
+
+                It is
+                like
+                training a puppy; bring it back gently, sit, and stay. By gradually returning again and again to the
+                breath, you will
+                learn to be aware of the breath and to focus your attention gradually, more deeply. Like with any
+                training--like
+                learning piano or practicing basketball, you are learning the art of steadying your attention. Steadying
+                and
+                focusing your attention is a skill that will serve you in every area of your life.
+              </p>
+
+              <h3>
+                Meditation Instructions 2 (Given prior to starting the third week of training)
+              </h3>
+              <p>
+                To further help your focus on attention on the breath, for this next period, along with noticing the
+                breath as you
+                have, include awareness if there are spaces between the breath. In these gaps, keep your attention in
+                the
+                same
+                area of your body until the next breath begins. This helps the attention become more continuous and
+                steady.
+              </p>
+
+              <h3>
+                Meditation Instructions 3 (Given prior to starting the fifth week of training)
+              </h3>
+              <p>
+                To again further help your focus of attention on the breath, for this next period, along with noticing
+                the
+                breath,
+                include awareness of any moments of calm and well-being that arise as your sense the breath. Continue
+                your
+                awareness of the breath, and at the same time, feel how the calm steady wellbeing can increase along
+                with
+                your
+                growing attention.
+              </p>
+            </details>
+          </details>
+        </p>
+      </details>
+    </div>
+    <div id="timer-div">
+      <img id="icon-timer-div" alt="Logo" src="img/meditation-timer.svg">
+    </div>
+
+    <div id="about" class="display-none">
+      <details>
+        <summary>About us <span class="fa"><i class="fas fa-user-friends"></i></span></summary>
+        <p>
+          It is just me. Who happen to know a bit about psychology, meditation and IT.
+        </p>
+        <p>
+          I wrote this small app when I read about the study I mention.
+          It looks like a good idea making a tool like this widely and free available.
+        </p>
+        <p>
+          I have no affiliation whatsoever with the study authors.
+        </p>
+      </details>
+      <details>
+        <summary>About this app <span class="fa"><i class="fas fa-info-circle"></i></span></summary>
+        <p>
+          This is a "web app" (actually a
+          <a href="https://en.wikipedia.org/wiki/Progressive_web_applications" target="_blank" rel="noreferrer">PWA</a>
+          ).
+          You can say it runs in your web browser so you can use it anywhere.
+        </p>
+        <p>
+          You don't have to install anything, but you can install a PWA.
+          Then you can use it offline.
+          And you get an icon on your mobile where it will look like any app.
+        </p>
+        <p>
+          You will need a modern web browser for this to work.
+          Google Chrome and Firefox are ok.
+        </p>
+      </details>
+      <details>
+        <summary>Privacy <span class="fa"><i class="fas fa-user-secret"></i></span></summary>
+        <p>
+          We store info about your current meditation session length.
+          And we store info about your daily success.
+        </p>
+        <p>
+          This is only stored on your computer/mobile.
+        </p>
+      </details>
+      <details>
+        <summary>Contact <span class="fa"><i class="fas fa-comments"></i></span></summary>
+        <p>
+          You may contact us on Facebook.
+          <a href="https://facebook.com/groups/380924549203529/" target="_blank" rel="noreferrer">
+            <span class="fa"><i class="fab fa-facebook"></i></span></a>
+        </p>
+      </details>
+
+
+      <!--
+      <details>
+        <summary></summary>
+      </details>
+      <details>
+        <summary></summary>
+      </details>
+      -->
+  </section>
+  </section>
+
+  <footer>
+    <span id="footer-version"></span>
+    <span id="footer-share" tabindex="0" role="button" title="Share"><i class="fas fa-share-alt"></i></span>
+    <span id="footer-qr" tabindex="0" role="button" title="QR code"><i class="fas fa-qrcode"></i></span>
+    <span id="footer-info" tabindex="0" role="button" title="Information"><i class="fas fa-info-circle"></i></span>
+    <span id="footer-about" tabindex="0" role="button" title="About"><i class="fas fa-address-card"></i></span>
+    <span id="footer-install" tabindex="0" role="button" title="Install this PWA"><i
+        class="fab fa-google-play"></i></span>
+  </footer>
+  <!--
+  <script>
+    // DOM fully loaded
+    // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+    // // The Firebase SDK is initialized and available here!
+    //
+    // firebase.auth().onAuthStateChanged(user => { });
+    // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
+    // firebase.messaging().requestPermission().then(() => { });
+    // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
+    //
+    // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+
+    let app = firebase.app();
+  </script>
+  -->
+
+</body>
+
+</html>

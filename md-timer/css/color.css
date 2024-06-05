@@ -1,0 +1,131 @@
+/* https://color.adobe.com/create/color-wheel/?base=2&rule=Compound&selected=2&name=My%20Color%20Theme&mode=rgb&rgbvalues=0.8,0.45447071791330684,0.0492470658486381,0.6,0.48565251609233034,0.35155011888407856,1,0.38788247963505984,0.1859168648067976,0.032214647846435907,1,0.49817215111433544,0.06427794087460957,0.8,0.2102812121762626&swatchOrder=0,1,2,3,4 */
+
+:root {
+    --colorRed: red;
+    --colorViolet: violet;
+    --colorGreen: green;
+    --colorWhite: white;
+    --colorBlack: black;
+    --colorYellow: yellow;
+    --colorBlue: blue;
+    --colorOrange: orange;
+    --color-222: #222;
+    --color-f0f: #f0f;
+    --color-ffa50054: #ffa50054;
+    --color-333: #333;
+    --color-777: #777;
+    --color-987c5a: #987c5a;
+    --color-f88: #f88;
+    --color-4293d1: #4293d1;
+    --color-afd4f1: #afd4f1;
+
+    /* https://dequeuniversity.com/rules/axe/3.2/color-contrast */
+    /* For header */
+    --color-997c5a: #997c5a;
+    --color-8D7153: #8D7153;
+
+    --color-ccc: #ccc;
+    --color-013cff: #013cff;
+    --color-fffaf0: #fffaf0;
+    --color-c200ff: #c200ff;
+    --color-ff632f: #ff632f;
+    --color-10cc36: #10cc36;
+    --color-10cc36: #10cc36;
+    --color-eeeeee03: #eeeeee03;
+    --color-ff732d: #ff732d;
+    --color-36a0ff: #36a0ff;
+
+    --header-BackgroundColor: var(--color-8D7153);
+    --on-device-Background: #B85900;
+
+    --html-BackgroundColor: rgb(100, 100, 190);
+    --html-Color: var(--colorBlack);
+
+    --Meditor-BackgroundColor: var(--colorWhite);
+
+    --color-aedaff: #aedaff;
+    --color-d1e8fb: #d1e8fb;
+
+    --p-spoken-Background: var(--color-aedaff);
+    --p-spoken-Color: black;
+    --p-unspoken-Background: var(--color-d1e8fb);
+    --p-unspoken-Color: black;
+
+    --color-a3a3d3d1: #a3a3d3d1;
+    --p-unspoken-Background: var(--color-a3a3d3d1);
+
+    --outline-spoken-color: maroon;
+
+    --edit-control-Background: #ddd;
+    --popup-bg-Backround: white;
+
+    --videos-list-item-Background: #efefef;
+    --videos-list-item-Color: black;
+
+    --popup-button-Background: #ddd;
+    --popup-button-Color: black;
+    --popup-button-Border: #eee;
+
+    --any-link-color: blue;
+
+    --color-mt-keydef-Background: #e1e3be;
+
+        /* Kimbie Dark */
+        --color-f06431: #f06431;
+        --color-f79a32: #f79a32;
+        --color-889b4a: #889b4a;
+        --color-98676a: #98676a;
+        --color-dc3958: #dc3958;
+        --color-8ab1b0: #8ab1b0;
+        --color-7e602c: #7e602c;
+        --color-84613d: #84613d;
+        --color-d3af86: #d3af86;
+
+}
+
+html {
+    background-color: var(--html-BackgroundColor);
+    color: var(--html-Color);
+}
+html.theme-dark {
+    --html-BackgroundColor: #000042;
+    --html-BackgroundColor: #050019;
+    --html-BackgroundColor: #261f17;
+    --html-Color: rgb(115, 168, 218);
+    --any-link-color: var(--color-f79a32);
+    --any-visited-link-color: var(--color-f06431);
+}
+html.theme-dark body {
+    --popup-bg-Backround: #557944;
+    --popup-bg-Backround: #39721e;
+    --popup-bg-Backround: #1d380f;
+    --videos-list-item-Background: black; 
+    --videos-list-item-Color: var(--color-8ab1b0);
+
+    --popup-button-Background: #4d310e;
+    --popup-button-Color: orange;
+    --popup-button-Border: #412a0c;
+
+}
+html.theme-dark a { color: var(--any-link-color); }
+html.theme-dark a:visited { color: var(--any-visited-link-color); }
+
+html.view-mode {
+    --html-BackgroundColor: #261f17;
+}
+html:not(.view-mode).theme-dark {
+
+    --Meditor-BackgroundColor: black;
+    --p-unspoken-Background: #221a0f;
+    --p-spoken-Background: #221a0f;
+    --p-spoken-Color: var(--color-f06431);
+    --p-unspoken-Color: white;
+    --p-unspoken-Color: var(--color-d3af86);
+    --p-unspoken-Color: var(--color-f06431);
+    --outline-spoken-color: yellowgreen;
+    --edit-control-Background: #bfad99;
+
+}
+
+/*
+*/
