@@ -216,7 +216,7 @@ thePromiseDOMready.then(() => {
                 return;
             }
             const metaThemeColor = document.querySelector("meta[name=theme-color]");
-            const q = await import("/js/external/qrjs2.mjs");
+            const q = await import("qrjs2");
             const QRCode = q.default;
             const color = metaThemeColor.getAttribute("content");
             let s = QRCode.generateSVG(location.href,
