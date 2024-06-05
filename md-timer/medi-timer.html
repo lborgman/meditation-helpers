@@ -21,7 +21,8 @@
   <script src="../make-abs.js"></script>
   <script>
     insertHereImportmap({
-      "util-mdc": "./src/js/mod/util-mdc.js",
+      "util-mdc": "../src/js/mod/util-mdc.js",
+      "qr-url": "../src/js/mod/qr-url.js",
       "qrjs2": "../ext/qr/qrjs2.js",
     });
   </script>
@@ -49,9 +50,14 @@
   <link rel="stylesheet" href="css/fontawesome/css/solid.css">
   <link rel="stylesheet" href="css/fontawesome/css/brands.css">
 
-  <!-- <script src="js/promise-dom.js"></script> -->
-  <!-- <script src="js/popup.js"></script> -->
   <script src="../src/js/error.js"></script>
+
+  <!-- Required styles for Material Web -->
+  <!-- <link rel="stylesheet" href="/ext/mdc/14.0.0/material-components-web.css"> -->
+  <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.css">
+  <script>
+    const mcwPromise = insertHereScript("../ext/mdc/material-components-web.js", "loaded-mcw");
+  </script>
 
   <script src="js/meditimer.js"></script>
 

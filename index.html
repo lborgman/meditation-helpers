@@ -17,6 +17,7 @@
     <script>
         insertHereImportmap({
             "util-mdc": "./src/js/mod/util-mdc.js",
+            "qr-url": "./src/js/mod/qr-url.js",
             "qrjs2": "./ext/qr/qrjs2.js",
         });
     </script>
@@ -223,11 +224,11 @@
             await mcwPromise;
             console.log("after mcwPromise", mcwPromise);
 
-            // const modMdc = await importModule("./src/js/mod/util-mdc.js");
             const modMdc = await import("util-mdc");
+            /*
+            const modMdc = await importModule("./src/js/mod/util-mdc.js");
             if (!modMdc) throw Error("could not import modMdc");
 
-            // const modQR = await importModule("./ext/qr/qrjs2.js");
             const modQR = await import("qrjs2");
             if (!modQR) throw Error("could not import modQR");
 
@@ -244,15 +245,9 @@
             const dataUriSvgImage = mkElt("img");
             dataUriSvgImage.src = s;
 
-            async function popupShare() {
+            async function OLDpopupShare() {
                 // const modMdc = await importModule("./src/js/mod/util-mdc.js");
                 const modMdc = await import("util-mdc");
-                /*
-                const btnCopy = modMdc.mkMDCbutton("Copy", "raised");
-                btnCopy.addEventListener("click", evt => {
-                    copyToClipboardAndNotify(spanLoc, spanLoc.innerText);
-                });
-                */
                 const spanLoc = mkElt("span", undefined,
                     mkElt("a", { "href": urlHref, "target": "_blank", "rel": "noreferrer" }, urlHref));
                 spanLoc.style = `
@@ -274,9 +269,11 @@
 
                 modMdc.mkMDCdialogAlert(body, "Close");
             }
+            */
             const btnShare = modMdc.mkMDCbutton("Share", "raised");
-            btnShare.addEventListener("click", evt => {
-                popupShare();
+            btnShare.addEventListener("click", async evt => {
+                const modQrUrl = await import("qr-url");
+                modQrUrl.popupShare();
             });
             if (!currScript) throw Error("currScript was undefined");
             currScript.insertAdjacentElement("afterend", btnShare);

@@ -210,6 +210,9 @@ thePromiseDOMready.then(() => {
         let footerQR = document.getElementById("footer-qr");
         let popQR;
         footerQR.addEventListener("click", async evt => {
+            const modQrUrl = await import("qr-url");
+            modQrUrl.popupShare(undefined, undefined, 10000);
+            return;
             if (popQR) {
                 popQR.close();
                 popQR = undefined;

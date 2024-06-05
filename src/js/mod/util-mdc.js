@@ -976,11 +976,11 @@ export async function mkMDCdialogGetValue(body, funValue, titleOk) {
 export function mkMDCdialogAlertWait(body, titleClose) {
     return mkMDCdialogConfirm(body, titleClose, undefined, true);
 }
-export function mkMDCdialogAlert(body, titleClose) {
+export function mkMDCdialogAlert(body, titleClose, zIndex) {
     titleClose = titleClose || "Ok";
     const btnClose = mkMDCdialogButton(titleClose, "close", true);
     const eltActions = mkMDCdialogActions([btnClose]);
-    return mkMDCdialog(body, eltActions);
+    return mkMDCdialog(body, eltActions, undefined, zIndex);
 }
 
 /*
@@ -1009,7 +1009,7 @@ export function mkMDCdialogAlert(body, titleClose) {
 
 // FIXME: problem on MCT page
 // https://github.com/material-components/material-components-web/issues/6698
-export async function mkMDCdialog(body, eltActions, fullScreen) {
+export async function mkMDCdialog(body, eltActions, fullScreen, zIndex) {
     const eltSurface = mkElt("div", {
         class: "mdc-dialog__surface",
         role: "alertdialog",
@@ -1049,6 +1049,7 @@ export async function mkMDCdialog(body, eltActions, fullScreen) {
         mkElt("div", { class: "mdc-dialog__scrim" }),
     ]);
     if (fullScreen) dom.classList.add("mdc-dialog--fullscreen");
+    if (zIndex) dom.style.zIndex = zIndex;
     document.body.appendChild(dom);
     dom.addEventListener("MDCDialog:closed", evt => { dom.remove(); });
     const ret = { dom };
