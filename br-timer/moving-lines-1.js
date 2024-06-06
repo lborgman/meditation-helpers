@@ -1762,7 +1762,7 @@ async function setupControls(controlscontainer) {
 
         const srcAudio = makeAbsLink("sound/inhale-cb.ogg");
         const eltAudioSource = TSmkElt("source", {
-            type: "audio",
+            type: "audio/ogg",
             // src: "https://dictionary.cambridge.org/media/english/uk_pron_ogg/u/uki/uking/ukingra011.ogg"
             // src: "../sound/inhale-cb.ogg"
             src: srcAudio
