@@ -1759,6 +1759,25 @@ async function setupControls(controlscontainer) {
                     flex-direction: column;
                     gap: 40px;
                 `;
+
+        const srcAudio = makeAbsLink("sound/inhale-cb.ogg");
+        const eltAudioSource = TSmkElt("source", {
+            type: "audio",
+            // src: "https://dictionary.cambridge.org/media/english/uk_pron_ogg/u/uki/uking/ukingra011.ogg"
+            // src: "../sound/inhale-cb.ogg"
+            src: srcAudio
+        });
+        const eltAudio = TSmkElt("audio", { controls: "" }, [
+            eltAudioSource
+        ]);
+        const divTestAudio = TSmkElt("p", undefined, [
+            TSmkElt("h3", undefined, "Test audio"),
+            eltAudio
+        ]);
+        divTestAudio.style.background = "red";
+
+        divDebugDetails.appendChild(divTestAudio);
+
         const bdy = TSmkElt("div", { class: "colored-dialog" }, [
             TSmkElt("h2", undefined, "Play settings"),
             divColumn,

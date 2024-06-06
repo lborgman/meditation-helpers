@@ -1,10 +1,13 @@
+// @ts-check
+console.log("here is make-abs.js");
+
 /*
     Helper functions for developing locally and serving from GitHub.
     Should somehow be included early on every .html page.
 */
 
 function makeAbsLink(relLink) {
-    const urlLink = new URL(relLink, location);
+    const urlLink = new URL(relLink, location.href);
     const absLink = urlLink.href;
     console.log("makeAbsScriptLink:", absLink);
     return absLink;
@@ -30,6 +33,7 @@ function insertHereImportmap(objRelMap) {
 
 function insertHereElement(tagName) {
     const elt = document.createElement(tagName.toLowerCase());
+    if (!document.currentScript) throw Error("document.currentScript is null");
     document.currentScript.insertAdjacentElement("afterend", elt);
     return elt;
 }
