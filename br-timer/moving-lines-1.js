@@ -1765,10 +1765,36 @@ async function setupControls(controlscontainer) {
                 synth.triggerRelease(["D4", "F4", "A4", "C5", "E5"], now + 4);
                 console.log("done example Instruments");
             });
+            const btnTransport = TSmkElt("button", undefined, "Transport");
+            btnTransport.addEventListener("click", evt => {
+                // create two monophonic synths
+                // @ts-ignore Tone
+                const synthA = new Tone.FMSynth().toDestination();
+                // @ts-ignore Tone
+                const synthB = new Tone.AMSynth().toDestination();
+                //play a note every quarter-note
+                // @ts-ignore Tone
+                const loopA = new Tone.Loop((time) => {
+                    synthA.triggerAttackRelease("C2", "8n", time);
+                }, "4n").start(0);
+                //play another note every off quarter-note, by starting it "8n"
+                // @ts-ignore Tone
+                const loopB = new Tone.Loop((time) => {
+                    synthB.triggerAttackRelease("C4", "8n", time);
+                }, "4n").start("8n");
+                // all loops start when the Transport is started
+                // @ts-ignore Tone
+                Tone.getTransport().start();
+                // ramp up to 800 bpm over 10 seconds
+                // @ts-ignore Tone
+                Tone.getTransport().bpm.rampTo(800, 10);
+                console.log("done example Transport");
+            });
             const body = TSmkElt("div", undefined, [
                 aExamples,
                 btnSynth,
                 btnInstruments,
+                btnTransport,
             ]);
             // @ts-ignore style
             body.style = `
