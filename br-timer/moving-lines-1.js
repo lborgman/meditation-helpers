@@ -1511,7 +1511,6 @@ async function setupControls(controlscontainer) {
     settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
     settingNumPatts = new ourLocalSetting("num-patts", 1.5);
     const modMdc = await TSDEFimport("util-mdc");
-    // const modMdc = await import("http://localhost:8080/public/src/js/mod/util-mdc.js");
     const iconStart = modMdc.mkMDCicon("play_arrow");
     const btnStart = modMdc.mkMDCiconButton(iconStart, "Start");
     // btnStart.classList.add("icon-button-30");
@@ -1730,6 +1729,44 @@ async function setupControls(controlscontainer) {
         }));
         const divClearData = TSmkElt("p", undefined, btnClearData);
 
+        const btnTone = TSmkElt("button", undefined, "Tone");
+        btnTone.addEventListener("click", async evt => {
+            const linkSound = makeAbsLink("../src/js/mod/gen-sounds.js");
+            const modSound = await import(linkSound);
+            // FIX-ME: modSound is useless yet, but Tone is defined as window.Tone
+
+            // Use the Tone examples:
+            const linkExamples = "https://tonejs.github.io/";
+            const aExamples = TSmkElt("a", { href: linkExamples }, linkExamples);
+            const btnSynth = TSmkElt("button", undefined, "Synth");
+            btnSynth.addEventListener("click", evt => {
+                // @ts-ignore Tone
+                const synth = new Tone.Synth().toDestination();
+                // @ts-ignore Tone
+                const now = Tone.now();
+                // trigger the attack immediately
+                synth.triggerAttack("C4", now);
+                // wait one second before triggering the release
+                synth.triggerRelease(now + 1);
+                console.log("done example Synth");
+            });
+            const body = TSmkElt("div", undefined, [
+                aExamples,
+                btnSynth,
+            ]);
+            // @ts-ignore style
+            body.style = `
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            `;
+            const modMdc = await import("util-mdc");
+            modMdc.mkMDCdialogAlert(body, "Close");
+        })
+        const divTone = TSmkElt("p", undefined, [
+            btnTone,
+        ]);
+
         const divDebug = TSmkElt("div", undefined, [
             TSmkElt("h3", undefined, "Debug"),
             divMinOrSec,
@@ -1772,7 +1809,8 @@ async function setupControls(controlscontainer) {
         ]);
         const divTestAudio = TSmkElt("p", undefined, [
             TSmkElt("h3", undefined, "Test audio"),
-            eltAudio
+            eltAudio,
+            divTone,
         ]);
         divTestAudio.style.background = "red";
 
