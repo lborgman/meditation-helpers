@@ -1790,11 +1790,24 @@ async function setupControls(controlscontainer) {
                 Tone.getTransport().bpm.rampTo(800, 10);
                 console.log("done example Transport");
             });
+            const btnSignals = TSmkElt("button", undefined, "Signals");
+            btnSignals.addEventListener("click", evt => {
+                // @ts-ignore Tone
+                const osc = new Tone.Oscillator().toDestination();
+                // start at "C4"
+                osc.frequency.value = "C4";
+                // ramp to "C2" over 2 seconds
+                osc.frequency.rampTo("C2", 2);
+                // start the oscillator for 2 seconds
+                osc.start().stop("+3");
+                console.log("done example Signals");
+            });
             const body = TSmkElt("div", undefined, [
                 aExamples,
                 btnSynth,
                 btnInstruments,
                 btnTransport,
+                btnSignals,
             ]);
             // @ts-ignore style
             body.style = `
