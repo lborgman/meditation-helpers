@@ -1731,6 +1731,7 @@ async function setupControls(controlscontainer) {
 
         const btnTone = TSmkElt("button", undefined, "Tone");
         btnTone.addEventListener("click", async evt => {
+            // @ts-ignore
             const linkSound = makeAbsLink("../src/js/mod/gen-sounds.js");
             const modSound = await import(linkSound);
             // FIX-ME: modSound is useless yet, but Tone is defined as window.Tone
@@ -1750,9 +1751,23 @@ async function setupControls(controlscontainer) {
                 synth.triggerRelease(now + 1);
                 console.log("done example Synth");
             });
+            const btnInstruments = TSmkElt("button", undefined, "Instruments");
+            btnInstruments.addEventListener("click", evt => {
+                // @ts-ignore Tone
+                const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                // @ts-ignore Tone
+                const now = Tone.now();
+                synth.triggerAttack("D4", now);
+                synth.triggerAttack("F4", now + 0.5);
+                synth.triggerAttack("A4", now + 1);
+                synth.triggerAttack("C5", now + 1.5);
+                synth.triggerAttack("E5", now + 2);
+                synth.triggerRelease(["D4", "F4", "A4", "C5", "E5"], now + 4);
+            });
             const body = TSmkElt("div", undefined, [
                 aExamples,
                 btnSynth,
+                btnInstruments,
             ]);
             // @ts-ignore style
             body.style = `
@@ -1760,6 +1775,7 @@ async function setupControls(controlscontainer) {
                 flex-direction: column;
                 gap: 10px;
             `;
+            // @ts-ignore
             const modMdc = await import("util-mdc");
             modMdc.mkMDCdialogAlert(body, "Close");
         })
@@ -1797,6 +1813,7 @@ async function setupControls(controlscontainer) {
                     gap: 40px;
                 `;
 
+        // @ts-ignore
         const srcAudio = makeAbsLink("sound/inhale-cb.ogg");
         const eltAudioSource = TSmkElt("source", {
             type: "audio/ogg",
