@@ -1811,18 +1811,29 @@ async function setupControls(controlscontainer) {
 
             const ctxAudio = new AudioContext();
 
-            let oscWA1;
+            const oscWA1 = [];
             const btnWA1 = TSmkElt("button", undefined, "WA1");
             btnWA1.addEventListener("click", evt => {
-                if (oscWA1) {
-                    oscWA1.stop();
-                    oscWA1 = undefined;
+                if (oscWA1.length > 0) {
+                    oscWA1.forEach(osc => { osc.stop(); });
+                    oscWA1.length = 0;
+                    // @ts-ignore style
                     btnWA1.style.backgroundColor = null;
                 } else {
-                    oscWA1 = ctxAudio.createOscillator();
-                    oscWA1.frequency.value = 440;
-                    oscWA1.connect(ctxAudio.destination);
-                    oscWA1.start();
+                    /**
+                     * 
+                     * @param {number} freq 
+                     */
+                    const mkOsc = (freq) => {
+                        const osc = ctxAudio.createOscillator();
+                        osc.frequency.value = freq;
+                        osc.connect(ctxAudio.destination);
+                        osc.start();
+                        oscWA1.push(osc);
+                    }
+                    const baseFreq = 440;
+                    mkOsc(baseFreq);
+                    mkOsc(baseFreq * 2);
                     btnWA1.style.backgroundColor = "red";
                 }
                 console.log("done WA1", oscWA1);
