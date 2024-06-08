@@ -115,7 +115,10 @@ function seconds2pattX(seconds) {
 }
 
 
+
 const STORING_PREFIX = "MOVLIN-";
+const ctxAudio = new AudioContext();
+
 
 // if (location.href != "http://localhost:8080/temptest/test-moving-lines.html") throw Error("run http-server . in firebase-r10m1h");
 // if (location.href != "http://localhost:8080/br-timer/moving-lines.html") throw Error("run http-server . in firebase-r10m1h");
@@ -1810,24 +1813,21 @@ async function setupControls(controlscontainer) {
             // https://music.arts.uci.edu/dobrian/webaudio/tutorials/
             // https://stackoverflow.com/questions/33006650/web-audio-api-and-real-current-time-when-playing-an-audio-file
 
-            const ctxAudio = new AudioContext();
+            // const ctxAudio = new AudioContext();
 
-            const settingFreqInit = new ourLocalSetting("test-freqInit", 100);
+            const settingFreqInit = new ourLocalSetting("test-freqInit", 110);
             const inpFreqInit = TSmkElt("input", { type: "number" });
             settingFreqInit.bindToInput(inpFreqInit);
-            // inpFreqInit.value = 100;
             const lblFreqInit = TSmkElt("label", undefined, ["freqInit:", inpFreqInit]);
 
-            const settingFreqGoal = new ourLocalSetting("test-freqGoal", 200);
-            const inpFreqGoal = TSmkElt("input", { type: "number" });
-            settingFreqGoal.bindToInput(inpFreqGoal);
-            // inpFreqGoal.value = 200;
-            const lblFreqGoal = TSmkElt("label", undefined, ["freqGoal:", inpFreqGoal]);
+            const settingToneSteps = new ourLocalSetting("test-tone-steps", 3);
+            const inpToneSteps = TSmkElt("input", { type: "number" });
+            settingToneSteps.bindToInput(inpToneSteps);
+            const lblFreqGoal = TSmkElt("label", undefined, ["toneSteps:", inpToneSteps]);
 
-            const settingDuration = new ourLocalSetting("test-sound-duration", 2.0);
+            const settingDuration = new ourLocalSetting("test-sound-duration", 2.1);
             const inpDuration = TSmkElt("input", { type: "number" });
             settingDuration.bindToInput(inpDuration);
-            // inpDuration.value = 200;
             const lblDuration = TSmkElt("label", undefined, ["duration:", inpDuration]);
 
             const oscWA1 = [];
@@ -1849,29 +1849,31 @@ async function setupControls(controlscontainer) {
                      * 
                      * @param {number} freqInit 
                      * @param {number} freqGoal 
-                     * @param {number} secFreqGoal 
+                     * @param {number} secToGoal 
                      * @param {number} gain 
                      */
-                    const mkOsc = (freqInit, freqGoal, secFreqGoal, gain) => {
+                    const mkAudioOsc = (freqInit, freqGoal, secToGoal, gain) => {
                         // https://music.arts.uci.edu/dobrian/webaudio/tutorials/WebAudioAPI/simpleoscillator.html
                         const osc = ctxAudio.createOscillator();
-                        // FIX-ME: startTime
-                        const startTime = ctxAudio.currentTime;
+                        const startTime = ctxAudio.currentTime; // FIX-ME: startTime
                         osc.frequency.setValueAtTime(freqInit, startTime)
-                        osc.frequency.linearRampToValueAtTime(freqGoal, startTime + secFreqGoal);
+                        osc.frequency.linearRampToValueAtTime(freqGoal, startTime + secToGoal);
                         const amp = ctxAudio.createGain();
                         amp.gain.setValueAtTime(gain, startTime);
                         // osc.connect(ctxAudio.destination);
                         osc.connect(amp);
                         amp.connect(ctxAudio.destination);
-                        oscWA1.push(osc);
-                        setTimeout(stop, secFreqGoal * 1000);
+                        // oscWA1.push(osc);
+                        setTimeout(stop, secToGoal * 1000);
+                        return osc;
                     }
                     const baseFreq = settingFreqInit.value;
-                    const goalFreq = settingFreqGoal.value;
+                    const toneSteps = settingToneSteps.value;
                     const duration = settingDuration.value;
-                    mkOsc(baseFreq, goalFreq, duration, 1);
-                    mkOsc(baseFreq * 2, goalFreq * 2, duration, 1 / 4);
+                    const goalFreq = baseFreq * Math.pow(2, toneSteps / 12);
+
+                    oscWA1.push(mkAudioOsc(baseFreq, goalFreq, duration, 1));
+                    oscWA1.push(mkAudioOsc(baseFreq * 2, goalFreq * 2, duration, 1 / 4));
                     oscWA1.forEach(osc => { osc.start(); });
                     btnWA1.style.backgroundColor = "red";
                 }
@@ -1889,6 +1891,8 @@ async function setupControls(controlscontainer) {
             divWA.style = `
                 padding: 10px;
                 background: yellow;
+                display: flex;
+                flex-direction: column;
             `;
             const body = TSmkElt("div", undefined, [
                 aExamples,
