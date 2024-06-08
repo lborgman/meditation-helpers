@@ -1842,7 +1842,7 @@ async function setupControls(controlscontainer) {
                         amp.connect(ctxAudio.destination);
                         oscWA1.push(osc);
                     }
-                    const baseFreq = 440;
+                    const baseFreq = 200;
                     const goalFreq = baseFreq * 1.5;
                     mkOsc(baseFreq, goalFreq, 1, 1);
                     mkOsc(baseFreq * 2, goalFreq * 2, 1, 1 / 4);
