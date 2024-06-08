@@ -3,18 +3,17 @@ export { }
 
 console.log("This is gen-sounds.js");
 
-// Note: modTone is empty
-
-// const modTone = await import("https://cdn.jsdelivr.net/npm/tone@latest/build/Tone.js");
-
-const linkJsdelivr = "https://cdn.jsdelivr.net/npm/tone@latest/build/Tone.js";
+// @ts-ignore import
+// await import("tone-test0");
+// const linkJsdelivr = "https://cdn.jsdelivr.net/npm/tone@latest/build/Tone.js";
 // await import(linkJsdelivr);
 
-// const modTone = await import("tone-test0");
-// @ts-ignore import
-await import("tone-test0");
-
-// @ts-ignore tonejs
-await Tone.start();
+async function loadTone() {
+    // @ts-ignore import
+    await import("https://cdn.jsdelivr.net/npm/tone@latest/build/Tone.js");
+    // @ts-ignore tonejs
+    await Tone.start();
+}
+await loadTone();
 
 // debugger;

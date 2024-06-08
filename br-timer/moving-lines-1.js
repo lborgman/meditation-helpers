@@ -1729,7 +1729,7 @@ async function setupControls(controlscontainer) {
         }));
         const divClearData = TSmkElt("p", undefined, btnClearData);
 
-        const btnTone = TSmkElt("button", undefined, "Tone");
+        const btnTone = TSmkElt("button", undefined, "Generate sounds");
         btnTone.addEventListener("click", async evt => {
             // @ts-ignore
             const linkSound = makeAbsLink("../src/js/mod/gen-sounds.js");
@@ -1802,12 +1802,41 @@ async function setupControls(controlscontainer) {
                 osc.start().stop("+3");
                 console.log("done example Signals");
             });
+
+
+
+            // https://api.pageplace.de/preview/DT0400.9781000569933_A42679351/preview-9781000569933_A42679351.pdf
+            // https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API
+            // https://music.arts.uci.edu/dobrian/webaudio/tutorials/
+
+            const ctxAudio = new AudioContext();
+
+            let oscWA1;
+            const btnWA1 = TSmkElt("button", undefined, "WA1");
+            btnWA1.addEventListener("click", evt => {
+                if (oscWA1) {
+                    oscWA1.stop();
+                    oscWA1 = undefined;
+                    btnWA1.style.backgroundColor = null;
+                } else {
+                    oscWA1 = ctxAudio.createOscillator();
+                    oscWA1.frequency.value = 440;
+                    oscWA1.connect(ctxAudio.destination);
+                    oscWA1.start();
+                    btnWA1.style.backgroundColor = "red";
+                }
+                console.log("done WA1", oscWA1);
+            });
+
+
+
             const body = TSmkElt("div", undefined, [
                 aExamples,
                 btnSynth,
                 btnInstruments,
                 btnTransport,
                 btnSignals,
+                btnWA1,
             ]);
             // @ts-ignore style
             body.style = `
