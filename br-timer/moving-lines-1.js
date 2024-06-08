@@ -1815,12 +1815,18 @@ async function setupControls(controlscontainer) {
             const oscWA1 = [];
             const btnWA1 = TSmkElt("button", undefined, "WA1");
             btnWA1.addEventListener("click", evt => {
-                if (oscWA1.length > 0) {
+                function stop() {
                     oscWA1.forEach(osc => { osc.stop(); });
                     oscWA1.length = 0;
                     // @ts-ignore style
                     btnWA1.style.backgroundColor = null;
+                }
+                if (oscWA1.length > 0) {
+                    stop();
                 } else {
+                    start();
+                }
+                function start() {
                     /**
                      * 
                      * @param {number} freqInit 
@@ -1841,6 +1847,7 @@ async function setupControls(controlscontainer) {
                         osc.connect(amp);
                         amp.connect(ctxAudio.destination);
                         oscWA1.push(osc);
+                        setTimeout(stop, secFreqGoal * 1000);
                     }
                     const baseFreq = 200;
                     const goalFreq = baseFreq * 1.5;
