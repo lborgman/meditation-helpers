@@ -1812,6 +1812,24 @@ async function setupControls(controlscontainer) {
 
             const ctxAudio = new AudioContext();
 
+            const settingFreqInit = new ourLocalSetting("test-freqInit", 100);
+            const inpFreqInit = TSmkElt("input", { type: "number" });
+            settingFreqInit.bindToInput(inpFreqInit);
+            // inpFreqInit.value = 100;
+            const lblFreqInit = TSmkElt("label", undefined, ["freqInit:", inpFreqInit]);
+
+            const settingFreqGoal = new ourLocalSetting("test-freqGoal", 200);
+            const inpFreqGoal = TSmkElt("input", { type: "number" });
+            settingFreqGoal.bindToInput(inpFreqGoal);
+            // inpFreqGoal.value = 200;
+            const lblFreqGoal = TSmkElt("label", undefined, ["freqGoal:", inpFreqGoal]);
+
+            const settingDuration = new ourLocalSetting("test-sound-duration", 2.0);
+            const inpDuration = TSmkElt("input", { type: "number" });
+            settingDuration.bindToInput(inpDuration);
+            // inpDuration.value = 200;
+            const lblDuration = TSmkElt("label", undefined, ["duration:", inpDuration]);
+
             const oscWA1 = [];
             const btnWA1 = TSmkElt("button", undefined, "WA1");
             btnWA1.addEventListener("click", evt => {
@@ -1849,9 +1867,9 @@ async function setupControls(controlscontainer) {
                         oscWA1.push(osc);
                         setTimeout(stop, secFreqGoal * 1000);
                     }
-                    const baseFreq = 200;
-                    const goalFreq = baseFreq * 1.5;
-                    const duration = 2.0;
+                    const baseFreq = settingFreqInit.value;
+                    const goalFreq = settingFreqGoal.value;
+                    const duration = settingDuration.value;
                     mkOsc(baseFreq, goalFreq, duration, 1);
                     mkOsc(baseFreq * 2, goalFreq * 2, duration, 1 / 4);
                     oscWA1.forEach(osc => { osc.start(); });
@@ -1862,13 +1880,23 @@ async function setupControls(controlscontainer) {
 
 
 
+            const divWA = TSmkElt("div", undefined, [
+                lblFreqInit,
+                lblFreqGoal,
+                lblDuration,
+                btnWA1,
+            ]);
+            divWA.style = `
+                padding: 10px;
+                background: yellow;
+            `;
             const body = TSmkElt("div", undefined, [
                 aExamples,
                 btnSynth,
                 btnInstruments,
                 btnTransport,
                 btnSignals,
-                btnWA1,
+                divWA,
             ]);
             // @ts-ignore style
             body.style = `
