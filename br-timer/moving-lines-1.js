@@ -1824,16 +1824,20 @@ async function setupControls(controlscontainer) {
                      * 
                      * @param {number} freq 
                      */
-                    const mkOsc = (freq) => {
+                    const mkOsc = (freq, gain) => {
                         const osc = ctxAudio.createOscillator();
                         osc.frequency.value = freq;
-                        osc.connect(ctxAudio.destination);
+                        const amp = ctxAudio.createGain();
+                        amp.gain.setValueAtTime(gain, ctxAudio.currentTime);
+                        // osc.connect(ctxAudio.destination);
+                        osc.connect(amp);
+                        amp.connect(ctxAudio.destination);
                         osc.start();
                         oscWA1.push(osc);
                     }
                     const baseFreq = 440;
-                    mkOsc(baseFreq);
-                    mkOsc(baseFreq * 2);
+                    mkOsc(baseFreq, 1);
+                    mkOsc(baseFreq * 2, 1 / 4);
                     btnWA1.style.backgroundColor = "red";
                 }
                 console.log("done WA1", oscWA1);
