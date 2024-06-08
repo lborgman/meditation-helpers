@@ -1808,6 +1808,7 @@ async function setupControls(controlscontainer) {
             // https://api.pageplace.de/preview/DT0400.9781000569933_A42679351/preview-9781000569933_A42679351.pdf
             // https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API
             // https://music.arts.uci.edu/dobrian/webaudio/tutorials/
+            // https://stackoverflow.com/questions/33006650/web-audio-api-and-real-current-time-when-playing-an-audio-file
 
             const ctxAudio = new AudioContext();
 
@@ -1822,22 +1823,30 @@ async function setupControls(controlscontainer) {
                 } else {
                     /**
                      * 
-                     * @param {number} freq 
+                     * @param {number} freqInit 
+                     * @param {number} freqGoal 
+                     * @param {number} secFreqGoal 
+                     * @param {number} gain 
                      */
-                    const mkOsc = (freq, gain) => {
+                    const mkOsc = (freqInit, freqGoal, secFreqGoal, gain) => {
+                        // https://music.arts.uci.edu/dobrian/webaudio/tutorials/WebAudioAPI/simpleoscillator.html
                         const osc = ctxAudio.createOscillator();
-                        osc.frequency.value = freq;
+                        // FIX-ME: startTime
+                        const startTime = ctxAudio.currentTime;
+                        osc.frequency.setValueAtTime(freqInit, startTime)
+                        osc.frequency.linearRampToValueAtTime(freqGoal, startTime + secFreqGoal);
                         const amp = ctxAudio.createGain();
-                        amp.gain.setValueAtTime(gain, ctxAudio.currentTime);
+                        amp.gain.setValueAtTime(gain, startTime);
                         // osc.connect(ctxAudio.destination);
                         osc.connect(amp);
                         amp.connect(ctxAudio.destination);
-                        osc.start();
                         oscWA1.push(osc);
                     }
                     const baseFreq = 440;
-                    mkOsc(baseFreq, 1);
-                    mkOsc(baseFreq * 2, 1 / 4);
+                    const goalFreq = baseFreq * 1.5;
+                    mkOsc(baseFreq, goalFreq, 1, 1);
+                    mkOsc(baseFreq * 2, goalFreq * 2, 1, 1 / 4);
+                    oscWA1.forEach(osc => { osc.start(); });
                     btnWA1.style.backgroundColor = "red";
                 }
                 console.log("done WA1", oscWA1);
