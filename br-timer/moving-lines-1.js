@@ -1851,8 +1851,9 @@ async function setupControls(controlscontainer) {
                     }
                     const baseFreq = 200;
                     const goalFreq = baseFreq * 1.5;
-                    mkOsc(baseFreq, goalFreq, 1, 1);
-                    mkOsc(baseFreq * 2, goalFreq * 2, 1, 1 / 4);
+                    const duration = 2.0;
+                    mkOsc(baseFreq, goalFreq, duration, 1);
+                    mkOsc(baseFreq * 2, goalFreq * 2, duration, 1 / 4);
                     oscWA1.forEach(osc => { osc.start(); });
                     btnWA1.style.backgroundColor = "red";
                 }
