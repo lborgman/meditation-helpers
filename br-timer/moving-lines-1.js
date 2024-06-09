@@ -1833,16 +1833,12 @@ async function setupControls(controlscontainer) {
             const oscWA1 = [];
             const btnWA1 = TSmkElt("button", undefined, "WA1");
             btnWA1.addEventListener("click", evt => {
+                if (oscWA1.length > 0) { stop(); } else { start(); }
                 function stop() {
                     oscWA1.forEach(osc => { osc.stop(); });
                     oscWA1.length = 0;
                     // @ts-ignore style
                     btnWA1.style.backgroundColor = null;
-                }
-                if (oscWA1.length > 0) {
-                    stop();
-                } else {
-                    start();
                 }
                 function start() {
                     /**
@@ -1863,7 +1859,6 @@ async function setupControls(controlscontainer) {
                         // osc.connect(ctxAudio.destination);
                         osc.connect(amp);
                         amp.connect(ctxAudio.destination);
-                        // oscWA1.push(osc);
                         setTimeout(stop, secToGoal * 1000);
                         return osc;
                     }
@@ -1888,11 +1883,13 @@ async function setupControls(controlscontainer) {
                 lblDuration,
                 btnWA1,
             ]);
+            // @ts-ignore style
             divWA.style = `
                 padding: 10px;
                 background: yellow;
                 display: flex;
                 flex-direction: column;
+                gap: 10px;
             `;
             const body = TSmkElt("div", undefined, [
                 aExamples,
