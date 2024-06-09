@@ -106,14 +106,24 @@ export async function dialogTestWAsound() {
     // @ts-ignore import
     const modMdc = await import("util-mdc");
 
-    const settingFreqInit = new ourLocalSetting("test-freqInit", 110);
-    const inpFreqInit = TSmkElt("input", { type: "number" });
-    settingFreqInit.bindToInput(inpFreqInit);
-    const lblFreqInit = TSmkElt("label", undefined, ["freqInit:", inpFreqInit]);
+    const settingFreqBase = new ourLocalSetting("test-freqInit", 110);
+    const inpFreqBase = TSmkElt("input", { type: "number" });
+    settingFreqBase.bindToInput(inpFreqBase);
+    const lblFreqBase = TSmkElt("label", undefined, ["freqBase:", inpFreqBase]);
 
-    const settingToneSteps = new ourLocalSetting("test-tone-steps", 3);
+    const settingGainDb2 = new ourLocalSetting("test-tone-steps-2", -13);
+    const inpGainDb2 = TSmkElt("input", { type: "number" });
+    settingGainDb2.bindToInput(inpGainDb2);
+    const lblGainDb2 = TSmkElt("label", undefined, ["gainDb2:", inpGainDb2]);
+
+    const settingToneSteps2 = new ourLocalSetting("test-tone-steps-2", 17);
+    const inpToneSteps2 = TSmkElt("input", { type: "number" });
+    settingToneSteps2.bindToInput(inpToneSteps2);
+    const lblToneSteps2 = TSmkElt("label", undefined, ["toneSteps2:", inpToneSteps2]);
+
+    const settingToneStepsDuration = new ourLocalSetting("test-tone-steps", 3);
     const inpToneSteps = TSmkElt("input", { type: "number" });
-    settingToneSteps.bindToInput(inpToneSteps);
+    settingToneStepsDuration.bindToInput(inpToneSteps);
     const lblFreqGoal = TSmkElt("label", undefined, ["toneSteps:", inpToneSteps]);
 
     const settingDuration = new ourLocalSetting("test-sound-duration", 2.1);
@@ -155,13 +165,17 @@ export async function dialogTestWAsound() {
                 setTimeout(stop, secToGoal * 1000);
                 return osc;
             }
-            const baseFreq = settingFreqInit.value;
-            const toneSteps = settingToneSteps.value;
+            const freqBase = settingFreqBase.value;
+            const toneSteps2 = settingToneSteps2.value;
+            const freq2 = freqBase * Math.pow(2, toneSteps2 / 12);
+            const toneStepsDuration = settingToneStepsDuration.value;
             const duration = settingDuration.value;
-            const goalFreq = baseFreq * Math.pow(2, toneSteps / 12);
+            const freqBaseGoal = freqBase * Math.pow(2, toneStepsDuration / 12);
+            const freq2Goal = freq2 * Math.pow(2, toneStepsDuration / 12);
+            const gain2 = dB2ratio(settingGainDb2.value);
 
-            oscWA1.push(mkAudioOsc(baseFreq, goalFreq, duration, 1));
-            oscWA1.push(mkAudioOsc(baseFreq * 2, goalFreq * 2, duration, 1 / 2));
+            oscWA1.push(mkAudioOsc(freqBase, freqBaseGoal, duration, 1));
+            oscWA1.push(mkAudioOsc(freq2, freq2Goal, duration, gain2));
             oscWA1.forEach(osc => { osc.start(); });
             btnWA1.style.backgroundColor = "red";
         }
@@ -172,9 +186,11 @@ export async function dialogTestWAsound() {
 
     const divWA = TSmkElt("div", undefined, [
         TSmkElt("div", undefined, btnWA1),
-        lblFreqInit,
-        lblFreqGoal,
+        lblFreqBase,
+        lblToneSteps2,
+        lblGainDb2,
         lblDuration,
+        lblFreqGoal,
     ]);
     divWA.id = "div-test-webaudio";
     /*
@@ -208,4 +224,4 @@ export async function dialogTestWAsound() {
  * @param {number} dB 
  * @returns  {number}
  */
-function dB2ratio(dB) { return Math.pow(10, dB/10); }
+function dB2ratio(dB) { return Math.pow(10, dB / 10); }
