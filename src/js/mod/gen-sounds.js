@@ -103,6 +103,8 @@ export async function mkDivToneExamples() {
 const ctxAudio = new AudioContext();
 
 export async function dialogTestWAsound() {
+    // @ts-ignore import
+    const modMdc = await import("util-mdc");
 
     const settingFreqInit = new ourLocalSetting("test-freqInit", 110);
     const inpFreqInit = TSmkElt("input", { type: "number" });
@@ -120,7 +122,9 @@ export async function dialogTestWAsound() {
     const lblDuration = TSmkElt("label", undefined, ["duration:", inpDuration]);
 
     const oscWA1 = [];
-    const btnWA1 = TSmkElt("button", undefined, "WA1");
+    // const btnWA1 = TSmkElt("button", undefined, "Test sound");
+    const btnWA1 = modMdc.mkMDCbutton("Test sound");
+    btnWA1.id = "button-wa1";
     btnWA1.addEventListener("click", evt => {
         if (oscWA1.length > 0) { stop(); } else { start(); }
         function stop() {
@@ -167,11 +171,13 @@ export async function dialogTestWAsound() {
 
 
     const divWA = TSmkElt("div", undefined, [
-        btnWA1,
+        TSmkElt("div", undefined, btnWA1),
         lblFreqInit,
         lblFreqGoal,
         lblDuration,
     ]);
+    divWA.id = "div-test-webaudio";
+    /*
     // @ts-ignore style
     divWA.style = `
                 padding: 10px;
@@ -180,17 +186,26 @@ export async function dialogTestWAsound() {
                 flex-direction: column;
                 gap: 10px;
             `;
+    */
+
     const body = TSmkElt("div", undefined, [
         divWA,
     ]);
+    /*
     // @ts-ignore style
     body.style = `
                 display: flex;
                 flex-direction: column;
                 gap: 10px;
             `;
-    // @ts-ignore
-    const modMdc = await import("util-mdc");
+    */
     modMdc.mkMDCdialogAlert(body, "Close");
 
 }
+
+/**
+ * 
+ * @param {number} dB 
+ * @returns  {number}
+ */
+function dB2ratio(dB) { return Math.pow(10, dB/10); }
