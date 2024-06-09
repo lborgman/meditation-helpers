@@ -1732,16 +1732,13 @@ async function setupControls(controlscontainer) {
         }));
         const divClearData = TSmkElt("p", undefined, btnClearData);
 
-        const btnTone = TSmkElt("button", undefined, "Generate sounds");
-        btnTone.addEventListener("click", async evt => {
-            // @ts-ignore
-            const linkSound = makeAbsLink("../src/js/mod/gen-sounds.js");
-            const modSound = await import(linkSound);
-            modSound.dialogTestWAsound();
+        const btnTestSounds = TSmkElt("button", undefined, "Test sounds");
+        btnTestSounds.addEventListener("click", async evt => {
+            dialogTestSounds();
         });
 
-        const divTone = TSmkElt("p", undefined, [
-            btnTone,
+        const divTestSounds = TSmkElt("p", undefined, [
+            btnTestSounds,
         ]);
 
         const divDebug = TSmkElt("div", undefined, [
@@ -1788,7 +1785,7 @@ async function setupControls(controlscontainer) {
         const divTestAudio = TSmkElt("p", undefined, [
             TSmkElt("h3", undefined, "Test audio"),
             eltAudio,
-            divTone,
+            divTestSounds,
         ]);
         divTestAudio.style.background = "red";
 
@@ -1968,6 +1965,7 @@ async function setupThings() {
     setupCanvas(sectionContainer);
     await setupControls(sectionContainer);
     addInfoButton(sectionContainer);
+    addTestSoundButton(sectionContainer);
     setCanvasSizes();
     const afterResize = () => {
         setCanvasSizes();
@@ -1989,7 +1987,7 @@ async function addInfoButton(container) {
     const urlAbout = new URL("../index.html", location.href);
     aInfo.href = urlAbout.href;
     // const btnInfo = modMdc.mkMDCiconButton(iconInfo, "About");
-    const btnInfo = modMdc.mkMDCiconButton(aInfo, "About Link 2");
+    const btnInfo = modMdc.mkMDCiconButton(aInfo, "Info");
     // @ts-ignore style
     btnInfo.style = `
                 position: absolute;
@@ -1998,7 +1996,21 @@ async function addInfoButton(container) {
                 NOfont-size: 2.5rem !important;
             `;
     container.appendChild(btnInfo);
-
+}
+async function addTestSoundButton(container) {
+    const modMdc = await TSDEFimport("util-mdc");
+    const iconSound = modMdc.mkMDCicon("flutter_dash");
+    iconSound.style.fontSize = "2.5rem";
+    iconSound.style.color = "red";
+    const btnTestSound = modMdc.mkMDCiconButton(iconSound, "Test sounds");
+    btnTestSound.addEventListener("click", evt => { dialogTestSounds(); });
+    // @ts-ignore style
+    btnTestSound.style = `
+                position: absolute;
+                top: 50px;
+                right: 5px;
+            `;
+    container.appendChild(btnTestSound);
 }
 
 function debugAndThrow(msg) {
@@ -2006,4 +2018,10 @@ function debugAndThrow(msg) {
     // eslint-disable-next-line no-debugger
     debugger;
     throw Error(msg);
+}
+async function dialogTestSounds() {
+    // @ts-ignore
+    const linkSound = makeAbsLink("../src/js/mod/gen-sounds.js");
+    const modSound = await import(linkSound);
+    modSound.dialogTestWAsound();
 }
