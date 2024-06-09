@@ -90,10 +90,10 @@ export async function mkDivToneExamples() {
     ]);
 }
 
+
+
 ///////////////////////////////////////
 ///////// WebAudio API
-
-
 
 // https://api.pageplace.de/preview/DT0400.9781000569933_A42679351/preview-9781000569933_A42679351.pdf
 // https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API
@@ -157,7 +157,7 @@ export async function dialogTestWAsound() {
             const goalFreq = baseFreq * Math.pow(2, toneSteps / 12);
 
             oscWA1.push(mkAudioOsc(baseFreq, goalFreq, duration, 1));
-            oscWA1.push(mkAudioOsc(baseFreq * 2, goalFreq * 2, duration, 1 / 4));
+            oscWA1.push(mkAudioOsc(baseFreq * 2, goalFreq * 2, duration, 1 / 2));
             oscWA1.forEach(osc => { osc.start(); });
             btnWA1.style.backgroundColor = "red";
         }
@@ -167,10 +167,10 @@ export async function dialogTestWAsound() {
 
 
     const divWA = TSmkElt("div", undefined, [
+        btnWA1,
         lblFreqInit,
         lblFreqGoal,
         lblDuration,
-        btnWA1,
     ]);
     // @ts-ignore style
     divWA.style = `
