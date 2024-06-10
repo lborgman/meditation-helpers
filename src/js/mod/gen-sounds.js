@@ -111,22 +111,22 @@ export async function dialogTestWAsound() {
     settingFreqBase.bindToInput(inpFreqBase);
     const lblFreqBase = TSmkElt("label", undefined, ["freqBase:", inpFreqBase]);
 
-    const settingGainDb2 = new ourLocalSetting("test-tone-steps-2", -13);
+    const settingGainDb2 = new ourLocalSetting("test-gainDb2", -13);
     const inpGainDb2 = TSmkElt("input", { type: "number" });
     settingGainDb2.bindToInput(inpGainDb2);
     const lblGainDb2 = TSmkElt("label", undefined, ["gainDb2:", inpGainDb2]);
 
-    const settingToneSteps2 = new ourLocalSetting("test-tone-steps-2", 17);
+    const settingToneSteps2 = new ourLocalSetting("test-toneSteps2", 17);
     const inpToneSteps2 = TSmkElt("input", { type: "number" });
     settingToneSteps2.bindToInput(inpToneSteps2);
     const lblToneSteps2 = TSmkElt("label", undefined, ["toneSteps2:", inpToneSteps2]);
 
-    const settingToneStepsDuration = new ourLocalSetting("test-tone-steps", 3);
+    const settingToneStepsDuration = new ourLocalSetting("test-toneStepsDuration", 3);
     const inpToneSteps = TSmkElt("input", { type: "number" });
     settingToneStepsDuration.bindToInput(inpToneSteps);
     const lblFreqGoal = TSmkElt("label", undefined, ["toneSteps:", inpToneSteps]);
 
-    const settingDuration = new ourLocalSetting("test-sound-duration", 2.1);
+    const settingDuration = new ourLocalSetting("test-soundDuration", 2.1);
     const inpDuration = TSmkElt("input", { type: "number" });
     settingDuration.bindToInput(inpDuration);
     const lblDuration = TSmkElt("label", undefined, ["duration:", inpDuration]);
