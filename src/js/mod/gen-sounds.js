@@ -127,15 +127,6 @@ export async function dialogTestWAsound() {
     settingFreqBase.bindToInput(inpFreqBase);
     const lblFreqBase = TSmkElt("label", undefined, ["freqBase:", inpFreqBase]);
 
-    const settingGainDb2 = new ourLocalSetting("test-gainDb2", -13);
-    const inpGainDb2 = TSmkElt("input", { type: "number" });
-    settingGainDb2.bindToInput(inpGainDb2);
-    const lblGainDb2 = TSmkElt("label", undefined, ["gainDb2:", inpGainDb2]);
-
-    const settingToneSteps2 = new ourLocalSetting("test-toneSteps2", 17);
-    const inpToneSteps2 = TSmkElt("input", { type: "number" });
-    settingToneSteps2.bindToInput(inpToneSteps2);
-    const lblToneSteps2 = TSmkElt("label", undefined, ["toneSteps2:", inpToneSteps2]);
 
     const settingOvertonesWA1 = new ourLocalSetting("test-overtones-wa1", []);
     const divOverTones = TSmkElt("div");
@@ -145,7 +136,15 @@ export async function dialogTestWAsound() {
         const recs = settingOvertonesWA1.value;
         for (let i = 0, len = recs.length; i < len; i++) {
             const rec = recs[i];
-            const spanOvertone = TSmkElt("span", undefined, `Tone step: ${rec.steps}, dB: ${rec.dB}`);
+            const spanOvertone = TSmkElt("span", undefined, [
+                TSmkElt("span", undefined, `Tone steps: ${rec.diffTones}`),
+                `Diff dB: ${rec.diffDB}`
+            ]);
+            // @ts-ignore style
+            spanOvertone.style = `
+                display: flex;
+                flex-direction: column;
+            `;
             const iRec = i;
             const iconDelete = modMdc.mkMDCicon("delete_forever");
             const btnDelete = modMdc.mkMDCiconButton(iconDelete);
@@ -157,6 +156,13 @@ export async function dialogTestWAsound() {
             const divOverTone = TSmkElt("div", undefined, [
                 spanOvertone, btnDelete
             ]);
+            divOverTone.classList.add("mdc-card");
+            divOverTone.style = `
+                display: grid;
+                grid-template-columns: 1fr 50px;
+                padding: 10px;
+                width: 100%;
+            `
             divOverTones.appendChild(divOverTone);
         }
     }
@@ -186,8 +192,11 @@ export async function dialogTestWAsound() {
         function startOscWA1() {
             const arrTemplates = [];
             arrTemplates.push(mkOscWAtemplate(settingFreqBase.value, 1));
-            startOscillators(oscWA1, arrTemplates);
+            const secDuration = settingDuration.value;
+            const toneSteps = settingToneStepsDuration.value
+            startOscillators(oscWA1, arrTemplates, secDuration, toneSteps);
             btnWA1.style.backgroundColor = "red";
+            setTimeout(stopOscWA1, secDuration * 1000);
         }
         console.log("done WA1", oscWA1);
     });
@@ -198,11 +207,11 @@ export async function dialogTestWAsound() {
         /** @type {HTMLInputElement} */
         const inpSteps = document.createElement("input");
         inpSteps.type = "number";
-        const lblSteps = TSmkElt("label", undefined, ["Tone steps:", inpSteps]);
+        const lblSteps = TSmkElt("label", undefined, ["Diff tones:", inpSteps]);
         /** @type {HTMLInputElement} */
         const inpDb = document.createElement("input");
         inpDb.type = "number";
-        const lblDb = TSmkElt("label", undefined, ["dB:", inpDb]);
+        const lblDb = TSmkElt("label", undefined, ["Diff dB:", inpDb]);
         const bdy = TSmkElt("div", undefined, [
             lblSteps,
             lblDb
@@ -212,18 +221,17 @@ export async function dialogTestWAsound() {
         if (ans) {
             const oldVal = settingOvertonesWA1.value;
             oldVal.push({
-                steps: inpSteps.value,
-                dB: inpDb.value
+                diffTones: inpSteps.value,
+                diffDB: inpDb.value
             });
             settingOvertonesWA1.value = oldVal;
+            updateDivOvertones();
         }
     }));
     const sumWAsubs = TSmkElt("summary", undefined, "overtones");
     const detWAsubs = TSmkElt("details", undefined, [
         sumWAsubs,
         btnAddOvertone,
-        // lblToneSteps2,
-        // lblGainDb2,
         divOverTones,
     ]);
 
@@ -243,7 +251,7 @@ export async function dialogTestWAsound() {
     divWA.id = "div-test-webaudio";
 
     const body = TSmkElt("div", undefined, [
-        TSmkElt("p", {style:"background:red;"}, "not working at the moment"),
+        TSmkElt("p", { style: "background:yellow; color:red; padding:4px;" }, "not working at the moment"),
         divWA,
     ]);
     /*
@@ -271,7 +279,9 @@ function stopOscillators(arrOsc) {
 }
 
 
-function startOscillators(arrOsc, arrOscTemplates) {
+function startOscillators(arrOsc, arrOscTemplates, duration, toneSteps) {
+    toneSteps = toneSteps || 0;
+    /*
     const freqBase = settingFreqBase.value;
     const toneSteps2 = settingToneSteps2.value;
     const freq2 = freqBase * Math.pow(2, toneSteps2 / 12);
@@ -283,6 +293,14 @@ function startOscillators(arrOsc, arrOscTemplates) {
 
     arrOsc.push(startStopOscWA(freqBase, freqBaseGoal, duration, 1));
     arrOsc.push(startStopOscWA(freq2, freq2Goal, duration, gain2));
+    */
+    arrOscTemplates.forEach(rec => {
+        const freq = rec.frequency;
+        const freqGoal = freq * Math.pow(2, toneSteps / 12);
+        const gain = rec.gain;
+        arrOsc.push(startStopOscWA(freq, freqGoal, duration, gain));
+    }
+    )
     arrOsc.forEach(osc => { osc.start(); });
 }
 
@@ -307,7 +325,6 @@ function startStopOscWA(freqInit, freqGoal, secToGoal, gain) {
     if (!isNaN(secToGoal)) {
         if (secToGoal > 0) {
             setTimeout(() => {
-                debugger;
                 stop();
             }, secToGoal * 1000);
         }
