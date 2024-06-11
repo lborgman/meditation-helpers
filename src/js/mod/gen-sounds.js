@@ -157,6 +157,7 @@ export async function dialogTestWAsound() {
                 spanOvertone, btnDelete
             ]);
             divOverTone.classList.add("mdc-card");
+            // @ts-ignore style
             divOverTone.style = `
                 display: grid;
                 grid-template-columns: 1fr 50px;
@@ -213,9 +214,14 @@ export async function dialogTestWAsound() {
         inpDb.type = "number";
         const lblDb = TSmkElt("label", undefined, ["Diff dB:", inpDb]);
         const bdy = TSmkElt("div", undefined, [
+            TSmkElt("h2", undefined, "Add overtone"),
             lblSteps,
             lblDb
         ]);
+        bdy.addEventListener("input", evt => {
+            console.log({evt});
+        });
+        bdy.id = "div-dialog-overtone";
         const ans = await modMdc.mkMDCdialogConfirm(bdy);
         console.log({ ans });
         if (ans) {
@@ -256,18 +262,10 @@ export async function dialogTestWAsound() {
     ]);
     body.addEventListener("click", evt => {
         body.style.backgroundColor = "red";
+        // @ts-ignore style
         setTimeout(() => { body.style.backgroundColor = null; }, 500);
     });
-    /*
-    // @ts-ignore style
-    body.style = `
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            `;
-    */
     modMdc.mkMDCdialogAlert(body, "Close");
-
 }
 
 /**
