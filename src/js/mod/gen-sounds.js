@@ -254,6 +254,10 @@ export async function dialogTestWAsound() {
         TSmkElt("p", { style: "background:yellow; color:red; padding:4px;" }, "not working at the moment"),
         divWA,
     ]);
+    body.addEventListener("click", evt => {
+        body.style.backgroundColor = "red";
+        setTimeout(() => { body.style.backgroundColor = null; }, 500);
+    });
     /*
     // @ts-ignore style
     body.style = `
