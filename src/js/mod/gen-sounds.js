@@ -222,6 +222,7 @@ export async function dialogTestWAsound() {
             console.log({evt});
         });
         bdy.id = "div-dialog-overtone";
+        bdy.style.touchAction = "none";
         const ans = await modMdc.mkMDCdialogConfirm(bdy);
         console.log({ ans });
         if (ans) {
