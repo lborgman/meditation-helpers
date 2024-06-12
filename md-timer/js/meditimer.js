@@ -408,7 +408,7 @@ thePromiseDOMready.then(() => {
         startVibrationTimer();
     }
     function stopAlarms() {
-        audio.pause();
+        objAudio.pause();
         stopVibrationTimer();
     }
     let vibrationTimer;
@@ -448,7 +448,7 @@ thePromiseDOMready.then(() => {
     let sliderVolume;
     let intervalVolume;
     function playReadySound() {
-        audio.currentTime = 0;
+        objAudio.currentTime = 0;
         // let strVol = docCookies.getItem("volume") || "100";
         let strVol = getItemString("volume") || "100";
         // console.log("strVol", strVol)
@@ -457,8 +457,8 @@ thePromiseDOMready.then(() => {
         setDisplaySound();
         // https://davidwalsh.name/javascript-volume
         // console.log("audio", audio, audio.volume); // volume = 1, 100%
-        audio.volume = 0;
-        audio.play()
+        objAudio.volume = 0;
+        objAudio.play()
             .then(() => {
                 let dur = 0;
                 function raiseVolume() {
@@ -469,7 +469,7 @@ thePromiseDOMready.then(() => {
                         return;
                     }
                     if (soundOff) return;
-                    audio.volume = sliderVolume * funEaseInOut(dur);
+                    objAudio.volume = sliderVolume * funEaseInOut(dur);
                 }
                 intervalVolume = setInterval(raiseVolume, stepEaseInOut * 1000);
             }).catch(err => {
@@ -523,7 +523,7 @@ thePromiseDOMready.then(() => {
                 const diffTime = Math.abs(date2.getTime() - date1.getTime());
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 console.log("day diff", diffDays);
-                secondsGoal *= Math.ceil(Math.pow(0.95, diffDays-1));
+                secondsGoal *= Math.ceil(Math.pow(0.95, diffDays - 1));
                 secondsToday = 0;
             }
             if (secondsGoal < minGoal) secondsGoal = minGoal;
@@ -551,8 +551,8 @@ thePromiseDOMready.then(() => {
         );
         return div;
     }
-    let soundReadyLink = "sounds/freesound.org/260881__trautwein__cat-purr-add9.mp3";
-    let audio;
+    const soundReadyLink = makeAbsLink("./sounds/freesound.org/260881__trautwein__cat-purr-add9.mp3");
+    let objAudio;
     let timerDiv = document.getElementById("timer-div");
     // timerDiv.classList.add("hero");
     let imgMeditator = imgMeditator1.cloneNode();
@@ -596,7 +596,15 @@ thePromiseDOMready.then(() => {
             setState("meditating");
             setTimeout(startRunner, 2000);
         }
-        audio = audio || new Audio(soundReadyLink);
+        // objAudio = objAudio || new Audio(soundReadyLink);
+        if (!objAudio) {
+            objAudio = new Audio();
+            objAudio.onerror = (err) => {
+                console.error("Error playing", soundReadyLink);
+                throw Error(`Error playing "${soundReadyLink}`);
+            }
+            objAudio.src = soundReadyLink;
+        }
         setTimeout(startIt, 2000);
     });
 
@@ -716,13 +724,13 @@ thePromiseDOMready.then(() => {
             spanSoundOn.style.display = "inline";
             volSlider.removeAttribute("disabled");
             removeItemString("sound-off");
-            audio.volume = sliderVolume; // / 100;
+            objAudio.volume = sliderVolume; // / 100;
         } else {
             spanSoundOff.style.display = "inline";
             spanSoundOn.style.display = "none";
             volSlider.setAttribute("disabled", true);
             setItemString("sound-off", "true");
-            audio.volume = 0;
+            objAudio.volume = 0;
         }
     }
     btnSound.addEventListener("click", evt => {
@@ -750,7 +758,7 @@ thePromiseDOMready.then(() => {
         // console.log("volslider input", evt, volSlider.value);
         clearInterval(intervalVolume);
         sliderVolume = volSlider.value / 100;
-        audio.volume = sliderVolume; // / 100;
+        objAudio.volume = sliderVolume; // / 100;
         // docCookies.setItem("volume", volSlider.value, Infinity, "/");
         setItemString("volume", volSlider.value);
     });
