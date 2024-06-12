@@ -19,22 +19,48 @@ export function hasTouchEvents() {
 }
 
 /** @type {boolean} */
-let hasVK = false;
+let hasVK;
 
 /**
  * 
- * @returns {boolean}
+ * @returns {boolean | undefined}
  */
-export function hasVirtualKeyboard() {
+export function detectedVirtualKeyboard() {
     return hasVK;
 }
+
+const screenWidth = screen.width;
+const screenHeight = screen.height;
+console.log({screen, screenWidth, screenHeight});
+
+/**
+ * 
+ * @param {function} callBack 
+ */
+function afterResize(callBack) {
+    console.log("afterResize", callBack, screenWidth, screen.width);
+    if (hasVK != undefined) { return; }
+    if (screen.width != screenWidth) {
+        document.documentElement.style.backgroundColor = "gray";
+        hasVK = false;
+        return;
+    }
+    if (screen.height > screenHeight) {
+        hasVK = false;
+        return;
+    }
+    hasVK = true;
+    callBack();
+}
+const debounceAfterResize = TSDEFdebounce(afterResize);
 
 /**
  * 
  * @param {function} callBack 
  */
 export function detectVirtualKeyboard(callBack) {
+    console.log("detectVirtualKeyboard", callBack);
     // Just ignore if no touch screen
-    if (!hasTouchEvents()) return;
-    window.addEventListener("resize", () => debounceAfterSize());
+    // if (!hasTouchEvents()) return;
+    window.addEventListener("resize", () => debounceAfterResize(callBack));
 }

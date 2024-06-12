@@ -2025,3 +2025,17 @@ async function dialogTestSounds() {
     const modSound = await import(linkSound);
     modSound.dialogTestWAsound();
 }
+
+(async () => {
+    // const linkVK = makeAbsLink("../src/js/mod/virt-keyboard.js");
+    // const linkLS = makeAbsLink("../src/js/mod/local-settings.js");
+    // console.log("virt-k", linkVK, linkLS);
+    // @ts-ignore import
+    const modVK = await import("virt-keyboard");
+    console.log({ modVK });
+    modVK.detectVirtualKeyboard(
+        () => {
+            document.documentElement.classList.add("has-virtual-keyboard");
+        }
+    );
+})();

@@ -56,9 +56,10 @@
     <script type="importmap">
         {
           "imports": {
-            "util-mdc": "../src/js/mod/util-mdc.js",
+            "util-mdc":       "../src/js/mod/util-mdc.js",
             "local-settings": "../src/js/mod/local-settings.js",
-            "refresh-rate": "../src/js/mod/refresh-rate.js",
+            "virt-keyboard":  "../src/js/mod/virt-keyboard.js",
+            "refresh-rate":   "../src/js/mod/refresh-rate.js",
             "external-images": "./external-images.js",
             "tone-test0": "../ext/tonejs/tone-test0.js"
           }
@@ -137,6 +138,10 @@
         body {
             background: black;
             color: orange;
+        }
+
+        .has-virtual-keyboard body {
+            background: red;
         }
 
         .running #pattern-buttons {
