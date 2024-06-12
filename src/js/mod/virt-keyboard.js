@@ -29,9 +29,8 @@ export function detectedVirtualKeyboard() {
     return hasVK;
 }
 
-const screenWidth = screen.width;
-const screenHeight = screen.height;
-console.log({screen, screenWidth, screenHeight});
+let screenWidth;
+let screenHeight;
 
 /**
  * 
@@ -39,6 +38,11 @@ console.log({screen, screenWidth, screenHeight});
  */
 function afterResize(callBack) {
     console.log("afterResize", callBack, screenWidth, screen.width);
+    if (screenWidth == undefined) {
+        screenWidth = screen.width;
+        screenHeight = screen.height;
+        return;
+    }
     if (hasVK != undefined) { return; }
     if (screen.width != screenWidth) {
         document.documentElement.style.backgroundColor = "gray";
