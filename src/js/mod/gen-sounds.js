@@ -263,6 +263,7 @@ export async function dialogTestWAsound() {
         divWA,
     ]);
     body.addEventListener("click", evt => {
+        modMdc.mkMDCsnackbar("clicked body");
         body.style.backgroundColor = "red";
         // @ts-ignore style
         setTimeout(() => { body.style.backgroundColor = null; }, 500);
