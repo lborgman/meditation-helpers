@@ -29,30 +29,31 @@ export function detectedVirtualKeyboard() {
     return hasVK;
 }
 
-let screenWidth;
-let screenHeight;
+let screenWidth = screen.width;
+let screenHeight = screen.height;
 
 /**
  * 
  * @param {function} callBack 
  */
 function afterResize(callBack) {
-    console.log("afterResize", callBack, screenWidth, screen.width);
-    if (screenWidth == undefined) {
-        screenWidth = screen.width;
-        screenHeight = screen.height;
+    // console.log("afterResize", screenWidth, screen.width);
+    if (hasVK != undefined) { return; }
+    if (screenWidth == screen.width && screenHeight == screen.height) {
+        document.documentElement.style.backgroundColor = "yellow";
         return;
     }
-    if (hasVK != undefined) { return; }
     if (screen.width != screenWidth) {
-        document.documentElement.style.backgroundColor = "gray";
+        document.documentElement.style.backgroundColor = "red";
         hasVK = false;
         return;
     }
     if (screen.height > screenHeight) {
+        document.documentElement.style.backgroundColor = "orange";
         hasVK = false;
         return;
     }
+    document.documentElement.style.backgroundColor = "green";
     hasVK = true;
     callBack();
 }
@@ -66,5 +67,6 @@ export function detectVirtualKeyboard(callBack) {
     console.log("detectVirtualKeyboard", callBack);
     // Just ignore if no touch screen
     // if (!hasTouchEvents()) return;
-    window.addEventListener("resize", () => debounceAfterResize(callBack));
+    // window.addEventListener("resize", () => debounceAfterResize(callBack));
+    window.addEventListener("resize", () => afterResize(callBack));
 }
