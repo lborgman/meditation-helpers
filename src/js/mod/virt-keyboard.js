@@ -29,35 +29,38 @@ export function detectedVirtualKeyboard() {
     return hasVK;
 }
 
-let screenWidth = screen.width;
-let screenHeight = screen.height;
+function logResize(msg) {
+    console.log(`%c ${msg} `, "background:yellow; color:black; ");
+}
+let winWidth = window.innerWidth;
+let winHeight = window.innerHeight;
+logResize("BEFORE afterResize");
 
 /**
  * 
  * @param {function} callBack 
  */
 function afterResize(callBack) {
-    // console.log("afterResize", screenWidth, screen.width);
     if (hasVK != undefined) { return; }
-    if (screenWidth == screen.width && screenHeight == screen.height) {
+    if (winWidth == window.innerWidth && winHeight == window.innerHeight) {
         document.documentElement.style.backgroundColor = "white";
-        console.log("afterResize white");
+        logResize("afterResize white");
         return;
     }
-    if (screen.width != screenWidth) {
+    if (window.innerWidth != winWidth) {
         document.documentElement.style.backgroundColor = "red";
-        console.log("afterResize red");
+        logResize("afterResize red");
         hasVK = false;
         return;
     }
-    if (screen.height > screenHeight) {
+    if (window.innerHeight > winHeight) {
         document.documentElement.style.backgroundColor = "orange";
-        console.log("afterResize orange");
+        logResize("afterResize orange");
         hasVK = false;
         return;
     }
     document.documentElement.style.backgroundColor = "green";
-    console.log("afterResize green");
+    logResize("afterResize green");
     hasVK = true;
     callBack();
 }
@@ -68,7 +71,7 @@ const debounceAfterResize = TSDEFdebounce(afterResize);
  * @param {function} callBack 
  */
 export function detectVirtualKeyboard(callBack) {
-    console.log("detectVirtualKeyboard", callBack);
+    logResize("detectVirtualKeyboard", callBack);
     // Just ignore if no touch screen
     // if (!hasTouchEvents()) return;
     // window.addEventListener("resize", () => debounceAfterResize(callBack));
