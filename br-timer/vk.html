@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
+        :root * {
+            box-sizing: border-box;
+        }
+
         #log {
             position: fixed;
             top: 0;
@@ -13,15 +17,13 @@
             padding: 2px;
         }
 
-        #inp {
+        .inp {
             width: 60px;
         }
 
-        #pop {
+        .pop {
             pointer-events: auto;
             background-color: yellow;
-            NOwidth: 200px;
-            NOheight: 200px;
             padding: 20px;
             display: flex;
             flex-direction: column;
@@ -38,8 +40,7 @@
                 0px 9px 46px;
         }
 
-        #bgOpen {
-            background-color: burlywood;
+        .bgOpen {
             position: fixed;
             left: 0px;
             top: 0px;
@@ -48,16 +49,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            border: 4px dotted red;
         }
 
-        #bgContainer {
-            background-color: lightcoral;
+        .bgContainer {
             height: 100%;
             display: flex;
             flex-direction: row;
             align-items: center;
             justify-content: space-around;
             pointer-events: none;
+            border: 4px dashed blueviolet;
+        }
+
+        #bgOpen1 {
+            background-color: burlywood;
+        }
+
+        #bgContainer1 {
+            background-color: lightcoral;
         }
     </style>
 </head>
@@ -89,50 +99,64 @@
             return elt;
         }
 
-        function doPopup() {
-            const eltInp = mkElt("input", { id: "inp", type: "text" });
-            const btn = mkElt("button", undefined, "Button");
-            btn.addEventListener("click", evt => {
+        function doPopup(txts) {
+            const lbl = txts.length.toString();
+            const txt = txts.pop();
+            const eltInp = mkElt("input", { id: `inp${lbl}`, class: "inp", type: "text" });
+            const btnPop = mkElt("button", undefined, `Pop ${lbl}`);
+            btnPop.addEventListener("click", evt => {
                 // evt.stopPropagation();
-                log("clicked btn");
+                log(`clicked btnPop ${lbl}`);
+                doPopup(txts);
             });
-            const eltPop = mkElt("div", { id: "pop" }, [
-                eltInp,
-                mkElt("div", undefined,
-                    `Just some text to make pop bigger.
-                    Just some text to make pop bigger.
-                    Just some text to make pop bigger.
-                    Just some text to make pop bigger.
-                    Just some text to make pop bigger.
-                    Just some text to make pop bigger.
-                    `
-                ),
-                mkElt("div", undefined, btn)
+            const btnClose = mkElt("button", undefined, "Close");
+            const eltPop = mkElt("div", { id: `pop${lbl}`, class: "pop" }, [
+                mkElt("div", undefined, txt),
+                mkElt("p", undefined, eltInp),
+                mkElt("p", undefined, [btnPop, " ", btnClose])
             ]);
-            const eltBgContainer = mkElt("div", { id: "bgContainer" }, eltPop);
-            const eltBgOpen = mkElt("div", { id: "bgOpen" }, eltBgContainer);
+            const eltBgContainer = mkElt("div", { id: `bgContainer${lbl}`, class: "bgContainer" }, eltPop);
+            const eltBgOpen = mkElt("div", { id: `bgOpen${lbl}`, class: "bgOpen" }, eltBgContainer);
 
             document.body.appendChild(eltBgOpen);
 
-
-            const eltLog = mkElt("div", { id: "log" });
-            document.body.appendChild(eltLog);
-
-            function log(msg) {
-                eltMsg = mkElt("div", undefined, msg);
-                eltLog.appendChild(eltMsg);
-            }
-
-
+            btnClose.addEventListener("click", evt => {
+                log(`clicked btnClose ${lbl}`);
+                eltBgOpen.remove();
+            })
             eltBgOpen.addEventListener("click", evt => {
-                log("clicked bg");
+                log(`clicked bg${lbl}`);
             });
             eltPop.addEventListener("click", evt => {
                 evt.stopPropagation();
-                log("clicked pop");
+                log(`clicked pop${lbl}`);
             });
         }
+        const arrTxts = [
+            `Just some text to make pop bigger.
+             Just some text to make pop bigger.
+             Just some text to make pop bigger.
+             Just some text to make pop bigger.
+             Just some text to make pop bigger.
+            `,
+            `
+             blaha, bla, bla, bla, goobleigoble,
+             blaha, bla, bla, bla, goobleigoble,
+             blaha, bla, bla, bla, goobleigoble,
+            `
+        ];
 
-        doPopup();
+        doPopup(arrTxts);
+
+
+        const eltLog = mkElt("div", { id: "log" });
+        document.body.appendChild(eltLog);
+
+        function log(msg) {
+            eltMsg = mkElt("div", undefined, msg);
+            eltLog.appendChild(eltMsg);
+        }
+
+
     </script>
 </body>
