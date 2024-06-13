@@ -30,6 +30,7 @@
             position: relative;
             overflow-y: auto;
             max-height: calc(100% - 32px);
+            max-width: calc(100% - 132px);
             min-width: 200px;
             border-radius: 4px;
             box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
@@ -90,8 +91,23 @@
 
         function doPopup() {
             const eltInp = mkElt("input", { id: "inp", type: "text" });
+            const btn = mkElt("button", undefined, "Button");
+            btn.addEventListener("click", evt => {
+                // evt.stopPropagation();
+                log("clicked btn");
+            });
             const eltPop = mkElt("div", { id: "pop" }, [
                 eltInp,
+                mkElt("div", undefined,
+                    `Just some text to make pop bigger.
+                    Just some text to make pop bigger.
+                    Just some text to make pop bigger.
+                    Just some text to make pop bigger.
+                    Just some text to make pop bigger.
+                    Just some text to make pop bigger.
+                    `
+                ),
+                mkElt("div", undefined, btn)
             ]);
             const eltBgContainer = mkElt("div", { id: "bgContainer" }, eltPop);
             const eltBgOpen = mkElt("div", { id: "bgOpen" }, eltBgContainer);
