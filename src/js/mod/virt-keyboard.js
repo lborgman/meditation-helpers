@@ -40,20 +40,24 @@ function afterResize(callBack) {
     // console.log("afterResize", screenWidth, screen.width);
     if (hasVK != undefined) { return; }
     if (screenWidth == screen.width && screenHeight == screen.height) {
-        document.documentElement.style.backgroundColor = "yellow";
+        document.documentElement.style.backgroundColor = "white";
+        console.log("afterResize white");
         return;
     }
     if (screen.width != screenWidth) {
         document.documentElement.style.backgroundColor = "red";
+        console.log("afterResize red");
         hasVK = false;
         return;
     }
     if (screen.height > screenHeight) {
         document.documentElement.style.backgroundColor = "orange";
+        console.log("afterResize orange");
         hasVK = false;
         return;
     }
     document.documentElement.style.backgroundColor = "green";
+    console.log("afterResize green");
     hasVK = true;
     callBack();
 }
