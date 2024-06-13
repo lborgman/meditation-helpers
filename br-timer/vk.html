@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+
+<head>
+    <style>
+        #inp {
+            width: 60px;
+        }
+        #pop {
+            width: 200px;
+            height: 200px;
+            background-color: yellow;
+            padding: 20px;
+        }
+        #bg {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            right: 0px;
+            bottom: 0px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #log {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: gray;
+            padding: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        function mkElt(type, attrib, inner) {
+            var elt = document.createElement(type);
+
+            function addInner(inr) {
+                if (inr instanceof Element) {
+                    elt.appendChild(inr);
+                } else {
+                    const txt = document.createTextNode(inr.toString());
+                    elt.appendChild(txt);
+                }
+            }
+            if (inner) {
+                if (inner.length && typeof inner != "string") {
+                    for (var i = 0; i < inner.length; i++)
+                        if (inner[i])
+                            addInner(inner[i]);
+                } else
+                    addInner(inner);
+            }
+            for (var x in attrib) {
+                elt.setAttribute(x, attrib[x]);
+            }
+            return elt;
+        }
+
+        function doPopup() {
+            const eltInp = mkElt("input", {type:"text"});
+            eltInp.id = "inp";
+            const eltPop = mkElt("div", undefined, [
+                eltInp,
+            ]);
+            eltPop.id = "pop";
+            const eltBg = mkElt("div", undefined, eltPop);
+            eltBg.id = "bg";
+            // document.body.textContent = "";
+            document.body.appendChild(eltBg);
+
+            const eltLog = mkElt("div");
+            eltLog.id = "log";
+            document.body.appendChild(eltLog);
+
+            function log(msg) {
+                eltMsg = mkElt("div", undefined, msg);
+                eltLog.appendChild(eltMsg);
+            }
+
+
+            eltBg.addEventListener("click", evt => {
+                log("clicked bg");
+            });
+            eltPop.addEventListener("click", evt => {
+                evt.stopPropagation();
+                log("clicked pop");
+            });
+        }
+
+        doPopup();
+    </script>
+</body>
