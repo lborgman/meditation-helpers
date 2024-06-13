@@ -1,28 +1,9 @@
 <!DOCTYPE html>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        #inp {
-            width: 60px;
-        }
-        #pop {
-            width: 200px;
-            height: 200px;
-            background-color: yellow;
-            padding: 20px;
-        }
-        #bg {
-            position: fixed;
-            left: 0px;
-            top: 0px;
-            right: 0px;
-            bottom: 0px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
         #log {
             position: fixed;
             top: 0;
@@ -30,6 +11,37 @@
             right: 0;
             background-color: gray;
             padding: 2px;
+        }
+
+        #inp {
+            width: 60px;
+        }
+
+        #pop {
+            background-color: yellow;
+            width: 200px;
+            height: 200px;
+            padding: 20px;
+        }
+
+        #bgOpen {
+            background-color: burlywood;
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            right: 0px;
+            bottom: 0px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #bgContainer {
+            background-color: lightcoral;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-around;
         }
     </style>
 </head>
@@ -62,19 +74,17 @@
         }
 
         function doPopup() {
-            const eltInp = mkElt("input", {type:"text"});
-            eltInp.id = "inp";
-            const eltPop = mkElt("div", undefined, [
+            const eltInp = mkElt("input", { id: "inp", type: "text" });
+            const eltPop = mkElt("div", { id: "pop" }, [
                 eltInp,
             ]);
-            eltPop.id = "pop";
-            const eltBg = mkElt("div", undefined, eltPop);
-            eltBg.id = "bg";
-            // document.body.textContent = "";
-            document.body.appendChild(eltBg);
+            const eltBgContainer = mkElt("div", { id: "bgContainer" }, eltPop);
+            const eltBgOpen = mkElt("div", { id: "bgOpen" }, eltBgContainer);
 
-            const eltLog = mkElt("div");
-            eltLog.id = "log";
+            document.body.appendChild(eltBgOpen);
+
+
+            const eltLog = mkElt("div", { id: "log" });
             document.body.appendChild(eltLog);
 
             function log(msg) {
@@ -83,7 +93,7 @@
             }
 
 
-            eltBg.addEventListener("click", evt => {
+            eltBgOpen.addEventListener("click", evt => {
                 log("clicked bg");
             });
             eltPop.addEventListener("click", evt => {
