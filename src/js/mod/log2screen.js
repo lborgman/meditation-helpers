@@ -17,8 +17,22 @@ divLog.style = `
     color: black;
 `;
 
+/**
+ * 
+ * @returns {boolean}
+ */
+export function hasLogDiv() {
+    return divLog.parentElement != null;
+}
+
+/**
+ * 
+ * @returns {boolean}
+ */
 export function addLogDiv() {
+    if (hasLogDiv()) return false;
     document.body.appendChild(divLog);
+    return true;
 }
 
 let logTimeout;

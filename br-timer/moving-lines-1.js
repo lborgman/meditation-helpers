@@ -2022,30 +2022,31 @@ function debugAndThrow(msg) {
 async function dialogTestSounds() {
     // @ts-ignore import
     const modL2S = await import("log2screen");
-    modL2S.addLogDiv();
-    document.documentElement.addEventListener("click", evt => {
-        /** @type {HTMLDivElement} */
-        // @ts-ignore something?
-        const targ = evt.target;
-        if (targ) {
-            const cX = evt.clientX;
-            const cY = evt.clientY;
-            const tagName = targ.tagName;
-            const id = targ.id || "?";
-            const bcr = targ.getBoundingClientRect();
-            const jsonStrBcr = JSON.stringify(bcr);
-            modL2S.log(`click (${cX},${cY}) ${id} ${tagName} ${jsonStrBcr}`);
-            // @ts-ignore .target.tagName
-            if (tagName == "DIV") {
-                /** @type {HTMLDivElement} */
-                // @ts-ignore .target
-                if (targ.classList.contains("mdc-dialog__scrim")) {
-                    modL2S.log("clicked scrim");
+    if (modL2S.addLogDiv()) {
+        document.documentElement.addEventListener("click", evt => {
+            /** @type {HTMLDivElement} */
+            // @ts-ignore something?
+            const targ = evt.target;
+            if (targ) {
+                const cX = evt.clientX;
+                const cY = evt.clientY;
+                const tagName = targ.tagName;
+                const id = targ.id || "?";
+                const bcr = targ.getBoundingClientRect();
+                const jsonStrBcr = JSON.stringify(bcr);
+                modL2S.log(`click (${cX},${cY}) ${id} ${tagName} ${jsonStrBcr}`);
+                // @ts-ignore .target.tagName
+                if (tagName == "DIV") {
+                    /** @type {HTMLDivElement} */
+                    // @ts-ignore .target
+                    if (targ.classList.contains("mdc-dialog__scrim")) {
+                        modL2S.log("clicked scrim");
+                    }
                 }
             }
-        }
-        console.log(evt);
-    });
+            console.log(evt);
+        });
+    }
     // @ts-ignore
     const linkSound = makeAbsLink("../src/js/mod/gen-sounds.js");
     const modSound = await import(linkSound);
