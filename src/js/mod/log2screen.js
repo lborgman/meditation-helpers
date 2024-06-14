@@ -22,11 +22,26 @@ export function addLogDiv() {
 }
 
 let logTimeout;
+const idClearButton = "log2screen-clear-button";
 export function log(msg) {
+    const useButton = idClearButton != undefined;
+    if (useButton) {
+        if (!document.getElementById(idClearButton)) {
+            const btn = document.createElement("button");
+            btn.id = idClearButton;
+            btn.textContent = "Clear";
+            btn.addEventListener("click", evt => {
+                setTimeout(() => divLog.textContent = "", 100);
+            });
+            divLog.textContent = "";
+            divLog.appendChild(btn);
+        }
+    } else {
+        clearTimeout(logTimeout);
+        logTimeout = setTimeout(() => divLog.textContent = "", 9000);
+    }
     /** @type {HTMLDivElement} */
     const eltMsg = document.createElement("div");
     eltMsg.textContent = msg;
     divLog.appendChild(eltMsg);
-    clearTimeout(logTimeout);
-    logTimeout = setTimeout(() => divLog.textContent = "", 9000);
 }
