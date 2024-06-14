@@ -96,6 +96,14 @@
 
 <body>
     <script>
+        let modL2S;
+        (async () => {
+            const src = "../../src/js/mod/log2screen.js";
+            console.log("modL2S src", src);
+            modL2S = await import(src);
+            console.log(modL2S);
+            modL2S.addLogDiv();
+        })();
         function mkElt(type, attrib, inner) {
             var elt = document.createElement(type);
 
@@ -129,7 +137,7 @@
             const btnPop = mkElt("button", undefined, `Pop ${lbl}`);
             btnPop.addEventListener("click", evt => {
                 // evt.stopPropagation();
-                log(`clicked btnPop ${lbl}`);
+                modL2S.log(`clicked btnPop ${lbl}`);
                 doPopup(txts);
             });
             const btnClose = mkElt("button", undefined, "Close");
@@ -151,23 +159,23 @@
             document.body.appendChild(eltBgOpen);
 
             btnClose.addEventListener("click", evt => {
-                log(`clicked btnClose ${lbl}`);
+                modL2S.log(`clicked btnClose ${lbl}`);
                 closePopup();
             })
 
             eltBgContainer.addEventListener("click", evt => {
-                log(`clicked bgContainer ${lbl}`);
+                modL2S.log(`clicked bgContainer ${lbl}`);
             });
             eltBgOpen.addEventListener("click", evt => {
-                log(`clicked bgOpen ${lbl}`);
+                modL2S.log(`clicked bgOpen ${lbl}`);
             });
             eltBgScrim.addEventListener("click", evt => {
-                log(`clicked bgScrim ${lbl}`);
+                modL2S.log(`clicked bgScrim ${lbl}`);
                 closePopup();
             });
             eltPop.addEventListener("click", evt => {
                 evt.stopPropagation();
-                log(`clicked pop${lbl}`);
+                modL2S.log(`clicked pop${lbl}`);
             });
             function closePopup() { eltBgOpen.remove(); }
         }
@@ -191,13 +199,6 @@
         const eltLog = mkElt("div", { id: "log" });
         document.body.appendChild(eltLog);
 
-        let logTimeout;
-        function log(msg) {
-            eltMsg = mkElt("div", undefined, msg);
-            eltLog.appendChild(eltMsg);
-            clearTimeout(logTimeout);
-            logtTimeout = setTimeout(() => eltLog.textContent = "", 9000);
-        }
 
 
     </script>

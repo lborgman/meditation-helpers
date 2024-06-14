@@ -2020,6 +2020,23 @@ function debugAndThrow(msg) {
     throw Error(msg);
 }
 async function dialogTestSounds() {
+    // @ts-ignore import
+    const modL2S = await import("log2screen");
+    modL2S.addLogDiv(); document.documentElement.addEventListener("click", evt => {
+        // @ts-ignore something?
+        if (evt.target) {
+            // @ts-ignore .target.tagName
+            if (evt.target.tagName == "DIV") {
+                /** @type {HTMLDivElement} */
+                // @ts-ignore .target
+                const targ = evt.target;
+                if (targ.classList.contains("mdc-dialog__scrim")) {
+                    modL2S.log("clicked scrim");
+                }
+            }
+        }
+        console.log(evt);
+    });
     // @ts-ignore
     const linkSound = makeAbsLink("../src/js/mod/gen-sounds.js");
     const modSound = await import(linkSound);
