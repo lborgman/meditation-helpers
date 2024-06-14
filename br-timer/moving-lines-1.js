@@ -2028,11 +2028,15 @@ async function dialogTestSounds() {
         // @ts-ignore something?
         const targ = evt.target;
         if (targ) {
+            const cX = evt.clientX;
+            const cY = evt.clientY;
+            const tagName = targ.tagName;
+            const id = targ.id || "?";
             const bcr = targ.getBoundingClientRect();
             const jsonStrBcr = JSON.stringify(bcr);
-            modL2S.log(`clicked bcr ${jsonStrBcr}`);
+            modL2S.log(`click (${cX},${cY}) ${id} ${tagName} ${jsonStrBcr}`);
             // @ts-ignore .target.tagName
-            if (targ.tagName == "DIV") {
+            if (tagName == "DIV") {
                 /** @type {HTMLDivElement} */
                 // @ts-ignore .target
                 if (targ.classList.contains("mdc-dialog__scrim")) {
