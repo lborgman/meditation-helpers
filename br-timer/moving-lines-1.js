@@ -2022,14 +2022,19 @@ function debugAndThrow(msg) {
 async function dialogTestSounds() {
     // @ts-ignore import
     const modL2S = await import("log2screen");
-    modL2S.addLogDiv(); document.documentElement.addEventListener("click", evt => {
+    modL2S.addLogDiv();
+    document.documentElement.addEventListener("click", evt => {
+        /** @type {HTMLDivElement} */
         // @ts-ignore something?
-        if (evt.target) {
+        const targ = evt.target;
+        if (targ) {
+            const bcr = targ.getBoundingClientRect();
+            const jsonStrBcr = JSON.stringify(bcr);
+            modL2S.log(`clicked bcr ${jsonStrBcr}`);
             // @ts-ignore .target.tagName
-            if (evt.target.tagName == "DIV") {
+            if (targ.tagName == "DIV") {
                 /** @type {HTMLDivElement} */
                 // @ts-ignore .target
-                const targ = evt.target;
                 if (targ.classList.contains("mdc-dialog__scrim")) {
                     modL2S.log("clicked scrim");
                 }
