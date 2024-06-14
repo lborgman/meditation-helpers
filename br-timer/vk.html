@@ -8,6 +8,13 @@
             box-sizing: border-box;
         }
 
+        body {
+            background-image: url(https://freenaturestock.com/wp-content/uploads/freenaturestock-2223-768x1152.jpg);
+            background-position: center;
+            background-size: auto;
+            background-repeat: no-repeat;
+        }
+
         #log {
             position: fixed;
             top: 0;
@@ -46,6 +53,7 @@
             top: 0px;
             width: 100%;
             height: 100%;
+            z-index: 7;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -60,6 +68,20 @@
             justify-content: space-around;
             pointer-events: none;
             border: 4px dashed blueviolet;
+        }
+
+        .bgScrim {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .elt-buttons {
+            display: flex;
+            gap: 20px;
         }
 
         #bgOpen1 {
@@ -110,27 +132,43 @@
                 doPopup(txts);
             });
             const btnClose = mkElt("button", undefined, "Close");
+            const eltButtons = mkElt("p", { class: "elt-buttons" });
+            if (txts.length > 0) { eltButtons.appendChild(btnPop); }
+            eltButtons.appendChild(btnClose);
             const eltPop = mkElt("div", { id: `pop${lbl}`, class: "pop" }, [
                 mkElt("div", undefined, txt),
                 mkElt("p", undefined, eltInp),
-                mkElt("p", undefined, [btnPop, " ", btnClose])
+                eltButtons
             ]);
-            const eltBgContainer = mkElt("div", { id: `bgContainer${lbl}`, class: "bgContainer" }, eltPop);
-            const eltBgOpen = mkElt("div", { id: `bgOpen${lbl}`, class: "bgOpen" }, eltBgContainer);
 
+            const eltBgContainer = mkElt("div", { id: `bgContainer${lbl}`, class: "bgContainer" }, eltPop);
+            const eltBgScrim = mkElt("div", { id: `bgScrim${lbl}`, class: "bgScrim" });
+            const eltBgOpen = mkElt("div", { id: `bgOpen${lbl}`, class: "bgOpen" }, [
+                eltBgContainer,
+                eltBgScrim
+            ]);
             document.body.appendChild(eltBgOpen);
 
             btnClose.addEventListener("click", evt => {
                 log(`clicked btnClose ${lbl}`);
-                eltBgOpen.remove();
+                closePopup();
             })
+
+            eltBgContainer.addEventListener("click", evt => {
+                log(`clicked bgContainer ${lbl}`);
+            });
             eltBgOpen.addEventListener("click", evt => {
-                log(`clicked bg${lbl}`);
+                log(`clicked bgOpen ${lbl}`);
+            });
+            eltBgScrim.addEventListener("click", evt => {
+                log(`clicked bgScrim ${lbl}`);
+                closePopup();
             });
             eltPop.addEventListener("click", evt => {
                 evt.stopPropagation();
                 log(`clicked pop${lbl}`);
             });
+            function closePopup() { eltBgOpen.remove(); }
         }
         const arrTxts = [
             `Just some text to make pop bigger.
@@ -152,9 +190,12 @@
         const eltLog = mkElt("div", { id: "log" });
         document.body.appendChild(eltLog);
 
+        let logTimeout;
         function log(msg) {
             eltMsg = mkElt("div", undefined, msg);
             eltLog.appendChild(eltMsg);
+            clearTimeout(logTimeout);
+            logtTimeout = setTimeout(() => eltLog.textContent = "", 9000);
         }
 
 
