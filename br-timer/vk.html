@@ -121,7 +121,8 @@
             return elt;
         }
 
-        function doPopup(txts) {
+        function doPopup(parTxts) {
+            const txts = [...parTxts];
             const lbl = txts.length.toString();
             const txt = txts.pop();
             const eltInp = mkElt("input", { id: `inp${lbl}`, class: "inp", type: "text" });
