@@ -93,11 +93,18 @@ export function flashPoint() {
     document.body.addEventListener(nameEvt, evt => {
         log(`pointer ${nameEvt}`);
         console.log("%cpointerdown", "background:white; color:red;", evt);
+        const targ = evt.target;
+        // @ts-ignore style
+        if (targ) { targ.style.outline = "4px dotted red"; }
         document.body.appendChild(divFlashClient);
         const cX = evt.clientX - flashClientSize / 2
         const cY = evt.clientY - flashClientSize / 2
         divFlashClient.style.left = `${cX}px`;
         divFlashClient.style.top = `${cY}px`;
-        setTimeout(() => { divFlashClient.remove(); }, 2200);
+        setTimeout(() => {
+            divFlashClient.remove();
+            // @ts-ignore style
+            if (targ) { targ.style.outline = null; }
+        }, 2200);
     });
 }
