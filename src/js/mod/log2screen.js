@@ -89,7 +89,8 @@ divFlashClient.style = `
 `;
 
 export function flashPoint() {
-    const nameEvt = "click";
+    // const nameEvt = "click";
+    const nameEvt = "pointerdown";
     document.body.addEventListener(nameEvt, evt => {
         log(`pointer ${nameEvt}`);
         console.log("%cpointerdown", "background:white; color:red;", evt);
