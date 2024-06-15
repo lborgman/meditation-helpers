@@ -91,7 +91,7 @@ divFlashClient.style = `
     pointer-events: none;
 `;
 
-export function flashPoint() {
+export function addFlashPoint() {
     // const nameEvt = "click";
     const nameEvt = "pointerdown";
     document.body.addEventListener(nameEvt, evt => {

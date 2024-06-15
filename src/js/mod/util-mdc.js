@@ -1044,10 +1044,31 @@ export async function mkMDCdialog(body, eltActions, fullScreen, zIndex) {
         eltSurface,
     ]);
     if (eltActions) eltSurface.appendChild(eltActions);
+    const eltScrim = mkElt("div", { class: "mdc-dialog__scrim" });
+    const eltScrim2 = mkElt("div");
+    eltScrim2.style = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        z-index: -1;
+        background: yellow;
+        opacity: 0.5;
+    `;
     const dom = mkElt("div", { class: "mdc-dialog" }, [
         eltContainer,
-        mkElt("div", { class: "mdc-dialog__scrim" }),
+        eltScrim,
+        eltScrim2
     ]);
+    dom.addEventListener("pointerdown", evt => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        evt.stopImmediatePropagation();
+        console.log("*** SCRIM, pointerdown, stop, capture true, dom");
+        dom.remove();
+    }, true);
+
     if (fullScreen) dom.classList.add("mdc-dialog--fullscreen");
     if (zIndex) dom.style.zIndex = zIndex;
     document.body.appendChild(dom);
