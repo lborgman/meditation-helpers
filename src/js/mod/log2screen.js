@@ -97,15 +97,18 @@ export function flashPoint() {
         const targ = evt.target;
         // @ts-ignore style
         if (targ) { targ.style.outline = "4px dotted red"; }
-        document.body.appendChild(divFlashClient);
-        const cX = evt.clientX - flashClientSize / 2
-        const cY = evt.clientY - flashClientSize / 2
-        divFlashClient.style.left = `${cX}px`;
-        divFlashClient.style.top = `${cY}px`;
-        setTimeout(() => {
-            divFlashClient.remove();
-            // @ts-ignore style
-            if (targ) { targ.style.outline = null; }
-        }, 2200);
+        setTimeout(doThePoint, 100);
+        function doThePoint() {
+            document.body.appendChild(divFlashClient);
+            const cX = evt.clientX - flashClientSize / 2
+            const cY = evt.clientY - flashClientSize / 2
+            divFlashClient.style.left = `${cX}px`;
+            divFlashClient.style.top = `${cY}px`;
+            setTimeout(() => {
+                divFlashClient.remove();
+                // @ts-ignore style
+                if (targ) { targ.style.outline = null; }
+            }, 2200);
+        }
     });
 }
