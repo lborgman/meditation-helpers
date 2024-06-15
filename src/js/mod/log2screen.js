@@ -79,7 +79,7 @@ export function log(msg) {
 
 /** @type {HTMLDivElement} */
 const divFlashClient = document.createElement("div");
-const flashClientSize = 20;
+const flashClientSize = 15;
 // @ts-ignore style
 divFlashClient.style = `
     position: fixed;
@@ -87,6 +87,8 @@ divFlashClient.style = `
     background-color: red;
     width: ${flashClientSize}px;
     aspect-ratio: 1/1;
+    border-radius: 50%;
+    pointer-events: none;
 `;
 
 export function flashPoint() {
