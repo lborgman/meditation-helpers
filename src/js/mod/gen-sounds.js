@@ -188,7 +188,7 @@ export async function dialogTestWAsound() {
         function stopOscWA1() {
             stopOscillators(oscWA1);
             // @ts-ignore style
-            btnWA1.style.backgroundColor = null;
+            // btnWA1.style.backgroundColor = null;
         }
         function startOscWA1() {
             const arrTemplates = [];
@@ -196,7 +196,7 @@ export async function dialogTestWAsound() {
             const secDuration = settingDuration.value;
             const toneSteps = settingToneStepsDuration.value
             startOscillators(oscWA1, arrTemplates, secDuration, toneSteps);
-            btnWA1.style.backgroundColor = "red";
+            // btnWA1.style.backgroundColor = "red";
             setTimeout(stopOscWA1, secDuration * 1000);
         }
         console.log("done WA1", oscWA1);
@@ -262,7 +262,7 @@ export async function dialogTestWAsound() {
         TSmkElt("p", { style: "background:yellow; color:red; padding:4px;" }, "not working at the moment"),
         divWA,
     ]);
-    body.addEventListener("click", evt => {
+    body.addEventListener("NOclick", evt => {
         modMdc.mkMDCsnackbar("clicked body");
         body.style.backgroundColor = "red";
         // @ts-ignore style

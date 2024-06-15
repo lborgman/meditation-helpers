@@ -70,7 +70,8 @@ export function log(msg) {
     }
     /** @type {HTMLDivElement} */
     const eltMsg = document.createElement("div");
-    eltMsg.textContent = msg;
+    // eltMsg.textContent = msg;
+    eltMsg.append(msg);
     divLog.appendChild(eltMsg);
 }
 

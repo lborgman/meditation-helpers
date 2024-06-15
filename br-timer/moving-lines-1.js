@@ -2029,21 +2029,29 @@ async function dialogTestSounds() {
             // @ts-ignore something?
             const targ = evt.target;
             if (targ) {
-                const cX = evt.clientX;
+                // const cX = evt.clientX;
                 const cY = evt.clientY;
                 const tagName = targ.tagName;
                 const id = targ.id || "?";
-                const bcr = targ.getBoundingClientRect();
-                const jsonStrBcr = JSON.stringify(bcr);
-                modL2S.log(`click (${cX},${cY}) ${id} ${tagName} ${jsonStrBcr}`);
+
+                let scrim = "";
                 // @ts-ignore .target.tagName
                 if (tagName == "DIV") {
                     /** @type {HTMLDivElement} */
                     // @ts-ignore .target
                     if (targ.classList.contains("mdc-dialog__scrim")) {
-                        modL2S.log("clicked scrim");
+                        // modL2S.log("clicked scrim");
+                        scrim = " scrim";
                     }
                 }
+
+                const bcr = targ.getBoundingClientRect();
+                // console.log({bcr});
+                // const jsonStrBcr = JSON.stringify(bcr);
+                // modL2S.log(`click (${cX},${cY}) ${id} ${tagName} ${jsonStrBcr}`);
+                modL2S.log(`click ${id} ${tagName}${scrim}:: cY:${cY} top:${bcr.top}, height:${bcr.height}`);
+                // const elt = document.createElement("span");
+
             }
             console.log(evt);
         });
