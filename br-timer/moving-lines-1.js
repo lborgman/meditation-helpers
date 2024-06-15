@@ -2023,6 +2023,7 @@ async function dialogTestSounds() {
     // @ts-ignore import
     const modL2S = await import("log2screen");
     if (modL2S.addLogDiv()) {
+        modL2S.flashPoint();
         document.documentElement.addEventListener("click", evt => {
             /** @type {HTMLDivElement} */
             // @ts-ignore something?
