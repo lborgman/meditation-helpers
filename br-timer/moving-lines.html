@@ -46,11 +46,6 @@
     <!-- <script src="/src/js/error.js"></script> -->
 
     <!-- <link rel="stylesheet" href="http://localhost:8080/public/css/rem10m1h.css"> -->
-    <style>
-        :root {
-            --icon-button-size: 48;
-        }
-    </style>
 
     <!-- "util-mdc": "/src/js/mod/util-mdc.js", -->
     <script type="importmap">
@@ -74,6 +69,7 @@
 
         /* https://dev.to/adbutterfield/custom-styling-checkboxes-the-modern-way-3o42 */
         :root {
+            --icon-button-size: 48;
             --checkbox-border-color: #8b8c89;
             --checkbox-checked-color: #274c77;
             --checkbox-checked-color: orange;
@@ -141,9 +137,6 @@
             color: orange;
         }
 
-        .has-virtual-keyboard body {
-            background: red;
-        }
 
         .running #pattern-buttons {
             opacity: 0.2;
@@ -322,6 +315,25 @@
         #div-dialog-overtone input[type=number] {
             width: 60px;
         }
+
+
+
+        /*********************************************/
+        /* Tests for virtual keyboard */
+        /*********************************************/
+        .has-virtual-keyboard body {
+            background: red;
+        }
+
+        #div-log2screen {
+            background-color: skyblue;
+            color: black;
+        }
+        #div-log2screen.old {
+            background-color: midnightblue;
+            color: white;
+        }
+
     </style>
 </head>
 

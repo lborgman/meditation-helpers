@@ -3,6 +3,7 @@ console.log("This is log2screen.js");
 
 /** @type {HTMLDivElement} */
 const divLog = document.createElement("div");
+divLog.id = "div-log2screen";
 divLog.textContent = "This is divLog";
 
 // @ts-ignore style
@@ -13,8 +14,6 @@ divLog.style = `
     right: 0;
     z-index: 1000;
     padding: 4px;
-    background-color: lightskyblue;
-    color: black;
 `;
 
 /**
@@ -36,6 +35,7 @@ export function addLogDiv() {
 }
 
 let logTimeout;
+let msLogTime = Date.now();
 const idClearButton = "log2screen-clear-button";
 
 /**
@@ -44,6 +44,14 @@ const idClearButton = "log2screen-clear-button";
  */
 export function log(msg) {
     if (!hasLogDiv()) return;
+    if (divLog.classList.contains("old")) {
+        divLog.textContent = "";
+        divLog.classList.remove("old");
+    }
+    clearTimeout(logTimeout);
+    logTimeout = setTimeout(() => {
+        divLog.classList.add("old");
+    }, 5000);
     const useButton = idClearButton != undefined;
     if (useButton) {
         if (!document.getElementById(idClearButton)) {
@@ -81,7 +89,9 @@ divFlashClient.style = `
 `;
 
 export function flashPoint() {
-    document.body.addEventListener("pointerdown", evt => {
+    const nameEvt = "click";
+    document.body.addEventListener(nameEvt, evt => {
+        log(`pointer ${nameEvt}`);
         console.log("%cpointerdown", "background:white; color:red;", evt);
         document.body.appendChild(divFlashClient);
         const cX = evt.clientX - flashClientSize / 2
