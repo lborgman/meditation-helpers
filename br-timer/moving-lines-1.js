@@ -2019,6 +2019,7 @@ function debugAndThrow(msg) {
 
 let addedDocPointerDown = false;
 async function dialogTestSounds() {
+    /*
     // @ts-ignore import
     const modL2S = await import("log2screen");
     if (modL2S.addLogDiv()) {
@@ -2026,7 +2027,6 @@ async function dialogTestSounds() {
         if (!addedDocPointerDown) {
             addedDocPointerDown = true;
             document.documentElement.addEventListener("pointerdown", evt => {
-                /** @type {HTMLDivElement} */
                 // @ts-ignore something?
                 const targ = evt.target;
                 if (targ) {
@@ -2038,7 +2038,6 @@ async function dialogTestSounds() {
                     let scrim = "";
                     // @ts-ignore .target.tagName
                     if (tagName == "DIV") {
-                        /** @type {HTMLDivElement} */
                         // @ts-ignore .target
                         if (targ.classList.contains("mdc-dialog__scrim")) {
                             // modL2S.log("clicked scrim");
@@ -2058,6 +2057,7 @@ async function dialogTestSounds() {
             });
         }
     }
+    */
     // @ts-ignore
     const linkSound = makeAbsLink("../src/js/mod/gen-sounds.js");
     const modSound = await import(linkSound);
