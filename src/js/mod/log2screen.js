@@ -91,14 +91,18 @@ const flashClientSize = 15;
 divFlashClient.style = `
     position: fixed;
     z-index: 1001;
-    background-color: yellow;
+    background-color: lightpink;
     width: ${flashClientSize}px;
     aspect-ratio: 1/1;
     border-radius: 50%;
     pointer-events: none;
 `;
 
+/** @type {boolean} */
+let addedFlashPoint = false;
 export function addFlashPoint() {
+    if (addedFlashPoint) { return; }
+    addedFlashPoint = true;
     // const nameEvt = "click";
     const nameEvt = "pointerdown";
     document.body.addEventListener(nameEvt, evt => {

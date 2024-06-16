@@ -2019,42 +2019,47 @@ function debugAndThrow(msg) {
     debugger;
     throw Error(msg);
 }
+
+let addedDocPointerDown = false;
 async function dialogTestSounds() {
     // @ts-ignore import
     const modL2S = await import("log2screen");
     if (modL2S.addLogDiv()) {
         modL2S.addFlashPoint();
-        document.documentElement.addEventListener("pointerdown", evt => {
-            /** @type {HTMLDivElement} */
-            // @ts-ignore something?
-            const targ = evt.target;
-            if (targ) {
-                // const cX = evt.clientX;
-                const cY = evt.clientY;
-                const tagName = targ.tagName;
-                const id = targ.id || "?";
+        if (!addedDocPointerDown) {
+            addedDocPointerDown = true;
+            document.documentElement.addEventListener("pointerdown", evt => {
+                /** @type {HTMLDivElement} */
+                // @ts-ignore something?
+                const targ = evt.target;
+                if (targ) {
+                    // const cX = evt.clientX;
+                    const cY = evt.clientY;
+                    const tagName = targ.tagName;
+                    const id = targ.id || "?";
 
-                let scrim = "";
-                // @ts-ignore .target.tagName
-                if (tagName == "DIV") {
-                    /** @type {HTMLDivElement} */
-                    // @ts-ignore .target
-                    if (targ.classList.contains("mdc-dialog__scrim")) {
-                        // modL2S.log("clicked scrim");
-                        scrim = " scrim";
+                    let scrim = "";
+                    // @ts-ignore .target.tagName
+                    if (tagName == "DIV") {
+                        /** @type {HTMLDivElement} */
+                        // @ts-ignore .target
+                        if (targ.classList.contains("mdc-dialog__scrim")) {
+                            // modL2S.log("clicked scrim");
+                            scrim = " scrim";
+                        }
                     }
+
+                    const bcr = targ.getBoundingClientRect();
+                    // console.log({bcr});
+                    // const jsonStrBcr = JSON.stringify(bcr);
+                    // modL2S.log(`click (${cX},${cY}) ${id} ${tagName} ${jsonStrBcr}`);
+                    modL2S.log(`click ${id} ${tagName}${scrim}:: cY:${cY} top:${bcr.top}, height:${bcr.height}`);
+                    // const elt = document.createElement("span");
+
                 }
-
-                const bcr = targ.getBoundingClientRect();
-                // console.log({bcr});
-                // const jsonStrBcr = JSON.stringify(bcr);
-                // modL2S.log(`click (${cX},${cY}) ${id} ${tagName} ${jsonStrBcr}`);
-                modL2S.log(`click ${id} ${tagName}${scrim}:: cY:${cY} top:${bcr.top}, height:${bcr.height}`);
-                // const elt = document.createElement("span");
-
-            }
-            console.log(evt);
-        });
+                console.log(evt);
+            });
+        }
     }
     // @ts-ignore
     const linkSound = makeAbsLink("../src/js/mod/gen-sounds.js");
