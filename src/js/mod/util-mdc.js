@@ -1059,7 +1059,7 @@ export async function mkMDCdialog(body, eltActions, fullScreen, zIndex) {
     const dom = mkElt("div", { class: "mdc-dialog" }, [
         eltContainer,
         eltScrim,
-        eltScrim2
+        // eltScrim2
     ]);
     dom.addEventListener("pointerdown", evt => {
         evt.preventDefault();
@@ -1077,6 +1077,7 @@ export async function mkMDCdialog(body, eltActions, fullScreen, zIndex) {
     function addMDCandOpen() {
         ret.mdc = new mdc.dialog.MDCDialog(ret.dom);
         ret.mdc.open();
+        // dom.classList.add("mdc-dialog--open");
     }
     return await new Promise((resolve, reject) => {
         setTimeout(() => {
