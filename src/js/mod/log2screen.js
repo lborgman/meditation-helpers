@@ -91,7 +91,7 @@ const flashClientSize = 15;
 divFlashClient.style = `
     position: fixed;
     z-index: 1001;
-    background-color: greenyellow;
+    background-color: lawngreen;
     width: ${flashClientSize}px;
     aspect-ratio: 1/1;
     border-radius: 50%;
@@ -111,7 +111,7 @@ export function addFlashPoint() {
         const targ = evt.target;
         // @ts-ignore style
         if (targ) { targ.style.outline = "4px dotted red"; }
-        setTimeout(doThePoint, 100);
+        setTimeout(doThePoint, 200);
         function doThePoint() {
             document.body.appendChild(divFlashClient);
             const cX = evt.clientX - flashClientSize / 2
