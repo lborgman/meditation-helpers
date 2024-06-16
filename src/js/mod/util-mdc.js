@@ -1079,8 +1079,8 @@ export async function mkMDCdialog(body, eltActions, fullScreen, zIndex) {
     function addMDCandOpen() {
         ret.mdc = new mdc.dialog.MDCDialog(ret.dom);
         ret.mdc.open();
-        ret.dom.appendChild(eltScrim2);
-        eltScrim.remove();
+        // ret.dom.appendChild(eltScrim2);
+        // eltScrim.remove();
         // dom.classList.add("mdc-dialog--open");
     }
     return await new Promise((resolve, reject) => {
