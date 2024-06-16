@@ -1062,6 +1062,8 @@ export async function mkMDCdialog(body, eltActions, fullScreen, zIndex) {
         // eltScrim2
     ]);
     dom.addEventListener("pointerdown", evt => {
+        const targ = evt.target;
+        if (!targ.classList.contains("mdc-dialog__scrim")) { return; }
         evt.preventDefault();
         evt.stopPropagation();
         evt.stopImmediatePropagation();
