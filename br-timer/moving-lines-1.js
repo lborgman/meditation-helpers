@@ -1516,7 +1516,6 @@ async function setupControls(controlscontainer) {
     const modMdc = await TSDEFimport("util-mdc");
     const iconStart = modMdc.mkMDCicon("play_arrow");
     const btnStart = modMdc.mkMDCiconButton(iconStart, "Start");
-    // btnStart.classList.add("icon-button-30");
     btnStart.id = "start-button";
     btnStart.addEventListener("click", evt => {
         getSecondsPattsDuration();
@@ -1529,7 +1528,6 @@ async function setupControls(controlscontainer) {
 
     const iconReplay = modMdc.mkMDCicon("stop");
     const btnReplay = modMdc.mkMDCiconButton(iconReplay, "Stop");
-    // btnReset.classList.add("icon-button-30");
     btnReplay.addEventListener("click", evt => {
         initCurrentPattern();
     });
@@ -1602,7 +1600,6 @@ async function setupControls(controlscontainer) {
     // const iconSettings = modMdc.mkMDCicon("settings_heart");
     const iconSettings = modMdc.mkMDCicon("video_settings");
     const btnSettings = modMdc.mkMDCiconButton(iconSettings, "Start");
-    // btnSettings.classList.add("icon-button-30");
     btnSettings.addEventListener("click", async evt => {
         /*
         Just useless. Impossible to get to work!
@@ -2067,6 +2064,7 @@ async function dialogTestSounds() {
     modSound.dialogTestWAsound();
 }
 
+/*
 (async () => {
     // const linkVK = makeAbsLink("../src/js/mod/virt-keyboard.js");
     // const linkLS = makeAbsLink("../src/js/mod/local-settings.js");
@@ -2080,3 +2078,4 @@ async function dialogTestSounds() {
         }
     );
 })();
+*/
