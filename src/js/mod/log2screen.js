@@ -63,6 +63,13 @@ export function log(msg) {
             });
             divLog.textContent = "";
             divLog.appendChild(btn);
+            const btnOff = document.createElement("button");
+            btnOff.textContent = "Off";
+            btnOff.style.marginLeft = "30px";
+            btnOff.addEventListener("click", evt => {
+                setTimeout(() => divLog.remove(), 500);
+            });
+            divLog.appendChild(btnOff);
         }
     } else {
         clearTimeout(logTimeout);
