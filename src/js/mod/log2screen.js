@@ -84,7 +84,7 @@ const flashClientSize = 15;
 divFlashClient.style = `
     position: fixed;
     z-index: 1001;
-    background-color: green;
+    background-color: yellow;
     width: ${flashClientSize}px;
     aspect-ratio: 1/1;
     border-radius: 50%;

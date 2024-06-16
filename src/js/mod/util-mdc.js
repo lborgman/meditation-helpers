@@ -1061,13 +1061,13 @@ export async function mkMDCdialog(body, eltActions, fullScreen, zIndex) {
         eltScrim,
         // eltScrim2
     ]);
-    dom.addEventListener("pointerdown", evt => {
-        const targ = evt.target;
-        if (!targ.classList.contains("mdc-dialog__scrim")) { return; }
+    eltScrim2.addEventListener("pointerdown", evt => {
+        // const targ = evt.target;
+        // if (!targ.classList.contains("mdc-dialog__scrim")) { return; }
         evt.preventDefault();
         evt.stopPropagation();
         evt.stopImmediatePropagation();
-        console.log("*** SCRIM, pointerdown, stop, capture true, dom");
+        console.log("*** SCRIM2, pointerdown, stop, capture true, dom");
         dom.remove();
     }, true);
 
@@ -1079,6 +1079,8 @@ export async function mkMDCdialog(body, eltActions, fullScreen, zIndex) {
     function addMDCandOpen() {
         ret.mdc = new mdc.dialog.MDCDialog(ret.dom);
         ret.mdc.open();
+        ret.dom.appendChild(eltScrim2);
+        eltScrim.remove();
         // dom.classList.add("mdc-dialog--open");
     }
     return await new Promise((resolve, reject) => {
