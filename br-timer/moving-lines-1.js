@@ -1990,6 +1990,7 @@ async function setupThings() {
     await setupControls(sectionContainer);
     addInfoButton(sectionContainer);
     addTestSoundButton(sectionContainer);
+    setup4Android(sectionContainer);
     setCanvasSizes();
     const afterResize = () => {
         setCanvasSizes();
@@ -2021,6 +2022,77 @@ async function addInfoButton(container) {
             `;
     container.appendChild(btnInfo);
 }
+
+
+
+///////////////////////////////////////////
+// For Android virtual keyboard
+
+let isAndroid;
+const idVKbutton = "btn-android-vk";
+
+/**
+ * 
+ * @param {Element} elt 
+ * @returns {boolean}
+ */
+function elementNeedsKB(elt) {
+    const tn = elt.tagName;
+    switch (tn) {
+        case "TEXTAREA":
+            return true;
+        case "INPUT":
+            // @ts-ignore element.type
+            const tp = elt.type;
+            if (tp == "number" || tp == "text") return true;
+    }
+    return false;
+}
+
+
+async function dialogAndroidVKinfo() {
+    alert("android vk info");
+}
+async function setup4Android(container) {
+    if (isAndroid == undefined) {
+        isAndroid = /android/i.test(navigator.userAgent);
+        isAndroid = true; // FIX-ME:
+    }
+    if (isAndroid == false) return;
+    const modMdc = await TSDEFimport("util-mdc");
+    const iconSound = modMdc.mkMDCicon("android");
+    iconSound.style.fontSize = "2.5rem";
+    iconSound.style.color = "#3DDC84";
+    const btnAndroidVKinfo = modMdc.mkMDCiconButton(iconSound, "Test sounds");
+    btnAndroidVKinfo.id = idVKbutton;
+    btnAndroidVKinfo.addEventListener("click", evt => { dialogAndroidVKinfo(); });
+    // @ts-ignore style
+    btnAndroidVKinfo.style = `
+                position: absolute;
+                bottom: 50px;
+                right: 5px;
+                z-index: 99999;
+            `;
+    container.appendChild(btnAndroidVKinfo);
+
+    /** * @returns {boolean} */
+    function activeElementNeedsKB() {
+        const elt = document.activeElement;
+        if (!elt) return false;
+        return elementNeedsKB(elt);
+    }
+    const checkNeedsKB = () => {
+        if (activeElementNeedsKB()) {
+            btnAndroidVKinfo.style.display = "block";
+        } else {
+            btnAndroidVKinfo.style.display = "none";
+        }
+    }
+    const debounceNeedsKB = TSDEFdebounce(checkNeedsKB, 500);
+    document.body.addEventListener("focusin", evt => { debounceNeedsKB(); });
+    document.body.addEventListener("focusout", evt => { debounceNeedsKB(); });
+}
+
 async function addTestSoundButton(container) {
     const modMdc = await TSDEFimport("util-mdc");
     const iconSound = modMdc.mkMDCicon("flutter_dash");
