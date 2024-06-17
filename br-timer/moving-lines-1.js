@@ -180,6 +180,7 @@ const maxRedraw = 120 * 60;
 let settingDurationSeconds;
 let settingDurationMinutes;
 let settingDurationIsInSeconds;
+let settingFlashPoint;
 
 let settingNumPatts;
 
@@ -1512,6 +1513,13 @@ async function setupControls(controlscontainer) {
     settingDurationSeconds = new ourLocalSetting("duration-seconds", 9);
     settingDurationMinutes = new ourLocalSetting("duration-minutes", 1);
     settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
+    settingFlashPoint = new ourLocalSetting("flash-point", -1);
+    if (settingFlashPoint.value > 0) {
+        // @ts-ignore import
+        const modL2S = await import("log2screen");
+        modL2S.addFlashPoint();
+        modL2S.secFlashPoint = settingFlashPoint.value;
+    }
     settingNumPatts = new ourLocalSetting("num-patts", 1.5);
     const modMdc = await TSDEFimport("util-mdc");
     const iconStart = modMdc.mkMDCicon("play_arrow");
@@ -1673,16 +1681,23 @@ async function setupControls(controlscontainer) {
 
 
         const inpMinOrSec = TSmkElt("input", { type: "checkbox" });
-        // const settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
         settingDurationIsInSeconds.bindToInput(inpMinOrSec);
         const lblMinOrSec = TSmkElt("label", undefined, [
             inpMinOrSec, "Duration in seconds",
         ]);
-        const divMinOrSec = TSmkElt("p", undefined, [
+        const divMinOrSec = TSmkElt("div", undefined, [
             // TSmkElt("div", undefined, "https://issues.chromium.org/issues/40830060"),
             // TSmkElt("div", undefined, btnCanvasBug),
             TSmkElt("div", undefined, lblMinOrSec),
         ]);
+
+        const inpFlashPoint = TSmkElt("input", { type: "number" });
+        inpFlashPoint.style.width = "30px";
+        settingFlashPoint.bindToInput(inpFlashPoint);
+        const lblFlashPoint = TSmkElt("label", undefined, [
+            "Flash point, seconds: ", inpFlashPoint
+        ]);
+        const divFlashPoint = TSmkElt("div", undefined, lblFlashPoint);
 
         const divNW = TSmkElt("p", undefined, ['Navigator Connection API not supported']);
         // @ts-ignore navigator.connection
@@ -1698,6 +1713,13 @@ async function setupControls(controlscontainer) {
             addRow(`Round Trip Time: ${nc.rtt}ms`);
             addRow(`Save data: ${nc.saveData}`);
         }
+        const divNWcard = TSmkElt("div", undefined, [
+            TSmkElt("b", undefined, "Network"),
+            divNW
+        ]);
+        divNWcard.classList.add("mdc-card");
+        divNWcard.style.backgroundColor = "white";
+        divNWcard.style.padding = "10px";
 
         const btnClearData = modMdc.mkMDCbutton("Reset", "raised");
         btnClearData.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
@@ -1741,14 +1763,17 @@ async function setupControls(controlscontainer) {
         const divDebug = TSmkElt("div", undefined, [
             TSmkElt("h3", undefined, "Debug"),
             divMinOrSec,
-            TSmkElt("h3", undefined, "Network"),
-            divNW,
+            divFlashPoint,
+            divNWcard,
         ]);
         // @ts-ignore style
         divDebug.style = `
                     background-color: yellow;
                     border: 3px solid red;
                     padding: 10px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
                 `;
 
         const divDebugDetails = TSmkElt("details", undefined, [
@@ -1779,14 +1804,16 @@ async function setupControls(controlscontainer) {
         const eltAudio = TSmkElt("audio", { controls: "" }, [
             eltAudioSource
         ]);
-        const divTestAudio = TSmkElt("p", undefined, [
-            TSmkElt("h3", undefined, "Test audio"),
+        const divAudioCard = TSmkElt("div", undefined, [
+            TSmkElt("b", undefined, "Test audio"),
             eltAudio,
             divTestSounds,
         ]);
-        divTestAudio.style.background = "red";
+        divAudioCard.classList.add("mdc-card");
+        divAudioCard.style.background = "red";
+        divAudioCard.style.padding = "10px";
 
-        divDebugDetails.appendChild(divTestAudio);
+        divDebug.appendChild(divAudioCard);
 
         const bdy = TSmkElt("div", { class: "colored-dialog" }, [
             TSmkElt("h2", undefined, "Play settings"),
@@ -2019,63 +2046,8 @@ function debugAndThrow(msg) {
 
 let addedDocPointerDown = false;
 async function dialogTestSounds() {
-    /*
-    // @ts-ignore import
-    const modL2S = await import("log2screen");
-    if (modL2S.addLogDiv()) {
-        modL2S.addFlashPoint();
-        if (!addedDocPointerDown) {
-            addedDocPointerDown = true;
-            document.documentElement.addEventListener("pointerdown", evt => {
-                // @ts-ignore something?
-                const targ = evt.target;
-                if (targ) {
-                    // const cX = evt.clientX;
-                    const cY = evt.clientY;
-                    const tagName = targ.tagName;
-                    const id = targ.id || "?";
-
-                    let scrim = "";
-                    // @ts-ignore .target.tagName
-                    if (tagName == "DIV") {
-                        // @ts-ignore .target
-                        if (targ.classList.contains("mdc-dialog__scrim")) {
-                            // modL2S.log("clicked scrim");
-                            scrim = " scrim";
-                        }
-                    }
-
-                    const bcr = targ.getBoundingClientRect();
-                    // console.log({bcr});
-                    // const jsonStrBcr = JSON.stringify(bcr);
-                    // modL2S.log(`click (${cX},${cY}) ${id} ${tagName} ${jsonStrBcr}`);
-                    modL2S.log(`click ${id} ${tagName}${scrim}:: cY:${cY} top:${bcr.top}, height:${bcr.height}`);
-                    // const elt = document.createElement("span");
-
-                }
-                console.log(evt);
-            });
-        }
-    }
-    */
     // @ts-ignore
     const linkSound = makeAbsLink("../src/js/mod/gen-sounds.js");
     const modSound = await import(linkSound);
     modSound.dialogTestWAsound();
 }
-
-/*
-(async () => {
-    // const linkVK = makeAbsLink("../src/js/mod/virt-keyboard.js");
-    // const linkLS = makeAbsLink("../src/js/mod/local-settings.js");
-    // console.log("virt-k", linkVK, linkLS);
-    // @ts-ignore import
-    const modVK = await import("virt-keyboard");
-    console.log({ modVK });
-    modVK.detectVirtualKeyboard(
-        () => {
-            document.documentElement.classList.add("has-virtual-keyboard");
-        }
-    );
-})();
-*/

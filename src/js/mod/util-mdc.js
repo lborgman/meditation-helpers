@@ -1045,31 +1045,10 @@ export async function mkMDCdialog(body, eltActions, fullScreen, zIndex) {
     ]);
     if (eltActions) eltSurface.appendChild(eltActions);
     const eltScrim = mkElt("div", { class: "mdc-dialog__scrim" });
-    const eltScrim2 = mkElt("div");
-    eltScrim2.style = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0;
-        z-index: -1;
-        background: yellow;
-        opacity: 0.5;
-    `;
     const dom = mkElt("div", { class: "mdc-dialog" }, [
         eltContainer,
         eltScrim,
-        // eltScrim2
     ]);
-    eltScrim2.addEventListener("pointerdown", evt => {
-        // const targ = evt.target;
-        // if (!targ.classList.contains("mdc-dialog__scrim")) { return; }
-        evt.preventDefault();
-        evt.stopPropagation();
-        evt.stopImmediatePropagation();
-        console.log("*** SCRIM2, pointerdown, stop, capture true, dom");
-        dom.remove();
-    }, true);
 
     if (fullScreen) dom.classList.add("mdc-dialog--fullscreen");
     if (zIndex) dom.style.zIndex = zIndex;
@@ -1079,9 +1058,6 @@ export async function mkMDCdialog(body, eltActions, fullScreen, zIndex) {
     function addMDCandOpen() {
         ret.mdc = new mdc.dialog.MDCDialog(ret.dom);
         ret.mdc.open();
-        // ret.dom.appendChild(eltScrim2);
-        // eltScrim.remove();
-        // dom.classList.add("mdc-dialog--open");
     }
     return await new Promise((resolve, reject) => {
         setTimeout(() => {

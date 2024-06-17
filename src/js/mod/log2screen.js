@@ -100,6 +100,7 @@ divFlashClient.style = `
 
 /** @type {boolean} */
 let addedFlashPoint = false;
+export let secFlashPoint = 9;
 export function addFlashPoint() {
     if (addedFlashPoint) { return; }
     addedFlashPoint = true;
@@ -122,7 +123,7 @@ export function addFlashPoint() {
                 divFlashClient.remove();
                 // @ts-ignore style
                 if (targ) { targ.style.outline = null; }
-            }, 2200);
+            }, 1000 * secFlashPoint);
         }
     });
 }
