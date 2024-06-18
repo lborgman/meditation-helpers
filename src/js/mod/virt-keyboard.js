@@ -4,6 +4,8 @@ console.log("This is virt-keyboard.js");
     This is a module for detecting virtual (screen) keyboard.
 */
 
+// https://stackoverflow.com/questions/77795626/virtual-keyboard-api-hide-isnt-working
+
 /**
  * 
  * @returns {boolean}

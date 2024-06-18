@@ -1517,8 +1517,17 @@ async function setupControls(controlscontainer) {
     if (settingFlashPoint.value > 0) {
         // @ts-ignore import
         const modL2S = await import("log2screen");
+        // modL2S.secFlashPoint = settingFlashPoint.value;
+        modL2S.setSecFlashPoint(settingFlashPoint.value);
         modL2S.addFlashPoint();
-        modL2S.secFlashPoint = settingFlashPoint.value;
+        // @ts-ignore import
+        const modMdc = await import("util-mdc");
+        const msg = `secFlashPoint: ${modL2S.getSecFlashPoint()}`;
+        const eltMsg = TSmkElt("span", undefined, msg);
+        eltMsg.style.backgroundColor = "red";
+        eltMsg.style.color = "yellow";
+        eltMsg.style.padding = "4px";
+        modMdc.mkMDCsnackbar(eltMsg);
     }
     settingNumPatts = new ourLocalSetting("num-patts", 1.5);
     const modMdc = await TSDEFimport("util-mdc");

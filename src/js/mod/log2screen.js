@@ -100,7 +100,16 @@ divFlashClient.style = `
 
 /** @type {boolean} */
 let addedFlashPoint = false;
-export let secFlashPoint = 9;
+
+// https://stackoverflow.com/questions/32558514/javascript-es6-export-const-vs-export-let
+// export let secFlashPoint;
+let secFlashPoint = 9;
+export function setSecFlashPoint(sec) {
+    secFlashPoint = sec;
+}
+export function getSecFlashPoint(sec) {
+    return secFlashPoint;
+}
 export function addFlashPoint() {
     if (addedFlashPoint) { return; }
     addedFlashPoint = true;
