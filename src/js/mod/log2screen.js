@@ -1,6 +1,19 @@
 // @ts-check
 console.log("This is log2screen.js");
 
+/*
+    Created to trace down problems with Android virtual keyboard and MD2 dialogs.
+
+    Related:
+    https://stackoverflow.com/questions/77795626/virtual-keyboard-api-hide-isnt-working
+    https://issues.chromium.org/issues/40912131
+
+    I filed an issue:
+    https://issues.chromium.org/issues/347967487
+    
+*/
+
+
 /** @type {HTMLDivElement} */
 const divLog = document.createElement("div");
 divLog.id = "div-log2screen";
