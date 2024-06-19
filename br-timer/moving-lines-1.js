@@ -2093,6 +2093,7 @@ async function setup4Android(container) {
     const checkNeedsKB = () => {
         if (activeElementNeedsKB()) {
             btnAndroidVKinfo.style.display = "block";
+            makeDialogsFixed();
         } else {
             btnAndroidVKinfo.style.display = "none";
         }
@@ -2100,6 +2101,22 @@ async function setup4Android(container) {
     const debounceNeedsKB = TSDEFdebounce(checkNeedsKB, 500);
     document.body.addEventListener("focusin", evt => { debounceNeedsKB(); });
     document.body.addEventListener("focusout", evt => { debounceNeedsKB(); });
+}
+function makeDialogsFixed() {
+    const arrDlgSurface = [...document.getElementsByClassName("mdc-dialog__surface")];
+    console.log({arrDlgSurface});
+    arrDlgSurface.forEach(elt => {
+        const bcr = elt.getBoundingClientRect();
+        console.log({elt, bcr});
+        // @ts-ignore style
+        elt.style.top = `${bcr.y}px`;
+        // @ts-ignore style
+        elt.style.left = `${bcr.x}px`;
+        // @ts-ignore style
+        elt.style.position = "fixed";
+        // @ts-ignore style
+        elt.style.outline = "8px dotted yellowgreen";
+    });
 }
 
 async function addTestSoundButton(container) {
