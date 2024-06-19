@@ -2060,7 +2060,28 @@ function elementNeedsKB(elt) {
 
 
 async function dialogAndroidVKinfo() {
-    alert("android vk info");
+    const IDexplainVKbug = "explain-android-vk-bug";
+    if (document.getElementById( IDexplainVKbug )) return;
+    // @ts-ignore import
+    const modMdc = await import("util-mdc");
+    const linkIssue = "https://issues.chromium.org/issues/347967487";
+    const aIssue = TSmkElt("a", { href: linkIssue }, "chromium issue 347967487");
+    const divExplain = TSmkElt("div", undefined, [
+        TSmkElt("p", undefined, `
+                The display of this page might be distorted when the virtual keyboard is closed.
+                I am currently testing a workaround fot this.
+            `),
+        TSmkElt("p", undefined, [
+            "A description of this problem can be found here: ",
+            aIssue
+        ])
+    ]);
+    divExplain.id = IDexplainVKbug ;
+    const bdy = TSmkElt("div", undefined, [
+        TSmkElt("h2", undefined, "Problem with Android virtual keyboard"),
+        divExplain
+    ])
+    modMdc.mkMDCdialogAlert(bdy);
 }
 async function setup4Android(container) {
     if (isAndroid == undefined) {
@@ -2069,18 +2090,23 @@ async function setup4Android(container) {
     }
     if (isAndroid == false) return;
     const modMdc = await TSDEFimport("util-mdc");
-    const iconSound = modMdc.mkMDCicon("android");
-    iconSound.style.fontSize = "2.5rem";
-    iconSound.style.color = "#3DDC84";
-    const btnAndroidVKinfo = modMdc.mkMDCiconButton(iconSound, "Test sounds");
+    const iconAndroid = modMdc.mkMDCicon("android");
+    iconAndroid.style.fontSize = "2.5rem";
+    iconAndroid.style.color = "#3DDC84";
+    const btnAndroidVKinfo = modMdc.mkMDCiconButton(iconAndroid, "Android virtual keyboard bug");
     btnAndroidVKinfo.id = idVKbutton;
-    btnAndroidVKinfo.addEventListener("click", evt => { dialogAndroidVKinfo(); });
+    btnAndroidVKinfo.addEventListener("click", evt => {
+        evt.stopPropagation();
+        evt.stopImmediatePropagation();
+        dialogAndroidVKinfo();
+    });
     // @ts-ignore style
     btnAndroidVKinfo.style = `
                 position: absolute;
-                bottom: 50px;
+                top: 150px;
                 right: 5px;
                 z-index: 99999;
+                display: none;
             `;
     container.appendChild(btnAndroidVKinfo);
 
@@ -2094,8 +2120,8 @@ async function setup4Android(container) {
         if (activeElementNeedsKB()) {
             btnAndroidVKinfo.style.display = "block";
             makeDialogsFixed();
-        } else {
-            btnAndroidVKinfo.style.display = "none";
+            // } else {
+            // btnAndroidVKinfo.style.display = "none";
         }
     }
     const debounceNeedsKB = TSDEFdebounce(checkNeedsKB, 500);
@@ -2104,10 +2130,10 @@ async function setup4Android(container) {
 }
 function makeDialogsFixed() {
     const arrDlgSurface = [...document.getElementsByClassName("mdc-dialog__surface")];
-    console.log({arrDlgSurface});
+    console.log({ arrDlgSurface });
     arrDlgSurface.forEach(elt => {
         const bcr = elt.getBoundingClientRect();
-        console.log({elt, bcr});
+        console.log({ elt, bcr });
         // @ts-ignore style
         elt.style.top = `${bcr.y}px`;
         // @ts-ignore style
