@@ -2061,7 +2061,7 @@ function elementNeedsKB(elt) {
 
 async function dialogAndroidVKinfo() {
     const IDexplainVKbug = "explain-android-vk-bug";
-    if (document.getElementById( IDexplainVKbug )) return;
+    if (document.getElementById(IDexplainVKbug)) return;
     // @ts-ignore import
     const modMdc = await import("util-mdc");
     const linkIssue = "https://issues.chromium.org/issues/347967487";
@@ -2069,19 +2069,24 @@ async function dialogAndroidVKinfo() {
     const divExplain = TSmkElt("div", undefined, [
         TSmkElt("p", undefined, `
                 The display of this page might be distorted when the virtual keyboard is closed.
-                I am currently testing a workaround fot this.
+                I am currently testing a workaround for this.
             `),
         TSmkElt("p", undefined, [
             "A description of this problem can be found here: ",
             aIssue
         ])
     ]);
-    divExplain.id = IDexplainVKbug ;
+    divExplain.id = IDexplainVKbug;
     const bdy = TSmkElt("div", undefined, [
         TSmkElt("h2", undefined, "Problem with Android virtual keyboard"),
         divExplain
-    ])
-    modMdc.mkMDCdialogAlert(bdy);
+    ]);
+    const dlg = await modMdc.mkMDCdialogAlert(bdy);
+    console.log({ dlg });
+    const divSurface = dlg.dom.querySelector(".mdc-dialog__surface");
+    divSurface.style.position = "fixed";
+    divSurface.style.top = "30px";
+    divSurface.style.background = "yellow";
 }
 async function setup4Android(container) {
     if (isAndroid == undefined) {
