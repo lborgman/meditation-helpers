@@ -319,13 +319,30 @@ export async function dialogTestWAsound() {
             divTones,
             lblDb
         ]);
+        let saveButton;
         bdy.addEventListener("input", evt => {
-            console.log({ evt });
+            // FIX-ME: Check can be saved...
+            const dbOk = isStringNumber(inpDb.value);
+            const stepsOk = isStringNumber(inpSteps.value);
+            const canSave = dbOk && stepsOk;
+            console.log("overtone bdy input", { evt }, inpDb.value, dbOk, inpSteps.value, stepsOk, canSave);
+            saveButton.disabled = !canSave;
+            function isStringNumber(value) {
+                return /^[0-9]+[.]{0,1}[0-9]*$/.test(value.trim());
+            }
         });
         bdy.id = "div-dialog-overtone";
         bdy.style.touchAction = "none";
         bdy.style.background = "yellowgreen";
-        const ans = await modMdc.mkMDCdialogConfirm(bdy);
+        const funResult = () => {
+            return "this si the result";
+        };
+        const funOkButton = (btn) => {
+            saveButton = btn;
+            saveButton.disabled = true;
+        };
+
+        const ans = await modMdc.mkMDCdialogConfirm(bdy, "Save", true, funResult, funOkButton);
         console.log({ ans });
         if (ans) {
             const oldVal = settingOvertonesWA1.value;
@@ -394,67 +411,66 @@ export async function dialogTestWAsound() {
     });
     modMdc.mkMDCdialogAlert(body, "Close");
 }
+    /**
+     * 
+     * @param {number} dB 
+     * @returns  {number}
+     */
+    function dB2ratio(dB) { return Math.pow(10, dB / 10); }
 
-/**
- * 
- * @param {number} dB 
- * @returns  {number}
- */
-function dB2ratio(dB) { return Math.pow(10, dB / 10); }
-
-function stopOscillators(arrOsc) {
-    arrOsc.forEach(osc => { osc.stop(); });
-    arrOsc.length = 0;
-}
-
-
-function startOscillators(arrOsc, arrOscTemplates, duration, toneSteps) {
-    console.warn({ arrOsc, arrOscTemplates, duration, toneSteps })
-    toneSteps = toneSteps || 0;
-    let highestGain = 0;
-    arrOscTemplates.forEach(rec => {
-        console.log("rec.gain", rec.gain);
-        highestGain = Math.max(highestGain, rec.gain);
-    });
-    console.log({ highestGain });
-    arrOscTemplates.forEach(rec => {
-        const freqBase = rec.frequency;
-        // const freqGoal = freq * Math.pow(2, toneSteps / 12);
-        const freqGoal = mkOvertone(freqBase, toneSteps);
-        const gain = rec.gain;
-        arrOsc.push(startStopOscWA(freqBase, freqGoal, duration, gain / highestGain));
+    function stopOscillators(arrOsc) {
+        arrOsc.forEach(osc => { osc.stop(); });
+        arrOsc.length = 0;
     }
-    )
-    arrOsc.forEach(osc => { osc.start(); });
-}
 
-/**
- * 
- * @param {number} freqInit 
- * @param {number} freqGoal 
- * @param {number} secToGoal 
- * @param {number} gain 
- */
-function startStopOscWA(freqInit, freqGoal, secToGoal, gain) {
-    // https://music.arts.uci.edu/dobrian/webaudio/tutorials/WebAudioAPI/simpleoscillator.html
-    const osc = ctxAudio.createOscillator();
-    const startTime = ctxAudio.currentTime; // FIX-ME: startTime
-    osc.frequency.setValueAtTime(freqInit, startTime)
-    osc.frequency.linearRampToValueAtTime(freqGoal, startTime + secToGoal);
-    const amp = ctxAudio.createGain();
-    amp.gain.setValueAtTime(gain, startTime);
-    // osc.connect(ctxAudio.destination);
-    osc.connect(amp);
-    amp.connect(ctxAudio.destination);
-    if (!isNaN(secToGoal)) {
-        if (secToGoal > 0) {
-            setTimeout(() => {
-                stop();
-            }, secToGoal * 1000);
+
+    function startOscillators(arrOsc, arrOscTemplates, duration, toneSteps) {
+        console.warn({ arrOsc, arrOscTemplates, duration, toneSteps })
+        toneSteps = toneSteps || 0;
+        let highestGain = 0;
+        arrOscTemplates.forEach(rec => {
+            console.log("rec.gain", rec.gain);
+            highestGain = Math.max(highestGain, rec.gain);
+        });
+        console.log({ highestGain });
+        arrOscTemplates.forEach(rec => {
+            const freqBase = rec.frequency;
+            // const freqGoal = freq * Math.pow(2, toneSteps / 12);
+            const freqGoal = mkOvertone(freqBase, toneSteps);
+            const gain = rec.gain;
+            arrOsc.push(startStopOscWA(freqBase, freqGoal, duration, gain / highestGain));
         }
+        )
+        arrOsc.forEach(osc => { osc.start(); });
     }
-    return osc;
-}
+
+    /**
+     * 
+     * @param {number} freqInit 
+     * @param {number} freqGoal 
+     * @param {number} secToGoal 
+     * @param {number} gain 
+     */
+    function startStopOscWA(freqInit, freqGoal, secToGoal, gain) {
+        // https://music.arts.uci.edu/dobrian/webaudio/tutorials/WebAudioAPI/simpleoscillator.html
+        const osc = ctxAudio.createOscillator();
+        const startTime = ctxAudio.currentTime; // FIX-ME: startTime
+        osc.frequency.setValueAtTime(freqInit, startTime)
+        osc.frequency.linearRampToValueAtTime(freqGoal, startTime + secToGoal);
+        const amp = ctxAudio.createGain();
+        amp.gain.setValueAtTime(gain, startTime);
+        // osc.connect(ctxAudio.destination);
+        osc.connect(amp);
+        amp.connect(ctxAudio.destination);
+        if (!isNaN(secToGoal)) {
+            if (secToGoal > 0) {
+                setTimeout(() => {
+                    stop();
+                }, secToGoal * 1000);
+            }
+        }
+        return osc;
+    }
 
 // https://wellness-space.net/frequencies-of-a-singing-bowl/
 // https://www.hibberts.co.uk/building-a-bell-sound/
