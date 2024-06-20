@@ -8,6 +8,16 @@ console.log("This is gen-sounds.js");
 
 /**
  * 
+ * @param {frequency} freqBase 
+ * @param {number} toneSteps 
+ * @returns {frequency}
+ */
+function mkOvertone(freqBase, toneSteps) {
+    return freqBase * Math.pow(2, toneSteps / 12);
+}
+
+/**
+ * 
  * @param {frequency} frequency 
  * @param {gain} gain 
  * @returns {oscTemplate}
@@ -134,10 +144,12 @@ export async function dialogTestWAsound() {
     function updateDivOvertones() {
         divOverTones.textContent = "";
         const recs = settingOvertonesWA1.value;
+        const freqBase = settingFreqBase.value;
         for (let i = 0, len = recs.length; i < len; i++) {
             const rec = recs[i];
+            const overTone = mkOvertone(freqBase, rec.diffTones);
             const spanOvertone = TSmkElt("span", undefined, [
-                TSmkElt("span", undefined, `Tone steps: ${rec.diffTones}`),
+                TSmkElt("span", undefined, `Tone steps: ${rec.diffTones} (${overTone.toFixed(1)} Hz)`),
                 `Diff dB: ${rec.diffDB}`
             ]);
             // @ts-ignore style
@@ -267,6 +279,23 @@ export async function dialogTestWAsound() {
         const inpSteps = document.createElement("input");
         inpSteps.type = "number";
         const lblSteps = TSmkElt("label", undefined, ["Diff tones:", inpSteps]);
+        const spanTone = TSmkElt("span");
+        const divTones = TSmkElt("div", undefined, [spanTone, " Hz"]);
+        divTones.style.marginLeft = "80px";
+        divTones.style.marginTop = "-10px";
+        inpSteps.addEventListener("input", evt => {
+            const toneSteps = inpSteps.value;
+            if (toneSteps == "") {
+                spanTone.textContent = "";
+                return;
+            }
+            const freqBase = settingFreqBase.value;
+            // const freqOvertone = freqBase * Math.pow(2, toneSteps / 12);
+            const freqOvertone = mkOvertone(freqBase, toneSteps);
+            // spanTone.textContent = inpSteps.value;
+            spanTone.textContent = freqOvertone.toFixed(1);
+        });
+
         /** @type {HTMLInputElement} */
         const inpDb = document.createElement("input");
         inpDb.type = "number";
@@ -274,6 +303,7 @@ export async function dialogTestWAsound() {
         const bdy = TSmkElt("div", undefined, [
             TSmkElt("h2", undefined, "Add overtone"),
             lblSteps,
+            divTones,
             lblDb
         ]);
         bdy.addEventListener("input", evt => {
@@ -381,10 +411,11 @@ function startOscillators(arrOsc, arrOscTemplates, duration, toneSteps) {
     arrOsc.push(startStopOscWA(freq2, freq2Goal, duration, gain2));
     */
     arrOscTemplates.forEach(rec => {
-        const freq = rec.frequency;
-        const freqGoal = freq * Math.pow(2, toneSteps / 12);
+        const freqBase = rec.frequency;
+        // const freqGoal = freq * Math.pow(2, toneSteps / 12);
+        const freqGoal = mkOvertone(freqBase, toneSteps);
         const gain = rec.gain;
-        arrOsc.push(startStopOscWA(freq, freqGoal, duration, gain));
+        arrOsc.push(startStopOscWA(freqBase, freqGoal, duration, gain));
     }
     )
     arrOsc.forEach(osc => { osc.start(); });
