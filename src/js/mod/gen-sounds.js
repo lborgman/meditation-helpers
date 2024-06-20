@@ -159,7 +159,7 @@ export async function dialogTestWAsound() {
             `;
             const iRec = i;
             const iconDelete = modMdc.mkMDCicon("delete_forever");
-            const btnDelete = modMdc.mkMDCiconButton(iconDelete);
+            const btnDelete = modMdc.mkMDCiconButton(iconDelete, "Delete overtone");
             btnDelete.addEventListener("click", evt => {
                 recs.splice(iRec, 1);
                 settingOvertonesWA1.value = recs;
@@ -259,7 +259,20 @@ export async function dialogTestWAsound() {
         }
         function startOscWA1() {
             const arrTemplates = [];
-            arrTemplates.push(mkOscWAtemplate(settingFreqBase.value, 1));
+            const freqBase = settingFreqBase.value;
+            arrTemplates.push(mkOscWAtemplate(freqBase, 1));
+            // FIX-ME: add the overtones!
+            console.log(settingOvertonesWA1.value);
+            const arrOvertones = settingOvertonesWA1.value;
+            arrOvertones.forEach(recOver => {
+                const { diffTones, diffDB } = recOver;
+                console.log({ recOver, diffTones, diffDB });
+                const freqOver = mkOvertone(freqBase, diffTones);
+                const overGain = dB2ratio(diffDB);
+                arrTemplates.push(mkOscWAtemplate(freqOver, overGain));
+            })
+
+            // FIX-ME: what is this???
             const toneSteps = settingToneStepsDuration.value
             startOscillators(oscWA1, arrTemplates, secDuration, toneSteps);
             // @ts-ignore style
@@ -396,26 +409,20 @@ function stopOscillators(arrOsc) {
 
 
 function startOscillators(arrOsc, arrOscTemplates, duration, toneSteps) {
+    console.warn({ arrOsc, arrOscTemplates, duration, toneSteps })
     toneSteps = toneSteps || 0;
-    /*
-    const freqBase = settingFreqBase.value;
-    const toneSteps2 = settingToneSteps2.value;
-    const freq2 = freqBase * Math.pow(2, toneSteps2 / 12);
-    const toneStepsDuration = settingToneStepsDuration.value;
-    const duration = settingDuration.value;
-    const freqBaseGoal = freqBase * Math.pow(2, toneStepsDuration / 12);
-    const freq2Goal = freq2 * Math.pow(2, toneStepsDuration / 12);
-    const gain2 = dB2ratio(settingGainDb2.value);
-
-    arrOsc.push(startStopOscWA(freqBase, freqBaseGoal, duration, 1));
-    arrOsc.push(startStopOscWA(freq2, freq2Goal, duration, gain2));
-    */
+    let highestGain = 0;
+    arrOscTemplates.forEach(rec => {
+        console.log("rec.gain", rec.gain);
+        highestGain = Math.max(highestGain, rec.gain);
+    });
+    console.log({ highestGain });
     arrOscTemplates.forEach(rec => {
         const freqBase = rec.frequency;
         // const freqGoal = freq * Math.pow(2, toneSteps / 12);
         const freqGoal = mkOvertone(freqBase, toneSteps);
         const gain = rec.gain;
-        arrOsc.push(startStopOscWA(freqBase, freqGoal, duration, gain));
+        arrOsc.push(startStopOscWA(freqBase, freqGoal, duration, gain / highestGain));
     }
     )
     arrOsc.forEach(osc => { osc.start(); });
