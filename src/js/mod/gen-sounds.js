@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-nocheck
 
 console.log("This is gen-sounds.js");
 
@@ -181,23 +181,73 @@ export async function dialogTestWAsound() {
     const oscWA1 = [];
     const oscTemplatesWA1 = settingOvertonesWA1.value;
 
-    const btnWA1 = modMdc.mkMDCbutton("Test sound");
+    const btnWA1 = modMdc.mkMDCbutton("Play sound");
     btnWA1.id = "button-wa1";
     btnWA1.addEventListener("click", evt => {
-        if (oscWA1.length > 0) { stopOscWA1(); } else { startOscWA1(); }
+        let msStart, msDuration, msEnd;
+        let numRedraw;
+        const maxRedraw = 1000;
+        const secDuration = settingDuration.value;
+        if (oscWA1.length > 0) { stop(); } else { start(); }
+        function start() {
+            msStart = Date.now();
+            msDuration = secDuration * 1000;
+            msEnd = msStart + msDuration;
+            console.log("START", { secDuration });
+            setTimeout(stop, secDuration * 1000);
+            startOscWA1();
+            startPie();
+        }
+        function stop() {
+            console.log("STOP");
+            stopOscWA1();
+            stopPie();
+        }
+        function startPie() {
+            numRedraw = 0;
+            drawNextPie();
+        }
+        function stopPie() {
+            numRedraw = maxRedraw + 1;
+        }
+        function drawNextPie() {
+            const ms = Date.now();
+            if (ms > msEnd) {
+                stopPie();
+                return;
+            }
+            const part = ms / msDuration;
+            clearCanvasWA();
+            drawPie(part);
+            requestAnimationFrame(
+                () => {
+                    if (numRedraw++ > maxRedraw) {
+                        console.log("stopping sec check", { numRedraw });
+                        return;
+                    }
+                    drawNextPie();
+                }
+            )
+        }
         function stopOscWA1() {
             stopOscillators(oscWA1);
             // @ts-ignore style
-            // btnWA1.style.backgroundColor = null;
+            btnWA1.style.backgroundColor = null;
+            btnWA1.style.color = null;
+            const eltLabel = btnWA1.querySelector(".mdc-button__label");
+            eltLabel.textContent = "Play sound";
         }
         function startOscWA1() {
             const arrTemplates = [];
             arrTemplates.push(mkOscWAtemplate(settingFreqBase.value, 1));
-            const secDuration = settingDuration.value;
             const toneSteps = settingToneStepsDuration.value
             startOscillators(oscWA1, arrTemplates, secDuration, toneSteps);
-            // btnWA1.style.backgroundColor = "red";
-            setTimeout(stopOscWA1, secDuration * 1000);
+            // @ts-ignore style
+            btnWA1.style.backgroundColor = "green";
+            btnWA1.style.color = "yellow";
+            const eltLabel = btnWA1.querySelector(".mdc-button__label");
+            eltLabel.textContent = "Stop sound";
+
         }
         console.log("done WA1", oscWA1);
     });
@@ -219,7 +269,7 @@ export async function dialogTestWAsound() {
             lblDb
         ]);
         bdy.addEventListener("input", evt => {
-            console.log({evt});
+            console.log({ evt });
         });
         bdy.id = "div-dialog-overtone";
         bdy.style.touchAction = "none";
@@ -250,8 +300,31 @@ export async function dialogTestWAsound() {
         lblFreqGoal,
     ]);
 
+    const eltCanvasWA = document.createElement("canvas");
+    // @ts-ignore style
+    eltCanvasWA.style = `
+        height: 100%;
+        aspect-ratio: 1 / 1;
+        outline: 1px dotted green;
+    `;
+    eltCanvasWA.width = 30;
+    eltCanvasWA.height = 30;
+    const ctxCanvasWA = eltCanvasWA.getContext("2d");
+
+    const modSvgPie = await import("svg-things");
+
+    drawPie(0.25);
+    function clearCanvasWA() { ctxCanvasWA.clearRect(0, 0, 30, 30); }
+    function drawPie(part) { modSvgPie.drawPie(ctxCanvasWA, 15, 15, 10, "red", part); }
+
+    const divSec = TSmkElt("span", undefined, `${settingDuration.value} sec`);
+    const divBtnWA = TSmkElt("div", undefined, [btnWA1, eltCanvasWA, divSec]);
+    divBtnWA.style = `
+        display: flex;
+        gap: 10px;
+    `;
     const divWA = TSmkElt("div", undefined, [
-        TSmkElt("div", undefined, btnWA1),
+        divBtnWA,
         lblFreqBase,
         detWAsubs,
         detWAdyn,

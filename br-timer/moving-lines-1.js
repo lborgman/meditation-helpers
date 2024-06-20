@@ -2069,7 +2069,7 @@ async function dialogAndroidVKinfo() {
     const divExplain = TSmkElt("div", undefined, [
         TSmkElt("p", undefined, `
                 The display of this page might be distorted when the virtual keyboard is closed.
-                I am currently testing a workaround for this.
+                A possible workaround for this problem is used here.
             `),
         TSmkElt("p", undefined, [
             "A description of this problem can be found here: ",
