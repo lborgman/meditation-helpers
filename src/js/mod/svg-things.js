@@ -21,7 +21,7 @@ export function drawPie(ctx, cX, cY, cR, color, piePart) {
     ctx.closePath();
     ctx.fill();
 
-    ctx.strokeStyle = "red";
+    ctx.strokeStyle = color;
     ctx.strokeWidth = "1";
     ctx.beginPath();
     ctx.ellipse(cX, cY, cR, cR, 0, 0, 2 * Math.PI);

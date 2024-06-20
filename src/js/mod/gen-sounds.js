@@ -186,15 +186,20 @@ export async function dialogTestWAsound() {
     btnWA1.addEventListener("click", evt => {
         let msStart, msDuration, msEnd;
         let numRedraw;
-        const maxRedraw = 1000;
+        // const maxRedraw = 1000;
+        const maxRedraw = 120 * 60;
         const secDuration = settingDuration.value;
+        // const secDuration = 10;
         if (oscWA1.length > 0) { stop(); } else { start(); }
         function start() {
             msStart = Date.now();
             msDuration = secDuration * 1000;
             msEnd = msStart + msDuration;
             console.log("START", { secDuration });
-            setTimeout(stop, secDuration * 1000);
+            setTimeout(() => {
+                console.log("STOPPING, setTimeout", secDuration);
+                stop();
+            }, secDuration * 1000);
             startOscWA1();
             startPie();
         }
@@ -208,21 +213,24 @@ export async function dialogTestWAsound() {
             drawNextPie();
         }
         function stopPie() {
+            clearCanvasWA();
             numRedraw = maxRedraw + 1;
         }
         function drawNextPie() {
             const ms = Date.now();
-            if (ms > msEnd) {
+            const msLeft = msEnd - ms;
+            if (msLeft < 0) {
+                console.log("STOPPING pie", { ms, msEnd, msLeft });
                 stopPie();
                 return;
             }
-            const part = ms / msDuration;
+            const part = 1 - (msLeft / msDuration);
             clearCanvasWA();
             drawPie(part);
             requestAnimationFrame(
                 () => {
                     if (numRedraw++ > maxRedraw) {
-                        console.log("stopping sec check", { numRedraw });
+                        console.log("stopping pie check", { maxRedraw, numRedraw });
                         return;
                     }
                     drawNextPie();
@@ -313,11 +321,11 @@ export async function dialogTestWAsound() {
 
     const modSvgPie = await import("svg-things");
 
-    drawPie(0.25);
+    // drawPie(0.25);
     function clearCanvasWA() { ctxCanvasWA.clearRect(0, 0, 30, 30); }
-    function drawPie(part) { modSvgPie.drawPie(ctxCanvasWA, 15, 15, 10, "red", part); }
+    function drawPie(part) { modSvgPie.drawPie(ctxCanvasWA, 15, 15, 10, "green", part); }
 
-    const divSec = TSmkElt("span", undefined, `${settingDuration.value} sec`);
+    const divSec = TSmkElt("span", undefined, `${settingDuration.value} s`);
     const divBtnWA = TSmkElt("div", undefined, [btnWA1, eltCanvasWA, divSec]);
     divBtnWA.style = `
         display: flex;
