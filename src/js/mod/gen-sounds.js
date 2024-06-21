@@ -286,12 +286,40 @@ export async function dialogTestWAsound() {
     });
 
 
+    // http://projects.itn.pt/VibroImpacts/Ref_A.pdf
     const btnAddOvertone = modMdc.mkMDCbutton("Add");
     btnAddOvertone.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
+        dialogAddTemperedTone();
+    }));
+
+    async function dialogAddTemperedTone() {
         /** @type {HTMLInputElement} */
         const inpSteps = document.createElement("input");
         inpSteps.type = "number";
-        const lblSteps = TSmkElt("label", undefined, ["Diff tones:", inpSteps]);
+        const divToneHeader = TSmkElt("div", undefined, "Tone");
+        const lblSteps = TSmkElt("label", undefined, ["steps:", inpSteps]);
+
+        // https://www.musictheory.net/lessons/31
+        const musicTones = TSmkElt("select", { name: "tone-name", id: "tone-name" }, [
+            TSmkElt("option", { value: "-12" }, "Hum"),
+            TSmkElt("option", { value: "0" }, "Prime"),
+            TSmkElt("option", { value: "1" }, "Minor second"),
+            TSmkElt("option", { value: "2" }, "Major second"),
+            TSmkElt("option", { value: "3" }, "Minor third/tierce"),
+            TSmkElt("option", { value: "4" }, "Major third"),
+            TSmkElt("option", { value: "5" }, "Perfect fourth"),
+            TSmkElt("option", { value: "6" }, "Augmented fourth"),
+            TSmkElt("option", { value: "7" }, "Perfect fifth/quint"),
+            // TSmkElt("option", {value:"7"}, "Diminished sixth"),
+            TSmkElt("option", { value: "8" }, "Minor sixth"),
+            TSmkElt("option", { value: "9" }, "Major sixth"),
+            // TSmkElt("option", {value:"9"}, "Diminished seventh"),
+            // TSmkElt("option", {value:"10"}, "Augmented sixth"),
+            TSmkElt("option", { value: "10" }, "Minor seventh"),
+            TSmkElt("option", { value: "11" }, "Major seventh"),
+            TSmkElt("option", { value: "12" }, "Octave"),
+        ]);
+
         const spanTone = TSmkElt("span");
         const divTones = TSmkElt("div", undefined, [spanTone, " Hz"]);
         divTones.style.marginLeft = "80px";
@@ -314,7 +342,8 @@ export async function dialogTestWAsound() {
         inpDb.type = "number";
         const lblDb = TSmkElt("label", undefined, ["Diff dB:", inpDb]);
         const bdy = TSmkElt("div", undefined, [
-            TSmkElt("h2", undefined, "Add overtone"),
+            TSmkElt("h2", undefined, "Add tempered tone"),
+            divToneHeader,
             lblSteps,
             divTones,
             lblDb
@@ -353,8 +382,8 @@ export async function dialogTestWAsound() {
             settingOvertonesWA1.value = oldVal;
             updateDivOvertones();
         }
-    }));
-    const sumWAsubs = TSmkElt("summary", undefined, "overtones");
+    }
+    const sumWAsubs = TSmkElt("summary", undefined, "Additional tones");
     const detWAsubs = TSmkElt("details", undefined, [
         sumWAsubs,
         btnAddOvertone,
@@ -400,7 +429,11 @@ export async function dialogTestWAsound() {
     divWA.id = "div-test-webaudio";
 
     const body = TSmkElt("div", undefined, [
-        TSmkElt("p", { style: "background:yellow; color:red; padding:4px;" }, "not working at the moment"),
+        TSmkElt("p", { style: "background:yellow; color:red; padding:4px;" },
+            `
+             Not really working yet.
+             Struggling to understand tempered tone scales vs those fit for a bell sound.
+            `),
         divWA,
     ]);
     body.addEventListener("NOclick", evt => {
@@ -411,66 +444,66 @@ export async function dialogTestWAsound() {
     });
     modMdc.mkMDCdialogAlert(body, "Close");
 }
-    /**
-     * 
-     * @param {number} dB 
-     * @returns  {number}
-     */
-    function dB2ratio(dB) { return Math.pow(10, dB / 10); }
+/**
+ * 
+ * @param {number} dB 
+ * @returns  {number}
+ */
+function dB2ratio(dB) { return Math.pow(10, dB / 10); }
 
-    function stopOscillators(arrOsc) {
-        arrOsc.forEach(osc => { osc.stop(); });
-        arrOsc.length = 0;
+function stopOscillators(arrOsc) {
+    arrOsc.forEach(osc => { osc.stop(); });
+    arrOsc.length = 0;
+}
+
+
+function startOscillators(arrOsc, arrOscTemplates, duration, toneSteps) {
+    console.warn({ arrOsc, arrOscTemplates, duration, toneSteps })
+    toneSteps = toneSteps || 0;
+    let highestGain = 0;
+    arrOscTemplates.forEach(rec => {
+        console.log("rec.gain", rec.gain);
+        highestGain = Math.max(highestGain, rec.gain);
+    });
+    console.log({ highestGain });
+    arrOscTemplates.forEach(rec => {
+        const freqBase = rec.frequency;
+        // const freqGoal = freq * Math.pow(2, toneSteps / 12);
+        const freqGoal = mkOvertone(freqBase, toneSteps);
+        const gain = rec.gain;
+        arrOsc.push(startStopOscWA(freqBase, freqGoal, duration, gain / highestGain));
     }
+    )
+    arrOsc.forEach(osc => { osc.start(); });
+}
 
-
-    function startOscillators(arrOsc, arrOscTemplates, duration, toneSteps) {
-        console.warn({ arrOsc, arrOscTemplates, duration, toneSteps })
-        toneSteps = toneSteps || 0;
-        let highestGain = 0;
-        arrOscTemplates.forEach(rec => {
-            console.log("rec.gain", rec.gain);
-            highestGain = Math.max(highestGain, rec.gain);
-        });
-        console.log({ highestGain });
-        arrOscTemplates.forEach(rec => {
-            const freqBase = rec.frequency;
-            // const freqGoal = freq * Math.pow(2, toneSteps / 12);
-            const freqGoal = mkOvertone(freqBase, toneSteps);
-            const gain = rec.gain;
-            arrOsc.push(startStopOscWA(freqBase, freqGoal, duration, gain / highestGain));
+/**
+ * 
+ * @param {number} freqInit 
+ * @param {number} freqGoal 
+ * @param {number} secToGoal 
+ * @param {number} gain 
+ */
+function startStopOscWA(freqInit, freqGoal, secToGoal, gain) {
+    // https://music.arts.uci.edu/dobrian/webaudio/tutorials/WebAudioAPI/simpleoscillator.html
+    const osc = ctxAudio.createOscillator();
+    const startTime = ctxAudio.currentTime; // FIX-ME: startTime
+    osc.frequency.setValueAtTime(freqInit, startTime)
+    osc.frequency.linearRampToValueAtTime(freqGoal, startTime + secToGoal);
+    const amp = ctxAudio.createGain();
+    amp.gain.setValueAtTime(gain, startTime);
+    // osc.connect(ctxAudio.destination);
+    osc.connect(amp);
+    amp.connect(ctxAudio.destination);
+    if (!isNaN(secToGoal)) {
+        if (secToGoal > 0) {
+            setTimeout(() => {
+                stop();
+            }, secToGoal * 1000);
         }
-        )
-        arrOsc.forEach(osc => { osc.start(); });
     }
-
-    /**
-     * 
-     * @param {number} freqInit 
-     * @param {number} freqGoal 
-     * @param {number} secToGoal 
-     * @param {number} gain 
-     */
-    function startStopOscWA(freqInit, freqGoal, secToGoal, gain) {
-        // https://music.arts.uci.edu/dobrian/webaudio/tutorials/WebAudioAPI/simpleoscillator.html
-        const osc = ctxAudio.createOscillator();
-        const startTime = ctxAudio.currentTime; // FIX-ME: startTime
-        osc.frequency.setValueAtTime(freqInit, startTime)
-        osc.frequency.linearRampToValueAtTime(freqGoal, startTime + secToGoal);
-        const amp = ctxAudio.createGain();
-        amp.gain.setValueAtTime(gain, startTime);
-        // osc.connect(ctxAudio.destination);
-        osc.connect(amp);
-        amp.connect(ctxAudio.destination);
-        if (!isNaN(secToGoal)) {
-            if (secToGoal > 0) {
-                setTimeout(() => {
-                    stop();
-                }, secToGoal * 1000);
-            }
-        }
-        return osc;
-    }
+    return osc;
+}
 
 // https://wellness-space.net/frequencies-of-a-singing-bowl/
 // https://www.hibberts.co.uk/building-a-bell-sound/
