@@ -307,10 +307,48 @@ export async function dialogTestWAsound() {
     }));
 
     async function dialogTemperedOrBell() {
-        const btnTempered = modMdc.mkMDCbutton("Tempered");
+        // https://solacely.co/blogs/singing-bowl/singing-bowl-frequencies-chart
+        // https://en.wikipedia.org/wiki/Strike_tone
+        // https://en.wikipedia.org/wiki/Chord_(music)
+        // https://www.math.uwaterloo.ca/~mrubinst/tuning/12.html
+        // https://www.rcmusic.com/about-us/news/why-does-a-major-scale-have-seven-notes
+        // https://www.musictheory.net/lessons/31 
+        // https://www.schoolofcomposition.com/technical-names-in-music/
+
+        const linkEqTemp = "https://en.wikipedia.org/wiki/Equal_temperament";
+        // https://en.wikipedia.org/wiki/Cent_(music)
+        const aTempered = TSmkElt("a", { href: linkEqTemp }, "Equal tempered notes");
+
+        const linkStrikeTone = "https://en.wikipedia.org/wiki/Strike_tone";
+        const aStrikeTone = TSmkElt("a", { href: linkStrikeTone }, "Strike tone");
+
+        const divExplain = TSmkElt("div", undefined, [
+            TSmkElt("p", undefined, [
+                `In `,
+                TSmkElt("b", undefined, "music"),
+                ` tempered not scales are use (`,
+                aTempered,
+                `). This makes it easy to transpose a tune or chord.`
+            ]),
+            TSmkElt("p", undefined, [
+                "On the other hand, the sound that you hear from a ",
+                TSmkElt("b", undefined, "bell/bowl"),
+                ` are composed of frequencies that physically fit the bell/bowl.
+                These are frequencies that are the "hum" freqency multiplied by an integer. 
+                (See `,
+                aStrikeTone,
+                `)`
+            ]),
+            TSmkElt("p", {style:"font-style:italic;"}, `
+                You can't mixe those tone scales here.
+                Which one do you want now?
+            `),
+        ]);
+        const btnTempered = modMdc.mkMDCbutton("Tempered", "raised");
         const btnBell = modMdc.mkMDCbutton("Bell");
-        const divButtons = TSmkElt("div", undefined, [btnTempered, btnBell]);
+        const divButtons = TSmkElt("p", undefined, [btnTempered, btnBell]);
         const bdy = TSmkElt("div", undefined, [
+            divExplain,
             divButtons
         ]);
         const dlg = await modMdc.mkMDCdialog(bdy);
