@@ -289,8 +289,46 @@ export async function dialogTestWAsound() {
     // http://projects.itn.pt/VibroImpacts/Ref_A.pdf
     const btnAddOvertone = modMdc.mkMDCbutton("Add");
     btnAddOvertone.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
-        dialogAddTemperedTone();
+        // dialogAddTemperedTone();
+        const ans = await dialogTemperedOrBell();
+        console.log({ ans });
+        switch (ans) {
+            case "tempered":
+                dialogAddTemperedTone();
+                break;
+            case "bell":
+                dialogAddBellTone();
+                break;
+            case undefined:
+                break;
+            default:
+                throw Error(`Unrecognized ans: ${ans}`);
+        }
     }));
+
+    async function dialogTemperedOrBell() {
+        const btnTempered = modMdc.mkMDCbutton("Tempered");
+        const btnBell = modMdc.mkMDCbutton("Bell");
+        const divButtons = TSmkElt("div", undefined, [btnTempered, btnBell]);
+        const bdy = TSmkElt("div", undefined, [
+            divButtons
+        ]);
+        const dlg = await modMdc.mkMDCdialog(bdy);
+        return await new Promise((resolve, reject) => {
+            btnTempered.addEventListener("click", evt => {
+                dlg.mdc.close();
+                resolve("tempered");
+            });
+            btnBell.addEventListener("click", evt => resolve("bell"));
+            dlg.dom.addEventListener("MDCDialog:closed", errorHandlerAsyncEvent(async evt => {
+                resolve();
+            }));
+        });
+    }
+
+    async function dialogAddBellTone() {
+        alert("not ready");
+    }
 
     async function dialogAddTemperedTone() {
         /** @type {HTMLInputElement} */
@@ -431,8 +469,7 @@ export async function dialogTestWAsound() {
     const body = TSmkElt("div", undefined, [
         TSmkElt("p", { style: "background:yellow; color:red; padding:4px;" },
             `
-             Not really working yet.
-             Struggling to understand tempered tone scales vs those fit for a bell sound.
+uggling to understand tempered tone scales vs those fit for a bell sound.
             `),
         divWA,
     ]);
