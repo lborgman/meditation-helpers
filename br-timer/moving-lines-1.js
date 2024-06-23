@@ -2135,10 +2135,10 @@ async function setup4Android(container) {
 }
 function makeDialogsFixed() {
     const arrDlgSurface = [...document.getElementsByClassName("mdc-dialog__surface")];
-    console.log({ arrDlgSurface });
+    // console.log({ arrDlgSurface });
     arrDlgSurface.forEach(elt => {
         const bcr = elt.getBoundingClientRect();
-        console.log({ elt, bcr });
+        // console.log({ elt, bcr });
         // @ts-ignore style
         elt.style.top = `${bcr.y}px`;
         // @ts-ignore style

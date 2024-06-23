@@ -12,7 +12,7 @@ console.log("This is gen-sounds.js");
  * @param {number} toneSteps 
  * @returns {frequency}
  */
-function mkOvertone(freqBase, toneSteps) {
+function mkTempered12Tone(freqBase, toneSteps) {
     return freqBase * Math.pow(2, toneSteps / 12);
 }
 
@@ -139,44 +139,60 @@ export async function dialogTestWAsound() {
 
 
     const settingOvertonesWA1 = new ourLocalSetting("test-overtones-wa1", []);
-    const divOverTones = TSmkElt("div");
-    updateDivOvertones();
-    function updateDivOvertones() {
-        divOverTones.textContent = "";
+    const divAddedTones = TSmkElt("div");
+    updateDivAddedtones();
+    function updateDivAddedtones() {
+        divAddedTones.textContent = "";
         const recs = settingOvertonesWA1.value;
+        if (recs.lengt == 0) { return; }
+        let ourType = recs[0].type;
         const freqBase = settingFreqBase.value;
         for (let i = 0, len = recs.length; i < len; i++) {
             const rec = recs[i];
-            const overTone = mkOvertone(freqBase, rec.diffTones);
-            const spanOvertone = TSmkElt("span", undefined, [
-                TSmkElt("span", undefined, `Tone steps: ${rec.diffTones} (${overTone.toFixed(1)} Hz)`),
+            let addedTone;
+            let spanToneInfo;
+            switch (ourType) {
+                case "tempered12":
+                    addedTone = mkTempered12Tone(freqBase, rec.diffTones);
+                    const strAddedTone = addedTone.toFixed(1);
+                    spanToneInfo = TSmkElt("span", undefined, `Steps (of 12): ${rec.diffTones} (${strAddedTone} Hz)`);
+                    break;
+                case "bell":
+                    addedTone = freqBase * rec.diffTones;
+                    spanToneInfo = TSmkElt("span", undefined, `Overtone: ${rec.diffTones} (${addedTone} Hz)`);
+                    break;
+                default:
+                    throw Error(`Unknown tone type: ${ourType}`);
+            }
+            const spanAddedTone = TSmkElt("span", undefined, [
+                spanToneInfo,
                 `Diff dB: ${rec.diffDB}`
             ]);
             // @ts-ignore style
-            spanOvertone.style = `
+            spanAddedTone.style = `
                 display: flex;
                 flex-direction: column;
             `;
             const iRec = i;
             const iconDelete = modMdc.mkMDCicon("delete_forever");
-            const btnDelete = modMdc.mkMDCiconButton(iconDelete, "Delete overtone");
+            const btnDelete = modMdc.mkMDCiconButton(iconDelete, "Remove added tone");
             btnDelete.addEventListener("click", evt => {
                 recs.splice(iRec, 1);
                 settingOvertonesWA1.value = recs;
-                updateDivOvertones();
+                updateDivAddedtones();
             });
-            const divOverTone = TSmkElt("div", undefined, [
-                spanOvertone, btnDelete
+            const divAddedTone = TSmkElt("div", undefined, [
+                spanAddedTone, btnDelete
             ]);
-            divOverTone.classList.add("mdc-card");
+            divAddedTone.classList.add("mdc-card");
             // @ts-ignore style
-            divOverTone.style = `
+            divAddedTone.style = `
                 display: grid;
                 grid-template-columns: 1fr 50px;
                 padding: 10px;
                 width: 100%;
             `
-            divOverTones.appendChild(divOverTone);
+            divAddedTones.appendChild(divAddedTone);
         }
     }
 
@@ -198,10 +214,8 @@ export async function dialogTestWAsound() {
     btnWA1.addEventListener("click", evt => {
         let msStart, msDuration, msEnd;
         let numRedraw;
-        // const maxRedraw = 1000;
         const maxRedraw = 120 * 60;
         const secDuration = settingDuration.value;
-        // const secDuration = 10;
         if (oscWA1.length > 0) { stop(); } else { start(); }
         function start() {
             msStart = Date.now();
@@ -258,23 +272,27 @@ export async function dialogTestWAsound() {
             eltLabel.textContent = "Play sound";
         }
         function startOscWA1() {
-            const arrTemplates = [];
+            const arrOscTemplates = [];
             const freqBase = settingFreqBase.value;
-            arrTemplates.push(mkOscWAtemplate(freqBase, 1));
+            arrOscTemplates.push(mkOscWAtemplate(freqBase, 1));
             // FIX-ME: add the overtones!
             console.log(settingOvertonesWA1.value);
             const arrOvertones = settingOvertonesWA1.value;
             arrOvertones.forEach(recOver => {
                 const { diffTones, diffDB } = recOver;
                 console.log({ recOver, diffTones, diffDB });
-                const freqOver = mkOvertone(freqBase, diffTones);
+                const freqAdded = ourToneType == "bell" ?
+                    freqBase * diffTones
+                    :
+                    mkTempered12Tone(freqBase, diffTones);
                 const overGain = dB2ratio(diffDB);
-                arrTemplates.push(mkOscWAtemplate(freqOver, overGain));
+                arrOscTemplates.push(mkOscWAtemplate(freqAdded, overGain));
             })
 
-            // FIX-ME: what is this???
-            const toneSteps = settingToneStepsDuration.value
-            startOscillators(oscWA1, arrTemplates, secDuration, toneSteps);
+            // FIX-ME: what is this??? Tone gliding...
+            // const toneSteps = settingToneStepsDuration.value
+            const toneSteps = 0;
+            startOscillators(oscWA1, arrOscTemplates, secDuration, toneSteps);
             // @ts-ignore style
             btnWA1.style.backgroundColor = "green";
             btnWA1.style.color = "yellow";
@@ -286,14 +304,15 @@ export async function dialogTestWAsound() {
     });
 
 
+    let ourToneType;
+
     // http://projects.itn.pt/VibroImpacts/Ref_A.pdf
-    const btnAddOvertone = modMdc.mkMDCbutton("Add");
-    btnAddOvertone.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
-        // dialogAddTemperedTone();
-        const ans = await dialogTemperedOrBell();
-        console.log({ ans });
-        switch (ans) {
-            case "tempered":
+    const btnAddTone = modMdc.mkMDCbutton("Add");
+    btnAddTone.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
+        const toneType = ourToneType || await dialogTemperedOrBell();
+        console.log({ toneType });
+        switch (toneType) {
+            case "tempered12":
                 dialogAddTemperedTone();
                 break;
             case "bell":
@@ -302,9 +321,34 @@ export async function dialogTestWAsound() {
             case undefined:
                 break;
             default:
-                throw Error(`Unrecognized ans: ${ans}`);
+                throw Error(`Unrecognized ans: ${toneType}`);
         }
     }));
+
+    const spanTellType = TSmkElt("span", undefined, "(Tempered or bell)");
+    spanTellType.style.marginLeft = "20px";
+    const divAddTone = TSmkElt("div", undefined, [
+        btnAddTone,
+        spanTellType
+    ]);
+    const recs = settingOvertonesWA1.value;
+    if (recs[0]) {
+        const r0 = recs[0];
+        setType(r0.type);
+    }
+    function setType(tempOrBell) {
+        switch (tempOrBell) {
+            case "tempered12":
+                spanTellType.textContent = "(Tempered 12 steps)";
+                break;
+            case "bell":
+                spanTellType.textContent = "(Bell)";
+                break;
+            default:
+                throw Error(`Unknown tone type: ${tempOrBell}`);
+        }
+        ourToneType = tempOrBell;
+    }
 
     async function dialogTemperedOrBell() {
         // https://solacely.co/blogs/singing-bowl/singing-bowl-frequencies-chart
@@ -339,14 +383,19 @@ export async function dialogTestWAsound() {
                 aStrikeTone,
                 `)`
             ]),
-            TSmkElt("p", {style:"font-style:italic;"}, `
+            TSmkElt("p", { style: "font-style:italic;" }, `
                 You can't mixe those tone scales here.
                 Which one do you want now?
             `),
         ]);
         const btnTempered = modMdc.mkMDCbutton("Tempered", "raised");
-        const btnBell = modMdc.mkMDCbutton("Bell");
-        const divButtons = TSmkElt("p", undefined, [btnTempered, btnBell]);
+        const btnBell = modMdc.mkMDCbutton("Bell", "raised");
+        const btnCancel = modMdc.mkMDCbutton("Cancel", "outlined");
+        const divButtons = TSmkElt("p", undefined, [btnTempered, btnBell, btnCancel]);
+        divButtons.style = `
+            display: flex;
+            gap: 20px;
+        `;
         const bdy = TSmkElt("div", undefined, [
             divExplain,
             divButtons
@@ -355,9 +404,16 @@ export async function dialogTestWAsound() {
         return await new Promise((resolve, reject) => {
             btnTempered.addEventListener("click", evt => {
                 dlg.mdc.close();
-                resolve("tempered");
+                resolve("tempered12");
             });
-            btnBell.addEventListener("click", evt => resolve("bell"));
+            btnBell.addEventListener("click", evt => {
+                dlg.mdc.close();
+                resolve("bell");
+            });
+            btnCancel.addEventListener("click", evt => {
+                dlg.mdc.close();
+                resolve();
+            });
             dlg.dom.addEventListener("MDCDialog:closed", errorHandlerAsyncEvent(async evt => {
                 resolve();
             }));
@@ -365,7 +421,68 @@ export async function dialogTestWAsound() {
     }
 
     async function dialogAddBellTone() {
-        alert("not ready");
+        const inpSteps = document.createElement("input");
+        inpSteps.type = "number";
+        const divToneHeader = TSmkElt("div", undefined, "Overtone (relative hum)");
+        const lblSteps = TSmkElt("label", undefined, ["Number:", inpSteps]);
+
+        const spanTone = TSmkElt("span");
+        const divToneResult = TSmkElt("div", undefined, [spanTone, " Hz"]);
+        divToneResult.style.marginLeft = "80px";
+        divToneResult.style.marginTop = "-10px";
+        inpSteps.addEventListener("input", evt => {
+            const toneSteps = inpSteps.value;
+            if (toneSteps == "") {
+                spanTone.textContent = "";
+                return;
+            }
+            const freqBase = settingFreqBase.value;
+            const freqOvertone = freqBase * toneSteps;
+            spanTone.textContent = freqOvertone.toFixed(1);
+        });
+
+        const inpDb = document.createElement("input");
+        inpDb.type = "number";
+        const lblDb = TSmkElt("label", undefined, ["Diff dB:", inpDb]);
+        const bdy = TSmkElt("div", undefined, [
+            TSmkElt("h2", undefined, "Add bell tone (not ready!)"),
+            divToneHeader,
+            lblSteps,
+            divToneResult,
+            lblDb
+        ]);
+        let saveButton;
+        bdy.addEventListener("input", evt => {
+            // FIX-ME: Check can be saved...
+            const dbOk = isStringNumber(inpDb.value);
+            const stepsOk = /^[2,3,4,5]$/.test(inpSteps.value.trim());
+            const canSave = dbOk && stepsOk;
+            console.log("overtone bdy input", { evt }, inpDb.value, dbOk, inpSteps.value, stepsOk, canSave);
+            saveButton.disabled = !canSave;
+        });
+        bdy.id = "div-dialog-overtone";
+        bdy.style.touchAction = "none";
+        bdy.style.background = "yellowgreen";
+        const funResult = () => {
+            return "this is the result";
+        };
+        const funOkButton = (btn) => {
+            saveButton = btn;
+            saveButton.disabled = true;
+        };
+
+        const ans = await modMdc.mkMDCdialogConfirm(bdy, "Save", true, funResult, funOkButton);
+        console.log({ ans });
+        if (ans) {
+            const oldVal = settingOvertonesWA1.value;
+            oldVal.push({
+                type: "bell",
+                diffTones: inpSteps.value,
+                diffDB: inpDb.value
+            });
+            settingOvertonesWA1.value = oldVal;
+            updateDivAddedtones();
+        }
     }
 
     async function dialogAddTemperedTone() {
@@ -408,7 +525,7 @@ export async function dialogTestWAsound() {
             }
             const freqBase = settingFreqBase.value;
             // const freqOvertone = freqBase * Math.pow(2, toneSteps / 12);
-            const freqOvertone = mkOvertone(freqBase, toneSteps);
+            const freqOvertone = mkTempered12Tone(freqBase, toneSteps);
             // spanTone.textContent = inpSteps.value;
             spanTone.textContent = freqOvertone.toFixed(1);
         });
@@ -428,13 +545,10 @@ export async function dialogTestWAsound() {
         bdy.addEventListener("input", evt => {
             // FIX-ME: Check can be saved...
             const dbOk = isStringNumber(inpDb.value);
-            const stepsOk = isStringNumber(inpSteps.value);
+            const stepsOk = isStringPositiveInteger(inpSteps.value);
             const canSave = dbOk && stepsOk;
             console.log("overtone bdy input", { evt }, inpDb.value, dbOk, inpSteps.value, stepsOk, canSave);
             saveButton.disabled = !canSave;
-            function isStringNumber(value) {
-                return /^[0-9]+[.]{0,1}[0-9]*$/.test(value.trim());
-            }
         });
         bdy.id = "div-dialog-overtone";
         bdy.style.touchAction = "none";
@@ -452,18 +566,20 @@ export async function dialogTestWAsound() {
         if (ans) {
             const oldVal = settingOvertonesWA1.value;
             oldVal.push({
+                type: "tempered12",
                 diffTones: inpSteps.value,
                 diffDB: inpDb.value
             });
             settingOvertonesWA1.value = oldVal;
-            updateDivOvertones();
+            updateDivAddedtones();
         }
     }
+
     const sumWAsubs = TSmkElt("summary", undefined, "Additional tones");
     const detWAsubs = TSmkElt("details", undefined, [
         sumWAsubs,
-        btnAddOvertone,
-        divOverTones,
+        divAddTone,
+        divAddedTones,
     ]);
 
     const sumWAdyn = TSmkElt("summary", undefined, "dynamics");
@@ -507,7 +623,7 @@ export async function dialogTestWAsound() {
     const body = TSmkElt("div", undefined, [
         TSmkElt("p", { style: "background:yellow; color:red; padding:4px;" },
             `
-uggling to understand tempered tone scales vs those fit for a bell sound.
+            Struggling to understand tempered tone scales vs those fit for a bell sound.
             `),
         divWA,
     ]);
@@ -543,8 +659,8 @@ function startOscillators(arrOsc, arrOscTemplates, duration, toneSteps) {
     console.log({ highestGain });
     arrOscTemplates.forEach(rec => {
         const freqBase = rec.frequency;
-        // const freqGoal = freq * Math.pow(2, toneSteps / 12);
-        const freqGoal = mkOvertone(freqBase, toneSteps);
+        // FIX-ME: remove this tone glide???
+        const freqGoal = mkTempered12Tone(freqBase, toneSteps);
         const gain = rec.gain;
         arrOsc.push(startStopOscWA(freqBase, freqGoal, duration, gain / highestGain));
     }
@@ -582,3 +698,14 @@ function startStopOscWA(freqInit, freqGoal, secToGoal, gain) {
 
 // https://wellness-space.net/frequencies-of-a-singing-bowl/
 // https://www.hibberts.co.uk/building-a-bell-sound/
+
+
+function isStringNumber(value) {
+    return /^[+-]{0,1}[0-9]+[.]{0,1}[0-9]*$/.test(value.trim());
+}
+function isStringInteger(value) {
+    return /^[+-]{0,1}[0-9]+$/.test(value.trim());
+}
+function isStringPositiveInteger(value) {
+    return /^[+]{0,1}[0-9]+$/.test(value.trim());
+}
