@@ -145,7 +145,7 @@ export async function dialogTestWAsound() {
         divAddedTones.textContent = "";
         const recs = settingOvertonesWA1.value;
         if (recs.lengt == 0) { return; }
-        let ourType = recs[0].type;
+        let ourType = recs[0].type || "tempered12";
         const freqBase = settingFreqBase.value;
         for (let i = 0, len = recs.length; i < len; i++) {
             const rec = recs[i];
