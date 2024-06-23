@@ -334,10 +334,14 @@ export async function dialogTestWAsound() {
     const recs = settingOvertonesWA1.value;
     if (recs[0]) {
         const r0 = recs[0];
-        setType(r0.type);
+        // const ourType = r0?.type || "tempered12";
+        setType(r0?.type);
     }
     function setType(tempOrBell) {
         switch (tempOrBell) {
+            case undefined:
+                spanTellType.textContent = "";
+                break;
             case "tempered12":
                 spanTellType.textContent = "(Tempered 12 steps)";
                 break;
