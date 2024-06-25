@@ -357,6 +357,9 @@ export async function dialogTestWAsound() {
     async function dialogTemperedOrBell() {
         // https://solacely.co/blogs/singing-bowl/singing-bowl-frequencies-chart
         // https://en.wikipedia.org/wiki/Strike_tone
+        // https://wellness-space.net/frequencies-of-a-singing-bowl/
+        // https://www.hibberts.co.uk/building-a-bell-sound/
+        //
         // https://en.wikipedia.org/wiki/Chord_(music)
         // https://www.math.uwaterloo.ca/~mrubinst/tuning/12.html
         // https://www.rcmusic.com/about-us/news/why-does-a-major-scale-have-seven-notes
@@ -424,6 +427,36 @@ export async function dialogTestWAsound() {
         });
     }
 
+    async function dialogBellGetTemplate() {
+        /** @typedef {{bellName:string}} bellTemplate */
+
+        /** @type {bellTemplate} */
+        const tibetanBowl = {
+            bellName: "Tibetan meditation bowl",
+        }
+
+        /** @type {bellTemplate[]}*/
+        const arrTemplates = [
+            tibetanBowl,
+        ];
+
+        const arrOptions = arrTemplates.map(template => {
+            const bellName = template.bellName;
+            return TSmkElt("option", undefined, bellName);
+        });
+        const eltSelect = TSmkElt("select", undefined, arrOptions);
+
+        const bdy = TSmkElt("div", undefined, [
+            TSmkElt("p", { style: "color:red; background:yellow;" }, "Not ready"),
+            eltSelect,
+        ]);
+        const ans = await modMdc.mkMDCdialogConfirm(bdy, "Select", "Cancel");
+        console.log({ ans });
+        if (ans) {
+            const txt = eltSelect.options[eltSelect.selectedIndex].text;
+            return txt;
+        }
+    }
     async function dialogAddBellTone() {
         const inpSteps = document.createElement("input");
         inpSteps.type = "number";
@@ -448,8 +481,19 @@ export async function dialogTestWAsound() {
         const inpDb = document.createElement("input");
         inpDb.type = "number";
         const lblDb = TSmkElt("label", undefined, ["Diff dB:", inpDb]);
+
+        const btnTemplates = modMdc.mkMDCbutton("Templates", "outlined");
+        btnTemplates.style.marginLeft = "10px";
+        btnTemplates.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
+            const bellTemplate = await dialogBellGetTemplate();
+            console.log({ bellTemplate });
+        }));
         const bdy = TSmkElt("div", undefined, [
-            TSmkElt("h2", undefined, "Add bell tone (not ready!)"),
+            TSmkElt("p", { style: "color:red; background:yellow;" }, "Not ready!"),
+            TSmkElt("h2", undefined, [
+                "Add bell tone",
+                btnTemplates
+            ]),
             divToneHeader,
             lblSteps,
             divToneResult,
@@ -700,8 +744,6 @@ function startStopOscWA(freqInit, freqGoal, secToGoal, gain) {
     return osc;
 }
 
-// https://wellness-space.net/frequencies-of-a-singing-bowl/
-// https://www.hibberts.co.uk/building-a-bell-sound/
 
 
 function isStringNumber(value) {
