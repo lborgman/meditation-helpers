@@ -355,6 +355,8 @@ export async function dialogTestWAsound() {
     }
 
     async function dialogTemperedOrBell() {
+        // https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7819493/
+        // 
         // https://solacely.co/blogs/singing-bowl/singing-bowl-frequencies-chart
         // https://en.wikipedia.org/wiki/Strike_tone
         // https://wellness-space.net/frequencies-of-a-singing-bowl/
@@ -428,11 +430,24 @@ export async function dialogTestWAsound() {
     }
 
     async function dialogBellGetTemplate() {
-        /** @typedef {{bellName:string}} bellTemplate */
+        /** @typedef {{octave:number, dB:number} overtone */
+        /** @typedef {overtone[]} overtones */
+        /** @typedef {{name:string, overTones:overtones, link:string}} bellTemplate */
 
+
+        // FIX-ME: JsDoc does not catch the missing overTones???
         /** @type {bellTemplate} */
         const tibetanBowl = {
-            bellName: "Tibetan meditation bowl",
+            name: "Tibetan meditation bowl",
+            link: "https://wellness-space.net/frequencies-of-a-singing-bowl/",
+            overTones: [
+                // FIX-ME:
+                { octate: 1, dB: 0 }, // 78.5
+                { octate: 3, dB: -1 }, // 240
+                { octave: 6, db: -20 }, // 480
+                // 4, // 761
+                // 5, // 1471
+            ]
         }
 
         /** @type {bellTemplate[]}*/
@@ -441,7 +456,7 @@ export async function dialogTestWAsound() {
         ];
 
         const arrOptions = arrTemplates.map(template => {
-            const bellName = template.bellName;
+            const bellName = template.name;
             return TSmkElt("option", undefined, bellName);
         });
         const eltSelect = TSmkElt("select", undefined, arrOptions);
@@ -454,7 +469,14 @@ export async function dialogTestWAsound() {
         console.log({ ans });
         if (ans) {
             const txt = eltSelect.options[eltSelect.selectedIndex].text;
-            return txt;
+            const hits = arrTemplates.filter(rec => rec.name == txt);
+            const numHits = hits.length ;
+            if (numHits != 1) {
+                console.error({hits});
+                throw Error(`Should be exactly 1 hit: ${numHits}`);
+            }
+            // return txt;
+            return hits[0];
         }
     }
     async function dialogAddBellTone() {
@@ -486,7 +508,17 @@ export async function dialogTestWAsound() {
         btnTemplates.style.marginLeft = "10px";
         btnTemplates.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
             const bellTemplate = await dialogBellGetTemplate();
-            console.log({ bellTemplate });
+            const tplName = bellTemplate.name;
+            console.log({ bellTemplate, tplName });
+
+            const bdy = TSmkElt("div", undefined, [
+                TSmkElt("h2", undefined, `Apply bell template`),
+                TSmkElt("p", undefined, [
+                    `Make this sound a "${tplName}"?`
+                ]),
+            ]);
+            const ans = await modMdc.mkMDCdialogConfirm(bdy);
+            console.log({ans});
         }));
         const bdy = TSmkElt("div", undefined, [
             TSmkElt("p", { style: "color:red; background:yellow;" }, "Not ready!"),
