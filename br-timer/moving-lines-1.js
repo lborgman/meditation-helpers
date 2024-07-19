@@ -177,6 +177,7 @@ let screenRefreshRate = 120;
 
 const maxRedraw = 120 * 60;
 
+let settingUseVKworkaround;
 let settingDurationSeconds;
 let settingDurationMinutes;
 let settingDurationIsInSeconds;
@@ -1509,6 +1510,7 @@ function setupCanvas(container) {
 /** @type {number} */ let numPattsDuration;
 
 async function setupControls(controlscontainer) {
+    settingUseVKworkaround = new ourLocalSetting("use-vk-workaround", true);
     settingCountsPerSecond = new ourLocalSetting("counts-per-second", 100);
     settingDurationSeconds = new ourLocalSetting("duration-seconds", 9);
     settingDurationMinutes = new ourLocalSetting("duration-minutes", 1);
@@ -1688,6 +1690,14 @@ async function setupControls(controlscontainer) {
             c.style.backgroundColor = "white";
         });
 
+        const inpUseVKworkaround = TSmkElt("input", { type: "checkbox" });
+        settingUseVKworkaround.bindToInput(inpUseVKworkaround);
+        const lblUseVKworkaround = TSmkElt("label", undefined, [
+            inpUseVKworkaround, "Use virtual keyboard workaround (issue 40830060)",
+        ]);
+        const divVKworkaround = TSmkElt("div", undefined, [
+            TSmkElt("div", undefined, lblUseVKworkaround),
+        ]);
 
         const inpMinOrSec = TSmkElt("input", { type: "checkbox" });
         settingDurationIsInSeconds.bindToInput(inpMinOrSec);
@@ -1771,6 +1781,7 @@ async function setupControls(controlscontainer) {
 
         const divDebug = TSmkElt("div", undefined, [
             TSmkElt("h3", undefined, "Debug"),
+            divVKworkaround,
             divMinOrSec,
             divFlashPoint,
             divNWcard,
@@ -2135,7 +2146,7 @@ async function setup4Android(container) {
 }
 function makeDialogsFixed() {
     // this is the workaround for https://issues.chromium.org/issues/347967487";
-    return; // bypassing fix now!
+    if (!settingUseVKworkaround.value) return; // bypassing fix now!
 
     const arrDlgSurface = [...document.getElementsByClassName("mdc-dialog__surface")];
     // console.log({ arrDlgSurface });
