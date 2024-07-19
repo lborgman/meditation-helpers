@@ -2134,6 +2134,9 @@ async function setup4Android(container) {
     document.body.addEventListener("focusout", evt => { debounceNeedsKB(); });
 }
 function makeDialogsFixed() {
+    // this is the workaround for https://issues.chromium.org/issues/347967487";
+    return; // bypassing fix now!
+
     const arrDlgSurface = [...document.getElementsByClassName("mdc-dialog__surface")];
     // console.log({ arrDlgSurface });
     arrDlgSurface.forEach(elt => {
