@@ -102,6 +102,8 @@
 
     <h1>About Some Meditation Tools</h1>
 
+    <div id="version"> </div>
+
     <section>
         <p>
             This is a collection of some simple tools that might help you begin meditating.
@@ -281,4 +283,18 @@
     </script>
 
     </section>
+
+    <script type="module">
+        const eltVersion = document.getElementById("version");
+        const versionFun = (ver) => {
+            eltVersion.textContent = ver;
+            return eltVersion;
+        }
+        const pwaJs = `./pwa.js`;
+        const modPWA = await import(pwaJs);
+        modPWA.setUpdateTitle(document.title);
+        modPWA.startSW("./sw-medi-workbox.js");
+        modPWA.setVersionSWfun(versionFun);
+    </script>
+
 </body>

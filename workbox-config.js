@@ -4,5 +4,5 @@ module.exports = {
 		'**/*.{html,css,svg,js,json}'
 	],
 	swSrc: 'sw-input.js',
-	swDest: 'sw-workbox.js',
+	swDest: 'sw-medi-workbox.js',
 };
