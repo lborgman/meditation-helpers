@@ -39,7 +39,8 @@ console.log("here is external-images.js");
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 
-const modMdc = await import("util-mdc");
+const modTools = await importFc4i("toolsJs");
+const modMdc = await importFc4i("util-mdc");
 
 // https://stackoverflow.com/questions/5845238/javascript-generate-transparent-1x1-pixel-in-dataurl-format
 const createPlaceholderSrc = (w, h) => {
@@ -106,7 +107,8 @@ function setImagesRec(objJson) {
     localStorage.setItem(storingPrefix + KEY, strJson);
 }
 
-const debounceSetImagesRec = debounce(setImagesRec, 1000);
+// const debounceSetImagesRec = debounce(setImagesRec, 1000);
+const debounceSetImagesRec = modTools.debounce(setImagesRec, 1000);
 
 export function getCurrentImageUrl(arrBuiltin) {
     const { choice, arr } = getImagesRec();

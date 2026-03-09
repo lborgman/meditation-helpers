@@ -1,6 +1,9 @@
 // @ts-check
 console.log("here is moving-lines-1.js");
 
+const modTools = await importFc4i("toolsJs");
+const modMdc = await importFc4i("util-mdc");
+
 /** @typedef {number&{_tag: 'TSmilliSeconds'}} TSmilliSeconds */
 /** @typedef {number&{_tag: 'TSseconds'}} TSseconds */
 // /** @typedef {number&{_tag: 'TScounts'}} TScounts */
@@ -49,16 +52,16 @@ function TSmkElt(type, attrib, inner) {
 const TSDEFerrorHandlerAsyncEvent = errorHandlerAsyncEvent;
 
 // @ts-ignore file
-const TSDEFdebounce = debounce;
+const TSDEFdebounce = modTools.debounce;
 
 // @ts-ignore file
-const TSDEFwaitSeconds = waitSeconds;
+const TSDEFwaitSeconds = modTools.waitSeconds;
 
 // @ts-ignore file
 const TSDEFimport = async (url) => { return import(url); }
 
 // @ts-ignore file
-const TSDEFwait4mutations = wait4mutations;
+const TSDEFwait4mutations = modTools.wait4mutations;
 
 /**
  * 
@@ -216,7 +219,7 @@ let eltCanvas;
 let ctxCanvas;
 let eltFilter;
 let useImage;
-let modLocalSettings;
+// let modLocalSettings;
 let ourLocalSetting;
 let settingDawnFilter;
 let settingSquare;
@@ -284,6 +287,9 @@ function drawColoredPoint(color) {
 
 // https://www.w3schools.com/tags/tryit.asp?filename=tryhtml5_canvas_textalign
 
+/** @type {string} */
+let currSoundState = "";
+
 // FIX-ME: aspect ratio and font size
 function topTextFontSize() {
     return Math.min(eltCanvas.height, eltCanvas.width) / 5.2;
@@ -293,6 +299,7 @@ function clearTopText() {
     ctxCanvas.clearRect(0, 0, eltCanvas.width, size);
 }
 function topText(txtTop) {
+    soundState(txtTop);
     if (!txtTop) return;
     ctxCanvas.strokeStyle = "yellow";
     ctxCanvas.strokeStyle = "black";
@@ -314,7 +321,10 @@ function topText(txtTop) {
     ctxCanvas.fillText(txtTop, eltCanvas.width / 2, size);
     ctxCanvas.strokeText(txtTop, eltCanvas.width / 2, size);
 }
-
+function soundState(txtTop) {
+    if (currSoundState == txtTop) return;
+    currSoundState = txtTop;
+}
 
 function getAllPatternNames() {
     return [...Object.keys(breathPatterns), ...Object.keys(settingYourPatt.value)];
@@ -449,13 +459,15 @@ function mkPattString(patt) {
 }
 
 async function dialogImages() {
-    const modExtImages = await TSDEFimport("external-images");
+    // const modExtImages = await TSDEFimport("external-images");
+    const modExtImages = await importFc4i("external-images");
     modExtImages.setStoringPrefix(STORING_PREFIX);
     const url = await modExtImages.dialogImages(myGooglePhotos);
     if (url && url != "random") updateCanvasBackground(url);
 }
 async function dialogPattern() {
-    const modMdc = await TSDEFimport("util-mdc");
+    // const modMdc = await TSDEFimport("util-mdc");
+    const modMdc = await importFc4i("util-mdc");
     const divPattList = TSmkElt("div");
     // @ts-ignore style
     divPattList.style = `
@@ -899,7 +911,7 @@ const logTime = (txt) => {
 }
 
 /** @ts-ignore */
-const throttleLogTime = throttleTO(logTime, 1000);
+const throttleLogTime = modTools.throttleTO(logTime, 1000);
 
 let doDebugLog = false;
 function debugLog(...args) {
@@ -1238,7 +1250,8 @@ function pattY2canvasY(pattY) {
 
 
 async function setCanvasBackgroundToCurrent() {
-    const modExtImages = await TSDEFimport("external-images");
+    // const modExtImages = await TSDEFimport("external-images");
+    const modExtImages = await importFc4i("external-images");
     modExtImages.setStoringPrefix(STORING_PREFIX);
     useImage = modExtImages.getCurrentImageUrl(myGooglePhotos) || useImage;
     // eltCanvas.style.backgroundImage = `url(${useImage})`;
@@ -1532,7 +1545,8 @@ async function setupControls(controlscontainer) {
         modMdc.mkMDCsnackbar(eltMsg);
     }
     settingNumPatts = new ourLocalSetting("num-patts", 1.5);
-    const modMdc = await TSDEFimport("util-mdc");
+    // const modMdc = await TSDEFimport("util-mdc");
+    const modMdc = await importFc4i("util-mdc");
     const iconStart = modMdc.mkMDCicon("play_arrow");
     const btnStart = modMdc.mkMDCiconButton(iconStart, "Start");
     btnStart.id = "start-button";
@@ -1912,11 +1926,14 @@ async function setupControls(controlscontainer) {
             `;
 
     // const chkUseDawnFilter = TSmkElt("input", { type: "checkbox" });
-    const chkUseDawnFilter = document.createElement("input");
-    chkUseDawnFilter.type = "checkbox";
+    // const chkUseDawnFilter = document.createElement("input");
+    // chkUseDawnFilter.type = "checkbox";
     settingDawnFilter = new ourLocalSetting("use-dawn-filter", false);
     if (settingDawnFilter.value) { document.documentElement.classList.add("use-dawn-filter"); }
-    settingDawnFilter.bindToInput(chkUseDawnFilter);
+
+    // settingDawnFilter.bindToInput(chkUseDawnFilter);
+    const chkUseDawnFilter = settingDawnFilter.getInputElement();
+
     chkUseDawnFilter.addEventListener("input", evt => {
         if (chkUseDawnFilter.checked) {
             document.documentElement.classList.add("use-dawn-filter");
@@ -1928,10 +1945,13 @@ async function setupControls(controlscontainer) {
     chkUseDawnFilter.style.marginRight = "7px";
     const lblUseFilter = TSmkElt("label", undefined, [chkUseDawnFilter, "Dawn"]);
 
-    const chkSquare = TSmkElt("input", { type: "checkbox" });
+    // const chkSquare = TSmkElt("input", { type: "checkbox" });
     // settingSquare = new modLocalSettings.LocalSetting(STORING_PREFIX, "square-canvas", false);
+
     settingSquare = new ourLocalSetting("square-canvas", true);
-    settingSquare.bindToInput(chkSquare);
+    // settingSquare.bindToInput(chkSquare);
+    const chkSquare = settingSquare.getInputElement();
+
     chkSquare.addEventListener("input", evt => {
         // bgStyleSquare = chkSquare.checked;
         updateCanvasBackground(usedImageOrVideo);
@@ -1979,10 +1999,12 @@ async function setupControls(controlscontainer) {
     controlscontainer.appendChild(divControlsPlay);
 }
 
-async function setupThings() {
+export async function setupThings() {
     // @ts-ignore file
-    await thePromiseDOMready;
-    modLocalSettings = await TSDEFimport("local-settings");
+    // await thePromiseDOMready;
+    await modTools.promiseDOMready();
+    // modLocalSettings = await TSDEFimport("local-settings");
+    const modLocalSettings = await importFc4i("local-settings");
     class OurLocalSetting extends modLocalSettings.LocalSetting {
         constructor(key, defaultValue) {
             super(STORING_PREFIX, key, defaultValue);
@@ -2022,7 +2044,8 @@ async function setupThings() {
     setCanvasBackgroundToCurrent();
 }
 async function addInfoButton(container) {
-    const modMdc = await TSDEFimport("util-mdc");
+    // const modMdc = await TSDEFimport("util-mdc");
+    const modMdc = await importFc4i("util-mdc");
     const iconInfo = modMdc.mkMDCicon("info");
     iconInfo.style.fontSize = "2.5rem";
     iconInfo.style.color = "mediumslateblue";
@@ -2106,7 +2129,8 @@ async function setup4Android(container) {
         isAndroid = true; // FIX-ME:
     }
     if (isAndroid == false) return;
-    const modMdc = await TSDEFimport("util-mdc");
+    // const modMdc = await TSDEFimport("util-mdc");
+    const modMdc = await importFc4i("util-mdc");
     const iconAndroid = modMdc.mkMDCicon("android");
     iconAndroid.style.fontSize = "2.5rem";
     iconAndroid.style.color = "#3DDC84";
@@ -2166,7 +2190,8 @@ function makeDialogsFixed() {
 }
 
 async function addTestSoundButton(container) {
-    const modMdc = await TSDEFimport("util-mdc");
+    // const modMdc = await TSDEFimport("util-mdc");
+    const modMdc = await importFc4i("util-mdc");
     const iconSound = modMdc.mkMDCicon("flutter_dash");
     iconSound.style.fontSize = "2.5rem";
     iconSound.style.color = "red";

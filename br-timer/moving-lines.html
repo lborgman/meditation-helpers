@@ -24,6 +24,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
 
+    <link rel="stylesheet" href="../ext/mdc-fonts/symbols.css" />
 
 
     <link href="https://fonts.googleapis.com/css?family=Material+Icons&amp;display=block" rel="stylesheet">
@@ -49,6 +50,7 @@
     <!-- <link rel="stylesheet" href="http://localhost:8080/public/css/rem10m1h.css"> -->
 
     <!-- "util-mdc": "/src/js/mod/util-mdc.js", -->
+    <!-- 
     <script type="importmap">
         {
           "imports": {
@@ -64,9 +66,12 @@
           }
         }
     </script>
-    <script src="../src/js/error.js"></script>
+    -->
+    <script src="../init-error-new.js"></script>
+    <script src="../importmaps.js"></script>
+    <!-- <script src="../src/js/error.js"></script> -->
     <!-- <script src="../public/src/js/mod/util-mdc.js"></script> -->
-    <script src="./moving-lines-1.js"></script>
+    <!-- <script src="./moving-lines-1.js"></script> -->
     <style>
         /* FIX-ME: wide screen */
 
@@ -344,8 +349,9 @@
 
 <body>
     <!-- <script src="./moving-lines-2.js"></script> -->
-    <script>
-        setupThings();
+    <script type="module">
+        const modML = await importFc4i("moving-lines");
+        modML.setupThings();
     </script>
     <!-- 
         https://samadhiyogaashram.com/blog/5-pranayamas-that-you-should-make-a-part-of-your-daily-life/
