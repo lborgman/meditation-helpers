@@ -220,6 +220,7 @@ let modLocalSettings;
 let ourLocalSetting;
 let settingDawnFilter;
 let settingSquare;
+const settingSquareValue = true;
 let settingYourPatt;
 
 const breathPatterns = {
@@ -1281,7 +1282,7 @@ async function updateCanvasBackground(useImageOrVideo) {
     const eltOldBg = eltParent.firstElementChild;
     if (eltOldBg?.classList.contains(clsBg)) eltOldBg.remove();
     let eltBg;
-    if (settingSquare.value) {
+    if (settingSquareValue) {
         // @ts-ignore undefined
         if (eltVideo) {
             // eslint-disable-next-line no-debugger
@@ -1332,7 +1333,7 @@ async function updateCanvasBackground(useImageOrVideo) {
     eltBg.style.borderRadius = "10px";
 
     eltParent.insertBefore(eltBg, eltParent.firstElementChild);
-    if (settingSquare.value) {
+    if (settingSquareValue) {
         eltParent.style.aspectRatio = "1 / 1";
     } else {
         eltParent.style.aspectRatio = "unset";
@@ -1417,12 +1418,11 @@ function setupCanvas(container) {
     container4canvas.style = `
                 position: relative;
                 background-color: darkgoldenrod;
-                NOoutline: 2px dotted darkgoldenrod;
                 border-radius: 10px;
                 width: 100%;
-                NOaspect-ratio: 1 / 1;
                 background-size: cover;
                 background-position: center;
+                max-height: calc(-200px + 100vh);
             `;
     container.appendChild(container4canvas);
 
@@ -1938,6 +1938,7 @@ async function setupControls(controlscontainer) {
         setCanvasSizes();
     });
     chkSquare.style.marginRight = "7px";
+    // chkSquare.style.display = "none";
     const lblSquare = TSmkElt("label", undefined, [chkSquare, "Square"]);
 
     fabImages.style.backgroundColor = "transparent";
@@ -1947,7 +1948,7 @@ async function setupControls(controlscontainer) {
         fabImages,
         lblUseFilter,
         // eltUseFilter,
-        lblSquare
+        // lblSquare
     ]);
     // @ts-ignore style
     divControlImage.style = `
