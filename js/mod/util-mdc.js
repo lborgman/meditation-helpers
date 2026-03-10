@@ -2744,6 +2744,7 @@ addToUsedSymbols("edit");
 addToUsedSymbols("edit_off");
 export function addToUsedSymbols(sym) {
     if (location.hostname != "localhost") return;
+    if (!setIconsInWoffFile) return; // We did not get fontKit
     const tofSym = typeof sym;
     if (tofSym != "string") { throw Error(`typeof sym is not "string", but "${tofSym}"`); }
     // if (setIconsUsed.has(sym)) return;
@@ -2789,12 +2790,13 @@ function saveStoredIconsUsed() {
 
 
 /**
- * @returns {Promise<Set>}
+ * @returns {Promise<Set<string>|undefined>}
  */
 async function getIconsInWoffFile() {
     const woffIconsList = await getMdcSymbolsInWoff2File(urlWoff2File);
     const hasWoffIcons = woffIconsList != undefined;
-    return new Set(hasWoffIcons ? woffIconsList.split(",") : undefined);
+    // return new Set(hasWoffIcons ? woffIconsList.split(",") : undefined);
+    return hasWoffIcons? new Set(woffIconsList.split(",")) : undefined;
 }
 
 /**

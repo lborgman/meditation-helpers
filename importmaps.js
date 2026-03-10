@@ -173,11 +173,11 @@ const cacheImportFc4i = new Map();
         if (oldModule) return oldModule;
         // if (window["in-app-screen"]) return;
         const webBrowserInfo = await window["promWebBrowserInfo"];
-        const isInApp = webBrowserInfo.isInApp;
+        const isInApp = webBrowserInfo?.isInApp || false;
         const tofIsInApp = typeof isInApp;
         if (tofIsInApp != "boolean") {
             debugger; // eslint-disable-line no-debugger
-            throw Error(`tofIsInapp == "${tofIsInApp}"`);
+            // throw Error(`tofIsInapp == "${tofIsInApp}"`);
         }
         if (idOrLink.startsWith("https://")) {
             return await import(idOrLink);

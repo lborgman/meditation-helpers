@@ -41,10 +41,12 @@ async function fontkitGetCodepoints(woffUrl) {
         try {
             return await import(fontkitUrl);
         } catch (err) {
-            console.error(err);
-            throw Error(`Could not get fontkit: ${fontkitUrl}`);
+            console.warn(err);
+            console.warn(`Could not get fontkit: ${fontkitUrl}`);
+            // throw Error(`Could not get fontkit: ${fontkitUrl}`);
         }
     })();
+    if (!modFontkit) return;
 
     const font = modFontkit.create(new Uint8Array(arrayBuffer));
     // console.log({ font });

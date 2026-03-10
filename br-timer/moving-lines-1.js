@@ -1,5 +1,13 @@
 // @ts-check
-console.log("here is moving-lines-1.js");
+const MOVING_LINES_VER = "0.0.7";
+// @ts-ignore
+window["logConsoleHereIs"](`here is moving-lines-1.js, module, ${MOVING_LINES_VER}`);
+if (document.currentScript) { throw "moving-lines-1.js is not loaded as module"; }
+
+// const mkElt = window["mkElt"];
+// const errorHandlerAsyncEvent = window["errorHandlerAsyncEvent"];
+// @ts-ignore
+const importFc4i = window["importFc4i"];
 
 const modTools = await importFc4i("toolsJs");
 const modMdc = await importFc4i("util-mdc");
@@ -44,7 +52,7 @@ const TSFIXmilliSeconds = (value) => /** @type TSmilliSeconds */(value);
  * @returns {HTMLElement}
  */
 function TSmkElt(type, attrib, inner) {
-    // @ts-ignore file
+    // @ts-ignore - in another file
     return mkElt(type, attrib, inner);
 }
 
@@ -469,13 +477,15 @@ async function dialogPattern() {
     // const modMdc = await TSDEFimport("util-mdc");
     const modMdc = await importFc4i("util-mdc");
     const divPattList = TSmkElt("div");
+    divPattList.id = "div-patt-list";
     // @ts-ignore style
     divPattList.style = `
                     display: flex;
                     flex-direction: column;
                     gap: 10px;
                 `;
-    const funHandleResult = () => {
+    const funHandleResult = (saveIt) => {
+        if (!saveIt) return true;
         /** @type {HTMLInputElement | null} */
         const rad =
             divPattList.querySelector("input[name=pattName]:checked")
@@ -700,12 +710,35 @@ async function dialogPattern() {
     divPattList.appendChild(divBtnAddPatt);
 
     const divYourList = TSmkElt("div");
+    divYourList.id = "div-your-list";
     // @ts-ignore style
     divYourList.style = `
                 display: flex;
                 flex-direction: column;
                 NOgap: 10px;
+                outline: 1px dotted red;
+                border: 1px dotted green;
             `;
+
+    divPattList.addEventListener("change", evt => {
+        const target = /** @type {HTMLInputElement|null} */ (evt.target);
+        if (!target) {
+            debugger;
+            return;
+        }
+        debugger;
+        const targetName = target.name;
+        if (targetName != "pattName") {
+            debugger;
+            throw Error(`target.name == "${targetName}"`)
+        }
+        const pattern = target.value;
+        // 
+        if (pattern) settingPattern.value = pattern;
+        tellCurrentPatternParts();
+        initCurrentPattern();
+
+    })
     divPattList.appendChild(divYourList);
     refreshYourList();
 
@@ -761,8 +794,9 @@ async function dialogPattern() {
             divList.appendChild(row);
         }
     }
+    /*
     const { pattName } = await modMdc.mkMDCdialogConfirm(bdy, "Close",
-        false,
+        null, // false,
         funHandleResult,
         // tellMeOkButton,
     );
@@ -770,6 +804,8 @@ async function dialogPattern() {
     if (pattName) settingPattern.value = pattName;
     tellCurrentPatternParts();
     initCurrentPattern();
+    */
+    modMdc.mkMDCdialogAlert(bdy, "Close");
 }
 
 /**
@@ -1901,6 +1937,7 @@ async function setupControls(controlscontainer) {
         eltPatternButtons,
         eltPatternInfo,
     ]);
+    divPattern.id = "div-pattern";
     // @ts-ignore style
     divPattern.style = `
                 display: flex;
