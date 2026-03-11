@@ -117,6 +117,8 @@ const cacheImportFc4i = new Map();
 
         // "jsmind": "https://cdn.jsdelivr.net/npm/jsmind@0.8.5/es6/jsmind.js",
 
+        // "bell-engine": "/js/mod/bell-engine.js",
+        "bell-engine": "/ext/bells/bell-engine.js",
         "external-images": "/js/mod/external-images.js",
         // "flashcards": "./src/js/mod/flashcards.js",
         // "idb-common": "./js/mod/idb-common.js",

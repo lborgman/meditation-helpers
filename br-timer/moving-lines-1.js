@@ -329,9 +329,37 @@ function topText(txtTop) {
     ctxCanvas.fillText(txtTop, eltCanvas.width / 2, size);
     ctxCanvas.strokeText(txtTop, eltCanvas.width / 2, size);
 }
-function soundState(txtTop) {
+const modBells = await importFc4i("bell-engine");
+const inhale = modBells.createInternalSyntheticBell(modBells.BELLS[0]);
+const exhale = modBells.createInternalSyntheticBell(modBells.BELLS[0], { pitchShift: 0.92 });
+
+/** * @param {number} seconds */
+const playInhale = (seconds) => {
+    modBells.strikeBell(inhale, { stopAtSec: seconds });  // bell in  → 4 s inhale
+}
+/** * @param {number} seconds */
+const playExhale = (seconds) => {
+    modBells.strikeBell(exhale, { stopAtSec: seconds });  // bell out → 6 s exhale
+}
+
+/** * @param {string} txtTop */
+async function soundState(txtTop) {
     if (currSoundState == txtTop) return;
     currSoundState = txtTop;
+    switch (currSoundState) {
+        case "Inhale":
+            playInhale(currentPatt.patt.breathIn);
+            break;
+        case "Exhale":
+            playExhale(currentPatt.patt.breathOut);
+            break;
+        case "Hold...":
+        case "Focus...":
+        case "Finished":
+            break;
+        default:
+            debugger;
+    }
 }
 
 function getAllPatternNames() {
@@ -1031,7 +1059,10 @@ function drawPattern(msDelayDrawP) {
 
 
     ctxCanvas.clearRect(0, 0, eltCanvas.width, eltCanvas.height);
-    if (txtState.length > 0) topText(txtState);
+    if (txtState.length > 0) {
+        topText(txtState);
+        soundState(txtState);
+    }
 
     /** @type {pattX} */
     const pattXtimeShift = seconds2pattX(TSFIXseconds(-msDelayDrawP / 1000));
