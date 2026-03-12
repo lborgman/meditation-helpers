@@ -330,8 +330,12 @@ function topText(txtTop) {
     ctxCanvas.strokeText(txtTop, eltCanvas.width / 2, size);
 }
 const modBells = await importFc4i("bell-engine");
-const inhale = modBells.createInternalSyntheticBell(modBells.BELLS[0]);
+// const inhale = modBells.createInternalSyntheticBell(modBells.BELLS[0]);
 const exhale = modBells.createInternalSyntheticBell(modBells.BELLS[0], { pitchShift: 0.92 });
+// modBells.createExternalBellFromFile
+//         "bell-engine": "../ext/bells/bell-engine.js",
+const inhale = await modBells.createExternalBellFromFile('../ext/bells/sbell2_10s.mp3',
+    { startOffset: 0.0, duration: 8 });
 
 /** * @param {number} seconds */
 const playInhale = (seconds) => {
