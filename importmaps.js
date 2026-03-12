@@ -118,26 +118,26 @@ const cacheImportFc4i = new Map();
         // "jsmind": "https://cdn.jsdelivr.net/npm/jsmind@0.8.5/es6/jsmind.js",
 
         // "bell-engine": "/js/mod/bell-engine.js",
-        "bell-engine": "/ext/bells/bell-engine.js",
-        "external-images": "/js/mod/external-images.js",
+        "bell-engine": "../ext/bells/bell-engine.js",
+        "external-images": "../js/mod/external-images.js",
         // "flashcards": "./src/js/mod/flashcards.js",
         // "idb-common": "./js/mod/idb-common.js",
         // "images": "./js/mod/images.js",
         // "is-displayed": "./js/mod/is-displayed.js",
 
-        "local-settings": "/js/mod/local-settings.js",
+        "local-settings": "../js/mod/local-settings.js",
 
-        "moving-lines": "./br-timer/moving-lines-1.js",
+        "moving-lines": "./moving-lines-1.js",
         "my-svg": "./js/mod/my-svg.js",
 
         "sharing-params": "./src/js/mod/sharing-params.js",
-        "toolsJs": "./js/mod/tools.js",
-        "util-mdc": "/js/mod/util-mdc.js",
-        "woff-codepoints": "./js/mod/woff-codepoints.js",
+        "toolsJs": "../js/mod/tools.js",
+        "util-mdc": "../js/mod/util-mdc.js",
+        "woff-codepoints": "../js/mod/woff-codepoints.js",
         // "google-symbols-codepoints": "./ext/mdc-fonts/codepoints.js",
-        "woff2-mdc-symbols": "./js/mod/woff2-mdc-symbols.js",
+        "woff2-mdc-symbols": "../js/mod/woff2-mdc-symbols.js",
 
-        "supabase-sign-in": "./js/mod/supabase-sign-in.js",
+        "supabase-sign-in": "../js/mod/supabase-sign-in.js",
 
         // Tests:
         "pwa": "./pwa.js",
@@ -283,9 +283,24 @@ const cacheImportFc4i = new Map();
         isImporting[idOrLink] = getStackTrace();
 
 
-        const prom = import(ourImportLink);
+        let prom;
+        const u = new URL(ourImportLink, location);
+        const absImportLink = u.href;
+        try {
+            // prom = import(ourImportLink);
+            prom = import(absImportLink);
+        } catch (err) {
+            console.error("prom", absImportLink, err);
+            debugger;
+        }
         cacheImportFc4i.set(idOrLink, prom);
-        const mod = await prom;
+        let mod;
+        try {
+            mod = await prom;
+        } catch (err) {
+            console.error("mod", absImportLink, err);
+            debugger;
+        }
 
 
         isImporting[idOrLink] = false;
