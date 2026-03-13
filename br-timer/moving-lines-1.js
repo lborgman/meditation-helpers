@@ -504,8 +504,9 @@ async function dialogImages() {
     // const modExtImages = await TSDEFimport("external-images");
     const modExtImages = await importFc4i("external-images");
     modExtImages.setStoringPrefix(STORING_PREFIX);
-    const url = await modExtImages.dialogImages(myGooglePhotos);
-    if (url && url != "random") updateCanvasBackground(url);
+    // const url = await modExtImages.dialogImages(myGooglePhotos);
+    // if (url && url != "random") updateCanvasBackground(url);
+    modExtImages.dialogImages(myGooglePhotos, setCanvasBackgroundToCurrent);
 }
 async function dialogPattern() {
     // const modMdc = await TSDEFimport("util-mdc");

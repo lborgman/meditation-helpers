@@ -93,22 +93,35 @@ function checkStoringPrefix() {
     if (typeof storingPrefix != "string") throw Error(`storingPrefix not set`);
 }
 
-
+function checkImagesRec(objJson) {
+    const keys = Object.keys(objJson);
+    const keyNames = keys.sort().join(",");
+    const expectedNames = "arr,choice";
+    if (keyNames != expectedNames) {
+        console.error({ keyNames });
+        debugger;
+        throw Error(`Expected "${expectedNames}", found "${keyNames}"`);
+    }
+}
 function getImagesRec() {
     checkStoringPrefix();
     const strJson = localStorage.getItem(storingPrefix + KEY);
-    if (!strJson) return { choice: "random", arr: [] };
-    const objJson = JSON.parse(strJson);
+    let objJson;
+    if (!strJson) {
+        objJson = { choice: "random", arr: [] };
+    } else {
+        objJson = JSON.parse(strJson);
+    }
+    checkImagesRec(objJson);
     return objJson;
 }
 function setImagesRec(objJson) {
+    checkImagesRec(objJson);
     checkStoringPrefix();
     const strJson = JSON.stringify(objJson);
     localStorage.setItem(storingPrefix + KEY, strJson);
 }
 
-// const debounceSetImagesRec = debounce(setImagesRec, 1000);
-const debounceSetImagesRec = modTools.debounce(setImagesRec, 1000);
 
 export function getCurrentImageUrl(arrBuiltin) {
     const { choice, arr } = getImagesRec();
@@ -127,7 +140,13 @@ export function getCurrentImageUrl(arrBuiltin) {
     return choice;
 }
 
-export async function dialogImages(arrBuiltin) {
+export async function dialogImages(arrBuiltin, applyImage) {
+    function setAndApplyImagesRec(obj) {
+        setImagesRec(obj);
+        applyImage();
+    }
+    // const debounceSetImagesRec = modTools.debounce(setImagesRec, 1000);
+    const debounceSetImagesRec = modTools.debounce(setAndApplyImagesRec, 1000);
     const oldObj = getImagesRec();
     let okButton;
     const tellMeOkButton = (btn) => {
@@ -271,7 +290,7 @@ export async function dialogImages(arrBuiltin) {
         });
     }
 
-    const debounceCheckIsImage = debounce(checkInpUrl, 700);
+    const debounceCheckIsImage = modTools.debounce(checkInpUrl, 700);
 
     let stateInpUrl;
 
@@ -348,7 +367,7 @@ export async function dialogImages(arrBuiltin) {
                 throw Error(`Unknown stateInpUrl: ${stateInpUrl}`);
         }
     }
-    const debounceTellUserAboutUrl = debounce(tellUserAboutUrl, 3000);
+    const debounceTellUserAboutUrl = modTools.debounce(tellUserAboutUrl, 3000);
 
     inpURL.addEventListener("input", evt => {
         const val = inpURL.value.trim();
@@ -549,19 +568,18 @@ export async function dialogImages(arrBuiltin) {
         debounceSetImagesRec(obj);
     })
 
-    const funHandleResult = () => {
+    /** * @param {boolean} doSave * @returns {string} */
+    const funHandleResult = (doSave) => {
         console.log({ oldObj });
         const newObj = getImagesRec();
-        if (newObj.choice == oldObj.choice) return;
+        const somethingToSave = newObj.choice == oldObj.choice;
+        // if (newObj.choice == oldObj.choice) return;
+        if (!doSave) return somethingToSave;
+        if (!somethingToSave) return;
         return newObj.choice;
         // return "not ready";
     };
-    return modMdc.mkMDCdialogConfirm(bdy, "Close",
-        // undefined, true,
-        false,
-
-        funHandleResult,
-        tellMeOkButton,
-    );
-
+    // mkMDCdialogConfirm(body, titleOk, titleCancel, funCheckSave, tellMeOkButton) {
+    // mkMDCdialogAlert(body, titleClose) {
+    modMdc.mkMDCdialogAlert(bdy, "Close");
 }
