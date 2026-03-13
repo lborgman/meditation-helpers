@@ -2796,7 +2796,9 @@ async function getIconsInWoffFile() {
     const woffIconsList = await getMdcSymbolsInWoff2File(urlWoff2File);
     const hasWoffIcons = woffIconsList != undefined;
     // return new Set(hasWoffIcons ? woffIconsList.split(",") : undefined);
-    return hasWoffIcons? new Set(woffIconsList.split(",")) : undefined;
+    // return hasWoffIcons? new Set(woffIconsList.split(",")) : undefined;
+    const list = hasWoffIcons? woffIconsList.split(","): undefined;
+    return new Set(list);
 }
 
 /**

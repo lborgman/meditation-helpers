@@ -1,6 +1,18 @@
+
+// @ts-check
+const USER_IMAGES_VER = "0.0.5";
+// @ts-ignore
+window["logConsoleHereIs"](`here is user-images.js, module, ${USER_IMAGES_VER}`);
+if (document.currentScript) { throw "user-images.js is not loaded as module"; }
+
+// @ts-ignore
+const mkElt = window["mkElt"];
+// const errorHandlerAsyncEvent = window["errorHandlerAsyncEvent"];
+// @ts-ignore
+const importFc4i = window["importFc4i"];
+
 // javascript module for linking external images.
 // The user provides the links which I guess will avoid copyright problems.
-console.log("here is external-images.js");
 
 ///////////////////////////////////////////////////////////////////////
 //////////////////////// Images ///////////////////////////////////////
@@ -43,6 +55,12 @@ const modTools = await importFc4i("toolsJs");
 const modMdc = await importFc4i("util-mdc");
 
 // https://stackoverflow.com/questions/5845238/javascript-generate-transparent-1x1-pixel-in-dataurl-format
+/**
+ * 
+ * @param {number} w 
+ * @param {number} h 
+ * @returns {string}
+ */
 const createPlaceholderSrc = (w, h) => {
     // var img = document.createElement('img');
     // img.setAttribute('style', 'width:'+w+'px;height:'+h+'px;border:none;display:block');
@@ -52,8 +70,9 @@ const createPlaceholderSrc = (w, h) => {
 }
 
 export function dialogReason() {
-    const bdy = mkElt("div", { class: "extimg-colored-dialog" }, [
-        mkElt("h2", undefined, "Copyright and images"),
+    const iconCopyright = modMdc.mkMDCicon("copyright");
+    const bdy = mkElt("div", { class: "extimg-copyright" }, [
+        mkElt("h2", { style: "color:blue" }, [iconCopyright, " Copyright and images"]),
         mkElt("p", undefined,
             `
             There are many wonderful images on the Internet.
@@ -68,17 +87,34 @@ export function dialogReason() {
         `),
         mkElt("p", undefined,
             `
-            This is the reason I do not provide links to 
-            any of these images.
-            Since if I do I might impinge on the copyright.
-            So I let you choose the images you want instead.
+            I do not provide links to any of these wonderful images.
+            Instead I added some of my own photos as default.
+            If you want other images you can add links to them yourself.
+        `),
+        mkElt("h3", { style: "color:blue" }, "Choose your own images"),
+        mkElt("p", undefined,
+            `
+            If you want other images you can add links to them yourself.
+        `),
+        mkElt("p", undefined,
+            `
+            However you can not upload images from your PC/mobile.
+            The reason is technical. Uploaded images will take a lot of space in your
+            web browser. And it can create problems.
+            (If you have a wondoerful image that you think should be in this app
+            you are welcome to give it to me!)
         `),
     ]);
     modMdc.mkMDCdialogAlert(bdy);
 }
 const KEY = "external-images";
 
+/** @type {string} */
 let storingPrefix;
+/**
+ * 
+ * @param {string} prefix 
+ */
 export function setStoringPrefix(prefix) {
     const tofPrefix = typeof prefix;
     if (tofPrefix != "string") throw Error(`setStoringPrefix, arg not string: ${tofPrefix}`);
@@ -93,6 +129,16 @@ function checkStoringPrefix() {
     if (typeof storingPrefix != "string") throw Error(`storingPrefix not set`);
 }
 
+/**
+ * @typedef {Object} ImagesRec
+ * @property {string[]} arr
+ * @property {string} choice
+ * 
+ */
+/**
+ * @param {ImagesRec} objJson 
+ * @throws
+ */
 function checkImagesRec(objJson) {
     const keys = Object.keys(objJson);
     const keyNames = keys.sort().join(",");
@@ -103,6 +149,10 @@ function checkImagesRec(objJson) {
         throw Error(`Expected "${expectedNames}", found "${keyNames}"`);
     }
 }
+/**
+ * 
+ * @returns {ImagesRec}
+ */
 function getImagesRec() {
     checkStoringPrefix();
     const strJson = localStorage.getItem(storingPrefix + KEY);
@@ -115,6 +165,10 @@ function getImagesRec() {
     checkImagesRec(objJson);
     return objJson;
 }
+/**
+ * @param {ImagesRec} objJson 
+ * @throws
+ */
 function setImagesRec(objJson) {
     checkImagesRec(objJson);
     checkStoringPrefix();
@@ -123,6 +177,11 @@ function setImagesRec(objJson) {
 }
 
 
+/**
+ * 
+ * @param {string[]} arrBuiltin 
+ * @returns {string}
+ */
 export function getCurrentImageUrl(arrBuiltin) {
     const { choice, arr } = getImagesRec();
     if (choice == "random") {
@@ -140,7 +199,16 @@ export function getCurrentImageUrl(arrBuiltin) {
     return choice;
 }
 
+/**
+ * 
+ * @param {string[]} arrBuiltin 
+ * @param {Function} applyImage 
+ */
 export async function dialogImages(arrBuiltin, applyImage) {
+    /**
+     * 
+     * @param {ImagesRec} obj 
+     */
     function setAndApplyImagesRec(obj) {
         setImagesRec(obj);
         applyImage();
@@ -148,19 +216,10 @@ export async function dialogImages(arrBuiltin, applyImage) {
     // const debounceSetImagesRec = modTools.debounce(setImagesRec, 1000);
     const debounceSetImagesRec = modTools.debounce(setAndApplyImagesRec, 1000);
     const oldObj = getImagesRec();
-    let okButton;
-    const tellMeOkButton = (btn) => {
-        okButton = btn;
-    }
 
-    // const btnCopyright = mkElt("button", undefined, "Explain");
-    const iconCopyright = modMdc.mkMDCicon("copyright");
-    // const btnCopyright = modMdc.mkMDCiconButton(iconCopyright, "Explain copyright issues");
-    const btnCopyright = modMdc.mkMDCfab(iconCopyright, "Explain copyright issues", true);
-    btnCopyright.addEventListener("click", evt => { dialogReason(); });
-
-    // const inpUrlImage = mkElt("input", { type: "url" });
-    // const lblUrlImage = mkElt("label", undefined, ["Image url:", inpUrlImage]);
+    const iconCopyright = modMdc.mkMDCicon("info");
+    const btnInfoCopyright = modMdc.mkMDCfab(iconCopyright, "Explain copyright issues", true);
+    btnInfoCopyright.addEventListener("click", evt => { evt.stopPropagation(); dialogReason(); });
 
     const videoNewPreview = mkElt("video");
     videoNewPreview.muted = true;
@@ -206,6 +265,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
     const btnAddNew = modMdc.mkMDCbutton("Add", "raised");
     btnAddNew.style.display = "none";
     btnAddNew.addEventListener("click", evt => {
+        evt.stopPropagation();
         const val = inpURL.value.trim();
         const isVideo = videoNewPreview.getBoundingClientRect().width > 0;
         let catMark = "";
@@ -236,7 +296,8 @@ export async function dialogImages(arrBuiltin, applyImage) {
         btnPlay.style.display = "none";
         btnPause.style.display = null;
     });
-    const iconPause = modMdc.mkMDCicon("pause_circle");
+    // const iconPause = modMdc.mkMDCicon("pause_circle");
+    const iconPause = modMdc.mkMDCicon("pause");
     const btnPause = modMdc.mkMDCiconButton(iconPause);
     btnPause.setAttribute("Xtabindex", 0);
     btnPause.style.display = "none";
@@ -412,10 +473,9 @@ export async function dialogImages(arrBuiltin, applyImage) {
         }
         debounceCheckIsImage(val);
     });
-    const tfURL = modMdc.mkMDCtextField("Add new image/video link", inpURL);
+    const tfURL = modMdc.mkMDCtextField("Add image/video link", inpURL);
     tfURL.style = `
         width: 100%;
-        margin-top: 10px;
     `;
 
     const styleUrlAlt = `
@@ -548,16 +608,16 @@ export async function dialogImages(arrBuiltin, applyImage) {
 
     const bdy = mkElt("div", { class: "extimg-colored-dialog" }, [
         mkElt("h2", undefined, "Background Images"),
-        btnCopyright,
+        // btnCopyright,
         divRandomUrl,
-        mkElt("h3", undefined, "Your own:"),
+        mkElt("h3", undefined, "Built in:"),
+        divBuiltinUrls,
+        mkElt("h3", undefined, ["Your own: ", btnInfoCopyright]),
         divOldUrls,
         mkElt("div", { id: "extimg-add-new" }, [
             divNewUrl,
             divNewPreview,
         ]),
-        mkElt("h3", undefined, "Built in:"),
-        divBuiltinUrls,
     ]);
     bdy.addEventListener("change", evt => {
         const target = evt.target;
