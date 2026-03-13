@@ -65,8 +65,6 @@ const TSDEFdebounce = modTools.debounce;
 // @ts-ignore file
 const TSDEFwaitSeconds = modTools.waitSeconds;
 
-// @ts-ignore file
-const TSDEFimport = async (url) => { return import(url); }
 
 // @ts-ignore file
 const TSDEFwait4mutations = modTools.wait4mutations;
@@ -501,15 +499,11 @@ function mkPattString(patt) {
 }
 
 async function dialogImages() {
-    // const modExtImages = await TSDEFimport("external-images");
-    const modExtImages = await importFc4i("external-images");
+    const modExtImages = await importFc4i("user-images");
     modExtImages.setStoringPrefix(STORING_PREFIX);
-    // const url = await modExtImages.dialogImages(myGooglePhotos);
-    // if (url && url != "random") updateCanvasBackground(url);
     modExtImages.dialogImages(myGooglePhotos, setCanvasBackgroundToCurrent);
 }
 async function dialogPattern() {
-    // const modMdc = await TSDEFimport("util-mdc");
     const modMdc = await importFc4i("util-mdc");
     const divPattList = TSmkElt("div");
     divPattList.id = "div-patt-list";
@@ -1324,8 +1318,7 @@ function pattY2canvasY(pattY) {
 
 
 async function setCanvasBackgroundToCurrent() {
-    // const modExtImages = await TSDEFimport("external-images");
-    const modExtImages = await importFc4i("external-images");
+    const modExtImages = await importFc4i("user-images");
     modExtImages.setStoringPrefix(STORING_PREFIX);
     useImage = modExtImages.getCurrentImageUrl(myGooglePhotos) || useImage;
     // eltCanvas.style.backgroundImage = `url(${useImage})`;
