@@ -120,6 +120,7 @@ const cacheImportFc4i = new Map();
         // "bell-engine": "/js/mod/bell-engine.js",
         "bell-engine": "../ext/bells/bell-engine.js",
         "user-images": "../js/mod/user-images.js",
+        "user-sound": "../js/mod/user-sound.js",
         // "flashcards": "./src/js/mod/flashcards.js",
         // "idb-common": "./js/mod/idb-common.js",
         // "images": "./js/mod/images.js",

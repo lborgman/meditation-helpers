@@ -1,4 +1,3 @@
-
 // @ts-check
 const USER_IMAGES_VER = "0.0.5";
 // @ts-ignore

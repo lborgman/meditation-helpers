@@ -836,6 +836,11 @@ async function dialogPattern() {
     */
     modMdc.mkMDCdialogAlert(bdy, "Close");
 }
+async function dialogSound() {
+    const modSound = await importFc4i("user-sound");
+    modSound.setStoringPrefix(STORING_PREFIX);
+    modSound.dialogSound();
+}
 
 /**
  * @typedef {{
@@ -1941,12 +1946,27 @@ async function setupControls(controlscontainer) {
     icoImages.style.color = "greenyellow";
     const fabImages = modMdc.mkMDCfab(icoImages, "Choose background", true);
     fabImages.addEventListener("click", async evt => {
+        evt.stopPropagation();
         // dialogPattern();
         if (isRunningFun()) { return; }
         dialogImages();
     });
     fabImages.style.backgroundColor = "orange";
     fabImages.style.backgroundColor = "#ffa500a1";
+
+    const icoSound = modMdc.mkMDCicon("notification_sound");
+    icoSound.style.color = "pink";
+    const fabSound = modMdc.mkMDCfab(icoSound, "Choose background", true);
+    fabSound.addEventListener("click", async evt => {
+        evt.stopPropagation();
+        if (isRunningFun()) { return; }
+        // dialogImages();
+        dialogSound();
+    });
+    fabSound.style.backgroundColor = "orange";
+    fabSound.style.backgroundColor = "#ffa500a1";
+    fabSound.style.backgroundColor = "red";
+
 
 
     const eltPatternInfo = TSmkElt("span", undefined, "Wait")
@@ -2031,10 +2051,13 @@ async function setupControls(controlscontainer) {
 
     fabImages.style.backgroundColor = "transparent";
     fabImages.style.color = "unset";
+    fabSound.style.backgroundColor = "transparent";
+    fabSound.style.color = "unset";
 
     const divControlImage = TSmkElt("div", undefined, [
         fabImages,
         lblUseFilter,
+        fabSound,
         // eltUseFilter,
         // lblSquare
     ]);
