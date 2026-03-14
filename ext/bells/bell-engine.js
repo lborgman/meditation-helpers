@@ -91,11 +91,11 @@ const BELLS = [
     source: SOURCES['Bowl 1'],
     partials: [
       // Prime — gentle 30 ms swell, 0.8 Hz doublet shimmer
-      { label:'Prime',    f1:432.0,  f2:432.8,  gain:1.00, t60:20, atkMs:30,  enabled:true },
+      { label: 'Prime', f1: 432.0, f2: 432.8, gain: 1.00, t60: 20, atkMs: 30, enabled: true },
       // Nominal — swell over 80 ms, strong and warm, very slow 1.0 Hz shimmer
-      { label:'Nominal',  f1:864.0,  f2:865.0,  gain:0.90, t60:25, atkMs:80,  enabled:true },
+      { label: 'Nominal', f1: 864.0, f2: 865.0, gain: 0.90, t60: 25, atkMs: 80, enabled: true },
       // Quint — soft, swells over 60 ms, fades faster
-      { label:'Quint',    f1:1188.0, f2:null,   gain:0.25, t60:12, atkMs:60,  enabled:true },
+      { label: 'Quint', f1: 1188.0, f2: null, gain: 0.25, t60: 12, atkMs: 60, enabled: true },
     ],
   },
   {
@@ -105,15 +105,18 @@ const BELLS = [
     source: SOURCES['Bowl 2'],
     partials: [
       // Prime — slightly faster 1.2 Hz shimmer
-      { label:'Prime',    f1:432.0,  f2:433.2,  gain:1.00, t60:18, atkMs:25,  enabled:true },
+      { label: 'Prime', f1: 432.0, f2: 433.2, gain: 1.00, t60: 18, atkMs: 25, enabled: true },
       // Nominal — louder relative to Prime, 0.6 Hz very slow shimmer
-      { label:'Nominal',  f1:864.0,  f2:864.6,  gain:1.10, t60:28, atkMs:90,  enabled:true },
+      { label: 'Nominal', f1: 864.0, f2: 864.6, gain: 1.10, t60: 28, atkMs: 90, enabled: true },
       // Quint — a touch brighter
-      { label:'Quint',    f1:1188.0, f2:null,   gain:0.30, t60:10, atkMs:50,  enabled:true },
+      { label: 'Quint', f1: 1188.0, f2: null, gain: 0.30, t60: 10, atkMs: 50, enabled: true },
     ],
   },
 ];
-
+export function getBellNames() {
+  // sBell
+  return BELLS.map(bell => bell.name);
+}
 
 // ---------------------------------------------------------------------------
 // SECTION 2 — AUDIO ENGINE
@@ -146,8 +149,8 @@ const PARTIAL_SCALE = 1 / 3;
  * @returns {number} AudioContext time when the oscillator node stops.
  */
 function _addOscillator(freq, gain, t60, atkSec, t0, busNode) {
-  const actx   = busNode.context;
-  const tau    = t60 / LN1000;
+  const actx = busNode.context;
+  const tau = t60 / LN1000;
   const stopAt = t0 + Math.min(t60 * 2.0, 90);
 
   const osc = actx.createOscillator();
@@ -181,13 +184,13 @@ function _addOscillator(freq, gain, t60, atkSec, t0, busNode) {
  * @param {GainNode} busNode    - Destination node in the audio graph.
  */
 function _addNoise(primef1, noiseAmt, masterGain, t0, busNode) {
-  const actx   = busNode.context;
+  const actx = busNode.context;
   const bufLen = Math.ceil(actx.sampleRate * 0.08);
-  const nb     = actx.createBuffer(1, bufLen, actx.sampleRate);
-  const nd     = nb.getChannelData(0);
+  const nb = actx.createBuffer(1, bufLen, actx.sampleRate);
+  const nd = nb.getChannelData(0);
   for (let i = 0; i < bufLen; i++) nd[i] = Math.random() * 2 - 1;
 
-  const ns  = actx.createBufferSource(); ns.buffer = nb;
+  const ns = actx.createBufferSource(); ns.buffer = nb;
   const nbp = actx.createBiquadFilter();
   nbp.type = 'bandpass';
   nbp.frequency.value = primef1;
@@ -257,7 +260,7 @@ function _getActx() {
 // ── Private engine ────────────────────────────────────────────────────────────
 
 function _createEngine(destination, { pitchShift = 1.0, suppressDoublets = false } = {}) {
-  const actx     = destination.context;
+  const actx = destination.context;
   const analyser = actx.createAnalyser();
   analyser.fftSize = 1024;
   const masterBus = actx.createGain();
@@ -265,22 +268,22 @@ function _createEngine(destination, { pitchShift = 1.0, suppressDoublets = false
   analyser.connect(destination);
 
   function strike(bellDef, {
-    masterGain  = 1.0,
-    noiseAmt    = 0.15,
-    offsetSec   = 0,
-    stopAtSec   = 0,
-    msFade      = 300,
+    masterGain = 1.0,
+    noiseAmt = 0.15,
+    offsetSec = 0,
+    stopAtSec = 0,
+    msFade = 300,
   } = {}) {
     if (actx.state === 'suspended') actx.resume();
 
-    const t0  = actx.currentTime + 0.005 + offsetSec;
+    const t0 = actx.currentTime + 0.005 + offsetSec;
     const bus = actx.createGain();
     bus.gain.value = 1;
     bus.connect(masterBus);
 
     // Scheduled stop: ramp bus gain to zero over msFade ms ending at t0 + stopAtSec.
     if (stopAtSec > 0) {
-      const cutAt    = t0 + stopAtSec;
+      const cutAt = t0 + stopAtSec;
       const fadesSec = Math.max(0.005, msFade / 1000);
       bus.gain.setValueAtTime(1, cutAt - fadesSec);
       bus.gain.linearRampToValueAtTime(0, cutAt);
@@ -300,7 +303,7 @@ function _createEngine(destination, { pitchShift = 1.0, suppressDoublets = false
         : [[p.f1 * pitchShift, 1.00]];
 
       tones.forEach(([freq, frac]) => {
-        const g    = p.gain * frac * masterGain * PARTIAL_SCALE;
+        const g = p.gain * frac * masterGain * PARTIAL_SCALE;
         const stop = _addOscillator(freq, g, p.t60, atkSec, t0, bus);
         maxStop = Math.max(maxStop, stop);
       });
@@ -311,11 +314,11 @@ function _createEngine(destination, { pitchShift = 1.0, suppressDoublets = false
       _addNoise(primef1 * pitchShift, noiseAmt, masterGain, t0, bus);
     }
 
-    setTimeout(() => { try { bus.disconnect(); } catch (_) {} },
+    setTimeout(() => { try { bus.disconnect(); } catch (_) { } },
       (maxStop - actx.currentTime + 2) * 1000);
 
     function stop(ms = 300) {
-      const now      = actx.currentTime;
+      const now = actx.currentTime;
       const fadeSecs = Math.max(0.005, ms / 1000);
       bus.gain.cancelScheduledValues(now);
       bus.gain.setValueAtTime(bus.gain.value, now);
@@ -329,7 +332,7 @@ function _createEngine(destination, { pitchShift = 1.0, suppressDoublets = false
 }
 
 function _createMixedEngine(destination, entries) {
-  const blended               = blendBells(entries);
+  const blended = blendBells(entries);
   const { strike: _s, analyser } = _createEngine(destination);
   function strike(params = {}) { return _s(blended, params); }
   return { strike, analyser };
@@ -414,21 +417,21 @@ function blendBells(entries) {
         const ownPrime = bellDef.partials.find(p => p.label === 'Prime');
         const normGain = ownPrime ? match.gain / ownPrime.gain : match.gain;
         gainSum += normGain * weight;
-        t60Sum  += match.t60 * weight;
-        wSum    += weight;
+        t60Sum += match.t60 * weight;
+        wSum += weight;
       }
     });
 
     if (wSum === 0) return { ...refPartial }; // unique to reference — keep as-is
 
     // Re-scale blended gain back relative to reference Prime gain
-    const refPrime     = reference.partials.find(p => p.label === 'Prime');
+    const refPrime = reference.partials.find(p => p.label === 'Prime');
     const refPrimeGain = refPrime ? refPrime.gain : 1.0;
 
     return {
       ...refPartial,
       gain: (gainSum / wSum) * refPrimeGain,
-      t60:   t60Sum  / wSum,
+      t60: t60Sum / wSum,
       // atkMs kept from reference: attack shape reflects reference bell geometry
     };
   });
@@ -454,13 +457,13 @@ function blendBells(entries) {
 function createInternalSyntheticBell(bellDef, { pitchShift = 1.0 } = {}) {
   _assertBellDef(bellDef, 'createInternalSyntheticBell');
   _assertPitchShift(pitchShift, 'createInternalSyntheticBell');
-  const actx    = _getActx();
-  const engine  = _createEngine(actx.destination, { pitchShift });
+  const actx = _getActx();
+  const engine = _createEngine(actx.destination, { pitchShift });
   return {
-    type:     'synthetic',
+    type: 'synthetic',
     analyser: engine.analyser,
     _bellDef: bellDef,
-    _strike:  (opts) => engine.strike(bellDef, opts),
+    _strike: (opts) => engine.strike(bellDef, opts),
   };
 }
 
@@ -504,9 +507,9 @@ function createInternalSyntheticBell(bellDef, { pitchShift = 1.0 } = {}) {
  *   unsupported, or the trim parameters fall outside the file duration.
  */
 async function createExternalBellFromFile(urlOrResponse, {
-  pitchShift  = 1.0,
+  pitchShift = 1.0,
   startOffset = 0,
-  duration    = null,
+  duration = null,
 } = {}) {
   _assertPitchShift(pitchShift, 'createExternalBellFromFile');
   if (typeof startOffset !== 'number' || startOffset < 0) {
@@ -567,15 +570,15 @@ async function createExternalBellFromFile(urlOrResponse, {
     );
   }
 
-  const maxDuration  = fileDuration - startOffset;
+  const maxDuration = fileDuration - startOffset;
   const trimDuration = duration === null ? maxDuration : Math.min(duration, maxDuration);
 
   // ── Trim: copy excerpt into a new AudioBuffer ─────────────────────────────
   // Only the excerpt is kept in memory; the full decoded buffer is discarded.
-  const sampleRate   = fullBuf.sampleRate;
-  const startSample  = Math.floor(startOffset  * sampleRate);
-  const trimSamples  = Math.ceil (trimDuration * sampleRate);
-  const nChannels    = fullBuf.numberOfChannels;
+  const sampleRate = fullBuf.sampleRate;
+  const startSample = Math.floor(startOffset * sampleRate);
+  const trimSamples = Math.ceil(trimDuration * sampleRate);
+  const nChannels = fullBuf.numberOfChannels;
 
   const trimBuf = actx.createBuffer(nChannels, trimSamples, sampleRate);
   for (let ch = 0; ch < nChannels; ch++) {
@@ -587,42 +590,42 @@ async function createExternalBellFromFile(urlOrResponse, {
   // fullBuf goes out of scope here and will be garbage collected.
 
   // ── Build Bell ────────────────────────────────────────────────────────────
-  const analyser  = actx.createAnalyser();
+  const analyser = actx.createAnalyser();
   analyser.fftSize = 1024;
   analyser.connect(actx.destination);
 
   function _strike({ masterGain = 1.0, stopAtSec = 0, msFade = 300, offsetSec = 0 } = {}) {
     if (actx.state === 'suspended') actx.resume();
 
-    const t0  = actx.currentTime + 0.005 + offsetSec;
+    const t0 = actx.currentTime + 0.005 + offsetSec;
     const bus = actx.createGain();
     bus.gain.value = masterGain;
     bus.connect(analyser);
 
     if (stopAtSec > 0) {
-      const cutAt    = t0 + stopAtSec;
+      const cutAt = t0 + stopAtSec;
       const fadesSec = Math.max(0.005, msFade / 1000);
       bus.gain.setValueAtTime(masterGain, cutAt - fadesSec);
       bus.gain.linearRampToValueAtTime(0, cutAt);
     }
 
-    const src              = actx.createBufferSource();
-    src.buffer             = trimBuf;
+    const src = actx.createBufferSource();
+    src.buffer = trimBuf;
     src.playbackRate.value = pitchShift;
     src.connect(bus);
     src.start(t0);
 
     const naturalEnd = t0 + trimBuf.duration / pitchShift;
-    setTimeout(() => { try { bus.disconnect(); } catch (_) {} },
+    setTimeout(() => { try { bus.disconnect(); } catch (_) { } },
       (naturalEnd - actx.currentTime + 1) * 1000);
 
     function stop(ms = 300) {
-      const now      = actx.currentTime;
+      const now = actx.currentTime;
       const fadeSecs = Math.max(0.005, ms / 1000);
       bus.gain.cancelScheduledValues(now);
       bus.gain.setValueAtTime(bus.gain.value, now);
       bus.gain.linearRampToValueAtTime(0, now + fadeSecs);
-      setTimeout(() => { try { src.stop(); bus.disconnect(); } catch (_) {} },
+      setTimeout(() => { try { src.stop(); bus.disconnect(); } catch (_) { } },
         (fadeSecs + 0.1) * 1000);
     }
 
@@ -647,9 +650,23 @@ async function createExternalBellFromFile(urlOrResponse, {
  */
 function strikeBell(bell, opts = {}) {
   _assertBell(bell, 'strikeBell');
-  if (bell === null) return { stop: () => {} }; // no-op handle for silent call
+  if (bell === null) return { stop: () => { } }; // no-op handle for silent call
   return bell._strike(opts);
 }
+export function strikeBellByName(bellName, opts = {}) {
+  const bellNames = BELLS.map(bell => bell.name);
+  if (bellNames.length != new Set(bellNames).size) throw Error("BELL names are not unique");
+  const bells = BELLS.filter(bell => bell.name == bellName);
+  if (bells.length == 0) {
+    // FIX-ME:
+    debugger;
+    return strikeBell(null);
+  }
+  const bellDef = bells[0];
+  const bell = createInternalSyntheticBell(bellDef);
+  return strikeBell(bell, opts);
+}
+
 
 
 // ---------------------------------------------------------------------------
@@ -664,7 +681,7 @@ function strikeBell(bell, opts = {}) {
  * @type {Object.<string, number[]>}
  */
 const PATTERNS = {
-  slow:     [0, 3000, 6000, 9000, 12000, 15000],
+  slow: [0, 3000, 6000, 9000, 12000, 15000],
   carillon: [0, 130, 260, 390, 520, 780, 910, 1040, 1300, 1560, 1820, 2080],
 };
 
@@ -708,11 +725,11 @@ const PATTERNS = {
  * @returns {Promise<void>} Resolves when phaseDuration has elapsed.
  */
 function strikeBreath(bell, {
-  masterGain    = 1.0,
-  noiseAmt      = 0.15,
-  stopAtSec     = 0,
+  masterGain = 1.0,
+  noiseAmt = 0.15,
+  stopAtSec = 0,
   phaseDuration,
-  msFade        = 300,
+  msFade = 300,
 } = {}) {
   _assertBell(bell, 'strikeBreath');
   if (typeof phaseDuration !== 'number' || phaseDuration <= 0) {

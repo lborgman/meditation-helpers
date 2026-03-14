@@ -46,7 +46,7 @@ function checkStoringPrefix() {
 function checkSoundRec(objJson) {
     const keys = Object.keys(objJson);
     const keyNames = keys.sort().join(",");
-    const expectedNames = "inhale,exhale";
+    const expectedNames = "exhale,inhale";
     if (keyNames != expectedNames) {
         console.error({ keyNames });
         debugger;
@@ -62,7 +62,7 @@ function getSoundRec() {
     const strJson = localStorage.getItem(storingPrefix + KEY);
     let objJson;
     if (!strJson) {
-        objJson = { inhale: "BELL[0]", exhale: "BELL[0]" }
+        objJson = { inhale: "internal:1", exhale: "same" }
     } else {
         objJson = JSON.parse(strJson);
     }
@@ -82,10 +82,120 @@ function setSoundRec(objJson) {
 
 
 export async function dialogSound() {
-    // alert("not ready");
+    // dialogImages
     const modMdc = await importFc4i("util-mdc");
-    const body = mkElt("div", undefined, [
-        mkElt("h2", undefined, "Bell Sound"),
+    const iconSound = modMdc.mkMDCicon("notification_sound");
+
+    const soundRec = getSoundRec();
+
+    /**
+     * 
+     * @param {string} txt 
+     * @param {string} name 
+     * @param {boolean} isInhale 
+     * @returns {HTMLLabelElement}
+     */
+    const mkRadBell = (txt, bell, isInhale) => {
+        const bellGroup = (isInhale ? "inhale" : "exhale");
+        const rad = mkElt("input", { type: "radio", name: bellGroup, value: bell });
+        const ico = modMdc.mkMDCicon("play_arrow");
+        const btn = modMdc.mkMDCfab(ico, "Play sound", true);
+        btn.style = `
+        --mdc-ripple-fg-size: 28;
+    --mdc-ripple-fg-scale: 1.7140316281999861;
+    --mdc-ripple-left: 10px;
+    --mdc-ripple-top: 10px;
+        `;
+        btn.addEventListener("click", async evt => {
+            evt.stopPropagation();
+            debugger;
+            // playInhale
+            // const bell = modBells.createInternalSyntheticBell(modBells.BELLS[0], { pitchShift: 0.92 });
+            // const bell = await modBells.createExternalBellFromFile('../ext/bells/sbell2_10s.mp3', { startOffset: 0.0, duration: 8 });
+            const target = evt.target;
+            const lbl = target.closest("label.label-bell");
+            const rad = lbl.querySelector("input[type=radio]");
+            const bellName = rad.value;
+            // modBells.strikeBell(bell, { stopAtSec: 4 });
+            modBells.strikeBellByName(bellName, { stopAtSec: 4 });
+        });
+        const lbl = mkElt("label", undefined, [rad, txt, btn]);
+        if (isInhale) {
+            if (bell == soundRec.inhale) rad.checked = true;
+        } else {
+            if (bell == soundRec.exhale) rad.checked = true;
+        }
+        lbl.style = `
+            display: grid;
+            align-items: center;
+            width: 280px;
+            grid-template-columns: max-content 1fr max-content;
+            gap: 5px;
+        `;
+        return lbl;
+    }
+    const mkGroupName = (grp) => mkElt("div", { style: "font-weight:bold; font-size:1.2em" }, grp);
+    const modBells = await importFc4i("bell-engine");
+    const syntBells = modBells.getBellNames();
+    // const inhale = await modBells.createExternalBellFromFile('../ext/bells/sbell2_10s.mp3',
+    const fileBells = [];
+    const addFileBell = (name, url) => {
+        fileBells.push(name, url);
+    }
+    addFileBell("sBell2", '../ext/bells/sbell2_10s.mp3');
+    debugger;
+    /**
+     * 
+     * @param {HTMLDivElement} targetDiv 
+     * @param {boolean} isInhale 
+     */
+    const addSyntBells = (targetDiv, isInhale) => {
+        syntBells.forEach(bellName => {
+            const lbl = mkRadBell(bellName, bellName, isInhale)
+            lbl.classList.add("label-bell");
+            targetDiv.appendChild(lbl);
+        })
+    }
+
+    const styleDivBells = `
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    `;
+
+    const divInhaleBells = mkElt("div");
+    divInhaleBells.style = styleDivBells;
+    const divInhale = mkElt("p", undefined, [
+        mkGroupName("Inhale"),
+        divInhaleBells,
     ]);
+    addSyntBells(divInhaleBells, true);
+
+    const lblSame = mkRadBell("Same", "same", false);
+    lblSame.classList.add("label-bell");
+    const divExhaleBells = mkElt("div", undefined, lblSame);
+    divExhaleBells.style = styleDivBells;
+    const divExhale = mkElt("p", undefined, [
+        mkGroupName("Exhale"),
+        divExhaleBells,
+    ]);
+    addSyntBells(divExhaleBells, false);
+    const divBells = mkElt("div", undefined, [
+        divInhale,
+        divExhale,
+    ]);
+    divBells.addEventListener("change", _evt => {
+        debugger;
+        const radInhale = divBells.querySelector("input[type=radio][name=inhale]:checked");
+        const radExhale = divBells.querySelector("input[type=radio][name=exhale]:checked");
+        const soundInhale = radInhale.value;
+        const soundExhale = radExhale.value;
+        debugger;
+    })
+    const body = mkElt("div", undefined, [
+        mkElt("h2", undefined, ["Bell Sounds ", iconSound]),
+        divBells,
+    ]);
+    body.classList.add("colored-dialog");
     modMdc.mkMDCdialogAlert(body, "close");
 }

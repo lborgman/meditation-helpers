@@ -1963,6 +1963,7 @@ async function setupControls(controlscontainer) {
         // dialogImages();
         dialogSound();
     });
+    fabSound.style.marginLeft = "30px";
     fabSound.style.backgroundColor = "orange";
     fabSound.style.backgroundColor = "#ffa500a1";
     fabSound.style.backgroundColor = "red";
