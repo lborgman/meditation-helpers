@@ -104,13 +104,13 @@ export async function dialogSound() {
 
     /**
      * 
-     * @param {string} txt
-     * @param {string} name
+     * @param {string|HTMLSpanElement} label
+     * @param {string} bell
      * @param {boolean} isInhale
      * @param {string|undefined} currentBell
      * @returns {HTMLLabelElement}
      */
-    const mkRadBell = (txt, bell, isInhale, currentBell) => {
+    const mkRadBell = (label, bell, isInhale, currentBell) => {
         const bellGroup = (isInhale ? "inhale" : "exhale");
         const rad = mkElt("input", { type: "radio", name: bellGroup, value: bell });
         if (bell == currentBell) rad.checked = true;
@@ -138,7 +138,7 @@ export async function dialogSound() {
             }
             modBells.strikeBellByName(bellName, { stopAtSec: 4 });
         });
-        const lbl = mkElt("label", undefined, [rad, txt, btn]);
+        const lbl = mkElt("label", undefined, [rad, label, btn]);
         if (isInhale) {
             if (bell == soundRec.inhale) rad.checked = true;
         } else {
@@ -155,19 +155,51 @@ export async function dialogSound() {
     }
     const mkGroupName = (grp) => mkElt("div", { style: "font-weight:bold; font-size:1.2em" }, grp);
     // const inhale = await modBells.createExternalBellFromFile('../ext/bells/sbell2_10s.mp3',
-    const addFileBell = (name, url) => {
-        fileBells.push(name, url);
+    const addFileBell = (url) => {
+        fileBells.push(url);
     }
-    addFileBell("sBell2", '../ext/bells/sbell2_10s.mp3');
+    addFileBell('../ext/bells/sbell2_10s.mp3');
     debugger;
+
     /**
      * 
+     * @param {string} internalName 
+     * @returns {string|HTMLSpanElement}
+     */
+    function bell2UI(internalName) {
+        switch (internalName) {
+            case "Bowl 1 · 432 Hz":
+                return "Synt 1";
+            case "Bowl 2 · 432 Hz":
+                return "Synt 2";
+            case "../ext/bells/sbell2_10s.mp3":
+                return "Bell 1";
+            default:
+                return mkElt("span", { style: "color:red;" }, internalName);
+        }
+    }
+
+    /**
+     * @callback FunAddBell2UI
      * @param {HTMLDivElement} targetDiv 
      * @param {boolean} isInhale 
+     * @param {string} currentBell 
      */
+
+    /** @type {FunAddBell2UI} */
     const addSyntBells = (targetDiv, isInhale, currentBell) => {
         syntBells.forEach(bellName => {
-            const lbl = mkRadBell(bellName, `s:${bellName}`, isInhale, currentBell);
+            const name4UI = bell2UI(bellName);
+            const lbl = mkRadBell(name4UI, `s:${bellName}`, isInhale, currentBell);
+            lbl.classList.add("label-bell");
+            targetDiv.appendChild(lbl);
+        });
+    }
+    /** @type {FunAddBell2UI} */
+    const addFileBells = (targetDiv, isInhale, currentBell) => {
+        fileBells.forEach(bellName => {
+            const name4UI = bell2UI(bellName);
+            const lbl = mkRadBell(name4UI, `f:${bellName}`, isInhale, currentBell);
             lbl.classList.add("label-bell");
             targetDiv.appendChild(lbl);
         });
@@ -187,16 +219,19 @@ export async function dialogSound() {
         mkGroupName("Inhale"),
         divInhaleBells,
     ]);
+    addFileBells(divInhaleBells, true, currentBells.inhale);
     addSyntBells(divInhaleBells, true, currentBells.inhale);
 
-    const lblSame = mkRadBell("Same", "same", false, currentBells.exhale);
+    const lblSame = mkRadBell("Same as inhale", "same", false, currentBells.exhale);
     lblSame.classList.add("label-bell");
     const divExhaleBells = mkElt("div", undefined, lblSame);
     divExhaleBells.style = styleDivBells;
     const divExhale = mkElt("p", undefined, [
         mkGroupName("Exhale"),
+        mkElt("div", { style: "font-style:italic; opacity:0.7; margin-bottom:9px;" }, "Exhale bells are shifted to a lower frequency"),
         divExhaleBells,
     ]);
+    addFileBells(divExhaleBells, false, currentBells.exhale);
     addSyntBells(divExhaleBells, false, currentBells.exhale);
     const divBells = mkElt("div", undefined, [
         divInhale,
@@ -210,7 +245,7 @@ export async function dialogSound() {
         const soundExhale = radExhale.value;
         // soundrec
         debugger;
-        setSoundRec({inhale: soundInhale, exhale: soundExhale});
+        setSoundRec({ inhale: soundInhale, exhale: soundExhale });
     })
     const body = mkElt("div", undefined, [
         mkElt("h2", undefined, ["Bell Sounds ", iconSound]),

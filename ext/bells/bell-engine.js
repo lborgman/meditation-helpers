@@ -656,7 +656,7 @@ function strikeBell(bell, opts = {}) {
 export function strikeBellByName(fullBellName, opts = {}) {
   const bellNames = BELLS.map(bell => bell.name);
   if (bellNames.length != new Set(bellNames).size) throw Error("BELL names are not unique");
-  const [typeName, bellName] = fullBellName.split(":");
+  const [typeName, bellId] = fullBellName.split(":");
   switch (typeName) {
     case "s":
       return strikeSyntBell();
@@ -667,19 +667,20 @@ export function strikeBellByName(fullBellName, opts = {}) {
       throw Error(`Bad bell type: "${typeName}"`);
   }
   function strikeSyntBell() {
-    const bells = BELLS.filter(bell => bell.name == bellName);
+    const bells = BELLS.filter(bell => bell.name == bellId);
     if (bells.length == 0) {
       // FIX-ME:
       debugger;
-      throw Error(`Did not find bell "${bellName}"`);
+      throw Error(`Did not find bell "${bellId}"`);
       // return strikeBell(null);
     }
     const bellDef = bells[0];
     const bell = createInternalSyntheticBell(bellDef);
     return strikeBell(bell, opts);
   }
-  function strikeFileBell() {
-    const bell = createExternalBellFromFile(urlOrResponse);
+  async function strikeFileBell() {
+    const bellDef = bellId;
+    const bell = await createExternalBellFromFile(bellDef);
     return strikeBell(bell, opts);
   }
 }
