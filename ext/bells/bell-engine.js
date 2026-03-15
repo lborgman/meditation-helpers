@@ -653,18 +653,35 @@ function strikeBell(bell, opts = {}) {
   if (bell === null) return { stop: () => { } }; // no-op handle for silent call
   return bell._strike(opts);
 }
-export function strikeBellByName(bellName, opts = {}) {
+export function strikeBellByName(fullBellName, opts = {}) {
   const bellNames = BELLS.map(bell => bell.name);
   if (bellNames.length != new Set(bellNames).size) throw Error("BELL names are not unique");
-  const bells = BELLS.filter(bell => bell.name == bellName);
-  if (bells.length == 0) {
-    // FIX-ME:
-    debugger;
-    return strikeBell(null);
+  const [typeName, bellName] = fullBellName.split(":");
+  switch (typeName) {
+    case "s":
+      return strikeSyntBell();
+    case "f":
+      return strikeFileBell();
+      break;
+    default:
+      throw Error(`Bad bell type: "${typeName}"`);
   }
-  const bellDef = bells[0];
-  const bell = createInternalSyntheticBell(bellDef);
-  return strikeBell(bell, opts);
+  function strikeSyntBell() {
+    const bells = BELLS.filter(bell => bell.name == bellName);
+    if (bells.length == 0) {
+      // FIX-ME:
+      debugger;
+      throw Error(`Did not find bell "${bellName}"`);
+      // return strikeBell(null);
+    }
+    const bellDef = bells[0];
+    const bell = createInternalSyntheticBell(bellDef);
+    return strikeBell(bell, opts);
+  }
+  function strikeFileBell() {
+    const bell = createExternalBellFromFile(urlOrResponse);
+    return strikeBell(bell, opts);
+  }
 }
 
 
