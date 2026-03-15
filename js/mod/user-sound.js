@@ -119,6 +119,8 @@ export async function dialogSound() {
         const rad = mkElt("input", { type: "radio", name: bellGroup, value: bell });
         if (bell == currentBell) rad.checked = true;
         const ico = modMdc.mkMDCicon("play_arrow");
+        /*
+        // Too much trouble using mdc here!
         const btn = modMdc.mkMDCfab(ico, "Play sound", true);
         btn.style = `
         --mdc-ripple-fg-size: 28;
@@ -126,6 +128,8 @@ export async function dialogSound() {
     --mdc-ripple-left: 10px;
     --mdc-ripple-top: 10px;
         `;
+        */
+        const btn = mkElt("button", undefined, "Play sound");
         btn.addEventListener("click", async evt => {
             evt.stopPropagation();
             const target = evt.target;
@@ -136,7 +140,13 @@ export async function dialogSound() {
                 const rec = getSoundRec();
                 bellName = rec.inhale;
             }
-            modBells.strikeBellById(bellName, { stopAtSec: 3 });
+            btn.classList.add("test-sound-playing");
+            setTimeout(() => {
+                // debugger;
+                btn.classList.remove("test-sound-playing");
+            }, 3 * 1000);
+            // requestAnimationFrame(() => { modBells.strikeBellById(bellName, { stopAtSec: 3 }); });
+            // setTimeout(() => { modBells.strikeBellById(bellName, { stopAtSec: 3 }); }, 100);
         });
         const lbl = mkElt("label", undefined, [rad, label, btn]);
         if (isInhale) {
