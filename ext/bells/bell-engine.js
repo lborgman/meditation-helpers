@@ -658,6 +658,11 @@ const checkBELLSunique = () => {
   if (bellNames.length != new Set(bellNames).size) throw Error("BELL names are not unique");
 }
 export function strikeBellById(fullBellId, opts = {}) {
+  const stopAtSec = opts.stopAtSec;
+  const tofStopAtSec = typeof stopAtSec;
+  if (tofStopAtSec != "number") throw Error(`typeof opts.stopAtSec == "${tofStopAtSec}"`);
+  if (opts.stopAtSec == 0) throw Error(`opts.stopAtSec == 0`);
+
   const [typeSpec, bellId] = fullBellId.split(":");
   switch (typeSpec) {
     case "s":

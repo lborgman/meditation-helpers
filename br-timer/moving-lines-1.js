@@ -355,7 +355,7 @@ getInhaleAndExhale(); // FIX-ME:
 const playInhale = (seconds) => {
     // modBells.strikeBell(inhale, { stopAtSec: seconds });  // bell in  → 4 s inhale
     // debugger;
-    modBells.strikeBellById(inhaleId, { stopAtSe: seconds });
+    modBells.strikeBellById(inhaleId, { stopAtSec: seconds });
 }
 /** * @param {number} seconds */
 const playExhale = (seconds) => {

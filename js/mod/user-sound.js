@@ -136,7 +136,7 @@ export async function dialogSound() {
                 const rec = getSoundRec();
                 bellName = rec.inhale;
             }
-            modBells.strikeBellById(bellName, { stopAtSec: 4 });
+            modBells.strikeBellById(bellName, { stopAtSec: 3 });
         });
         const lbl = mkElt("label", undefined, [rad, label, btn]);
         if (isInhale) {
