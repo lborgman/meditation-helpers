@@ -653,18 +653,21 @@ function strikeBell(bell, opts = {}) {
   if (bell === null) return { stop: () => { } }; // no-op handle for silent call
   return bell._strike(opts);
 }
-export function strikeBellByName(fullBellName, opts = {}) {
+const checkBELLSunique = () => {
   const bellNames = BELLS.map(bell => bell.name);
   if (bellNames.length != new Set(bellNames).size) throw Error("BELL names are not unique");
-  const [typeName, bellId] = fullBellName.split(":");
-  switch (typeName) {
+}
+export function strikeBellById(fullBellId, opts = {}) {
+  const [typeSpec, bellId] = fullBellId.split(":");
+  switch (typeSpec) {
     case "s":
+      checkBELLSunique();
       return strikeSyntBell();
     case "f":
       return strikeFileBell();
       break;
     default:
-      throw Error(`Bad bell type: "${typeName}"`);
+      throw Error(`Bad bell type spec: "${typeSpec}"`);
   }
   function strikeSyntBell() {
     const bells = BELLS.filter(bell => bell.name == bellId);

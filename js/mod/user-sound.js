@@ -23,6 +23,10 @@ const fileBells = [];
  * @param {string} prefix
  */
 export function setStoringPrefix(prefix) {
+    if (typeof storingPrefix == "string") {
+        debugger;
+        throw Error(`storingPrefix already set, "${storingPrefix}", prefix: "${prefix}"`);
+    }
     const tofPrefix = typeof prefix;
     if (tofPrefix != "string") throw Error(`setStoringPrefix, arg not string: ${tofPrefix}`);
     if (storingPrefix != undefined) {
@@ -71,7 +75,7 @@ function checkSoundRec(objJson) {
  * 
  * @returns {SoundRec}
  */
-function getSoundRec() {
+export function getSoundRec() {
     checkStoringPrefix();
     const strJson = localStorage.getItem(storingPrefix + KEY);
     let objJson;
@@ -124,10 +128,6 @@ export async function dialogSound() {
         `;
         btn.addEventListener("click", async evt => {
             evt.stopPropagation();
-            debugger;
-            // playInhale
-            // const bell = modBells.createInternalSyntheticBell(modBells.BELLS[0], { pitchShift: 0.92 });
-            // const bell = await modBells.createExternalBellFromFile('../ext/bells/sbell2_10s.mp3', { startOffset: 0.0, duration: 8 });
             const target = evt.target;
             const lbl = target.closest("label.label-bell");
             const rad = lbl.querySelector("input[type=radio]");
@@ -136,7 +136,7 @@ export async function dialogSound() {
                 const rec = getSoundRec();
                 bellName = rec.inhale;
             }
-            modBells.strikeBellByName(bellName, { stopAtSec: 4 });
+            modBells.strikeBellById(bellName, { stopAtSec: 4 });
         });
         const lbl = mkElt("label", undefined, [rad, label, btn]);
         if (isInhale) {
@@ -159,7 +159,7 @@ export async function dialogSound() {
         fileBells.push(url);
     }
     addFileBell('../ext/bells/sbell2_10s.mp3');
-    debugger;
+
 
     /**
      * 
@@ -212,7 +212,6 @@ export async function dialogSound() {
     `;
 
     const currentBells = getSoundRec();
-    debugger;
     const divInhaleBells = mkElt("div");
     divInhaleBells.style = styleDivBells;
     const divInhale = mkElt("p", undefined, [

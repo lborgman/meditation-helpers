@@ -10,7 +10,10 @@ if (document.currentScript) { throw "moving-lines-1.js is not loaded as module";
 const importFc4i = window["importFc4i"];
 
 const modTools = await importFc4i("toolsJs");
-const modMdc = await importFc4i("util-mdc");
+// const modMdc = await importFc4i("util-mdc");
+const modSound = await importFc4i("user-sound");
+const STORING_PREFIX = "MOVLIN-";
+modSound.setStoringPrefix(STORING_PREFIX);
 
 /** @typedef {number&{_tag: 'TSmilliSeconds'}} TSmilliSeconds */
 /** @typedef {number&{_tag: 'TSseconds'}} TSseconds */
@@ -125,7 +128,6 @@ function seconds2pattX(seconds) {
 
 
 
-const STORING_PREFIX = "MOVLIN-";
 const ctxAudio = new AudioContext();
 
 
@@ -328,22 +330,38 @@ function topText(txtTop) {
     ctxCanvas.strokeText(txtTop, eltCanvas.width / 2, size);
 }
 const modBells = await importFc4i("bell-engine");
+const modUserSounds = await importFc4i("user-sound");
 // const inhale = modBells.createInternalSyntheticBell(modBells.BELLS[0]);
 // const exhale = modBells.createInternalSyntheticBell(modBells.BELLS[0], { pitchShift: 0.92 });
 // modBells.createExternalBellFromFile
 //         "bell-engine": "../ext/bells/bell-engine.js",
+/*
 const inhale = await modBells.createExternalBellFromFile('../ext/bells/sbell2_10s.mp3',
     { startOffset: 0.0, duration: 8 });
 const exhale = await modBells.createExternalBellFromFile('../ext/bells/sbell2_10s.mp3',
     { startOffset: 0.0, duration: 8, pitchShift: 0.92 });
+*/
+
+/** @type {string} */ let inhaleId;
+/** @type {string} */ let exhaleId;
+function getInhaleAndExhale() {
+    const rec = modUserSounds.getSoundRec();
+    inhaleId = rec.inhale;
+    exhaleId = rec.exhale;
+}
+getInhaleAndExhale(); // FIX-ME:
 
 /** * @param {number} seconds */
 const playInhale = (seconds) => {
-    modBells.strikeBell(inhale, { stopAtSec: seconds });  // bell in  → 4 s inhale
+    // modBells.strikeBell(inhale, { stopAtSec: seconds });  // bell in  → 4 s inhale
+    // debugger;
+    modBells.strikeBellById(inhaleId, { stopAtSe: seconds });
 }
 /** * @param {number} seconds */
 const playExhale = (seconds) => {
-    modBells.strikeBell(exhale, { stopAtSec: seconds });  // bell out → 6 s exhale
+    // modBells.strikeBell(exhale, { stopAtSec: seconds });  // bell out → 6 s exhale
+    const bellId = exhaleId == "same" ? inhaleId : exhaleId;
+    modBells.strikeBellById(bellId, { stopAtSec: seconds });  // bell out → 6 s exhale
 }
 
 /** * @param {string} txtTop */
@@ -837,8 +855,8 @@ async function dialogPattern() {
     modMdc.mkMDCdialogAlert(bdy, "Close");
 }
 async function dialogSound() {
-    const modSound = await importFc4i("user-sound");
-    modSound.setStoringPrefix(STORING_PREFIX);
+    // const modSound = await importFc4i("user-sound");
+    // modSound.setStoringPrefix(STORING_PREFIX);
     modSound.dialogSound();
 }
 
