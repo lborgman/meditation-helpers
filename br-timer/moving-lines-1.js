@@ -355,13 +355,13 @@ getInhaleAndExhale(); // FIX-ME:
 const playInhale = (seconds) => {
     // modBells.strikeBell(inhale, { stopAtSec: seconds });  // bell in  → 4 s inhale
     // debugger;
-    modBells.strikeBellById(inhaleId, { stopAtSec: seconds });
+    modBells.strikeBellById(inhaleId, false, { stopAtSec: seconds });
 }
 /** * @param {number} seconds */
 const playExhale = (seconds) => {
     // modBells.strikeBell(exhale, { stopAtSec: seconds });  // bell out → 6 s exhale
     const bellId = exhaleId == "same" ? inhaleId : exhaleId;
-    modBells.strikeBellById(bellId, { stopAtSec: seconds });  // bell out → 6 s exhale
+    modBells.strikeBellById(bellId, true, { stopAtSec: seconds });  // bell out → 6 s exhale
 }
 
 /** * @param {string} txtTop */
