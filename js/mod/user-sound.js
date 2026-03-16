@@ -16,7 +16,9 @@ const KEY = "user-sound";
 
 const modBells = await importFc4i("bell-engine");
 const syntBells = modBells.getBellNames();
-const fileBells = [];
+const fileBells = [
+    '../ext/bells/sbell2_10s.mp3',
+];
 
 /**
  *
@@ -106,6 +108,15 @@ export async function dialogSound() {
 
     const soundRec = getSoundRec();
 
+    /** @type {Object|undefined} */
+    let lastBell;
+    function stopLastBell() {
+        if (!lastBell) throw ("lastBell is undefined");
+        lastBell.stop();
+        lastBell.btn.classList.remove("test-sound-playing");
+        lastBell = undefined;
+    }
+
     /**
      * 
      * @param {string|HTMLSpanElement} label
@@ -132,6 +143,11 @@ export async function dialogSound() {
         const btn = mkElt("button", undefined, "Play sound");
         btn.addEventListener("click", async evt => {
             evt.stopPropagation();
+            if (lastBell) {
+                const isLastBell = lastBell.btn == btn;
+                stopLastBell();
+                if (isLastBell) return;
+            }
             const target = evt.target;
             const lbl = target.closest("label.label-bell");
             const rad = lbl.querySelector("input[type=radio]");
@@ -141,12 +157,15 @@ export async function dialogSound() {
                 bellName = rec.inhale;
             }
             btn.classList.add("test-sound-playing");
+            lastBell = await modBells.strikeBellById(bellName, { stopAtSec: 8 });
+            lastBell.btn = btn;
+            console.log({ lastBell });
             setTimeout(() => {
-                // debugger;
-                btn.classList.remove("test-sound-playing");
-            }, 3 * 1000);
-            // requestAnimationFrame(() => { modBells.strikeBellById(bellName, { stopAtSec: 3 }); });
-            // setTimeout(() => { modBells.strikeBellById(bellName, { stopAtSec: 3 }); }, 100);
+                if (!lastBell) return;
+                const isLastBell = lastBell.btn == btn;
+                if (!isLastBell) return;
+                stopLastBell();
+            }, 5 * 1000);
         });
         const lbl = mkElt("label", undefined, [rad, label, btn]);
         if (isInhale) {
@@ -165,10 +184,8 @@ export async function dialogSound() {
     }
     const mkGroupName = (grp) => mkElt("div", { style: "font-weight:bold; font-size:1.2em" }, grp);
     // const inhale = await modBells.createExternalBellFromFile('../ext/bells/sbell2_10s.mp3',
-    const addFileBell = (url) => {
-        fileBells.push(url);
-    }
-    addFileBell('../ext/bells/sbell2_10s.mp3');
+    // const addFileBell = (url) => { fileBells.push(url); }
+    // addFileBell('../ext/bells/sbell2_10s.mp3');
 
 
     /**
