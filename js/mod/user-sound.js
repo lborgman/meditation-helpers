@@ -140,7 +140,14 @@ export async function dialogSound() {
     --mdc-ripple-top: 10px;
         `;
         */
-        const btn = mkElt("button", undefined, "Play sound");
+        // const btn = mkElt("button", undefined, "Play sound");
+        const icon = modMdc.mkMDCicon("play_arrow");
+        const btn = mkElt("button", undefined, icon);
+        btn.style = `
+            border: none;
+            border-radius: 8px;
+            display: flex;
+        `;
         btn.addEventListener("click", async evt => {
             evt.stopPropagation();
             if (lastBell) {
@@ -269,8 +276,6 @@ export async function dialogSound() {
         const radExhale = divBells.querySelector("input[type=radio][name=exhale]:checked");
         const soundInhale = radInhale.value;
         const soundExhale = radExhale.value;
-        // soundrec
-        debugger;
         setSoundRec({ inhale: soundInhale, exhale: soundExhale });
     })
     const body = mkElt("div", undefined, [

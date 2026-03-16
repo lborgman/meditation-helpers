@@ -506,11 +506,37 @@ function createInternalSyntheticBell(bellDef, { pitchShift = 1.0 } = {}) {
  * @throws {Error} If the fetch fails, the response is not OK, the format is
  *   unsupported, or the trim parameters fall outside the file duration.
  */
+/*
 async function createExternalBellFromFile(urlOrResponse, {
   pitchShift = 1.0,
   startOffset = 0,
   duration = null,
 } = {}) {
+*/
+
+
+
+async function createExternalBellFromFile(
+  urlOrResponse,
+  options = {}
+) {
+  // Destructure known options + collect anything unexpected in `rest`
+  const {
+    pitchShift = 1.0,
+    startOffset = 0,
+    duration = null,
+    ...rest
+  } = options;
+
+  // Reject unknown keys
+  if (Object.keys(rest).length > 0) {
+    const unknownKeys = Object.keys(rest).join(", ");
+    throw new Error(
+      `Invalid options passed to createExternalBellFromFile: ${unknownKeys}. ` +
+      `Only allowed: pitchShift, startOffset, duration`
+    );
+  }
+
   _assertPitchShift(pitchShift, 'createExternalBellFromFile');
   if (typeof startOffset !== 'number' || startOffset < 0) {
     throw new RangeError(
@@ -594,7 +620,21 @@ async function createExternalBellFromFile(urlOrResponse, {
   analyser.fftSize = 1024;
   analyser.connect(actx.destination);
 
-  function _strike({ masterGain = 1.0, stopAtSec = 0, msFade = 300, offsetSec = 0 } = {}) {
+  // function _strike({ masterGain = 1.0, stopAtSec = 0, msFade = 300, offsetSec = 0 } = {}) {
+  function _strike({
+    masterGain = 1.0,
+    stopAtSec = 0,
+    msFade = 300,
+    offsetSec = 0,
+    ...rest
+  } = {}) {
+    if (Object.keys(rest).length > 0) {
+      console.error(`Unknown option(s) in _strike: ${Object.keys(rest).join(", ")}.`);
+      throw new Error(
+        `Unknown option(s) in _strike: ${Object.keys(rest).join(", ")}.`
+      );
+    }
+
     if (actx.state === 'suspended') actx.resume();
 
     const t0 = actx.currentTime + 0.005 + offsetSec;
@@ -664,9 +704,8 @@ export function strikeBellById(fullBellId, isExhale, opts = {}) {
     debugger;
     throw Error(`typeof isExhale == "${tofIsExhale}"`);
   }
-  if (isExhale) {
-    opts.pitchShift = 0.7; // FIX-ME:
-  }
+  // if (isExhale) { opts.pitchShift = 0.7; // FIX-ME: }
+  const optPitch = isExhale? { pitchShift : 0.7 } : undefined;
   const stopAtSec = opts.stopAtSec;
   const tofStopAtSec = typeof stopAtSec;
   if (tofStopAtSec != "number") throw Error(`typeof opts.stopAtSec == "${tofStopAtSec}"`);
@@ -692,12 +731,12 @@ export function strikeBellById(fullBellId, isExhale, opts = {}) {
       // return strikeBell(null);
     }
     const bellDef = bells[0];
-    const bell = createInternalSyntheticBell(bellDef);
+    const bell = createInternalSyntheticBell(bellDef, optPitch);
     return strikeBell(bell, opts);
   }
   async function strikeFileBell() {
     const bellDef = bellId;
-    const bell = await createExternalBellFromFile(bellDef);
+    const bell = await createExternalBellFromFile(bellDef, optPitch);
     return strikeBell(bell, opts);
   }
 }

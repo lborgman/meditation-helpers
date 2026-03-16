@@ -333,14 +333,6 @@ const modBells = await importFc4i("bell-engine");
 const modUserSounds = await importFc4i("user-sound");
 // const inhale = modBells.createInternalSyntheticBell(modBells.BELLS[0]);
 // const exhale = modBells.createInternalSyntheticBell(modBells.BELLS[0], { pitchShift: 0.92 });
-// modBells.createExternalBellFromFile
-//         "bell-engine": "../ext/bells/bell-engine.js",
-/*
-const inhale = await modBells.createExternalBellFromFile('../ext/bells/sbell2_10s.mp3',
-    { startOffset: 0.0, duration: 8 });
-const exhale = await modBells.createExternalBellFromFile('../ext/bells/sbell2_10s.mp3',
-    { startOffset: 0.0, duration: 8, pitchShift: 0.92 });
-*/
 
 /** @type {string} */ let inhaleId;
 /** @type {string} */ let exhaleId;
