@@ -147,6 +147,7 @@ export async function dialogSound() {
             border: none;
             border-radius: 8px;
             display: flex;
+            background-color: red;
         `;
         btn.addEventListener("click", async evt => {
             evt.stopPropagation();

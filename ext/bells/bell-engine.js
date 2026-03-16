@@ -705,7 +705,16 @@ export function strikeBellById(fullBellId, isExhale, opts = {}) {
     throw Error(`typeof isExhale == "${tofIsExhale}"`);
   }
   // if (isExhale) { opts.pitchShift = 0.7; // FIX-ME: }
-  const optPitch = isExhale? { pitchShift : 0.7 } : undefined;
+  /*
+  Octave	2
+  Semitone (Half step)	1.05946 ($\sqrt[12]{2}$)
+  Whole tone (Two semitones)	1.12246 ($\sqrt[6]{2}$)
+  Perfect Fifth	1.5
+  Perfect Fourth	1.33333
+  Major Third	1.25992
+  Minor Third	1.1892
+  */
+  const optPitch = isExhale ? { pitchShift: 1 / 1.1892 } : undefined;
   const stopAtSec = opts.stopAtSec;
   const tofStopAtSec = typeof stopAtSec;
   if (tofStopAtSec != "number") throw Error(`typeof opts.stopAtSec == "${tofStopAtSec}"`);
