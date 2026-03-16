@@ -657,7 +657,16 @@ const checkBELLSunique = () => {
   const bellNames = BELLS.map(bell => bell.name);
   if (bellNames.length != new Set(bellNames).size) throw Error("BELL names are not unique");
 }
-export function strikeBellById(fullBellId, opts = {}) {
+export function strikeBellById(fullBellId, isExhale, opts = {}) {
+  const tofIsExhale = typeof isExhale;
+  if (tofIsExhale !== "boolean") {
+    console.error(`typeof isExhale == "${tofIsExhale}"`);
+    debugger;
+    throw Error(`typeof isExhale == "${tofIsExhale}"`);
+  }
+  if (isExhale) {
+    opts.pitchShift = 0.7; // FIX-ME:
+  }
   const stopAtSec = opts.stopAtSec;
   const tofStopAtSec = typeof stopAtSec;
   if (tofStopAtSec != "number") throw Error(`typeof opts.stopAtSec == "${tofStopAtSec}"`);

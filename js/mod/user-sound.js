@@ -157,7 +157,7 @@ export async function dialogSound() {
                 bellName = rec.inhale;
             }
             btn.classList.add("test-sound-playing");
-            lastBell = await modBells.strikeBellById(bellName, { stopAtSec: 8 });
+            lastBell = await modBells.strikeBellById(bellName, !isInhale, { stopAtSec: 8 });
             lastBell.btn = btn;
             console.log({ lastBell });
             setTimeout(() => {
