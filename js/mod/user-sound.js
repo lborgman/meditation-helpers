@@ -286,3 +286,23 @@ export async function dialogSound() {
     body.classList.add("colored-dialog");
     modMdc.mkMDCdialogAlert(body, "close");
 }
+
+// audiocontent
+export function startKeepAliveSound(){
+    /** @type {AudioContext} */
+    const audioCtx = modBells.getAudioContext();
+    const bufferSize = audioCtx.sampleRate * 2; // 2 seconds
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let source;
+    // Fill with very low-level white noise (inaudible)
+    for (let i = 0; i<bufferSize; i++) {
+        data[i] = (Math.random()*2 -1) * 0.0001; // ^80dB
+    }
+    source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
+    source.connect(audioCtx.destination);
+    source.start();
+    return source;
+}

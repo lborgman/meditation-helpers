@@ -825,5 +825,5 @@ function strikeBreath(bell, {
   }
   return new Promise(resolve => setTimeout(resolve, phaseDuration * 1000));
 }
-
+export function getAudioContext() { return _getActx(); }
 export { createInternalSyntheticBell, createExternalBellFromFile, strikeBell, strikeBreath, blendBells, BELLS };

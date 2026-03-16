@@ -208,6 +208,10 @@ let isRunning = false;
  */
 function isRunningFun() { return document.documentElement.classList.contains("running"); }
 
+
+
+let keepAliveSound;
+
 /**
  * 
  * @param {boolean} on 
@@ -217,9 +221,11 @@ function setStateRunning(on) {
         document.documentElement.classList.add("running");
         isRunning = true;
         txtState = "Focus...";
+        keepAliveSound = modSound.startKeepAliveSound();
     } else {
         document.documentElement.classList.remove("running");
         isRunning = false;
+        keepAliveSound?.stop();
     }
 }
 
@@ -2157,7 +2163,6 @@ async function addInfoButton(container) {
     // const urlAbout = new URL("../about.html", location);
     const urlAbout = new URL("../index.html", location.href);
     aInfo.href = urlAbout.href;
-    // const btnInfo = modMdc.mkMDCiconButton(iconInfo, "About");
     const btnInfo = modMdc.mkMDCiconButton(aInfo, "Info");
     // @ts-ignore style
     btnInfo.style = `
