@@ -76,7 +76,7 @@ const TSDEFwait4mutations = modTools.wait4mutations;
  * 
  * @returns {TSmilliSeconds}
  */
-const msDoc = () => {
+const msDocument = () => {
     let ms = document.timeline.currentTime || 0;
     // @ts-ignore typescript
     return TSFIXmilliSeconds(ms);
@@ -347,7 +347,7 @@ function getInhaleAndExhale() {
     inhaleId = rec.inhale;
     exhaleId = rec.exhale;
 }
-getInhaleAndExhale(); // FIX-ME:
+// getInhaleAndExhale(); // FIX-ME:
 
 /** * @param {number} seconds */
 const playInhale = (seconds) => {
@@ -485,7 +485,7 @@ function initCurrentPattern() {
     middleCanvasX = pattXlength2canvasX(middlePattX);
     if (isNaN(middleCanvasX)) debugAndThrow("middleCanvasX is not a number");
 
-    msStart = msDoc();
+    msStart = msDocument();
     redraw();
 }
 
@@ -1456,7 +1456,7 @@ async function updateCanvasBackground(useImageOrVideo) {
 
 let currentPatt;
 function redraw() {
-    drawPattern(TSFIXmilliSeconds(msDoc() - msStart));
+    drawPattern(TSFIXmilliSeconds(msDocument() - msStart));
 }
 
 let progressElement;
@@ -1472,7 +1472,7 @@ function checkRedraw() {
 
 
     /** @type {TSmilliSeconds} */
-    const ms = TSFIXmilliSeconds(msDoc() - (msStart + msFocus));
+    const ms = TSFIXmilliSeconds(msDocument() - (msStart + msFocus));
 
 
     const partDone = ms / (secondsPattsDuration * 1000);
@@ -1640,9 +1640,10 @@ async function setupControls(controlscontainer) {
     btnStart.id = "start-button";
     btnStart.addEventListener("click", evt => {
         getSecondsPattsDuration();
+        getInhaleAndExhale();
         setStateRunning(true);
         numRedraw = 0;
-        msStart = msDoc();
+        msStart = msDocument();
         animateLines();
     });
 
