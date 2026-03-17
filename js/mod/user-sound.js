@@ -17,6 +17,7 @@ const KEY = "user-sound";
 const modBells = await importFc4i("bell-engine");
 const syntBells = modBells.getBellNames();
 const fileBells = [
+    '../md-timer/sounds/freesound.org/cat-purr-full.mp3',
     '../ext/bells/sbell2_10s.mp3',
 ];
 
@@ -209,6 +210,8 @@ export async function dialogSound() {
                 return "Synt 2";
             case "../ext/bells/sbell2_10s.mp3":
                 return "Bell 1";
+            case '../md-timer/sounds/freesound.org/cat-purr-full.mp3':
+                return "Cat";
             default:
                 return mkElt("span", { style: "color:red;" }, internalName);
         }
