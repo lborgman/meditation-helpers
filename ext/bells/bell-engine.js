@@ -720,7 +720,9 @@ export function strikeBellById(fullBellId, isExhale, opts = {}) {
   if (tofStopAtSec != "number") throw Error(`typeof opts.stopAtSec == "${tofStopAtSec}"`);
   if (opts.stopAtSec == 0) throw Error(`opts.stopAtSec == 0`);
 
-  const [typeSpec, bellId] = fullBellId.split(":");
+  // const [typeSpec, bellId] = fullBellId.split(":");
+  const typeSpec = fullBellId.slice(0,1);
+  const bellId = fullBellId.slice(2);
   switch (typeSpec) {
     case "s":
       checkBELLSunique();

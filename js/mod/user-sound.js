@@ -20,6 +20,11 @@ const fileBells = [
     '../md-timer/sounds/freesound.org/cat-purr-full.mp3',
     '../ext/bells/sbell2_10s.mp3',
 ];
+const fileBellGroups = {
+    "pixabay": {
+        url: "pixabay",
+    }
+};
 
 /**
  *
@@ -192,9 +197,6 @@ export async function dialogSound() {
         return lbl;
     }
     const mkGroupName = (grp) => mkElt("div", { style: "font-weight:bold; font-size:1.2em" }, grp);
-    // const inhale = await modBells.createExternalBellFromFile('../ext/bells/sbell2_10s.mp3',
-    // const addFileBell = (url) => { fileBells.push(url); }
-    // addFileBell('../ext/bells/sbell2_10s.mp3');
 
 
     /**
@@ -241,6 +243,35 @@ export async function dialogSound() {
             lbl.classList.add("label-bell");
             targetDiv.appendChild(lbl);
         });
+        const groups = Object.keys(fileBellGroups);
+        groups.forEach(async grpName => {
+            const grp = fileBellGroups[grpName];
+            const url = `../../ext/sounds/${grp.url}/out/index-files.mjs`;
+            console.warn({ grpName });
+            const eltGrpName = mkElt("div", undefined, `${grpName}:`);
+            targetDiv.appendChild(eltGrpName);
+            debugger;
+            try {
+                const mod = await import(url);
+                debugger;
+                const sounds = mod.files();
+                sounds.forEach(bellShort => {
+                    // const bellName = mod.myUrl(bellShort);
+                    const name4UI = bell2UI(`${grpName}:${bellShort}`);
+                    const bellUrl = mod.myUrl(bellShort)
+                    const lbl = mkRadBell(name4UI, `f:${bellUrl}`, isInhale, currentBell);
+                    lbl.classList.add("label-bell");
+                    targetDiv.appendChild(lbl);
+                })
+            } catch (err) {
+                console.error(grpName, url, err);
+                debugger;
+            }
+            // const name4UI = bell2UI(bellName);
+            // const lbl = mkRadBell(name4UI, `f:${bellName}`, isInhale, currentBell);
+            // lbl.classList.add("label-bell");
+            // targetDiv.appendChild(lbl);
+        })
     }
 
     const styleDivBells = `
@@ -291,7 +322,7 @@ export async function dialogSound() {
 }
 
 // audiocontent
-export function startKeepAliveSound(){
+export function startKeepAliveSound() {
     /** @type {AudioContext} */
     const audioCtx = modBells.getAudioContext();
     const bufferSize = audioCtx.sampleRate * 2; // 2 seconds
@@ -299,8 +330,8 @@ export function startKeepAliveSound(){
     const data = buffer.getChannelData(0);
     let source;
     // Fill with very low-level white noise (inaudible)
-    for (let i = 0; i<bufferSize; i++) {
-        data[i] = (Math.random()*2 -1) * 0.0001; // ^80dB
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.0001; // ^80dB
     }
     source = audioCtx.createBufferSource();
     source.buffer = buffer;
@@ -309,3 +340,8 @@ export function startKeepAliveSound(){
     source.start();
     return source;
 }
+
+
+
+///// Maybe implement user selected sounds??
+// https://pixabay.com/sound-effects/search/birds/
