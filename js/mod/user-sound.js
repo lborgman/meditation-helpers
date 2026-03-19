@@ -22,7 +22,8 @@ const fileBells = [
 ];
 const fileBellGroups = {
     "pixabay": {
-        url: "pixabay",
+        urlInternal: "pixabay",
+        urlExternal: "https://pixabay.com/sound-effects/"
     }
 };
 
@@ -215,7 +216,7 @@ export async function dialogSound() {
             case '../md-timer/sounds/freesound.org/cat-purr-full.mp3':
                 return "Cat";
             default:
-                return mkElt("span", { style: "color:red;" }, internalName);
+                return mkElt("span", { style: "color:red; user-select:all; line-break: anywhere;" }, internalName);
         }
     }
 
@@ -249,12 +250,21 @@ export async function dialogSound() {
         const groups = Object.keys(fileBellGroups);
         groups.forEach(async grpName => {
             const grp = fileBellGroups[grpName];
-            const url = `../../ext/sounds/${grp.url}/out/index-files.mjs`;
-            const prom = import(url);
+            const urlInternal = `../../ext/sounds/${grp.urlInternal}/out/index-files.mjs`;
+            const urlExternal = grp.urlExternal;
+            if (!urlExternal) {
+                debugger;
+            }
+            const prom = import(urlInternal);
             proms.push(prom);
             const mod = await prom;
             console.warn({ grpName });
-            const eltGrpName = mkElt("div", undefined, `${grpName}:`);
+            const aGrp = mkElt("a", {
+                href: urlExternal,
+                target: "_blank"
+            }, grpName);
+            // const eltGrpName = mkElt("div", undefined, `${grpName}:`);
+            const eltGrpName = mkElt("div", undefined, ["From ", aGrp, ":"]);
             targetDiv.appendChild(eltGrpName);
             try {
                 const sounds = mod.files();
@@ -267,7 +277,7 @@ export async function dialogSound() {
                     targetDiv.appendChild(lbl);
                 })
             } catch (err) {
-                console.error(grpName, url, err);
+                console.error(grpName, urlInternal, err);
                 debugger;
             }
             // const name4UI = bell2UI(bellName);
@@ -349,3 +359,4 @@ export function startKeepAliveSound() {
 
 ///// Maybe implement user selected sounds??
 // https://pixabay.com/sound-effects/search/birds/
+// https://pixabay.com/sound-effects/
