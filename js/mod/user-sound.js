@@ -17,8 +17,8 @@ const KEY = "user-sound";
 const modBells = await importFc4i("bell-engine");
 const syntBells = modBells.getBellNames();
 const fileBells = [
-    '../md-timer/sounds/freesound.org/cat-purr-full.mp3',
-    '../ext/bells/sbell2_10s.mp3',
+    // '../md-timer/sounds/freesound.org/cat-purr-full.mp3',
+    // '../ext/bells/sbell2_10s.mp3',
 ];
 const fileBellGroups = {
     "pixabay": {
@@ -228,6 +228,8 @@ export async function dialogSound() {
 
     /** @type {FunAddBell2UI} */
     const addSyntBells = (targetDiv, isInhale, currentBell) => {
+        const eltGrpName = mkElt("div", undefined, `Syntetich bells:`);
+        targetDiv.appendChild(eltGrpName);
         syntBells.forEach(bellName => {
             const name4UI = bell2UI(bellName);
             const lbl = mkRadBell(name4UI, `s:${bellName}`, isInhale, currentBell);
@@ -236,24 +238,25 @@ export async function dialogSound() {
         });
     }
     /** @type {FunAddBell2UI} */
-    const addFileBells = (targetDiv, isInhale, currentBell) => {
+    const addFileBells = async (targetDiv, isInhale, currentBell) => {
         fileBells.forEach(bellName => {
             const name4UI = bell2UI(bellName);
             const lbl = mkRadBell(name4UI, `f:${bellName}`, isInhale, currentBell);
             lbl.classList.add("label-bell");
             targetDiv.appendChild(lbl);
         });
+        const proms = [];
         const groups = Object.keys(fileBellGroups);
         groups.forEach(async grpName => {
             const grp = fileBellGroups[grpName];
             const url = `../../ext/sounds/${grp.url}/out/index-files.mjs`;
+            const prom = import(url);
+            proms.push(prom);
+            const mod = await prom;
             console.warn({ grpName });
             const eltGrpName = mkElt("div", undefined, `${grpName}:`);
             targetDiv.appendChild(eltGrpName);
-            debugger;
             try {
-                const mod = await import(url);
-                debugger;
                 const sounds = mod.files();
                 sounds.forEach(bellShort => {
                     // const bellName = mod.myUrl(bellShort);
@@ -271,7 +274,8 @@ export async function dialogSound() {
             // const lbl = mkRadBell(name4UI, `f:${bellName}`, isInhale, currentBell);
             // lbl.classList.add("label-bell");
             // targetDiv.appendChild(lbl);
-        })
+        });
+        await Promise.allSettled(proms);
     }
 
     const styleDivBells = `
@@ -287,7 +291,7 @@ export async function dialogSound() {
         mkGroupName("Inhale"),
         divInhaleBells,
     ]);
-    addFileBells(divInhaleBells, true, currentBells.inhale);
+    await addFileBells(divInhaleBells, true, currentBells.inhale);
     addSyntBells(divInhaleBells, true, currentBells.inhale);
 
     const lblSame = mkRadBell("Same as inhale", "same", false, currentBells.exhale);
@@ -299,7 +303,7 @@ export async function dialogSound() {
         mkElt("div", { style: "font-style:italic; opacity:0.7; margin-bottom:9px;" }, "Exhale bells are shifted to a lower frequency"),
         divExhaleBells,
     ]);
-    addFileBells(divExhaleBells, false, currentBells.exhale);
+    await addFileBells(divExhaleBells, false, currentBells.exhale);
     addSyntBells(divExhaleBells, false, currentBells.exhale);
     const divBells = mkElt("div", undefined, [
         divInhale,
