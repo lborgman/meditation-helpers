@@ -329,7 +329,7 @@ export async function dialogSound() {
     await addFileBells(divInhaleBells, true, currentBells.inhale);
     addSyntBells(divInhaleBells, true, currentBells.inhale);
 
-    const lblSame = mkRadBell("Same as inhale", "same", false, currentBells.exhale);
+    const lblSame = mkRadBell("Same (lower frequency)", "same", false, currentBells.exhale);
     lblSame.classList.add("label-bell");
     const divExhaleBells = mkElt("div", undefined, lblSame);
     divExhaleBells.style = styleDivBells;
@@ -338,7 +338,8 @@ export async function dialogSound() {
         mkElt("div", { style: "font-style:italic; opacity:0.7; margin-bottom:9px;" }, "Exhale bells are shifted to a lower frequency"),
         divExhaleBells,
     ]);
-    await addFileBells(divExhaleBells, false, currentBells.exhale);
+    // await addFileBells(divExhaleBells, false, currentBells.exhale);
+    await addFileBells(divExhaleBells, true, currentBells.exhale);
     addSyntBells(divExhaleBells, false, currentBells.exhale);
     const divBells = mkElt("div", undefined, [
         divInhale,
