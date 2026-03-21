@@ -335,7 +335,6 @@ export async function dialogSound() {
     divExhaleBells.style = styleDivBells;
     const divExhale = mkElt("p", undefined, [
         mkGroupName("Exhale"),
-        mkElt("div", { style: "font-style:italic; opacity:0.7; margin-bottom:9px;" }, "Exhale bells are shifted to a lower frequency"),
         divExhaleBells,
     ]);
     // await addFileBells(divExhaleBells, false, currentBells.exhale);
