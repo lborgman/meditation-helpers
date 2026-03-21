@@ -201,11 +201,10 @@ export async function dialogSound() {
 
 
     /**
-     * 
      * @param {string} internalName 
      * @returns {string|HTMLSpanElement}
      */
-    function bell2UI(internalName) {
+    function sound2UI(internalName) {
         switch (internalName) {
             case "Bowl 1 · 432 Hz":
                 return "Synt 1";
@@ -215,10 +214,30 @@ export async function dialogSound() {
                 return "Bell 1";
             case '../md-timer/sounds/freesound.org/cat-purr-full.mp3':
                 return "Cat";
+            case "pixabay:freesound_community-bell-bowl-g-ish-74001.mp3":
+                return "Bowl bell g-ish";
             default:
-                return mkElt("span", { style: "color:red; user-select:all; line-break: anywhere;" }, internalName);
+                return mkElt("span",
+                    { style: "color:red; user-select:all; line-break: anywhere;" },
+                    `"${internalName}"`);
         }
     }
+
+    /**
+     * @param {string} internalName 
+     * @returns {string}
+     */
+    function sound2sourceUI(internalName) {
+        switch (internalName) {
+            case "pixabay:freesound_community-bell-bowl-g-ish-74001.mp3":
+                return "bell-bowl G-ish";
+            default:
+                return mkElt("span",
+                    { style: "color:red; user-select:all; line-break: anywhere;" },
+                    `"${internalName}"`);
+        }
+    }
+
 
     /**
      * @callback FunAddBell2UI
@@ -232,17 +251,19 @@ export async function dialogSound() {
         const eltGrpName = mkElt("div", undefined, `Syntetich bells:`);
         targetDiv.appendChild(eltGrpName);
         syntBells.forEach(bellName => {
-            const name4UI = bell2UI(bellName);
-            const lbl = mkRadBell(name4UI, `s:${bellName}`, isInhale, currentBell);
+            const name4UI = sound2UI(bellName);
+            const showName = name4UI ? name4UI : bellName;
+            const lbl = mkRadBell(showName, `s:${bellName}`, isInhale, currentBell);
             lbl.classList.add("label-bell");
             targetDiv.appendChild(lbl);
         });
     }
     /** @type {FunAddBell2UI} */
     const addFileBells = async (targetDiv, isInhale, currentBell) => {
-        fileBells.forEach(bellName => {
-            const name4UI = bell2UI(bellName);
-            const lbl = mkRadBell(name4UI, `f:${bellName}`, isInhale, currentBell);
+        fileBells.forEach(bellRow => {
+            const [bellName, _start, name4UI] = bellRow.split(";;");
+            const showName = name4UI ? name4UI : bellName;
+            const lbl = mkRadBell(showName, `f:${bellName}`, isInhale, currentBell);
             lbl.classList.add("label-bell");
             targetDiv.appendChild(lbl);
         });
@@ -267,13 +288,17 @@ export async function dialogSound() {
             const eltGrpName = mkElt("div", undefined, ["From ", aGrp, ":"]);
             targetDiv.appendChild(eltGrpName);
             try {
-                const sounds = mod.files();
-                sounds.forEach(bellShort => {
+                const soundRows = mod.files();
+                soundRows.forEach(soundRow => {
+                    const [bellShort, _start, name4UI] = soundRow.split(";;");
+                    const showName = name4UI ? name4UI : bellShort;
                     // const bellName = mod.myUrl(bellShort);
-                    const name4UI = bell2UI(`${grpName}:${bellShort}`);
+                    // const name4UI = sound2UI(`${grpName}:${bellShort}`);
+                    const nameSourceUI = sound2sourceUI(`${grpName}:${bellShort}`);
                     const bellUrl = mod.myUrl(bellShort)
-                    const lbl = mkRadBell(name4UI, `f:${bellUrl}`, isInhale, currentBell);
+                    const lbl = mkRadBell(showName, `f:${bellUrl}`, isInhale, currentBell);
                     lbl.classList.add("label-bell");
+                    lbl.title = nameSourceUI;
                     targetDiv.appendChild(lbl);
                 })
             } catch (err) {
