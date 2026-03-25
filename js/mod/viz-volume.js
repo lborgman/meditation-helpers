@@ -22,18 +22,23 @@ const elements = {};
 
 /**
  * Format time as MM:SS.ms
+ * @param {number} seconds
+ * @param {number|null} [distMarkers=null]
  */
-function formatTime(seconds) {
+function formatTime(seconds, distMarkers = null) {
     if (isNaN(seconds) || seconds === undefined) return '0:00.00';
     const mins = Math.floor(seconds / 60);
-    // const secs = (seconds % 60).toFixed(2);
-    const secs = (seconds % 60).toFixed(1);
-    // return `${mins}:${secs.toString().padStart(5, '0')}`;
-    // return `${mins}:${secs.toString().padStart(4, '0')}`;
-    if (mins == 0) {
-        return `${secs.padStart(4, '0')}`;
+    let decimals = 1;
+    let padLen = 4;
+    if (typeof distMarkers == "number") {
+        decimals = 0;
+        padLen = 2;
     }
-    return `${mins}:${secs.padStart(4, '0')}`;
+    let secs = (seconds % 60).toFixed(decimals);
+    if (mins == 0) {
+        return `${secs.padStart(padLen, '0')}`;
+    }
+    return `${mins}:${secs.padStart(padLen, '0')}`;
 }
 
 /**
@@ -68,6 +73,7 @@ function drawTimeMarkers() {
     const duration = audioBuffer.duration;
     const numMarkers = Math.min(10, Math.floor(duration));
     const arrMarkers = calculateNiceMarkers(duration);
+    const distMarker = arrMarkers[1];
 
     // for (let i = 0; i <= numMarkers; i++)
     //   const time = (i / numMarkers) * duration;
@@ -82,7 +88,7 @@ function drawTimeMarkers() {
         const label = document.createElement('div');
         label.className = 'time-marker';
         label.style.left = `${percent}%`;
-        label.textContent = formatTime(time);
+        label.textContent = formatTime(time, distMarker);
 
         elements.timeAxisDiv.appendChild(line);
         elements.timeAxisDiv.appendChild(label);
