@@ -827,6 +827,7 @@ export function showViz(
             justify-content: flex-end;
             margin-bottom: -10px;
             margin-top: -15px;
+            margin-right: -15px;
         }
 
         div.viz-vol #close-button {
@@ -920,7 +921,8 @@ export function showViz(
     const btnClose = /** @type {HTMLButtonElement} */ (divOuterContainer.querySelector("#close-button"));
     btnClose?.addEventListener("click", evt => {
         evt.stopImmediatePropagation();
-        alert("close");
+        // alert("close");
+        stopAudio();
         const eltDialog = /** @type {HTMLDialogElement} */ (btnClose.closest("dialog"));
         eltDialog.close();
     })
