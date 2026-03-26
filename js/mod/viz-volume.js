@@ -95,6 +95,8 @@ function drawTimeMarkers() {
     });
 }
 
+//#region /////// Nice axis markers intervals
+// https://chat.deepseek.com/share/7mlvpu8o3dphl6q0yo
 function calculateNiceMarkers(max) {
     if (max <= 0) throw Error(`max == ${max} < 0`);
 
@@ -112,7 +114,6 @@ function calculateNiceMarkers(max) {
 
     return markers;
 }
-
 function getNiceInterval(rawInterval) {
     // Get the order of magnitude (power of 10)
     const magnitude = Math.pow(10, Math.floor(Math.log10(rawInterval)));
@@ -133,6 +134,8 @@ function getNiceInterval(rawInterval) {
     // Return the nice interval
     return niceNormalized * magnitude;
 }
+////////////////////////////////
+//#endregion
 
 /**
  * Draw static waveform (the original picture of the sound)
@@ -500,6 +503,17 @@ async function loadAudioFile(file) {
     }
 }
 
+// From deepseek:
+async function loadAudioFromUrl(url, filename = 'audio.mp3') {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const file = new File([blob], filename, { type: blob.type });
+        loadAudioFile(file);
+    } catch (error) {
+        console.error('Error loading audio:', error);
+    }
+}
 /**
  * Load demo audio (generate a sine wave for testing)
  */
@@ -603,8 +617,19 @@ function resizeCanvas() {
 /**
  * Initialize DOM elements and event listeners
  */
-export function init(eltParent) {
-    // Add style
+export function showViz(
+    {
+        eltParent = null,
+        soundSource = null,
+        ...rest
+    } = {}
+) { // Add style
+    const arrRest = Object.keys(rest);
+    if (arrRest.length > 0) {
+        console.error(`Unknown parameters: ${arrRest}`);
+        debugger;
+        throw Error(`Unknown parameters: ${arrRest}`);
+    }
     const idStyle = "viz-volume-style";
     const oldStyle = document.getElementById(idStyle);
     if (!oldStyle) {
@@ -851,6 +876,18 @@ export function init(eltParent) {
     </div>
 
     `;
+    if (soundSource) {
+        const inpAudio = /** @type {HTMLInputElement} */ (divOuterContainer.querySelector("#audioFile"));
+        if (!inpAudio) throw Error(`Could not find #audioFile`);
+        inpAudio.style.display = "none";
+        debugger;
+        if (typeof soundSource == "string") {
+            // loadAudioFromUrl(url, filename = 'audio.mp3')
+            loadAudioFromUrl(soundSource);
+        } else {
+            debugger;
+        }
+    }
 
     const useDialog = !!!eltParent;
     console.log({ useDialog });
@@ -943,9 +980,42 @@ export function init(eltParent) {
     console.log('Audio Visualizer initialized successfully');
 }
 
+/*
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
 } else {
     init();
+}
+*/
+
+
+// From Claude AI:
+async function captureFirstNSeconds(audioContext, sourceNode, nSeconds) {
+  // 1. Create an offline context with the same sample rate
+  const offlineCtx = new OfflineAudioContext(
+    2,                                      // channels (stereo)
+    audioContext.sampleRate * nSeconds,     // total frames to render
+    audioContext.sampleRate
+  );
+
+  // 2. Re-create / clone your source in the offline context.
+  //    Here we assume mySound is an AudioBufferSourceNode:
+  const offlineSource = offlineCtx.createBufferSource();
+  offlineSource.buffer = sourceNode.buffer;   // re-use the same AudioBuffer
+  offlineSource.connect(offlineCtx.destination);
+  offlineSource.start(0);
+
+  // 3. Render — returns an AudioBuffer containing exactly nSeconds of audio
+  const renderedBuffer = await offlineCtx.startRendering();
+  return renderedBuffer;   // this IS the buffer with the first nSeconds
+}
+async function playFirstNSeconds(audioContext, mySound, nSeconds) {
+  const buffer = await captureFirstNSeconds(audioContext, mySound, nSeconds);
+
+  // Play the captured buffer via a new source node
+  const player = audioContext.createBufferSource();
+  player.buffer = buffer;
+  player.connect(audioContext.destination);
+  player.start();
 }
