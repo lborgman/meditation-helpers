@@ -605,7 +605,10 @@ function handleSeekInput(e) {
 function resizeCanvas() {
     if (!elements.canvas || !elements.ctx) return;
 
-    elements.canvas.width = elements.canvas.clientWidth;
+    const w = elements.canvas.clientWidth;
+    if (w == 0) return;
+    // elements.canvas.width = elements.canvas.clientWidth;
+    elements.canvas.width = w;
     elements.canvas.height = elements.canvas.clientHeight;
     if (audioBuffer) {
         drawStaticWaveform();
@@ -823,6 +826,7 @@ export function showViz(
             display: flex;
             justify-content: flex-end;
             margin-bottom: -10px;
+            margin-top: -15px;
         }
 
         div.viz-vol #close-button {
@@ -901,6 +905,8 @@ export function showViz(
             aspect-ratio: 1.6 / 1;
             max-width: 80vw;
             max-height : 60vh;
+            min-width: 300px;
+            min-height: 250px;
             outline: 3px dotted red;
         `;
         eltDialog.appendChild(divOuterContainer);
