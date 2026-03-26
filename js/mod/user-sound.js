@@ -171,14 +171,13 @@ export async function dialogSound() {
                 const rec = getSoundRec();
                 bellName = rec.inhale;
             }
-            btn.classList.add("test-sound-playing");
             if (bellName.startsWith("f:")) {
-                debugger;
                 const urlBell = bellName.slice(2);
                 const modVizVol = await importFc4i("viz-volume")
                 modVizVol.showViz({ soundSource: urlBell });
                 return;
             }
+            btn.classList.add("test-sound-playing");
             lastBell = await modBells.strikeBellById(bellName, !isInhale, { stopAtSec: 8 });
             lastBell.btn = btn;
             console.log({ lastBell });

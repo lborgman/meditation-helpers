@@ -884,7 +884,7 @@ export function showViz(
         const inpAudio = /** @type {HTMLInputElement} */ (divOuterContainer.querySelector("#audioFile"));
         if (!inpAudio) throw Error(`Could not find #audioFile`);
         inpAudio.style.display = "none";
-        debugger;
+        // debugger;
         if (typeof soundSource == "string") {
             // loadAudioFromUrl(url, filename = 'audio.mp3')
             loadAudioFromUrl(soundSource);
@@ -916,33 +916,68 @@ export function showViz(
 
 
     // Get DOM elements
-    const btnClose = document.getElementById("close-button");
+    // const btnClose = document.getElementById("close-button");
+    const btnClose = /** @type {HTMLButtonElement} */ (divOuterContainer.querySelector("#close-button"));
     btnClose?.addEventListener("click", evt => {
         evt.stopImmediatePropagation();
         alert("close");
-        const eltDialog = document.getElementById("dialog-viz-volume");
+        const eltDialog = /** @type {HTMLDialogElement} */ (btnClose.closest("dialog"));
         eltDialog.close();
     })
 
-    elements.canvas = document.getElementById('waveformCanvas');
+    // elements.canvas = document.getElementById('waveformCanvas');
+    elements.canvas = divOuterContainer.querySelector("#waveformCanvas");
     if (!elements.canvas) {
         console.error('Canvas element not found');
         return;
     }
     elements.ctx = elements.canvas.getContext('2d');
-    elements.playBtn = document.getElementById('playBtn');
-    elements.pauseBtn = document.getElementById('pauseBtn');
-    elements.stopBtn = document.getElementById('stopBtn');
-    elements.seekSlider = document.getElementById('seekSlider');
-    elements.volumeSlider = document.getElementById('volumeSlider');
-    elements.audioFileInput = document.getElementById('audioFile');
-    elements.demoBtn = document.getElementById('demoBtn');
-    elements.infoDiv = document.getElementById('info');
-    elements.currentTimeSpan = document.getElementById('currentTime');
-    elements.totalDurationSpan = document.getElementById('totalDuration');
-    elements.sampleRateSpan = document.getElementById('sampleRate');
-    elements.timeAxisDiv = document.getElementById('timeAxis');
-    elements.playhead = document.getElementById('playhead');
+
+    /*
+      Note that divOuterContainer.querySelector("#id") is not
+      strictly correct because the ids might be doubles.
+      But I believe it will work in practice since this is only
+      used in the dialog (or div container).
+    */
+    // elements.playBtn = document.getElementById('playBtn');
+    elements.playBtn = divOuterContainer.querySelector("#playBtn");
+
+    // elements.pauseBtn = document.getElementById('pauseBtn');
+    elements.pauseBtn = divOuterContainer.querySelector("#pauseBtn");
+
+    // elements.stopBtn = document.getElementById('stopBtn');
+    elements.stopBtn = divOuterContainer.querySelector("#stopBtn");
+
+    // elements.seekSlider = document.getElementById('seekSlider');
+    elements.seekSlider = divOuterContainer.querySelector("#seekSlider");
+
+    // elements.volumeSlider = document.getElementById('volumeSlider');
+    elements.volumeSlider = divOuterContainer.querySelector("#volumeSlider");
+
+    // elements.audioFileInput = document.getElementById('audioFile');
+    elements.audioFileInput = divOuterContainer.querySelector("#audioFile");
+
+    // elements.demoBtn = document.getElementById('demoBtn');
+    elements.demoBtn = divOuterContainer.querySelector("#demoBtn");
+
+    // elements.infoDiv = document.getElementById('info');
+    elements.infoDiv = divOuterContainer.querySelector("#info");
+
+    // elements.currentTimeSpan = document.getElementById('currentTime');
+    elements.currentTimeSpan = divOuterContainer.querySelector("#currentTime");
+
+    // elements.totalDurationSpan = document.getElementById('totalDuration');
+    elements.totalDurationSpan = divOuterContainer.querySelector("#totalDuration");
+
+    // elements.sampleRateSpan = document.getElementById('sampleRate');
+    elements.sampleRateSpan = divOuterContainer.querySelector("#sampleRate");
+
+    // elements.timeAxisDiv = document.getElementById('timeAxis');
+    elements.timeAxisDiv = divOuterContainer.querySelector("#timeAxis");
+
+    // elements.playhead = document.getElementById('playhead');
+    elements.playhead = divOuterContainer.querySelector("#playhead");
+
 
     // Add event listeners
     if (elements.audioFileInput) {
