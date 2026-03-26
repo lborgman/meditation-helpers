@@ -623,7 +623,7 @@ function resizeCanvas() {
 export function showViz(
     {
         eltParent = null,
-        soundSource = null,
+        sound = null,
         ...rest
     } = {}
 ) { // Add style
@@ -633,6 +633,13 @@ export function showViz(
         debugger;
         throw Error(`Unknown parameters: ${arrRest}`);
     }
+    if (!sound) {
+        console.rror("Object parameter sound missing");
+        throw Error("Object parameter sound missing");
+    }
+    // const { soundSource, soundName } = sound;
+    // debugger;
+
     const idStyle = "viz-volume-style";
     const oldStyle = document.getElementById(idStyle);
     if (!oldStyle) {
@@ -881,11 +888,20 @@ export function showViz(
     </div>
 
     `;
-    if (soundSource) {
+    if (sound) {
         const inpAudio = /** @type {HTMLInputElement} */ (divOuterContainer.querySelector("#audioFile"));
         if (!inpAudio) throw Error(`Could not find #audioFile`);
         inpAudio.style.display = "none";
         // debugger;
+        const {
+            soundName = null,
+            soundSource = null
+        } = sound;
+        if (soundSource == null) {
+            console.log({ soundSource });
+            debugger;
+            throw Error(`soundSource == null`);
+        }
         if (typeof soundSource == "string") {
             // loadAudioFromUrl(url, filename = 'audio.mp3')
             loadAudioFromUrl(soundSource);
@@ -1035,30 +1051,30 @@ if (document.readyState === 'loading') {
 
 // From Claude AI:
 async function captureFirstNSeconds(audioContext, sourceNode, nSeconds) {
-  // 1. Create an offline context with the same sample rate
-  const offlineCtx = new OfflineAudioContext(
-    2,                                      // channels (stereo)
-    audioContext.sampleRate * nSeconds,     // total frames to render
-    audioContext.sampleRate
-  );
+    // 1. Create an offline context with the same sample rate
+    const offlineCtx = new OfflineAudioContext(
+        2,                                      // channels (stereo)
+        audioContext.sampleRate * nSeconds,     // total frames to render
+        audioContext.sampleRate
+    );
 
-  // 2. Re-create / clone your source in the offline context.
-  //    Here we assume mySound is an AudioBufferSourceNode:
-  const offlineSource = offlineCtx.createBufferSource();
-  offlineSource.buffer = sourceNode.buffer;   // re-use the same AudioBuffer
-  offlineSource.connect(offlineCtx.destination);
-  offlineSource.start(0);
+    // 2. Re-create / clone your source in the offline context.
+    //    Here we assume mySound is an AudioBufferSourceNode:
+    const offlineSource = offlineCtx.createBufferSource();
+    offlineSource.buffer = sourceNode.buffer;   // re-use the same AudioBuffer
+    offlineSource.connect(offlineCtx.destination);
+    offlineSource.start(0);
 
-  // 3. Render — returns an AudioBuffer containing exactly nSeconds of audio
-  const renderedBuffer = await offlineCtx.startRendering();
-  return renderedBuffer;   // this IS the buffer with the first nSeconds
+    // 3. Render — returns an AudioBuffer containing exactly nSeconds of audio
+    const renderedBuffer = await offlineCtx.startRendering();
+    return renderedBuffer;   // this IS the buffer with the first nSeconds
 }
 async function playFirstNSeconds(audioContext, mySound, nSeconds) {
-  const buffer = await captureFirstNSeconds(audioContext, mySound, nSeconds);
+    const buffer = await captureFirstNSeconds(audioContext, mySound, nSeconds);
 
-  // Play the captured buffer via a new source node
-  const player = audioContext.createBufferSource();
-  player.buffer = buffer;
-  player.connect(audioContext.destination);
-  player.start();
+    // Play the captured buffer via a new source node
+    const player = audioContext.createBufferSource();
+    player.buffer = buffer;
+    player.connect(audioContext.destination);
+    player.start();
 }

@@ -166,15 +166,21 @@ export async function dialogSound() {
             const target = evt.target;
             const lbl = target.closest("label.label-bell");
             const rad = lbl.querySelector("input[type=radio]");
+            const showName = lbl.firstElementChild.nextSibling.textContent;
             let bellName = rad.value;
             if (bellName == "same") {
                 const rec = getSoundRec();
                 bellName = rec.inhale;
             }
+            const modVizVol = await importFc4i("viz-volume")
             if (bellName.startsWith("f:")) {
                 const urlBell = bellName.slice(2);
-                const modVizVol = await importFc4i("viz-volume")
-                modVizVol.showViz({ soundSource: urlBell });
+                modVizVol.showViz({
+                    sound: {
+                        soundName: showName,
+                        soundSource: urlBell,
+                    }
+                });
                 return;
             }
             btn.classList.add("test-sound-playing");
