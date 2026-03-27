@@ -2141,7 +2141,7 @@ export async function setupThings() {
     setupCanvas(sectionContainer);
     await setupControls(sectionContainer);
     addInfoButton(sectionContainer);
-    addTestSoundButton(sectionContainer);
+    // addTestSoundButton(sectionContainer);
     setup4Android(sectionContainer);
     setCanvasSizes();
     const afterResize = () => {
