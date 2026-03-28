@@ -161,7 +161,9 @@ export class LocalSetting {
             const q = `
                 ${err}
 
-                Bad JSON stored
+                Bad JSON found
+                (Stored format has changed)
+
                 key: ${this.#key}
                 value: ${stored}
 
