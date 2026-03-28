@@ -35,7 +35,7 @@
         }
 
         section {
-            margin-bottom: 80px;
+            margin-bottom: 40px;
         }
 
         .logo {
@@ -62,6 +62,8 @@
 
         section#source-code {
             margin-bottom: unset;
+            opacity: 0.5;
+            font-size: 0.8rem;
         }
     </style>
 
@@ -73,30 +75,46 @@
 
     <section>
         <p>
-            Here are some simple apps that might help you begin meditating.
+            Here are some web apps that might help you begin meditating.
         </p>
 
     </section>
 
 
     <style>
-        section.app {
-            * {
-                display: none;
-            }
+        section.app.no-details>:not(.not-detail) {
+            display: none;
+        }
+
+        section.app.no-details {
+            display: inline-flex;
+            gap: 5px;
+            border: 1px gray;
+            background-color: #fff6;
+            border-radius: 10px;
+            padding: 10px;
+            margin-right: 0px;
+            margin-right: 10px;
 
             a:has(.logo) {
                 display: unset;
+                float: unset;
+                margin-right: unset;
             }
-            .logo {
-                display: inline-block;
+
+            h2 {
+                display: inline-block !important;
+                max-width: 100px;
+                font-size: 0.8rem;
+                margin: 0;
             }
         }
     </style>
-    <section class="app">
 
+    <section class="app no-details">
         <h2 id="mmtt">Mindfullness Meditation Training Timer</h2>
-        <a href="https://medi-timer-81281.web.app/" title="Start it"><span id="logo-mmtt" class="logo"></span></a>
+        <a href="https://medi-timer-81281.web.app/" title="- Click to start"><span id="logo-mmtt"
+                class="logo"></span></a>
         <p>
             The Mindfullness Meditation Training Timer app
             is based on a scientific study that used a very similar app.
@@ -104,10 +122,9 @@
         </p>
     </section>
 
-
-    <section>
+    <section class="app no-details">
         <h2 id="mbt">Meditation Breathing Timer</h2>
-        <a href="./br-timer/moving-lines.html" title="Start it"><span id="logo-mbt" class="logo"></span></a>
+        <a href="./br-timer/moving-lines.html" title="- Click to start"><span id="logo-mbt" class="logo"></span></a>
 
         <p>
             This is my version of some similar apps I found on the internet:
@@ -151,17 +168,31 @@
 
 
     <section id="source-code">
-        <h2>Source code</h2>
-        <p>
-            See <a href="https://github.com/lborgman/meditation-helpers">GitHub</a>.
-            It is all in JavaScript, HTML and CSS.
-        </p>
+        <b>Source code</b>
+        is on <a href="https://github.com/lborgman/meditation-helpers">GitHub</a>.
+        (You are probably not interested.)
     </section>
 
-    <section>
-    </section>
 
-    </section>
+    <script>
+        document.body.addEventListener("click", evt => {
+            const target = evt.target;
+            if (target.tagName == "H2") {
+                target.removeAttribute("title");
+                target.style.cursor = "unset";
+                const eltNoDetails = target.closest(".no-details");
+                if (eltNoDetails) {
+                    evt.stopPropagation();
+                    eltNoDetails.classList.remove("no-details");
+                }
+            }
+        });
+        document.body.querySelectorAll("section.no-details h2").forEach(elt => {
+            console.log({ elt });
+            elt.title = "- Click for details";
+            elt.style.cursor = "pointer";
+        });
+    </script>
 
 
 </body>
