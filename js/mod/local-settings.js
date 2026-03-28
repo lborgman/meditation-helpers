@@ -163,6 +163,9 @@ export class LocalSetting {
             `;
             const erase = confirm(q);
             alert(erase);
+            if (erase) {
+                this.reset();
+            }
         }
         return;
         const defValType = typeof this.#defaultValue;
