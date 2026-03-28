@@ -152,18 +152,24 @@ export class LocalSetting {
         // if (stored == null) { this.#cachedValue = this.#defaultValue; return; }
         if (stored == null) { return; }
         try {
+            if (this.#key == "MOVLIN-pattern") {
+                debugger;
+                // throw Error("TEST BAD JSON");
+            }
             this.#cachedValue = JSON.parse(stored);
         } catch (err) {
             const q = `
-                Bad stored key:
+                ${err}
+
+                Bad JSON stored
                 key: ${this.#key}
                 value: ${stored}
 
-                Erase it (recommended)?
+                Reset this key (recommended)?
             `;
-            const erase = confirm(q);
-            alert(erase);
-            if (erase) {
+            const reset = confirm(q);
+            if (reset) {
+                alert(`Resetting ${this.#key}`);
                 this.reset();
             }
         }
