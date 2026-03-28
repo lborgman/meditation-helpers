@@ -151,7 +151,19 @@ export class LocalSetting {
         const stored = localStorage.getItem(this.#key);
         // if (stored == null) { this.#cachedValue = this.#defaultValue; return; }
         if (stored == null) { return; }
-        this.#cachedValue = JSON.parse(stored);
+        try {
+            this.#cachedValue = JSON.parse(stored);
+        } catch (err) {
+            const q = `
+                Bad stored key:
+                key: ${this.#key}
+                value: ${stored}
+
+                Erase it (recommended)?
+            `;
+            const erase = confirm(q);
+            alert(erase);
+        }
         return;
         const defValType = typeof this.#defaultValue;
         switch (defValType) {
