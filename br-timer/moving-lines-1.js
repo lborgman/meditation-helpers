@@ -218,6 +218,7 @@ let keepAliveSound;
  */
 function setStateRunning(on) {
     if (on) {
+        modTools.requestWakeLock();
         document.documentElement.classList.add("running");
         isRunning = true;
         txtState = "Focus...";
@@ -226,6 +227,7 @@ function setStateRunning(on) {
         document.documentElement.classList.remove("running");
         isRunning = false;
         keepAliveSound?.stop();
+        modTools.releaseWakeLock();
     }
 }
 
@@ -1037,12 +1039,8 @@ function getSecondsPattsDuration() {
     console.log({ secondsPattsDuration });
 }
 
-/**
- * 
- * @param {number} secDelay 
- */
+/*
 function testDrawPattern(secDelay) {
-    /** @type {TSmilliSeconds} */
     const msDelay = TSFIXmilliSeconds(secDelay * 1000);
     // debugger;
     doDebugLog = true;
@@ -1053,6 +1051,7 @@ function testDrawPattern(secDelay) {
     console.log({ currentPatt });
     drawPattern(msDelay);
 }
+*/
 
 /**
  * 

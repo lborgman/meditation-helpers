@@ -6048,3 +6048,59 @@ export class ChatLikeScroll {
         // If user has scrolled up → do NOT auto-scroll (classic chat behavior)
     }
 }
+
+
+
+////////////
+// WakeLock
+////////////
+
+/**
+ * Current active WakeLockSentinel or null if no wake lock is active.
+ * @type {WakeLockSentinel|null}
+ */
+let wakeLock = null;
+
+/**
+ * Requests a screen wake lock to prevent the device from sleeping.
+ *
+ * @async
+ * @returns {Promise<void>} Resolves when the wake lock is successfully acquired
+ * @throws {Error} If the wake lock request fails
+ */
+export async function requestWakeLock() {
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    console.log("Wake Lock acquired");
+
+    wakeLock.addEventListener("release", () => {
+      console.log("Wake Lock was released by the system");
+      wakeLock = null;
+    });
+  } catch (err) {
+    console.error(`Wake Lock request failed: ${err.name}, ${err.message}`);
+    throw err;
+  }
+}
+
+/**
+ * Releases the currently held screen wake lock, if any.
+ * 
+ * @async
+ * @returns {Promise<void>} Resolves when the wake lock is released or if none was active
+ */
+export async function releaseWakeLock() {
+  if (wakeLock === null) {
+    console.log("No wake lock to release");
+    return;
+  }
+
+  try {
+    await wakeLock.release();
+    console.log("Wake Lock released manually");
+    wakeLock = null;
+  } catch (err) {
+    console.error("Error releasing wake lock:", err);
+    throw err;
+  }
+}
