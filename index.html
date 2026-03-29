@@ -146,36 +146,38 @@
         </p>
     </section>
 
-    <section class="app no-details">
-        <h2 id="mbt">Meditation Breathing Timer</h2>
+    <section id="mbt" class="app no-details">
+        <h2>Meditation Breathing Timer</h2>
         <a href="./br-timer/moving-lines.html" title="- Click to start"><span id="logo-mbt" class="logo"></span></a>
 
-        <p>
-            This is my version of some similar apps I found on the internet:
-        </p>
-        <ul>
-            <li>
-                <b> SereneBreath: </b>
-                This was my first inspiration.
-                A beautiful app.
-                <p>
-                    <a href="https://github.com/gsantiago/SereneBreath">GitHub</a>,
-                    <a href="https://serenebreath.com/">Web app (seems to be down?)</a>
-                </p>
-            </li>
-            <li>
-                <b> Soothing Breathe: </b>
-                A nice and simple idea.
-                My version is visually very similar to this app.
-                I have made it a web app (and free open source)
-                and tried to make it a little bit easier to use.
-                <p>
-                    <a href="https://www.instagram.com/soothing_breathe/">Instagram @soothing_breathe</a>,
-                    <a href="https://pocketbreathcoach.com/">Native app (not a web app)</a>,
-                    <a href="https://www.youtube.com/@Headfulness">YouTube, Headfulness</a>
-                </p>
-            </li>
-        </ul>
+        <details style="margin-bottom:20px;">
+            <summary>
+                This is my version of some similar apps I found on the internet:
+            </summary>
+            <ul>
+                <li>
+                    <b> SereneBreath: </b>
+                    This was my first inspiration.
+                    A beautiful app.
+                    <p>
+                        <a href="https://github.com/gsantiago/SereneBreath">GitHub</a>,
+                        <a href="https://serenebreath.com/">Web app (seems to be down?)</a>
+                    </p>
+                </li>
+                <li>
+                    <b> Soothing Breathe: </b>
+                    A nice and simple idea.
+                    My version is visually very similar to this app.
+                    I have made it a web app (and free open source)
+                    and tried to make it a little bit easier to use.
+                    <p>
+                        <a href="https://www.instagram.com/soothing_breathe/">Instagram @soothing_breathe</a>,
+                        <a href="https://pocketbreathcoach.com/">Native app (not a web app)</a>,
+                        <a href="https://www.youtube.com/@Headfulness">YouTube, Headfulness</a>
+                    </p>
+                </li>
+            </ul>
+        </details>
 
 
 
@@ -183,10 +185,24 @@
             <h3>What do we know about these kind of exercises?</h3>
 
             <p>
-                I asked ChatGPT about this.
-                <a href="https://chatgpt.com/share/69c80edd-24bc-8329-968d-fb2ff47ac990">ChatGPT answered</a>
-                and I believe I have to change quite a few things in this app!
+                I asked a couple of AI:s about <b>pranayama</b>.
+                And I believe I have to change quite a few things in this app!
+                Here are their answers:
             </p>
+            <ul>
+                <li>
+                    <a href="https://chatgpt.com/share/69c80edd-24bc-8329-968d-fb2ff47ac990">ChatGPT</a>
+                </li>
+                <li>
+                    <a href="https://claude.ai/share/b44d652e-2d4d-4c35-9f37-5b13266af67c">Claude</a>
+                </li>
+                <li>
+                    <a href="https://gemini.google.com/share/f8be446e25f5">Gemini</a>
+                </li>
+                <li>
+                    <a href="https://chat.mistral.ai/chat/8aeb55f7-e04c-4928-aba3-054a75ebc919">Mistral</a>
+                </li>
+            </ul>
             <p>
                 First thing I noticed is that the names of the breathing patterns
                 are not adequate. <b>Pranayama</b> means "breathing exercise".
@@ -221,6 +237,16 @@
             elt.title = "- Toggle details";
             elt.style.cursor = "pointer";
         });
+
+        const myUrl = new URL(location);
+        if (myUrl.searchParams.has("pranayama")) {
+            const eltMbt = document.getElementById("mbt");
+            eltMbt.classList.remove("no-details");
+            eltMbt.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
     </script>
 
 

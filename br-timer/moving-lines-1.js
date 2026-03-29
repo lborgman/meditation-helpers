@@ -544,7 +544,13 @@ async function dialogPattern() {
     };
 
     const bdy = TSmkElt("div", { class: "colored-dialog" }, [
-        TSmkElt("h2", undefined, "Breathing pattern"),
+        TSmkElt("h2", undefined, "Breathing patterns"),
+        mkElt("p", { style: "margin-top:-10px;" }, [
+            "Read more about ",
+            mkElt("a", { href: "../index.html?pranayama" }, "pranayama"),
+            ".",
+            mkElt("span", {style:"color:mediumvioletred; font-style:italic;"}, " I will make a lot of changes here!")
+        ]),
         divPattList,
     ]);
     bdy.id = "dialog-pattern";
