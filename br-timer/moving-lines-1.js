@@ -9,6 +9,14 @@ if (document.currentScript) { throw "moving-lines-1.js is not loaded as module";
 // @ts-ignore
 const importFc4i = window["importFc4i"];
 
+
+const modLocalSettings = await importFc4i("local-settings");
+class OurLocalSetting extends modLocalSettings.LocalSetting {
+    constructor(key, defaultValue) {
+        super(STORING_PREFIX, key, defaultValue);
+    }
+}
+
 const modTools = await importFc4i("toolsJs");
 // const modMdc = await importFc4i("util-mdc");
 const modSound = await importFc4i("user-sound");
@@ -236,7 +244,7 @@ let ctxCanvas;
 let eltFilter;
 let useImage;
 // let modLocalSettings;
-let ourLocalSetting;
+// let ourLocalSetting;
 let settingDawnFilter;
 let settingSquare;
 const settingSquareValue = true;
@@ -246,6 +254,10 @@ const breathPatterns = {
     "Awake": makeBreathPattern(6, 0, 2, 0),
     "Square": makeBreathPattern(4, 4, 4, 4),
     "Deep Calm": makeBreathPattern(4, 7, 8, 0),
+    "test Deep Calm": makeBreathPattern(4, 7,
+        // 8,
+        makePatternTime("test Deep Calm", "exhale", 8),
+        0),
     "Pranayama": makeBreathPattern(7, 4, 8, 4),
     "Ujjayi": makeBreathPattern(7, 0, 7, 0),
 }
@@ -523,25 +535,70 @@ async function dialogImages() {
 }
 async function dialogPattern() {
     const modMdc = await importFc4i("util-mdc");
-    const divPattList = TSmkElt("div");
-    divPattList.id = "div-patt-list";
+    const OLDdivPattList = TSmkElt("div");
+    OLDdivPattList.id = "OLD-div-patt-list";
     // @ts-ignore style
-    divPattList.style = `
+    OLDdivPattList.style = `
                     display: flex;
                     flex-direction: column;
                     gap: 10px;
                 `;
+    /*
     const funHandleResult = (saveIt) => {
         if (!saveIt) return true;
-        /** @type {HTMLInputElement | null} */
         const rad =
-            divPattList.querySelector("input[name=pattName]:checked")
+            OLDdivPattList.querySelector("input[name=pattName]:checked")
             ||
-            divPattList.querySelector("input[name=pattName]")
+            OLDdivPattList.querySelector("input[name=pattName]")
             ;
         if (rad == null) throw Error("Did not find input[name=pattName]");
         return { pattName: rad.value };
     };
+    */
+
+    const styleDetPattList = `
+        background-color: #fff3;
+        padding: 8px;
+        border-radius: 8px;
+    `;
+    const OLDdetPattList =
+        mkElt("details", undefined, [
+            mkElt("summary", undefined, "OLD pattern list"),
+            OLDdivPattList,
+        ]);
+    OLDdetPattList.style = styleDetPattList;
+    OLDdetPattList.style.marginBottom = "15px";
+
+    const divPattList = mkElt("div");
+    divPattList.style = `
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 10px;
+    `;
+    divPattList.appendChild(mkElt("span", undefined, "Square"));
+    divPattList.appendChild(mkElt("span", undefined, "Balance"));
+    divPattList.appendChild(mkElt("span", undefined, "Calming"));
+    divPattList.appendChild(mkElt("span", undefined, "Energizing"));
+    const NEWdivPattList =
+        mkElt("div", undefined, [
+            mkElt("h3", { style: "color: darkred;" }, "Working on it!"),
+            mkElt("details", undefined, [
+                mkElt("summary", undefined, "Type of pattern"),
+                divPattList,
+            ]),
+            mkElt("details", undefined, [
+                mkElt("summary", undefined, "schedule"),
+                "your schedule",
+                mkElt("p", undefined, "feedback for progressive schedule"),
+            ]),
+        ]);
+    const NEWdetPattList =
+        mkElt("details", undefined, [
+            mkElt("summary", undefined, "NEW pattern list"),
+            NEWdivPattList,
+        ]);
+    NEWdetPattList.style = styleDetPattList;
 
     const bdy = TSmkElt("div", { class: "colored-dialog" }, [
         TSmkElt("h2", undefined, "Breathing patterns"),
@@ -549,16 +606,18 @@ async function dialogPattern() {
             "Read more about ",
             mkElt("a", { href: "../index.html?pranayama" }, "pranayama"),
             ".",
-            mkElt("span", {style:"color:mediumvioletred; font-style:italic;"}, " I will make a lot of changes here!")
+            mkElt("span", { style: "color:mediumvioletred; font-style:italic;" }, " I will make a lot of changes here!")
         ]),
-        divPattList,
+
+        OLDdetPattList,
+        NEWdetPattList,
     ]);
     bdy.id = "dialog-pattern";
     // const currentPattern = settingPattern.value;
     const builtinPn = Object.keys(breathPatterns).sort();
     builtinPn.forEach(pn => { addPn(pn); });
 
-    divPattList.appendChild(TSmkElt("h3", undefined, "Your Own:"));
+    OLDdivPattList.appendChild(TSmkElt("h3", undefined, "Your Own:"));
     const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
     const divBtnAddPatt = TSmkElt("div", undefined, btnAddPatt);
     divBtnAddPatt.style.marginTop = "-20px";
@@ -760,7 +819,7 @@ async function dialogPattern() {
     }
 
 
-    divPattList.appendChild(divBtnAddPatt);
+    OLDdivPattList.appendChild(divBtnAddPatt);
 
     const divYourList = TSmkElt("div");
     divYourList.id = "div-your-list";
@@ -773,7 +832,7 @@ async function dialogPattern() {
                 border: 1px dotted green;
             `;
 
-    divPattList.addEventListener("change", evt => {
+    OLDdivPattList.addEventListener("change", evt => {
         const target = /** @type {HTMLInputElement|null} */ (evt.target);
         if (!target) {
             debugger;
@@ -792,7 +851,7 @@ async function dialogPattern() {
         initCurrentPattern();
 
     })
-    divPattList.appendChild(divYourList);
+    OLDdivPattList.appendChild(divYourList);
     refreshYourList();
 
     function refreshYourList() {
@@ -812,7 +871,7 @@ async function dialogPattern() {
     }
     function chooseRadFromSetting() {
         const val = getActivePattern();
-        const rad = divPattList.querySelector(`input[value="${val}"]`);
+        const rad = OLDdivPattList.querySelector(`input[value="${val}"]`);
         // @ts-ignore DOM
         rad.checked = true;
     }
@@ -823,7 +882,7 @@ async function dialogPattern() {
         // if (objPatts) debugger;
         const isYour = objPatts != undefined;
         objPatts = objPatts || breathPatterns;
-        divList = divList || divPattList;
+        divList = divList || OLDdivPattList;
         // console.log({ pn });
         const rad = TSmkElt("input", { type: "radio", name: "pattName", value: pn });
         // @ts-ignore DOM
@@ -907,7 +966,27 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
     }
     for (const k in patt) {
         const v = patt[k];
-        if (isNaN(v)) throw Error(`Value for ${k} is not numeric: ${v}`);
+        if (isNaN(v)) {
+            debugger;
+            const isSetting = v instanceof OurLocalSetting;
+            if (isSetting) {
+                debugger;
+                const defaultV = v.defaultValue();
+                // console.log({ defaultV });
+                // debugger;
+                const tofV = typeof defaultV;
+                if (tofV != "number") {
+                    const msg = `typeof value for setting is "${tofV}"`;
+                    console.error(msg, tofV, defaultV);
+                    throw Error(msg);
+                }
+                debugger;
+                continue;
+            } else {
+                console.error(`Value for ${k} is not numeric: ${v}`, v);
+                throw Error(`Value for ${k} is not numeric: ${v}`);
+            }
+        }
         // if (v <= 0) throw Error(`Value for ${k} is not positive: ${v}`);
         if (v < 0) throw Error(`Value for ${k} is too small: ${v}`);
         if (v >= 10) throw Error(`Value for ${k} is too big: ${v}`);
@@ -1611,17 +1690,36 @@ function setupCanvas(container) {
     ctxCanvas = eltCanvas.getContext("2d");
 }
 
+const setPatternTimeNames = new Set();
+/** @param {string} timeName @param {string} phase @param {number} seconds */
+function makePatternTime(timeName, phase, seconds) {
+    // setting key should be unique now, now need for this, FIX-ME:
+    // if (setPatternTimeNames.has(timeName)) throw Error(`Pattern time name "${timeName}" is already used`);
+    if (!["holdin", "inhale", "holdex", "exhale"].includes(phase)) {
+        debugger;
+        const msg = `Bad phase: "${phase}"`;
+        console.error(msg);
+        throw Error(msg);
+    }
+    if (typeof seconds != "number") {
+        debugger;
+        throw Error(`seconds is not number: "${seconds}"`);
+    }
+    const setting = new OurLocalSetting(`patterntime-${timeName}-${phase}`, seconds);
+    return setting;
+}
+
 /** @type {TSseconds} */ let secondsPattsDuration;
 /** @type {TSseconds} */ let secondsTotalDuration; // Including msFocus
 /** @type {number} */ let numPattsDuration;
 
 async function setupControls(controlscontainer) {
-    settingUseVKworkaround = new ourLocalSetting("use-vk-workaround", true);
-    settingCountsPerSecond = new ourLocalSetting("counts-per-second", 100);
-    settingDurationSeconds = new ourLocalSetting("duration-seconds", 9);
-    settingDurationMinutes = new ourLocalSetting("duration-minutes", 1);
-    settingDurationIsInSeconds = new ourLocalSetting("duration-is-in-seconds", false);
-    settingFlashPoint = new ourLocalSetting("flash-point", -1);
+    settingUseVKworkaround = new OurLocalSetting("use-vk-workaround", true);
+    settingCountsPerSecond = new OurLocalSetting("counts-per-second", 100);
+    settingDurationSeconds = new OurLocalSetting("duration-seconds", 9);
+    settingDurationMinutes = new OurLocalSetting("duration-minutes", 1);
+    settingDurationIsInSeconds = new OurLocalSetting("duration-is-in-seconds", false);
+    settingFlashPoint = new OurLocalSetting("flash-point", -1);
     if (settingFlashPoint.value > 0) {
         // @ts-ignore import
         const modL2S = await import("log2screen");
@@ -1637,7 +1735,7 @@ async function setupControls(controlscontainer) {
         eltMsg.style.padding = "4px";
         modMdc.mkMDCsnackbar(eltMsg);
     }
-    settingNumPatts = new ourLocalSetting("num-patts", 1.5);
+    settingNumPatts = new OurLocalSetting("num-patts", 1.5);
     // const modMdc = await TSDEFimport("util-mdc");
     const modMdc = await importFc4i("util-mdc");
     const iconStart = modMdc.mkMDCicon("play_arrow");
@@ -1858,7 +1956,7 @@ async function setupControls(controlscontainer) {
             if (ans) {
                 // modMdc.mkMDCsnackbar("Clearing all your choices...");
                 Object.keys(localStorage).forEach(k => {
-                    // ourLocalSetting
+                    // OurLocalSetting
                     if (k.startsWith(STORING_PREFIX)) {
                         localStorage.removeItem(k);
                     }
@@ -2039,7 +2137,7 @@ async function setupControls(controlscontainer) {
     // const chkUseDawnFilter = TSmkElt("input", { type: "checkbox" });
     // const chkUseDawnFilter = document.createElement("input");
     // chkUseDawnFilter.type = "checkbox";
-    settingDawnFilter = new ourLocalSetting("use-dawn-filter", false);
+    settingDawnFilter = new OurLocalSetting("use-dawn-filter", false);
     if (settingDawnFilter.value) { document.documentElement.classList.add("use-dawn-filter"); }
 
     // settingDawnFilter.bindToInput(chkUseDawnFilter);
@@ -2059,7 +2157,7 @@ async function setupControls(controlscontainer) {
     // const chkSquare = TSmkElt("input", { type: "checkbox" });
     // settingSquare = new modLocalSettings.LocalSetting(STORING_PREFIX, "square-canvas", false);
 
-    settingSquare = new ourLocalSetting("square-canvas", true);
+    settingSquare = new OurLocalSetting("square-canvas", true);
     // settingSquare.bindToInput(chkSquare);
     const chkSquare = settingSquare.getInputElement();
 
@@ -2117,13 +2215,6 @@ export async function setupThings() {
     // @ts-ignore file
     // await thePromiseDOMready;
     await modTools.promiseDOMready();
-    // modLocalSettings = await TSDEFimport("local-settings");
-    const modLocalSettings = await importFc4i("local-settings");
-    class OurLocalSetting extends modLocalSettings.LocalSetting {
-        constructor(key, defaultValue) {
-            super(STORING_PREFIX, key, defaultValue);
-        }
-    }
     ourLocalSetting = OurLocalSetting;
     // let currentPattern = "Pranayama";
     settingPattern = new ourLocalSetting("pattern", "Pranayama");

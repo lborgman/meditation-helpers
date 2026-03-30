@@ -152,10 +152,7 @@ export class LocalSetting {
         // if (stored == null) { this.#cachedValue = this.#defaultValue; return; }
         if (stored == null) { return; }
         try {
-            if (this.#key == "MOVLIN-pattern") {
-                debugger;
-                // throw Error("TEST BAD JSON");
-            }
+            // if (this.#key == "MOVLIN-pattern") { throw Error("TEST BAD JSON"); }
             this.#cachedValue = JSON.parse(stored);
         } catch (err) {
             const q = `
