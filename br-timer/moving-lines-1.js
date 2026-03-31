@@ -365,13 +365,12 @@ function getInhaleAndExhale() {
 
 /** * @param {number} seconds */
 const playInhale = (seconds) => {
-    // modBells.strikeBell(inhale, { stopAtSec: seconds });  // bell in  → 4 s inhale
-    // debugger;
+    if (typeof seconds != "number") debugger;
     modBells.strikeBellById(inhaleId, false, { stopAtSec: seconds });
 }
 /** * @param {number} seconds */
 const playExhale = (seconds) => {
-    // modBells.strikeBell(exhale, { stopAtSec: seconds });  // bell out → 6 s exhale
+    if (typeof seconds != "number") debugger;
     const bellId = exhaleId == "same" ? inhaleId : exhaleId;
     modBells.strikeBellById(bellId, true, { stopAtSec: seconds });  // bell out → 6 s exhale
 }
@@ -380,12 +379,19 @@ const playExhale = (seconds) => {
 async function soundState(txtTop) {
     if (currSoundState == txtTop) return;
     currSoundState = txtTop;
+    const soundSeconds = (val) => {
+        if (typeof val == "number") return val;
+        if (val instanceof OurLocalSetting) {
+            return val.valueN;
+        }
+        debugger;
+    }
     switch (currSoundState) {
         case "Inhale":
-            playInhale(currentPatt.patt.breathIn);
+            playInhale(soundSeconds(currentPatt.patt.breathIn));
             break;
         case "Exhale":
-            playExhale(currentPatt.patt.breathOut);
+            playExhale(soundSeconds(currentPatt.patt.breathOut));
             break;
         case "Hold...":
         case "Focus...":
@@ -527,6 +533,14 @@ function mkPattString(patt) {
             updateVisual();
         });
         btnMore.classList.add("var-pattern-button");
+
+        const btnClose = mkElt("button", undefined, "X");
+        btnClose.classList.add("var-pattern-button");
+        btnClose.style = `
+            background: transparent;
+            border: none;
+        `;
+
         const spanVal = mkElt("span");
         spanVal.addEventListener("click", evt => {
             if (!spanVal.closest(".var-pattern-part.active")) return;
@@ -538,7 +552,7 @@ function mkPattString(patt) {
             const varVal = setting.valueN;
             spanVal.textContent = varVal.toFixed(1);
         }
-        const eltVar = mkElt("span", undefined, [btnLess, spanVal, btnMore]);
+        const eltVar = mkElt("span", undefined, [btnLess, spanVal, btnMore, btnClose]);
         eltVar.classList.add("var-pattern-part");
         eltVar.addEventListener("click", evt => {
             evt.stopPropagation();
@@ -986,7 +1000,8 @@ async function dialogSound() {
  * @typedef {{
  *   patt: pattTuple,
  *   pattXW: pattX,
- *   pattPoints: pattPoints
+ *   pattPoints: pattPoints,
+ *   partVariable,
  * }} breathTuple
  */
 
@@ -1012,19 +1027,23 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
         breathOut: TSFIXpattX(breathOut),
         holdLow: TSFIXpattX(holdLow),
     }
+    /** @type {string|undefined} */ let partVariable;
     for (const k in patt) {
         const v = patt[k];
         if (isNaN(v)) {
             // debugger;
             const isSetting = v instanceof OurLocalSetting;
             if (isSetting) {
-                // debugger;
+                if (partVariable) {
+                    const msg = `Already has variable part "${partVariable}" (new "${k}")`;
+                    console.error(msg);
+                    debugger;
+                    throw Error(msg);
+                }
                 const defaultV = v.defaultValue();
-                // console.log({ defaultV });
-                // debugger;
                 const tofV = typeof defaultV;
                 if (tofV != "number") {
-                    const msg = `typeof value for setting is "${tofV}"`;
+                    const msg = `typeof setting is "${tofV}"`;
                     console.error(msg, tofV, defaultV);
                     throw Error(msg);
                 }
@@ -1097,7 +1116,8 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
     return {
         patt,
         pattXW,
-        pattPoints
+        pattPoints,
+        partVariable
     };
 }
 
