@@ -510,10 +510,58 @@ function mkBreathPatternsPattString(pattName) {
     return mkPattString(pattRec.patt);
 }
 function mkPattString(patt) {
-    const eltBreathIn = TSmkElt("span", { class: "breathIn" }, patt.breathIn.toString());
-    const eltHoldHigh = TSmkElt("span", { class: "holdHigh" }, patt.holdHigh.toString());
-    const eltBreathOut = TSmkElt("span", { class: "breathOut" }, patt.breathOut.toString());
-    const eltHoldLow = TSmkElt("span", { class: "holdLow" }, patt.holdLow.toString());
+    const mkEltPart = val => {
+        if (typeof val == "number") return val.toString();
+        // if (typeof val == "string") return val;
+        if (!(val instanceof OurLocalSetting)) throw Error(`Not OurLocalSetting`);
+        const setting = val;
+        const btnLess = mkElt("button", undefined, "-");
+        btnLess.classList.add("var-pattern-button");
+        btnLess.addEventListener("click", evt => {
+            setting.value = setting.valueN / 1.14;
+            updateVisual();
+        });
+        const btnMore = mkElt("button", undefined, "+");
+        btnMore.addEventListener("click", evt => {
+            setting.value = setting.valueN * 1.14;
+            updateVisual();
+        });
+        btnMore.classList.add("var-pattern-button");
+        const spanVal = mkElt("span");
+        spanVal.addEventListener("click", evt => {
+            if (!spanVal.closest(".var-pattern-part.active")) return;
+            setting.reset();
+            updateVisual();
+        });
+        updateVisual();
+        function updateVisual() {
+            const varVal = setting.valueN;
+            spanVal.textContent = varVal.toFixed(1);
+        }
+        const eltVar = mkElt("span", undefined, [btnLess, spanVal, btnMore]);
+        eltVar.classList.add("var-pattern-part");
+        eltVar.addEventListener("click", evt => {
+            evt.stopPropagation();
+            eltVar.classList.toggle("active");
+        });
+        return eltVar;
+    }
+    const eltBreathIn = TSmkElt("span", { class: "breathIn" },
+        // patt.breathIn.toString()
+        mkEltPart(patt.breathIn)
+    );
+    const eltHoldHigh = TSmkElt("span", { class: "holdHigh" },
+        // patt.holdHigh.toString()
+        mkEltPart(patt.holdHigh)
+    );
+    const eltBreathOut = TSmkElt("span", { class: "breathOut" },
+        // patt.breathOut.toString()
+        mkEltPart(patt.breathOut)
+    );
+    const eltHoldLow = TSmkElt("span", { class: "holdLow" },
+        // patt.holdLow.toString()
+        mkEltPart(patt.holdLow)
+    );
     const eltPatt = TSmkElt("span", undefined, [
         "(",
         eltBreathIn,
@@ -967,10 +1015,10 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
     for (const k in patt) {
         const v = patt[k];
         if (isNaN(v)) {
-            debugger;
+            // debugger;
             const isSetting = v instanceof OurLocalSetting;
             if (isSetting) {
-                debugger;
+                // debugger;
                 const defaultV = v.defaultValue();
                 // console.log({ defaultV });
                 // debugger;
@@ -980,7 +1028,7 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
                     console.error(msg, tofV, defaultV);
                     throw Error(msg);
                 }
-                debugger;
+                // debugger;
                 continue;
             } else {
                 console.error(`Value for ${k} is not numeric: ${v}`, v);
@@ -995,20 +1043,55 @@ function makeBreathPattern(breathIn, holdHigh, breathOut, holdLow) {
     // /** @type {TScounts} */
     /** @type {pattX} */
     const pattXW = TSFIXpattX(Object.values(patt)
-        .reduce((acc, next) => acc = acc + next, 0));
+        .reduce((acc, next) => {
+            let nn = next;
+            if (isNaN(nn)) {
+                // debugger;
+                if (!(next instanceof OurLocalSetting)) {
+                    console.error("not OurLocalSetting", next);
+                    debugger;
+                    throw Error("not OurLocalSetting");
+                }
+                nn = next.valueN;
+                if (isNaN(nn)) {
+                    debugger;
+                }
+            }
+            if (isNaN(nn)) {
+                debugger;
+            }
+            acc = acc + nn;
+            return acc;
+        }, 0)
+    );
 
     const pattPoints = [];
     // /** @type {pattY} */ let pattY;
     /** @type {pattX} */
     let pattX = TSFIXpattX(0);
+    if (isNaN(pattX)) debugger;
     for (const part in patt) {
         /** @type {pattY} */
         const pattY = valY[part];
+        if (isNaN(pattY)) debugger;
         /** @type {pattPoint} */
         const pattPoint = { pattX, pattY, part }
         pattPoints.push(pattPoint);
         const diffX = patt[part];
-        pattX += diffX;
+        let dx = diffX;
+        if (isNaN(dx)) {
+            // debugger;
+            if (diffX instanceof OurLocalSetting) {
+                dx = diffX.valueN;
+                if (isNaN(dx)) {
+                    debugger;
+                }
+            } else {
+                debugger;
+            }
+
+        }
+        pattX += dx;
     }
     // console.log({ pattPoints });
     return {
@@ -2215,10 +2298,10 @@ export async function setupThings() {
     // @ts-ignore file
     // await thePromiseDOMready;
     await modTools.promiseDOMready();
-    ourLocalSetting = OurLocalSetting;
+    // ourLocalSetting = OurLocalSetting;
     // let currentPattern = "Pranayama";
-    settingPattern = new ourLocalSetting("pattern", "Pranayama");
-    settingYourPatt = new ourLocalSetting("your-patterns", {});
+    settingPattern = new OurLocalSetting("pattern", "Pranayama");
+    settingYourPatt = new OurLocalSetting("your-patterns", {});
 
 
     const sectionContainer = TSmkElt("section");

@@ -236,6 +236,7 @@
         div.mdc-dialog__surface:has(.extimg-colored-dialog) {
             background-color: orange;
         }
+
         div.mdc-dialog__surface:has(.extimg-copyright) {
             background-color: wheat;
             border: solid 5px blue;
@@ -352,6 +353,29 @@
         #div-log2screen.old {
             background-color: midnightblue;
             color: white;
+        }
+
+
+
+        /************/
+        span.var-pattern-part {
+            padding: 4px;
+            background: #fff3;
+            border-radius: 4px;
+            border: 1px solid gray;
+        }
+
+        button.var-pattern-button {
+            display: none;
+        }
+
+        span.var-pattern-part.active {
+            padding: 8px;
+            display: inline-flex;
+            gap: 10px;
+            button.var-pattern-button {
+                display: unset;
+            }
         }
     </style>
 </head>
