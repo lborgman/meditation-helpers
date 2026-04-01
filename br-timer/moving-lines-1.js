@@ -308,7 +308,12 @@ export const feedbackSignals = [
     { id: "panic", label: "Panic / discomfort", category: "adverse", severity: 3 },
 ];
 
-async function feedbackDialog() {
+/**
+ * 
+ * @param {string} patternName 
+ * @param {number} secondsPattsDuration 
+ */
+async function feedbackDialog(patternName, secondsPattsDuration) {
     const categories = [
         "adverse",
         "warning",
@@ -319,11 +324,34 @@ async function feedbackDialog() {
     const divCats = mkElt("div");
     divCats.style = `
         display: flex;
+        flex-wrap: wrap;
         gap: 20px;
         padding: 20px;
-    `
+        `;
+
+        const howLong = (sec) => {
+            const minutes = Math.floor(sec / 60);
+            const seconds = Math.floor(sec % 60);
+            // const elt = mkElt("span", undefined, `${minutes} minutes ${seconds} seconds`);
+            const elt = mkElt("span", undefined, `${minutes} minute(s)`);
+            elt.style.display = "inline-block";
+            return elt;
+        }
+    const eltCompleted = mkElt("div", undefined, [
+        "You just completed ",
+        mkElt("b", undefined, patternName),
+        ", ",
+        howLong(secondsPattsDuration)
+    ]);
+    eltCompleted.style = `
+        background-color: greenyellow;
+        padding: 8px;
+        border-radius: 4px;
+    `;
     const body = mkElt("div", undefined, [
-        mkElt("h2", undefined, "Feedback for progress"),
+        eltCompleted,
+        mkElt("h2", { style: "margin-bottom:5px;" }, "Feedback for progress"),
+        mkElt("div", undefined, "What do you feel?"),
         divCats
     ]);
     categories.forEach(category => {
@@ -331,19 +359,34 @@ async function feedbackDialog() {
         catName.style = `
             position: absolute;
             left: 10px;
-            top: -8px;
+            top: calc(-1rem + 2px);
+            background: white;
+            padding: 0px 8px;
+            font-weight: bold;
         `;
         const divCat = mkElt("div", undefined, catName);
         divCat.style = `
             position: relative;
-            border: 1px sold gray;
+            border: 1px solid gray;
             border-radius: 8px;
             padding: 10px;
+            padding-top: 20px;
             display: flex;
-            gap: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
             min-height: 30px;
             min-width: 100px;
         `;
+        feedbackSignals.filter(entry => { return entry.category == category })
+            .forEach(ent => {
+                const eltChk = mkElt("input", { type: "checkbox", value: ent.id });
+                const lbl = mkElt("label", undefined, [eltChk, ent.label]);
+                lbl.style = `
+                    display: inline-flex;
+                    gap: 5px;
+                `;
+                divCat.appendChild(lbl);
+            })
         divCats.appendChild(divCat);
     });
     const ans = await modMdc.mkMDCdialogConfirm(body, "Submit", "Cancel");
@@ -1775,8 +1818,7 @@ function checkRedraw() {
             if (feedbackFun) {
                 feedbackFun(varPart);
             } else {
-                // feedbackDialog(patternName, varPart);
-                feedbackDialog();
+                feedbackDialog(patternName, secondsPattsDuration);
             }
         }
         return false;
