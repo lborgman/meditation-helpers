@@ -9,7 +9,6 @@ if (document.currentScript) { throw "moving-lines-1.js is not loaded as module";
 // @ts-ignore
 const importFc4i = window["importFc4i"];
 
-
 const modLocalSettings = await importFc4i("local-settings");
 class OurLocalSetting extends modLocalSettings.LocalSetting {
     constructor(key, defaultValue) {
@@ -18,7 +17,7 @@ class OurLocalSetting extends modLocalSettings.LocalSetting {
 }
 
 const modTools = await importFc4i("toolsJs");
-// const modMdc = await importFc4i("util-mdc");
+const modMdc = await importFc4i("util-mdc");
 const modSound = await importFc4i("user-sound");
 const STORING_PREFIX = "MOVLIN-";
 modSound.setStoringPrefix(STORING_PREFIX);
@@ -262,6 +261,94 @@ const breathPatterns = {
     "Ujjayi": makeBreathPattern(7, 0, 7, 0),
 }
 let settingPattern;
+
+const patternFeedbackFun = {
+
+}
+
+
+export const feedbackSignals = [
+    // --- Mental (positive / neutral) ---
+    { id: "calm", label: "Calm", category: "mental", severity: 0 },
+    { id: "focused", label: "Focused", category: "mental", severity: 0 },
+    { id: "clear", label: "Clear mind", category: "mental", severity: 0 },
+    { id: "neutral", label: "Neutral", category: "mental", severity: 0 },
+
+    // --- Mental (negative) ---
+    { id: "busy", label: "Busy mind", category: "mental", severity: 1 },
+    { id: "anxious", label: "Anxious", category: "mental", severity: 2 },
+    { id: "dull", label: "Dull / sleepy", category: "mental", severity: 1 },
+
+    // --- Body ---
+    { id: "relaxed", label: "Relaxed", category: "body", severity: 0 },
+    { id: "soft", label: "Soft body", category: "body", severity: 0 },
+    { id: "neutral_body", label: "Neutral", category: "body", severity: 0 },
+
+    { id: "tense", label: "Tense", category: "body", severity: 1 },
+    { id: "tight_chest", label: "Tight chest", category: "body", severity: 2 },
+    { id: "tight_jaw", label: "Tight jaw", category: "body", severity: 1 },
+    { id: "restless", label: "Restless", category: "body", severity: 1 },
+
+    // --- Breath quality ---
+    { id: "smooth", label: "Smooth", category: "breath", severity: 0 },
+    { id: "steady", label: "Steady rhythm", category: "breath", severity: 0 },
+    { id: "effortless", label: "Effortless", category: "breath", severity: 0 },
+
+    { id: "shallow", label: "Shallow", category: "breath", severity: 1 },
+    { id: "irregular", label: "Irregular", category: "breath", severity: 2 },
+    { id: "forced", label: "Forced", category: "breath", severity: 2 },
+
+    // --- Warnings (phase-related stress) ---
+    { id: "air_hunger", label: "Air hunger", category: "warning", severity: 2 },
+    { id: "urge_breathe", label: "Strong urge to breathe", category: "warning", severity: 3 },
+
+    // --- Adverse (global safety signals) ---
+    { id: "dizzy", label: "Dizziness", category: "adverse", severity: 3 },
+    { id: "pressure", label: "Pressure in head", category: "adverse", severity: 3 },
+    { id: "panic", label: "Panic / discomfort", category: "adverse", severity: 3 },
+];
+
+async function feedbackDialog() {
+    const categories = [
+        "adverse",
+        "warning",
+        "mental",
+        "body",
+        "breath"
+    ];
+    const divCats = mkElt("div");
+    divCats.style = `
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+    `
+    const body = mkElt("div", undefined, [
+        mkElt("h2", undefined, "Feedback for progress"),
+        divCats
+    ]);
+    categories.forEach(category => {
+        const catName = mkElt("span", undefined, category);
+        catName.style = `
+            position: absolute;
+            left: 10px;
+            top: -8px;
+        `;
+        const divCat = mkElt("div", undefined, catName);
+        divCat.style = `
+            position: relative;
+            border: 1px sold gray;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            gap: 20px;
+            min-height: 30px;
+            min-width: 100px;
+        `;
+        divCats.appendChild(divCat);
+    });
+    const ans = await modMdc.mkMDCdialogConfirm(body, "Submit", "Cancel");
+    console.log({ ans });
+}
 
 
 // /** @type {pattY} */
@@ -1672,6 +1759,26 @@ function checkRedraw() {
         setStateRunning(false);
         topText("Finished");
         stopRedraw = true;
+
+        // currentPatt = getPatternByName(settingPattern.value);
+        // builtin
+        let varPart;
+        Object.entries(currentPatt.patt).forEach(entry => {
+            const [name, val] = entry;
+            if (typeof val != "number") {
+                varPart = name;
+            }
+        });
+        if (varPart) {
+            const patternName = settingPattern.valueS;
+            const feedbackFun = patternFeedbackFun[patternName];
+            if (feedbackFun) {
+                feedbackFun(varPart);
+            } else {
+                // feedbackDialog(patternName, varPart);
+                feedbackDialog();
+            }
+        }
         return false;
     }
     if (numChecks > 100) {
