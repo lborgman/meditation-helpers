@@ -322,21 +322,16 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
         "breath"
     ];
     const divCats = mkElt("div");
-    divCats.style = `
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        padding: 20px;
-        `;
+    divCats.classList.add("feedback-div-cats");
 
-        const howLong = (sec) => {
-            const minutes = Math.floor(sec / 60);
-            const seconds = Math.floor(sec % 60);
-            // const elt = mkElt("span", undefined, `${minutes} minutes ${seconds} seconds`);
-            const elt = mkElt("span", undefined, `${minutes} minute(s)`);
-            elt.style.display = "inline-block";
-            return elt;
-        }
+    const howLong = (sec) => {
+        const minutes = Math.floor(sec / 60);
+        const seconds = Math.floor(sec % 60);
+        // const elt = mkElt("span", undefined, `${minutes} minutes ${seconds} seconds`);
+        const elt = mkElt("span", undefined, `${minutes} minute(s)`);
+        elt.style.display = "inline-block";
+        return elt;
+    }
     const eltCompleted = mkElt("div", undefined, [
         "You just completed ",
         mkElt("b", undefined, patternName),
@@ -356,6 +351,8 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
     ]);
     categories.forEach(category => {
         const catName = mkElt("span", undefined, category);
+        catName.classList.add("feedback-span-cat-name");
+        /*
         catName.style = `
             position: absolute;
             left: 10px;
@@ -364,6 +361,7 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
             padding: 0px 8px;
             font-weight: bold;
         `;
+        */
         const divCat = mkElt("div", undefined, catName);
         divCat.style = `
             position: relative;
@@ -389,8 +387,30 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
             })
         divCats.appendChild(divCat);
     });
-    const ans = await modMdc.mkMDCdialogConfirm(body, "Submit", "Cancel");
-    console.log({ ans });
+    const submitted = await modMdc.mkMDCdialogConfirm(body, "Submit", "Cancel");
+    console.log({ ans: submitted });
+    if (submitted) {
+        const arrChecked = [...body.querySelectorAll("input[type=checkbox]:checked")]
+            // .map(chk => { return chk.value; });
+            .map(chk => chk.value);
+        const userSignals = feedbackSignals.filter(fs => arrChecked.includes(fs.id));
+        console.log({ userSignals });
+        const severities = userSignals.map(us => us.severity)
+        console.log({ severities });
+        const maxSeverity = Math.max(...severities);
+        const minSeverity = Math.min(...severities);
+        const meanSeverity = calculateMean(severities);
+        console.log({ minSeverity, maxSeverity, meanSeverity });
+        userSignals.forEach(us => { console.log(us.label, us.category, us.severity); });
+        debugger;
+
+        function calculateMean(arr) {
+            const sum = arr.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+            const meanValue = sum / arr.length;
+            return meanValue;
+        }
+
+    }
 }
 
 
