@@ -321,6 +321,11 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
         "body",
         "breath"
     ];
+    const RequiredCategories = [
+        "mental",
+        "body",
+        "breath"
+    ];
     const divCats = mkElt("div");
     divCats.classList.add("feedback-div-cats");
 
@@ -351,7 +356,10 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
     ]);
     categories.forEach(category => {
         const catName = mkElt("span", undefined, category);
-        catName.classList.add("feedback-span-cat-name");
+        catName.classList.add("cat-name");
+        if (RequiredCategories.includes(category)) {
+            catName.classList.add("required");
+        }
         /*
         catName.style = `
             position: absolute;
