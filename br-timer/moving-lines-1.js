@@ -354,35 +354,18 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
         mkElt("div", undefined, "What do you feel?"),
         divCats
     ]);
+    body.classList.add("colored-dialog");
+
+    const setDivRequired = new Set();
     categories.forEach(category => {
         const catName = mkElt("span", undefined, category);
         catName.classList.add("cat-name");
+        const divCat = mkElt("div", undefined, catName);
+        divCat.classList.add("cat-div");
         if (RequiredCategories.includes(category)) {
             catName.classList.add("required");
+            setDivRequired.add(divCat);
         }
-        /*
-        catName.style = `
-            position: absolute;
-            left: 10px;
-            top: calc(-1rem + 2px);
-            background: white;
-            padding: 0px 8px;
-            font-weight: bold;
-        `;
-        */
-        const divCat = mkElt("div", undefined, catName);
-        divCat.style = `
-            position: relative;
-            border: 1px solid gray;
-            border-radius: 8px;
-            padding: 10px;
-            padding-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            min-height: 30px;
-            min-width: 100px;
-        `;
         feedbackSignals.filter(entry => { return entry.category == category })
             .forEach(ent => {
                 const eltChk = mkElt("input", { type: "checkbox", value: ent.id });
@@ -395,11 +378,36 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
             })
         divCats.appendChild(divCat);
     });
-    const submitted = await modMdc.mkMDCdialogConfirm(body, "Submit", "Cancel");
+
+    /** @type {HTMLButtonElement|undefined} */ let btnSubmit;
+    function hasAllRequired() {
+        let hasAll = true;
+        setDivRequired.forEach(div => {
+            if (!div.querySelector("input:checked")) hasAll = false;
+        });
+        return hasAll;
+    }
+
+    divCats.addEventListener("change", evt => {
+        const target = evt.target;
+        console.log({ target });
+        const hasRequired = hasAllRequired();
+        console.log({ hasRequired });
+        if (!btnSubmit) throw Error("Does not have btnSubmit");
+        btnSubmit.disabled = !hasRequired;
+        // debugger;
+    });
+
+
+    /** @param {HTMLButtonElement} button */
+    const getSubmit = (button) => {
+        btnSubmit = button;
+        btnSubmit.disabled = true;
+    }
+    const submitted = await modMdc.mkMDCdialogConfirm(body, "Submit", "Cancel", undefined, getSubmit);
     console.log({ ans: submitted });
     if (submitted) {
         const arrChecked = [...body.querySelectorAll("input[type=checkbox]:checked")]
-            // .map(chk => { return chk.value; });
             .map(chk => chk.value);
         const userSignals = feedbackSignals.filter(fs => arrChecked.includes(fs.id));
         console.log({ userSignals });

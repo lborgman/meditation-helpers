@@ -387,11 +387,18 @@
             gap: 20px;
             padding: 20px;
 
+            div.cat-div {
+                position: relative;
+                padding: 15px;
+                border: 1px solid gray;
+                border-radius: 15px;
+            }
+
             .cat-name {
                 position: absolute;
                 left: 10px;
                 top: calc(-1rem + 2px);
-                background: white;
+                background: orange;
                 padding: 0px 8px;
                 font-weight: bold;
             }
@@ -403,11 +410,10 @@
                 padding: 2px 8px;
             }
 
-            div:has(input:checked) .cat-name::after {
+            div:has(input:checked) .cat-name.required::after {
                 color: unset;
                 background-color: yellowgreen;
                 border-radius: 3px;
-                content: "OK";
             }
         }
     </style>
