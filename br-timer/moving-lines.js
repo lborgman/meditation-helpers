@@ -1,10 +1,10 @@
 // @ts-check
-const MOVING_LINES_VER = "0.0.7";
+const MOVING_LINES_VER = "0.0.8";
 // @ts-ignore
 window["logConsoleHereIs"](`here is moving-lines-1.js, module, ${MOVING_LINES_VER}`);
 if (document.currentScript) { throw "moving-lines-1.js is not loaded as module"; }
 
-// const mkElt = window["mkElt"];
+const mkElt = window["mkElt"];
 // const errorHandlerAsyncEvent = window["errorHandlerAsyncEvent"];
 // @ts-ignore
 const importFc4i = window["importFc4i"];
@@ -321,13 +321,39 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
         "body",
         "breath"
     ];
+    const badCategories = [
+        "adverse",
+        "warning",
+    ];
     const RequiredCategories = [
         "mental",
         "body",
         "breath"
     ];
-    const divCats = mkElt("div");
-    divCats.classList.add("feedback-div-cats");
+
+    const chkSecurity = mkElt("input", { type: "checkbox" });
+    chkSecurity.id = "chk-security";
+    const lblSecurity = mkElt("label", undefined, [
+        mkElt("b", { style: "margin-right:10px;" }, "Right now none from adverse/warning:"),
+        chkSecurity
+    ]);
+    const divBadsecurity = mkElt("div", undefined, [
+        // lblSecurity
+    ]);
+    const divCatsBad = mkElt("div", undefined, divBadsecurity);
+    divCatsBad.classList.add("feedback-cats-bad");
+    divCatsBad.classList.add("feedback-cats");
+
+    const divCatsGood = mkElt("div");
+    divCatsGood.classList.add("feedback-cats-good");
+    divCatsGood.classList.add("feedback-cats");
+
+    const divCats = mkElt("div", undefined, [
+        lblSecurity,
+        divCatsBad,
+        divCatsGood
+    ]);
+    divCats.classList.add("feedback-cats");
 
     const howLong = (sec) => {
         const minutes = Math.floor(sec / 60);
@@ -375,8 +401,13 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
                     gap: 5px;
                 `;
                 divCat.appendChild(lbl);
-            })
+            });
         divCats.appendChild(divCat);
+        if (badCategories.includes(category)) {
+            divCatsBad.appendChild(divCat);
+        } else {
+            divCatsGood.appendChild(divCat);
+        }
     });
 
     /** @type {HTMLButtonElement|undefined} */ let btnSubmit;

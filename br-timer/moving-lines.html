@@ -381,7 +381,7 @@
 
 
         /*** Feedback dialog */
-        div.feedback-div-cats {
+        div.feedback-cats {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
@@ -393,6 +393,19 @@
                 border: 1px solid gray;
                 border-radius: 15px;
             }
+
+            .feedback-cats-bad {
+                div.cat-div {
+                    border: 4px solid gray;
+                }
+            }
+
+
+            .feedback-cats-good {
+                display: none;
+                /* outline: 4px dotted red; */
+            }
+
 
             .cat-name {
                 position: absolute;
@@ -414,6 +427,28 @@
                 color: unset;
                 background-color: yellowgreen;
                 border-radius: 3px;
+            }
+        }
+
+        div.feedback-cats:has(#chk-security:checked) {
+            .feedback-cats-good {
+                /* outline: 8px dotted blue; */
+                NOdisplay: unset;
+            }
+
+            .feedback-cats-bad {
+                label:has(input:checked) {
+                    color: red;
+                }
+            }
+        }
+
+        div.feedback-cats:has(#chk-security:checked):not(:has(.feedback-cats-bad input:checked)) {
+            .feedback-cats-good {
+                display: unset;
+            }
+            .feedback-cats-bad {
+                display: none;
             }
         }
     </style>

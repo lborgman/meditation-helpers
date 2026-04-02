@@ -133,7 +133,7 @@ const cacheImportFc4i = new Map();
 
         "local-settings": "../js/mod/local-settings.js",
 
-        "moving-lines": "./moving-lines-1.js",
+        "moving-lines": "./moving-lines.js",
         "my-svg": "./js/mod/my-svg.js",
 
         "sharing-params": "./src/js/mod/sharing-params.js",
