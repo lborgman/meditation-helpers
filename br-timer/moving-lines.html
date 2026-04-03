@@ -380,7 +380,50 @@
         }
 
 
+
+        /*********************/
         /*** Feedback dialog */
+        /*********************/
+        * {
+            scrollbar-gutter: stable;
+            scrollbar-width: thin;
+            scrollbar-color: #fff3 #0003;
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+                display: flex;
+            }
+
+            99% {
+                display: flex;
+            }
+
+            /* opacity animates automatically */
+            100% {
+                opacity: 0;
+                display: none;
+            }
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                display: none;
+            }
+
+            1% {
+                display: flex;
+            }
+
+            /* opacity still 0 */
+            100% {
+                opacity: 1;
+                display: flex;
+            }
+        }
+
         div.feedback-cats {
             display: flex;
             flex-wrap: wrap;
@@ -388,6 +431,9 @@
             padding: 20px;
 
             div.cat-div {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
                 position: relative;
                 padding: 15px;
                 border: 1px solid gray;
@@ -402,8 +448,12 @@
 
 
             .feedback-cats-good {
-                display: none;
-                /* outline: 4px dotted red; */
+                animation: fadeOut 2s forwards;
+            }
+
+            .feedback-cats-bad {
+                display: flex;
+                animation: fadeIn 2s forwards;
             }
 
 
@@ -431,12 +481,7 @@
         }
 
         div.feedback-cats:has(#chk-security:checked) {
-            .feedback-cats-good {
-                /* outline: 8px dotted blue; */
-                NOdisplay: unset;
-            }
-
-            .feedback-cats-bad {
+            div.feedback-cats-bad {
                 label:has(input:checked) {
                     color: red;
                 }
@@ -444,11 +489,14 @@
         }
 
         div.feedback-cats:has(#chk-security:checked):not(:has(.feedback-cats-bad input:checked)) {
-            .feedback-cats-good {
-                display: unset;
+            div.feedback-cats-good {
+                display: flex;
+                animation: fadeIn 2s 2s;
             }
-            .feedback-cats-bad {
-                display: none;
+
+            /* div.feedback-cats-bad { display: none; } */
+            div.feedback-cats-bad {
+                animation: fadeOut 2s forwards;
             }
         }
     </style>

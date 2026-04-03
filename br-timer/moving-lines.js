@@ -334,8 +334,8 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
     const chkSecurity = mkElt("input", { type: "checkbox" });
     chkSecurity.id = "chk-security";
     const lblSecurity = mkElt("label", undefined, [
-        mkElt("b", { style: "margin-right:10px;" }, "Right now none from adverse/warning:"),
-        chkSecurity
+        chkSecurity,
+        mkElt("b", { style: "margin-left:5px;" }, "None from adverse/warning:"),
     ]);
     const divBadsecurity = mkElt("div", undefined, [
         // lblSecurity
