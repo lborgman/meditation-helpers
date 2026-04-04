@@ -303,9 +303,9 @@ export const feedbackSignals = [
     { id: "urge_breathe", label: "Strong urge to breathe", category: "warning", severity: 3 },
 
     // --- Adverse (global safety signals) ---
-    { id: "dizzy", label: "Dizziness", category: "adverse", severity: 3 },
-    { id: "pressure", label: "Pressure in head", category: "adverse", severity: 3 },
-    { id: "panic", label: "Panic / discomfort", category: "adverse", severity: 3 },
+    { id: "dizzy", label: "Dizziness", category: "stop", severity: 3 },
+    { id: "pressure", label: "Pressure in head", category: "stop", severity: 3 },
+    { id: "panic", label: "Panic / discomfort", category: "stop", severity: 3 },
 ];
 
 /**
@@ -315,14 +315,14 @@ export const feedbackSignals = [
  */
 async function feedbackDialog(patternName, secondsPattsDuration) {
     const categories = [
-        "adverse",
+        "stop",
         "warning",
         "mental",
         "body",
         "breath"
     ];
     const badCategories = [
-        "adverse",
+        "stop",
         "warning",
     ];
     const RequiredCategories = [
@@ -426,6 +426,12 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
     categories.forEach(category => {
         const catName = mkElt("span", undefined, category);
         catName.classList.add("cat-name");
+        if (category == "stop") {
+            catName.classList.add("stop");
+        }
+        if (category == "warning") {
+            catName.classList.add("warn");
+        }
         const divCat = mkElt("div", undefined, catName);
         divCat.classList.add("cat-div");
         if (RequiredCategories.includes(category)) {
@@ -435,7 +441,9 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
         feedbackSignals.filter(entry => { return entry.category == category })
             .forEach(ent => {
                 const eltChk = mkElt("input", { type: "checkbox", value: ent.id });
-                const lbl = mkElt("label", undefined, [eltChk, ent.label]);
+                // const show = ent.label;
+                const show = `${ent.label} (${ent.severity})`;
+                const lbl = mkElt("label", undefined, [eltChk, show]);
                 lbl.style = `
                     display: inline-flex;
                     gap: 5px;
