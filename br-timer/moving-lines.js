@@ -337,23 +337,59 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
         chkSecurity,
         mkElt("b", { style: "margin-left:5px;" }, "None from adverse/warning:"),
     ]);
+    chkSecurity.addEventListener("click", _evt => {
+        const checked = chkSecurity.checked;
+        console.log({ checked });
+        let eltShow = checked ? divCatsGood : divCatsBad;
+        let eltHide = checked ? divCatsBad : divCatsGood;
+        switchPanels(eltHide, eltShow);
+
+        function switchPanels(current, next) {
+            console.log("%c********** switchPanels", "background:blue;color:white", current.id, next.id);
+
+            current.addEventListener('transitionend', () => {
+                console.log("%c********** current transition END", "color:red;")
+
+                current.classList.add('display-none');
+                console.log("current.add('display-none')");
+
+                next.classList.remove('display-none');
+                console.log("next.remove('display-none')");
+
+                next.style.opacity = "1";
+                console.log('next.style.opacity = "1"', next);
+
+                next.addEventListener('transitionend', () => {
+                    console.log("%c*** next transition END", "background-color:red;");
+                }, { once: true });
+            }, { once: true });
+
+            current.style.opacity = "0";
+            console.log('addev, current.style.opacity = "0"', current);
+        }
+    });
+
+
     const divBadsecurity = mkElt("div", undefined, [
         // lblSecurity
     ]);
     const divCatsBad = mkElt("div", undefined, divBadsecurity);
-    divCatsBad.classList.add("feedback-cats-bad");
-    divCatsBad.classList.add("feedback-cats");
+    divCatsBad.id = "div-cats-bad";
+    divCatsBad.style.opacity = "1";
+    divCatsBad.classList.add("panel");
 
     const divCatsGood = mkElt("div");
-    divCatsGood.classList.add("feedback-cats-good");
-    divCatsGood.classList.add("feedback-cats");
+    divCatsGood.id = "div-cats-good";
+    divCatsGood.style.opacity = "0";
+    divCatsGood.classList.add("display-none");
+    divCatsGood.classList.add("panel");
 
     const divCats = mkElt("div", undefined, [
         lblSecurity,
         divCatsBad,
         divCatsGood
     ]);
-    divCats.classList.add("feedback-cats");
+    divCats.id = "feedback-cats";
 
     const howLong = (sec) => {
         const minutes = Math.floor(sec / 60);
@@ -381,6 +417,7 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
         divCats
     ]);
     body.classList.add("colored-dialog");
+    body.style.height = "80vh";
 
     const setDivRequired = new Set();
     categories.forEach(category => {
