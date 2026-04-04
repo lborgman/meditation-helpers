@@ -338,6 +338,10 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
         mkElt("b", { style: "margin-left:5px;" }, "None from adverse/warning:"),
     ]);
     chkSecurity.addEventListener("click", _evt => {
+        if (hasAdversed()) {
+            alert("You have notied adverse/yyy");
+            return;
+        }
         const checked = chkSecurity.checked;
         console.log({ checked });
         let eltShow = checked ? divCatsGood : divCatsBad;
@@ -370,10 +374,7 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
     });
 
 
-    const divBadsecurity = mkElt("div", undefined, [
-        // lblSecurity
-    ]);
-    const divCatsBad = mkElt("div", undefined, divBadsecurity);
+    const divCatsBad = mkElt("div", undefined);
     divCatsBad.id = "div-cats-bad";
     divCatsBad.style.opacity = "1";
     divCatsBad.classList.add("panel");
@@ -410,10 +411,12 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
         padding: 8px;
         border-radius: 4px;
     `;
+    const eltNoticeNow = mkElt("div", undefined, "What do you notice now in yourself?");
+    eltNoticeNow.id = "notice-now";
     const body = mkElt("div", undefined, [
         eltCompleted,
         mkElt("h2", { style: "margin-bottom:5px;" }, "Feedback for progress"),
-        mkElt("div", undefined, "What do you feel?"),
+        eltNoticeNow,
         divCats
     ]);
     body.classList.add("colored-dialog");
@@ -455,13 +458,21 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
         });
         return hasAll;
     }
+    function hasAdversed() {
+        return divCatsBad.querySelector("input:checked") != null;
+    }
 
     divCats.addEventListener("change", evt => {
-        const target = evt.target;
-        console.log({ target });
+        if (!btnSubmit) throw Error("Does not have btnSubmit");
+        if (hasAdversed()) {
+            btnSubmit.disabled = false;
+            return;
+        }
+        // const target = evt.target;
+        // console.log({ target });
         const hasRequired = hasAllRequired();
         console.log({ hasRequired });
-        if (!btnSubmit) throw Error("Does not have btnSubmit");
+
         btnSubmit.disabled = !hasRequired;
         // debugger;
     });
