@@ -16,6 +16,15 @@ class OurLocalSetting extends modLocalSettings.LocalSetting {
     }
 }
 
+function getSettingSpeed(patternName) {
+    const settingSpeed = new OurLocalSetting(`patternspeed-${patternName}`, 1);
+    return settingSpeed;
+}
+function getSettingCheckSpeed(patternName) {
+    const settingSpeed = new OurLocalSetting(`patterncheckspeed-${patternName}`, true);
+    return settingSpeed;
+}
+
 const modTools = await importFc4i("toolsJs");
 const modMdc = await importFc4i("util-mdc");
 const modSound = await importFc4i("user-sound");
@@ -311,7 +320,7 @@ export const feedbackSignals = [
 /**
  * 
  * @param {string} patternName 
- * @param {string} varPart
+ * @param {string|undefined} varPart
  * @param {number} secondsPattsDuration 
  */
 async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
@@ -509,9 +518,14 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         console.log({ minSeverity, maxSeverity, meanSeverity });
         userSignals.forEach(us => { console.log(us.label, us.category, us.severity); });
 
-        const p = getPatternByName(patternName);
-        const ls = p.patt[varPart];
-        if (!(ls instanceof OurLocalSetting)) throw Error(`Not OurLocalSetting`);
+        let ls;
+        if (varPart) {
+            const p = getPatternByName(patternName);
+            ls = p.patt[varPart];
+            if (!(ls instanceof OurLocalSetting)) throw Error(`Not OurLocalSetting`);
+        } else {
+            ls = getSettingSpeed(patternName);
+        }
         const val = ls.valueN;
         // FIX-ME:
         function safeMath(expr) {
@@ -528,19 +542,19 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         switch (maxSeverity) {
             case 3:
                 // debugger;
-                change = "1 / 2";
+                change = "5 / 7";
                 break;
             case 2:
                 // debugger;
-                change = "2 / 3";
+                change = "6 / 7";
                 break;
             case 1:
                 // debugger;
-                change = "6 / 7";
+                // change = "1";
                 break;
             case 0:
                 // debugger;
-                change = "7.5 / 7";
+                change = "8 / 7";
                 break;
             default:
                 const msg = `Bad maxSeverity: "${maxSeverity}"`;
@@ -548,18 +562,27 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
                 debugger;
                 throw Error(msg);
         }
+        if (!change) {
+            modMdc.mkMDCsnackbar("Feedback suggest no change");
+            return;
+        }
         if (change) {
             const mult = safeMath(change);
             const newVal = mult * val;
             ls.value = newVal;
-            const textForParts = {
-                holdLow: "Hold low",
-                breathIn: "Inhale",
-                holdHigh: "Hold high",
-                breathOut: "Exhale",
+            let msg;
+            if (varPart) {
+                const textForParts = {
+                    holdLow: "Hold low",
+                    breathIn: "Inhale",
+                    holdHigh: "Hold high",
+                    breathOut: "Exhale",
+                }
+                const varPartUI = textForParts[varPart];
+                msg = `New "${varPartUI}" length: ${strMultiplier(mult)} => ${strMultiplier(newVal)}`;
+            } else {
+                msg = `New ${patternName} speed: ${strMultiplier(mult)} => ${strMultiplier(newVal)}`;
             }
-            const varPartUI = textForParts[varPart];
-            const msg = `New "${varPartUI}" length: ${mult} => ${newVal}`;
             modMdc.mkMDCsnackbar(msg);
         }
 
@@ -2010,16 +2033,19 @@ function checkRedraw() {
             }
         });
         */
+        const patternName = settingPattern.valueS;
         const varPart = getPatternVarPart(currentPatt.patt);
         if (varPart) {
-            const patternName = settingPattern.valueS;
             const feedbackFun = patternFeedbackFun[patternName];
             if (feedbackFun) {
                 feedbackFun(varPart);
             } else {
                 feedbackDialog(patternName, varPart, secondsPattsDuration);
             }
+        } else {
+            feedbackDialog(patternName, undefined, secondsPattsDuration);
         }
+
         return false;
     }
     if (numChecks > 100) {
@@ -2553,10 +2579,16 @@ async function setupControls(controlscontainer) {
             `;
 
 
-    const chkSpeed = mkElt("input", { type: "checkbox" });
+    // debugger;
+    const patternName = settingPattern.value;
+    const settingSpeed = getSettingSpeed(patternName);
+    // const chkSpeed = mkElt("input", { type: "checkbox" });
+    const settingCheckSpeed = getSettingCheckSpeed(patternName);
+    // debugger;
+    const chkSpeed = settingCheckSpeed.getInputElement();
     chkSpeed.checked = true;
     const lblSpeed = mkElt("label", undefined, [
-        chkSpeed, "Your speed: 1"
+        chkSpeed, `Your speed: ${strMultiplier(settingSpeed.valueN)}`
     ]);
     lblSpeed.style = `
         outline: 1px dotted red;
@@ -2897,3 +2929,58 @@ async function dialogTestSounds() {
     const modSound = await import(linkSound);
     modSound.dialogTestWAsound();
 }
+
+/**
+ * @param {number} mult
+ * @returns {string}
+ */
+function strMultiplier(mult) {
+    return toPrecision(mult, 2);
+}
+
+/**
+ * @param {number} number
+ * @param {number} precision - integer
+ * @returns {string}
+ */
+function toPrecision(number, precision) {
+    // Validate inputs
+    if (typeof number !== 'number' || isNaN(number)) {
+        throw new Error('First argument must be a valid number');
+    }
+    if (!Number.isInteger(precision) || precision < 1) {
+        throw new Error('Precision must be a positive integer');
+    }
+
+    // Handle zero
+    if (number === 0) {
+        return '0' + (precision > 1 ? '.' + '0'.repeat(precision - 1) : '');
+    }
+
+    // Calculate how many decimal places we need
+    const magnitude = Math.floor(Math.log10(Math.abs(number)));
+    const decimalPlaces = precision - magnitude - 1;
+
+    if (decimalPlaces < 0) {
+        // Need to round to integer with fewer digits
+        const factor = Math.pow(10, precision - 1);
+        const rounded = Math.round(number / Math.pow(10, magnitude - precision + 1))
+            * Math.pow(10, magnitude - precision + 1);
+        return rounded.toString();
+    } else {
+        // Use toFixed with calculated decimal places
+        return number.toFixed(decimalPlaces);
+    }
+}
+
+// Test with various cases
+/*
+console.log(toPrecision(123.456, 5));    // "123.46"
+console.log(toPrecision(123.456, 3));    // "123"
+console.log(toPrecision(123.456, 2));    // "120"
+console.log(toPrecision(0.00123456, 3)); // "0.001"
+console.log(toPrecision(0.00123456, 5)); // "0.0012346"
+console.log(toPrecision(1234, 2));       // "1200"
+console.log(toPrecision(5, 3));          // "5.00"
+console.log(toPrecision(0.0005, 2));     // "0.0005"
+*/
