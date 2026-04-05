@@ -2541,9 +2541,6 @@ async function setupControls(controlscontainer) {
 
 
 
-    const eltPatternInfo = TSmkElt("span", undefined, "Wait")
-    eltPatternInfo.id = "elt-pattern-info";
-
     const eltPatternButtons = TSmkElt("span", undefined, [
         // fabImages,
         fabPattern,
@@ -2556,14 +2553,39 @@ async function setupControls(controlscontainer) {
             `;
 
 
+    const chkSpeed = mkElt("input", { type: "checkbox" });
+    chkSpeed.checked = true;
+    const lblSpeed = mkElt("label", undefined, [
+        chkSpeed, "Your speed: 1"
+    ]);
+    lblSpeed.style = `
+        outline: 1px dotted red;
+    `;
+
+    const eltPatternInfo = TSmkElt("span", undefined, "Wait")
+    eltPatternInfo.id = "elt-pattern-info";
+
+    const eltPatternInfoOuter = mkElt("span", undefined, [
+        eltPatternInfo, lblSpeed
+    ])
+    eltPatternInfoOuter.style = `
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    `;
+
+
+
+
     const divPattern = TSmkElt("p", undefined, [
         eltPatternButtons,
-        eltPatternInfo,
+        eltPatternInfoOuter,
     ]);
     divPattern.id = "div-pattern";
     // @ts-ignore style
     divPattern.style = `
                 display: flex;
+                align-items: center;
                 gap: 10px;
                 margin-top: 40px;
             `;
