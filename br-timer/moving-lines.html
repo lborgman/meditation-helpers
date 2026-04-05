@@ -389,16 +389,32 @@
             display: flex;
             flex-wrap: wrap;
             gap: 17px;
-            transition: opacity 3s ease;
+            opacity: 1;
+            transform: none;
+            transition: opacity 4s, transform 4s, display 1s 4s;
+            transition-behavior: allow-discrete;
+
+        }
+
+        .panel.hidden {
+            display: none;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 4s 4s, transform 4s 4s, display 0s;
+            transition-behavior: allow-discrete;
+        }
+
+        @starting-style {
+            .panel:not(.hidden) {
+                opacity: 0;
+            }
         }
 
         /* .panel.fading-out { opacity: 0 !important; } */
 
         /* .panel.fading-in { opacity: 1 !important; } */
 
-        .display-none {
-            display: none;
-        }
+        /* .display-none { display: none; } */
 
 
 
@@ -428,9 +444,22 @@
                 border-radius: 15px;
             }
 
+            .cat-name {
+                position: absolute;
+                left: 10px;
+                top: calc(-1rem + 2px);
+                background: orange;
+                padding: 0px 8px;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                text-transform: capitalize;
+            }
+
+
             #div-cats-bad {
 
-                /* opacity: 1; */
                 div.cat-div {
                     border: 4px solid gray;
                 }
@@ -456,22 +485,6 @@
                 }
 
 
-
-                /* #div-cats-good { opacity: 0; } */
-
-
-                .cat-name {
-                    position: absolute;
-                    left: 10px;
-                    top: calc(-1rem + 2px);
-                    background: orange;
-                    padding: 0px 8px;
-                    font-weight: bold;
-                    display: flex;
-                    align-items: center;
-                    gap: 7px;
-                    text-transform: capitalize;
-                }
 
                 .cat-name.required::after {
                     color: red;

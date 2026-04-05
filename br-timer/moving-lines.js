@@ -311,9 +311,10 @@ export const feedbackSignals = [
 /**
  * 
  * @param {string} patternName 
+ * @param {string} varPart
  * @param {number} secondsPattsDuration 
  */
-async function feedbackDialog(patternName, secondsPattsDuration) {
+async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
     const categories = [
         "stop",
         "warning",
@@ -351,6 +352,10 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
         function switchPanels(current, next) {
             console.log("%c********** switchPanels", "background:blue;color:white", current.id, next.id);
 
+            current.classList.add('hidden');
+            next.classList.remove('hidden');
+            return;
+
             current.addEventListener('transitionend', () => {
                 console.log("%c********** current transition END", "color:red;")
 
@@ -376,14 +381,12 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
 
     const divCatsBad = mkElt("div", undefined);
     divCatsBad.id = "div-cats-bad";
-    divCatsBad.style.opacity = "1";
     divCatsBad.classList.add("panel");
 
     const divCatsGood = mkElt("div");
     divCatsGood.id = "div-cats-good";
-    divCatsGood.style.opacity = "0";
-    divCatsGood.classList.add("display-none");
     divCatsGood.classList.add("panel");
+    divCatsGood.classList.add("hidden");
 
     const divCats = mkElt("div", undefined, [
         lblSecurity,
@@ -505,7 +508,60 @@ async function feedbackDialog(patternName, secondsPattsDuration) {
         const meanSeverity = calculateMean(severities);
         console.log({ minSeverity, maxSeverity, meanSeverity });
         userSignals.forEach(us => { console.log(us.label, us.category, us.severity); });
-        debugger;
+
+        const p = getPatternByName(patternName);
+        const ls = p.patt[varPart];
+        if (!(ls instanceof OurLocalSetting)) throw Error(`Not OurLocalSetting`);
+        const val = ls.valueN;
+        // FIX-ME:
+        function safeMath(expr) {
+            const tofExpr = typeof expr;
+            if (tofExpr != "string") throw Error(`typeof expr == "${tofExpr}"`);
+            if (!/^[0-9+\-*/().\s^]+$/.test(expr)) {
+                throw Error(`Invalid expression: "${expr}"`);
+            }
+            // return eval(expr);
+            const f = new Function(`return eval(${expr})`)
+            return f();
+        }
+        /** @type {string|undefined} */ let change;
+        switch (maxSeverity) {
+            case 3:
+                // debugger;
+                change = "1 / 2";
+                break;
+            case 2:
+                // debugger;
+                change = "2 / 3";
+                break;
+            case 1:
+                // debugger;
+                change = "6 / 7";
+                break;
+            case 0:
+                // debugger;
+                change = "7.5 / 7";
+                break;
+            default:
+                const msg = `Bad maxSeverity: "${maxSeverity}"`;
+                console.error(msg);
+                debugger;
+                throw Error(msg);
+        }
+        if (change) {
+            const mult = safeMath(change);
+            const newVal = mult * val;
+            ls.value = newVal;
+            const textForParts = {
+                holdLow: "Hold low",
+                breathIn: "Inhale",
+                holdHigh: "Hold high",
+                breathOut: "Exhale",
+            }
+            const varPartUI = textForParts[varPart];
+            const msg = `New "${varPartUI}" length: ${mult} => ${newVal}`;
+            modMdc.mkMDCsnackbar(msg);
+        }
 
         function calculateMean(arr) {
             const sum = arr.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
@@ -676,6 +732,11 @@ function findPatternValue(patt) {
 
 const cachedYourPatterns = {};
 
+/**
+ * 
+ * @param {string} name 
+ * @returns 
+ */
 function getPatternByName(name) {
     const pattRec = breathPatterns[name];
     if (pattRec) { return pattRec; }
@@ -698,6 +759,18 @@ function getPatternByName(name) {
     );
     cachedYourPatterns[name] = n;
     return n;
+}
+function getPatternVarPart(pattern) {
+    // console.warn("getPatternVarPart", pattern);
+    // debugger;
+    let varPart;
+    Object.entries(pattern).forEach(entry => {
+        const [name, val] = entry;
+        if (typeof val != "number") {
+            varPart = name;
+        }
+    });
+    return varPart;
 }
 
 function tellCurrentPatternParts() {
@@ -1928,6 +2001,7 @@ function checkRedraw() {
 
         // currentPatt = getPatternByName(settingPattern.value);
         // builtin
+        /*
         let varPart;
         Object.entries(currentPatt.patt).forEach(entry => {
             const [name, val] = entry;
@@ -1935,13 +2009,15 @@ function checkRedraw() {
                 varPart = name;
             }
         });
+        */
+        const varPart = getPatternVarPart(currentPatt.patt);
         if (varPart) {
             const patternName = settingPattern.valueS;
             const feedbackFun = patternFeedbackFun[patternName];
             if (feedbackFun) {
                 feedbackFun(varPart);
             } else {
-                feedbackDialog(patternName, secondsPattsDuration);
+                feedbackDialog(patternName, varPart, secondsPattsDuration);
             }
         }
         return false;
