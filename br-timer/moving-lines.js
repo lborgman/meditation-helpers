@@ -413,7 +413,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         grp.options.forEach(opt => {
             const { id, label, severity } = opt;
             const value = [severity, id, label].join(";");
-            const rad = mkElt("input", {type:"radio", name:grp.id, value});
+            const rad = mkElt("input", { type: "radio", name: grp.id, value });
             spanPoints.append(rad);
         });
         const divAnswer = mkElt("div", undefined, [
@@ -611,7 +611,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         console.log({ userSignals });
         debugger;
         // const severities = userSignals.map(us => us.severity)
-        const severities =[...userSignals].map(inp => {
+        const severities = [...userSignals].map(inp => {
             const v = inp.value; const [s] = v.split(";"); return s;
         });
 
@@ -1049,7 +1049,7 @@ async function dialogImages() {
     modExtImages.dialogImages(myGooglePhotos, setCanvasBackgroundToCurrent);
 }
 async function dialogPattern() {
-    const modMdc = await importFc4i("util-mdc");
+    // const modMdc = await importFc4i("util-mdc");
     const OLDdivPattList = TSmkElt("div");
     OLDdivPattList.id = "OLD-div-patt-list";
     // @ts-ignore style
@@ -2307,8 +2307,6 @@ async function setupControls(controlscontainer) {
         // modL2S.secFlashPoint = settingFlashPoint.value;
         modL2S.setSecFlashPoint(settingFlashPoint.value);
         modL2S.addFlashPoint();
-        // @ts-ignore import
-        const modMdc = await import("util-mdc");
         const msg = `secFlashPoint: ${modL2S.getSecFlashPoint()}`;
         const eltMsg = TSmkElt("span", undefined, msg);
         eltMsg.style.backgroundColor = "red";
@@ -2317,8 +2315,6 @@ async function setupControls(controlscontainer) {
         modMdc.mkMDCsnackbar(eltMsg);
     }
     settingNumPatts = new OurLocalSetting("num-patts", 1.5);
-    // const modMdc = await TSDEFimport("util-mdc");
-    const modMdc = await importFc4i("util-mdc");
     const iconStart = modMdc.mkMDCicon("play_arrow");
     const btnStart = modMdc.mkMDCiconButton(iconStart, "Start");
     btnStart.id = "start-button";
@@ -2402,27 +2398,16 @@ async function setupControls(controlscontainer) {
         return div;
     })();
 
-    // const iconSettings = modMdc.mkMDCicon("settings");
-    // const iconSettings = modMdc.mkMDCicon("settings_heart");
     const iconSettings = modMdc.mkMDCicon("video_settings");
     const btnSettings = modMdc.mkMDCiconButton(iconSettings, "Start");
+    btnSettings.title = "Debug help";
+    btnSettings.style.color = "blueviolet";
     btnSettings.addEventListener("click", async evt => {
-        /*
-        Just useless. Impossible to get to work!
-        // mkMDCslider(min, max, now, step, label, onChange, onInput) 
-        // const eltSlider = await modMdc.mkMDCslider(0.8, 1.2, 1.0, 0.05, "Counts to seconds");
-        const eltSlider = await modMdc.mkMDCslider(80, 120, 100, undefined, "Counts to seconds");
-        const divSlider = TSmkElt("p", undefined, [
-            "Counts to seconds:", eltSlider,
-        ]);
-        divSlider.style = `
-            background-color: red;
-        `;
-        */
 
 
         // https://www.w3schools.com/howto/howto_js_rangeslider.asp
 
+        /*
         // Looks like values should be integers.
         const inpSpeed = document.createElement("input");
         inpSpeed.type = "range";
@@ -2444,11 +2429,6 @@ async function setupControls(controlscontainer) {
 
         const inpSpeedContainer = TSmkElt("div", undefined, inpSpeed);
         inpSpeedContainer.classList.add("slidecontainer");
-        /*
-        inpRange.addEventListener("input", evt => {
-            console.log("input inpRange", inpRange.value);
-        });
-        */
         const divSpeed = TSmkElt("div", undefined, [
             TSmkElt("div", undefined, [
                 "Speed, counts per seconds (",
@@ -2485,9 +2465,9 @@ async function setupControls(controlscontainer) {
         const divVKworkaround = TSmkElt("div", undefined, [
             TSmkElt("div", undefined, lblUseVKworkaround),
         ]);
+        */
 
-        const inpMinOrSec = TSmkElt("input", { type: "checkbox" });
-        settingDurationIsInSeconds.bindToInput(inpMinOrSec);
+        const inpMinOrSec = settingDurationIsInSeconds.getInputElement();
         const lblMinOrSec = TSmkElt("label", undefined, [
             inpMinOrSec, "Duration in seconds",
         ]);
@@ -2497,9 +2477,10 @@ async function setupControls(controlscontainer) {
             TSmkElt("div", undefined, lblMinOrSec),
         ]);
 
-        const inpFlashPoint = TSmkElt("input", { type: "number" });
+        // const inpFlashPoint = TSmkElt("input", { type: "number" });
+        // settingFlashPoint.bindToInput(inpFlashPoint);
+        const inpFlashPoint = settingFlashPoint.getInputElement();
         inpFlashPoint.style.width = "30px";
-        settingFlashPoint.bindToInput(inpFlashPoint);
         const lblFlashPoint = TSmkElt("label", undefined, [
             "Flash point, seconds: ", inpFlashPoint
         ]);
@@ -2568,7 +2549,7 @@ async function setupControls(controlscontainer) {
 
         const divDebug = TSmkElt("div", undefined, [
             TSmkElt("h3", undefined, "Debug"),
-            divVKworkaround,
+            // divVKworkaround,
             divMinOrSec,
             divFlashPoint,
             divNWcard,
@@ -2588,8 +2569,8 @@ async function setupControls(controlscontainer) {
             divDebug
         ]);
         const divColumn = TSmkElt("div", undefined, [
-            divSpeed,
-            divNumPatts,
+            // divSpeed,
+            // divNumPatts,
             divClearData,
             divDebugDetails,
         ]);
@@ -2626,7 +2607,7 @@ async function setupControls(controlscontainer) {
             TSmkElt("h2", undefined, "Play settings"),
             divColumn,
         ]);
-        await modMdc.mkMDCdialogConfirm(bdy, "Close", false);
+        await modMdc.mkMDCdialogConfirm(bdy, "Close", null);
         initCurrentPattern();
     });
     btnSettings.id = "settings-button";
@@ -2689,11 +2670,15 @@ async function setupControls(controlscontainer) {
     // const chkSpeed = mkElt("input", { type: "checkbox" });
     const settingCheckSpeed = getSettingCheckSpeed(patternName);
     // debugger;
-    const chkSpeed = settingCheckSpeed.getInputElement();
-    chkSpeed.checked = true;
-    const lblSpeed = mkElt("label", undefined, [
-        chkSpeed, `Your speed: ${strMultiplier(settingSpeed.valueN)}`
-    ]);
+    const lblSpeed = mkSpanSpeed();
+    function mkSpanSpeed() {
+        // const chkSpeed = settingCheckSpeed.getInputElement();
+        // chkSpeed.checked = true;
+        const spanSpeed = mkElt("span", undefined, [
+            `${strMultiplier(settingSpeed.valueN)} seconds`
+        ]);
+        return spanSpeed;
+    }
     lblSpeed.style = `
         outline: 1px dotted red;
     `;
@@ -2858,8 +2843,7 @@ export async function setupThings() {
     setCanvasBackgroundToCurrent();
 }
 async function addInfoButton(container) {
-    // const modMdc = await TSDEFimport("util-mdc");
-    const modMdc = await importFc4i("util-mdc");
+    // const modMdc = await importFc4i("util-mdc");
     const iconInfo = modMdc.mkMDCicon("info");
     iconInfo.style.fontSize = "2.5rem";
     iconInfo.style.color = "mediumslateblue";
@@ -2911,7 +2895,7 @@ async function dialogAndroidVKinfo() {
     const IDexplainVKbug = "explain-android-vk-bug";
     if (document.getElementById(IDexplainVKbug)) return;
     // @ts-ignore import
-    const modMdc = await import("util-mdc");
+    // const modMdc = await import("util-mdc");
     const linkIssue = "https://issues.chromium.org/issues/347967487";
     const aIssue = TSmkElt("a", { href: linkIssue }, "chromium issue 347967487");
     const divExplain = TSmkElt("div", undefined, [
@@ -2943,7 +2927,7 @@ async function setup4Android(container) {
     }
     if (isAndroid == false) return;
     // const modMdc = await TSDEFimport("util-mdc");
-    const modMdc = await importFc4i("util-mdc");
+    // const modMdc = await importFc4i("util-mdc");
     const iconAndroid = modMdc.mkMDCicon("android");
     iconAndroid.style.fontSize = "2.5rem";
     iconAndroid.style.color = "#3DDC84";
@@ -3004,7 +2988,7 @@ function makeDialogsFixed() {
 
 async function addTestSoundButton(container) {
     // const modMdc = await TSDEFimport("util-mdc");
-    const modMdc = await importFc4i("util-mdc");
+    // const modMdc = await importFc4i("util-mdc");
     const iconSound = modMdc.mkMDCicon("flutter_dash");
     iconSound.style.fontSize = "2.5rem";
     iconSound.style.color = "red";
