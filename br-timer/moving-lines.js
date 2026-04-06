@@ -294,9 +294,10 @@ const OLDfeedbackSignals = [
     { id: "neutral_body", label: "Neutral", category: "body", severity: 0 },
 
     { id: "tense", label: "Tense", category: "body", severity: 1 },
-    { id: "tight_chest", label: "Tight chest", category: "body", severity: 2 },
     { id: "tight_jaw", label: "Tight jaw", category: "body", severity: 1 },
     { id: "restless", label: "Restless", category: "body", severity: 1 },
+    { id: "tight_chest", label: "Tight chest", category: "body", severity: 2 },
+    { id: "agitated", label: "Agitated", category: "body", severity: 2 },
 
     // --- Breath quality ---
     { id: "smooth", label: "Smooth", category: "breath", severity: 0 },
@@ -322,10 +323,12 @@ const feedbackGroups = [
         id: "mental",
         label: "Mind",
         endPoints: "Calm;Restless",
+        // endPoints: "Calm;Agitated",
         options: [
             { id: "mental_calm", label: "Calm / clear", severity: 0 },
             { id: "mental_ok", label: "OK", severity: 1 },
-            { id: "mental_anxious", label: "Anxious / uneasy", severity: 2 }
+            { id: "mental_anxious", label: "Anxious / uneasy", severity: 2 },
+            { id: "mental_agitated", label: "Agitated", severity: 3 },
         ]
     },
     {
@@ -514,13 +517,37 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         padding: 8px;
         border-radius: 4px;
     `;
+
+    const settingSpeed = getSettingSpeed(patternName);
+    const eltOldSpeed = mkEltSpeed(settingSpeed.valueN, true);
+    const eltNewSpeed = mkEltSpeed(98, true);
+    const eltShowChanges = mkElt("div", undefined, [
+        mkElt("b", undefined, "Current (s/count):"),
+        eltOldSpeed,
+        "=>",
+        eltNewSpeed,
+    ]);
+    eltShowChanges.style = `
+        display: flex;
+        gap: 10px;
+        margin-left: 15px;
+    `;
+    const pSpeedValue = mkElt("p", undefined, [
+        eltShowChanges
+    ]);
+
+    const divSpeed = mkElt("div", undefined, [
+        mkElt("p", undefined, "Your feedback changes the speed of the pattern:"),
+        pSpeedValue,
+    ]);
     const eltNoticeNow = mkElt("div", undefined, "What do you notice now in yourself?");
     eltNoticeNow.id = "notice-now";
     const body = mkElt("div", undefined, [
         eltCompleted,
         mkElt("h2", { style: "margin-bottom:5px;" }, "Feedback for progress"),
         eltNoticeNow,
-        divCats
+        divCats,
+        divSpeed
     ]);
     body.classList.add("colored-dialog");
     body.style.height = "80vh";
@@ -917,7 +944,6 @@ function tellCurrentPatternParts() {
 
     const divPatternInfo = document.getElementById("elt-pattern-info");
     if (!divPatternInfo) throw Error("Could not find 'elt-pattern-info'");
-    // const divPatternInfo = TSgetElementByIdOrThrow( "elt-pattern-info", "Could not find 'elt-pattern-info'");
     // @ts-ignore style
     divPatternInfo.style = `
                 display: inline-flex;
@@ -926,14 +952,20 @@ function tellCurrentPatternParts() {
                 margin-right: 10px;
             `;
     divPatternInfo.textContent = "";
-    const eltName = TSmkElt("span", undefined, settingPattern.value);
+    const patternName = settingPattern.value;
+    const eltName = TSmkElt("span", undefined, patternName);
     // @ts-ignore style
     eltName.style = `
                     font-weight: bold;
                 `;
     divPatternInfo.appendChild(eltName);
 
-    // const pattName = settingPattern.value;
+    const eltPatternSpeed = document.getElementById("elt-pattern-speed");
+    if (!eltPatternSpeed) throw Error("Could not find 'elt-pattern-speed'");
+    eltPatternSpeed.textContent = "";
+    const settingSpeed = getSettingSpeed(patternName);
+    eltPatternSpeed.appendChild(mkEltSpeed(settingSpeed.valueN));
+
     let pattRec = getPatternByName(settingPattern.value);
     // Check pattern exists
     if (!pattRec) {
@@ -1124,8 +1156,7 @@ async function dialogPattern() {
             mkElt("span", { style: "color:mediumvioletred; font-style:italic;" }, " I will make a lot of changes here!")
         ]),
 
-        OLDdetPattList,
-        NEWdetPattList,
+        OLDdivPattList,
     ]);
     bdy.id = "dialog-pattern";
     // const currentPattern = settingPattern.value;
@@ -1353,7 +1384,7 @@ async function dialogPattern() {
             debugger;
             return;
         }
-        debugger;
+        // debugger;
         const targetName = target.name;
         if (targetName != "pattName") {
             debugger;
@@ -2400,7 +2431,7 @@ async function setupControls(controlscontainer) {
 
     const iconSettings = modMdc.mkMDCicon("video_settings");
     const btnSettings = modMdc.mkMDCiconButton(iconSettings, "Start");
-    btnSettings.title = "Debug help";
+    btnSettings.title = "- Debug help";
     btnSettings.style.color = "blueviolet";
     btnSettings.addEventListener("click", async evt => {
 
@@ -2667,18 +2698,9 @@ async function setupControls(controlscontainer) {
     // debugger;
     const patternName = settingPattern.value;
     const settingSpeed = getSettingSpeed(patternName);
-    // const chkSpeed = mkElt("input", { type: "checkbox" });
-    const settingCheckSpeed = getSettingCheckSpeed(patternName);
-    // debugger;
-    const lblSpeed = mkSpanSpeed();
-    function mkSpanSpeed() {
-        // const chkSpeed = settingCheckSpeed.getInputElement();
-        // chkSpeed.checked = true;
-        const spanSpeed = mkElt("span", undefined, [
-            `${strMultiplier(settingSpeed.valueN)} seconds`
-        ]);
-        return spanSpeed;
-    }
+    const lblSpeed = mkElt("span", undefined, mkEltSpeed(settingSpeed.valueN));
+    lblSpeed.id = "elt-pattern-speed";
+
     lblSpeed.style = `
         outline: 1px dotted red;
     `;
@@ -3072,3 +3094,15 @@ console.log(toPrecision(1234, 2));       // "1200"
 console.log(toPrecision(5, 3));          // "5.00"
 console.log(toPrecision(0.0005, 2));     // "0.0005"
 */
+
+/**
+ * @param {number} speed
+ * @param {boolean} [onlyDigits]
+ * @returns {HTMLSpanElement}
+ */
+function mkEltSpeed(speed, onlyDigits = false) {
+    let str = strMultiplier(speed);
+    if (!onlyDigits) str = str.concat(" s/count");
+    const elt = mkElt("span", undefined, str);
+    return elt;
+}
