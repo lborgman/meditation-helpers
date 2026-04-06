@@ -276,7 +276,7 @@ const patternFeedbackFun = {
 }
 
 
-export const feedbackSignals = [
+const OLDfeedbackSignals = [
     // --- Mental (positive / neutral) ---
     { id: "calm", label: "Calm", category: "mental", severity: 0 },
     { id: "focused", label: "Focused", category: "mental", severity: 0 },
@@ -317,6 +317,40 @@ export const feedbackSignals = [
     { id: "panic", label: "Panic / discomfort", category: "stop", severity: 3 },
 ];
 
+const feedbackGroups = [
+    {
+        id: "mental",
+        label: "Mind",
+        endPoints: "Calm;Restless",
+        options: [
+            { id: "mental_calm", label: "Calm / clear", severity: 0 },
+            { id: "mental_ok", label: "OK", severity: 1 },
+            { id: "mental_anxious", label: "Anxious / uneasy", severity: 2 }
+        ]
+    },
+    {
+        id: "body",
+        label: "Body",
+        endPoints: "Relaxed;Tense",
+        options: [
+            { id: "body_relaxed", label: "Relaxed", severity: 0 },
+            { id: "body_ok", label: "OK", severity: 1 },
+            { id: "body_tense", label: "Tension / effort", severity: 2 },
+            { id: "body_uncomfortable", label: "Uncomfortable", severity: 3 }
+        ]
+    },
+    {
+        id: "breath",
+        label: "Breath",
+        endPoints: "Easy;Air hunger",
+        options: [
+            { id: "breath_smooth", label: "Smooth / easy", severity: 0 },
+            { id: "breath_ok", label: "OK", severity: 1 },
+            { id: "breath_unsteady", label: "Unsteady", severity: 2 },
+            { id: "breath_air_hunger", label: "Air hunger", severity: 3 }
+        ]
+    }
+];
 /**
  * 
  * @param {string} patternName 
@@ -324,6 +358,7 @@ export const feedbackSignals = [
  * @param {number} secondsPattsDuration 
  */
 async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
+    /*
     const categories = [
         "stop",
         "warning",
@@ -340,7 +375,62 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         "body",
         "breath"
     ];
+    */
+    const groups = Object.keys(feedbackGroups);
+    // debugger;
+    const divCats = mkElt("div", undefined, [
+    ]);
+    divCats.id = "feedback-cats";
+    divCats.classList.add("panel");
 
+    feedbackGroups.forEach(grp => {
+        const category = grp.label;
+        // divCatsGood
+        const catName = mkElt("span", undefined, category);
+        catName.classList.add("cat-name");
+        const divCat = mkElt("div", undefined, catName);
+        divCat.classList.add("cat-div");
+        // divCat.append("DUMMY");
+        const [good, bad] = grp.endPoints.split(";");
+        const divGoodBad = mkElt("div", undefined, [
+            mkElt("b", undefined, good),
+            mkElt("b", undefined, bad),
+        ]);
+        divGoodBad.style = `
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        `;
+        // divCats.appendChild(divGoodBad);
+        const spanPoints = mkElt("span");
+        spanPoints.style = `
+            display: flex;
+            NOgap: 30px;
+            NOwidth: 100%;
+            justify-content: space-between;
+            padding: 0px 8px;
+        `;
+        grp.options.forEach(opt => {
+            const { id, label, severity } = opt;
+            const value = [severity, id, label].join(";");
+            const rad = mkElt("input", {type:"radio", name:grp.id, value});
+            spanPoints.append(rad);
+        });
+        const divAnswer = mkElt("div", undefined, [
+            divGoodBad,
+            spanPoints,
+        ]);
+        divAnswer.style = `
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        `;
+        divCat.append(divAnswer);
+        divCats.appendChild(divCat);
+    });
+    // debugger;
+
+    /*
     const chkSecurity = mkElt("input", { type: "checkbox" });
     chkSecurity.id = "chk-security";
     const lblSecurity = mkElt("label", undefined, [
@@ -403,6 +493,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         divCatsGood
     ]);
     divCats.id = "feedback-cats";
+    */
 
     const howLong = (sec) => {
         const minutes = Math.floor(sec / 60);
@@ -434,6 +525,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
     body.classList.add("colored-dialog");
     body.style.height = "80vh";
 
+    /*
     const setDivRequired = new Set();
     categories.forEach(category => {
         const catName = mkElt("span", undefined, category);
@@ -469,25 +561,31 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
             divCatsGood.appendChild(divCat);
         }
     });
+    */
 
     /** @type {HTMLButtonElement|undefined} */ let btnSubmit;
     function hasAllRequired() {
         let hasAll = true;
-        setDivRequired.forEach(div => {
+        // setDivRequired.forEach(div => {
+        divCats.querySelectorAll("div.cat-div").forEach(div => {
             if (!div.querySelector("input:checked")) hasAll = false;
         });
         return hasAll;
     }
+    /*
     function hasAdversed() {
         return divCatsBad.querySelector("input:checked") != null;
     }
+    */
 
     divCats.addEventListener("change", evt => {
         if (!btnSubmit) throw Error("Does not have btnSubmit");
+        /*
         if (hasAdversed()) {
             btnSubmit.disabled = false;
             return;
         }
+        */
         // const target = evt.target;
         // console.log({ target });
         const hasRequired = hasAllRequired();
@@ -506,11 +604,17 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
     const submitted = await modMdc.mkMDCdialogConfirm(body, "Submit", "Cancel", undefined, getSubmit);
     console.log({ ans: submitted });
     if (submitted) {
-        const arrChecked = [...body.querySelectorAll("input[type=checkbox]:checked")]
-            .map(chk => chk.value);
-        const userSignals = feedbackSignals.filter(fs => arrChecked.includes(fs.id));
+        // const arrChecked = [...body.querySelectorAll("input[type=checkbox]:checked")]
+        //     .map(chk => chk.value);
+        // const userSignals = feedbackSignals.filter(fs => arrChecked.includes(fs.id));
+        const userSignals = body.querySelectorAll("input[type=radio]:checked");
         console.log({ userSignals });
-        const severities = userSignals.map(us => us.severity)
+        debugger;
+        // const severities = userSignals.map(us => us.severity)
+        const severities =[...userSignals].map(inp => {
+            const v = inp.value; const [s] = v.split(";"); return s;
+        });
+
         console.log({ severities });
         const maxSeverity = Math.max(...severities);
         const minSeverity = Math.min(...severities);
