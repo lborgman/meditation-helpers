@@ -576,7 +576,19 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
 
     const eltExplainSpeed =
         mkElt("div", undefined, [
-            "later..."
+            mkElt("p", undefined, `
+                A breathing pattern is described by counts
+                for (inhale, hold high, exhale, hold low).
+                For example "Square" is the pattern (4,4,4,4).
+                `),
+            mkElt("p", undefined, `
+                But how many seconds is "4" here?
+                That is "speed".
+                `),
+            mkElt("p", undefined, [
+                mkElt("div", undefined, "if speed is 1 count/s then 4 means 4 seconds."),
+                mkElt("div", undefined, "if speed is 0.5 count/s then 4 means 8 seconds."),
+            ])
         ]);
     eltExplainSpeed.id = "elt-explain-speed";
 
