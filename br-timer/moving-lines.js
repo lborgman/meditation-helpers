@@ -4,6 +4,7 @@ const MOVING_LINES_VER = "0.0.8";
 window["logConsoleHereIs"](`here is moving-lines-1.js, module, ${MOVING_LINES_VER}`);
 if (document.currentScript) { throw "moving-lines-1.js is not loaded as module"; }
 
+// @ts-ignore
 const mkElt = window["mkElt"];
 // const errorHandlerAsyncEvent = window["errorHandlerAsyncEvent"];
 // @ts-ignore
@@ -11,18 +12,23 @@ const importFc4i = window["importFc4i"];
 
 const modLocalSettings = await importFc4i("local-settings");
 class OurLocalSetting extends modLocalSettings.LocalSetting {
+    /**
+     * @param {string} key
+     * @param {number|boolean} defaultValue
+     */
     constructor(key, defaultValue) {
         super(STORING_PREFIX, key, defaultValue);
     }
 }
 
+/**
+ * 
+ * @param {string} patternName 
+ * @returns {Object}
+ */
 function getSettingSpeed(patternName) {
-    const settingSpeed = new OurLocalSetting(`patternspeed-${patternName}`, 1);
-    return settingSpeed;
-}
-function getSettingCheckSpeed(patternName) {
-    const settingSpeed = new OurLocalSetting(`patterncheckspeed-${patternName}`, true);
-    return settingSpeed;
+    const setting = new OurLocalSetting(`patternspeed-${patternName}`, 1);
+    return setting;
 }
 
 const modTools = await importFc4i("toolsJs");
@@ -391,6 +397,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         // divCatsGood
         const catName = mkElt("span", undefined, category);
         catName.classList.add("cat-name");
+        catName.classList.add("required");
         const divCat = mkElt("div", undefined, catName);
         divCat.classList.add("cat-div");
         // divCat.append("DUMMY");
@@ -518,14 +525,24 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         border-radius: 4px;
     `;
 
+    // const icon10 = modMdc.mkMDCicon("clock_loader_10");
+    // const icon40 = modMdc.mkMDCicon("clock_loader_40");
+    // const icon50 = modMdc.mkMDCicon("clock_loader_60");
+
     const settingSpeed = getSettingSpeed(patternName);
-    const eltOldSpeed = mkEltSpeed(settingSpeed.valueN, true);
-    const eltNewSpeed = mkEltSpeed(98, true);
+    const oldSpeed = settingSpeed.valueN;
+    const eltOldSpeed = mkElt("b", undefined, mkEltSpeed(oldSpeed, true));
+
+    const eltFactor = mkElt("span", undefined, mkWaitingIcon(10));
+    eltFactor.id = "elt-new-factor";
+    const eltNewSpeed = mkElt("span", undefined, mkWaitingIcon(10));
+    eltNewSpeed.id = "elt-new-speed";
     const eltShowChanges = mkElt("div", undefined, [
-        mkElt("b", undefined, "Current (s/count):"),
         eltOldSpeed,
+        "*",
+        eltFactor,
         "=>",
-        eltNewSpeed,
+        eltNewSpeed
     ]);
     eltShowChanges.style = `
         display: flex;
@@ -537,10 +554,17 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
     ]);
 
     const divSpeed = mkElt("div", undefined, [
-        mkElt("p", undefined, "Your feedback changes the speed of the pattern:"),
+        mkElt("p", undefined, [
+            "Your feedback changes the speed of the pattern (in seconds/count):",
+        ]),
         pSpeedValue,
     ]);
-    const eltNoticeNow = mkElt("div", undefined, "What do you notice now in yourself?");
+    const eltNoticeNow = mkElt("div", undefined, "What do you notice now?");
+    eltNoticeNow.style = `
+        background: gold;
+        padding: 4px;
+        border-radius: 5px;
+    `;
     eltNoticeNow.id = "notice-now";
     const body = mkElt("div", undefined, [
         eltCompleted,
@@ -590,54 +614,62 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
     });
     */
 
-    /** @type {HTMLButtonElement|undefined} */ let btnSubmit;
-    function hasAllRequired() {
+    function hasRequired() {
         let hasAll = true;
-        // setDivRequired.forEach(div => {
+        let hasNum = 0;
         divCats.querySelectorAll("div.cat-div").forEach(div => {
-            if (!div.querySelector("input:checked")) hasAll = false;
+            if (!div.querySelector("input:checked")) {
+                hasAll = false;
+            } else {
+                hasNum++;
+            }
         });
-        return hasAll;
+        return { hasAll, hasNum };
     }
-    /*
-    function hasAdversed() {
-        return divCatsBad.querySelector("input:checked") != null;
-    }
-    */
+
 
     divCats.addEventListener("change", evt => {
-        if (!btnSubmit) throw Error("Does not have btnSubmit");
-        /*
-        if (hasAdversed()) {
-            btnSubmit.disabled = false;
+        const { hasNum, hasAll } = hasRequired();
+        console.log({ hasNum, hasAll });
+
+
+        const eltFactor = document.getElementById("elt-new-factor");
+        if (!eltFactor) throw Error("Did not find elt-new-factor");
+
+        const eltNewSpeed = document.getElementById("elt-new-speed");
+        if (!eltNewSpeed) throw Error("Did not find elt-new-speed");
+
+        if (hasAll) {
+            const factor = collectFeedback();
+            eltFactor.textContent = factor.toFixed(2);
+            const newSpeed = oldSpeed * factor;
+            settingSpeed.value = newSpeed;
+            eltNewSpeed.textContent = newSpeed.toFixed(2);
+            updateEltPatternSpeed();
             return;
         }
-        */
-        // const target = evt.target;
-        // console.log({ target });
-        const hasRequired = hasAllRequired();
-        console.log({ hasRequired });
-
-        btnSubmit.disabled = !hasRequired;
+        let part = 10;
+        switch (hasNum) {
+            case 1:
+                part = 40;
+                break;
+            case 2:
+                part = 60;
+        }
+        eltFactor.textContent = "";
+        eltFactor.appendChild(mkWaitingIcon(part));
+        eltNewSpeed.textContent = "";
+        eltNewSpeed.appendChild(mkWaitingIcon(part));
         // debugger;
     });
 
 
-    /** @param {HTMLButtonElement} button */
-    const getSubmit = (button) => {
-        btnSubmit = button;
-        btnSubmit.disabled = true;
-    }
-    const submitted = await modMdc.mkMDCdialogConfirm(body, "Submit", "Cancel", undefined, getSubmit);
-    console.log({ ans: submitted });
-    if (submitted) {
-        // const arrChecked = [...body.querySelectorAll("input[type=checkbox]:checked")]
-        //     .map(chk => chk.value);
-        // const userSignals = feedbackSignals.filter(fs => arrChecked.includes(fs.id));
+    modMdc.mkMDCdialogAlert(body, "Close");
+
+    function collectFeedback() {
         const userSignals = body.querySelectorAll("input[type=radio]:checked");
         console.log({ userSignals });
-        debugger;
-        // const severities = userSignals.map(us => us.severity)
+        // debugger;
         const severities = [...userSignals].map(inp => {
             const v = inp.value; const [s] = v.split(";"); return s;
         });
@@ -649,6 +681,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         console.log({ minSeverity, maxSeverity, meanSeverity });
         userSignals.forEach(us => { console.log(us.label, us.category, us.severity); });
 
+        /*
         let ls;
         if (varPart) {
             const p = getPatternByName(patternName);
@@ -658,6 +691,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
             ls = getSettingSpeed(patternName);
         }
         const val = ls.valueN;
+        */
         // FIX-ME:
         function safeMath(expr) {
             const tofExpr = typeof expr;
@@ -672,19 +706,15 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         /** @type {string|undefined} */ let change;
         switch (maxSeverity) {
             case 3:
-                // debugger;
                 change = "5 / 7";
                 break;
             case 2:
-                // debugger;
                 change = "6 / 7";
                 break;
             case 1:
-                // debugger;
-                // change = "1";
+                change = "1";
                 break;
             case 0:
-                // debugger;
                 change = "8 / 7";
                 break;
             default:
@@ -693,13 +723,13 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
                 debugger;
                 throw Error(msg);
         }
-        if (!change) {
-            modMdc.mkMDCsnackbar("Feedback suggest no change");
-            return;
-        }
+        const factor = safeMath(change);
+        return factor;
+
+        /*
         if (change) {
-            const mult = safeMath(change);
-            const newVal = mult * val;
+            const factor = safeMath(change);
+            const newVal = factor * val;
             ls.value = newVal;
             let msg;
             if (varPart) {
@@ -710,12 +740,14 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
                     breathOut: "Exhale",
                 }
                 const varPartUI = textForParts[varPart];
-                msg = `New "${varPartUI}" length: ${strMultiplier(mult)} => ${strMultiplier(newVal)}`;
+                // msg = `New "${varPartUI}" length: ${strMultiplier(factor)} => ${strMultiplier(newVal)}`;
             } else {
-                msg = `New ${patternName} speed: ${strMultiplier(mult)} => ${strMultiplier(newVal)}`;
+                // msg = `New ${patternName} speed: ${strMultiplier(factor)} => ${strMultiplier(newVal)}`;
             }
-            modMdc.mkMDCsnackbar(msg);
+            // modMdc.mkMDCsnackbar(msg);
+            return factor;
         }
+        */
 
         function calculateMean(arr) {
             const sum = arr.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
@@ -960,11 +992,7 @@ function tellCurrentPatternParts() {
                 `;
     divPatternInfo.appendChild(eltName);
 
-    const eltPatternSpeed = document.getElementById("elt-pattern-speed");
-    if (!eltPatternSpeed) throw Error("Could not find 'elt-pattern-speed'");
-    eltPatternSpeed.textContent = "";
-    const settingSpeed = getSettingSpeed(patternName);
-    eltPatternSpeed.appendChild(mkEltSpeed(settingSpeed.valueN));
+    updateEltPatternSpeed();
 
     let pattRec = getPatternByName(settingPattern.value);
     // Check pattern exists
@@ -3105,4 +3133,32 @@ function mkEltSpeed(speed, onlyDigits = false) {
     if (!onlyDigits) str = str.concat(" s/count");
     const elt = mkElt("span", undefined, str);
     return elt;
+}
+
+function mkWaitingIcon(num) {
+    let ico = `BAD ${num}`;
+    switch (num) {
+        case 10:
+            ico = modMdc.mkMDCicon("clock_loader_10");
+            break;
+        case 40:
+            ico = modMdc.mkMDCicon("clock_loader_40");
+            break;
+        case 60:
+            ico = modMdc.mkMDCicon("clock_loader_60");
+            break;
+    }
+    if (typeof ico != "string") {
+        ico.style.color = "red";
+    }
+    return ico;
+}
+
+function updateEltPatternSpeed() {
+    const eltPatternSpeed = document.getElementById("elt-pattern-speed");
+    if (!eltPatternSpeed) throw Error("Could not find 'elt-pattern-speed'");
+    eltPatternSpeed.textContent = "";
+    const patternName = settingPattern.value;
+    const settingSpeed = getSettingSpeed(patternName);
+    eltPatternSpeed.appendChild(mkEltSpeed(settingSpeed.valueN));
 }
