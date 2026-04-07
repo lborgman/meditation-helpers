@@ -534,6 +534,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
 
     const eltFactor = mkElt("span", undefined, mkWaitingIcon(10));
     eltFactor.id = "elt-new-factor";
+
     const eltNewSpeed = mkElt("span", undefined, mkWaitingIcon(10));
     eltNewSpeed.id = "elt-new-speed";
     const eltShowChanges = mkElt("div", undefined, [
@@ -577,11 +578,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         mkElt("div", undefined, [
             "later..."
         ]);
-    eltExplainSpeed.style = `
-        padding: 8px;
-        padding-left: 15px;
-        background: #fff3;
-    `;
+    eltExplainSpeed.id = "elt-explain-speed";
 
     const detExplainSpeed =
         mkElt("details", undefined, [
@@ -672,12 +669,9 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
             const factor = collectFeedback();
 
             eltFactor.textContent = "";
-            const eltNewFactor = mkElt("span", undefined, factor.toFixed(2));
-            eltNewFactor.style = `
-                background-color: greenyellow;
-                padding: 2px;
-            `;
-            eltFactor.appendChild(eltNewFactor);
+            const eltNewFactorValue = mkElt("span", undefined, factor.toFixed(2));
+            eltNewFactorValue.id = "elt-new-factor-value";
+            eltFactor.appendChild(eltNewFactorValue);
 
             const newSpeed = oldSpeed * factor;
             settingSpeed.value = newSpeed;
