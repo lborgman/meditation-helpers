@@ -574,6 +574,20 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
     */
 
 
+    const eltSpeedExamples =
+        mkElt("p", undefined, [
+            "Examples:",
+            mkElt("div", undefined, [mkEltSpeed(1), ": ", mkElt("div", undefined, "4 means 4 seconds.")]),
+            mkElt("div", undefined, [mkEltSpeed(0.5), ": ", mkElt("div", undefined, "4 means 8 seconds.")]),
+        ]);
+    eltSpeedExamples.style = `
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background-color: #fff3;
+        padding: 8px;
+        border-radius: 3px;
+    `;
     const eltExplainSpeed =
         mkElt("div", undefined, [
             mkElt("p", undefined, `
@@ -585,10 +599,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
                 But how many seconds is "4" here?
                 That is "speed".
                 `),
-            mkElt("p", undefined, [
-                mkElt("div", undefined, "if speed is 1 count/s then 4 means 4 seconds."),
-                mkElt("div", undefined, "if speed is 0.5 count/s then 4 means 8 seconds."),
-            ])
+            eltSpeedExamples
         ]);
     eltExplainSpeed.id = "elt-explain-speed";
 
@@ -597,6 +608,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
             mkElt("summary", undefined, `Explain "speed"`),
             eltExplainSpeed
         ]);
+    detExplainSpeed.style.marginTop = "40px";
 
 
     const eltNoticeNow = mkElt("div", undefined, "What do you notice now?");
@@ -3150,7 +3162,8 @@ function mkEltSpeed(speed, onlyDigits = false) {
     let str = speed.toFixed(2);
     if (!onlyDigits) str = str.concat(" count/s");
     const elt = mkElt("span", undefined, str);
-    elt.style.fontStyle = "italic";
+    // elt.style.fontStyle = "italic";
+    elt.classList.add("elt-speed");
     return elt;
 }
 
