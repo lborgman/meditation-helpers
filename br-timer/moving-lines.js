@@ -403,8 +403,8 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         // divCat.append("DUMMY");
         const [good, bad] = grp.endPoints.split(";");
         const divGoodBad = mkElt("div", undefined, [
-            mkElt("span", undefined, good),
-            mkElt("span", undefined, bad),
+            mkElt("span", { style: "color:darkgreen" }, good),
+            mkElt("span", { style: "color:darkred" }, bad),
         ]);
         divGoodBad.style = `
             display: flex;
