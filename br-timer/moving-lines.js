@@ -403,8 +403,8 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         // divCat.append("DUMMY");
         const [good, bad] = grp.endPoints.split(";");
         const divGoodBad = mkElt("div", undefined, [
-            mkElt("b", undefined, good),
-            mkElt("b", undefined, bad),
+            mkElt("span", undefined, good),
+            mkElt("span", undefined, bad),
         ]);
         divGoodBad.style = `
             display: flex;
@@ -516,8 +516,6 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
     const eltCompleted = mkElt("div", undefined, [
         "You just completed ",
         mkElt("b", undefined, patternName),
-        ", ",
-        howLong(secondsPattsDuration)
     ]);
     eltCompleted.style = `
         background-color: greenyellow;
@@ -532,6 +530,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
     const settingSpeed = getSettingSpeed(patternName);
     const oldSpeed = settingSpeed.valueN;
     const eltOldSpeed = mkElt("b", undefined, mkEltSpeed(oldSpeed, true));
+    eltOldSpeed.id = "elt-old-speed";
 
     const eltFactor = mkElt("span", undefined, mkWaitingIcon(10));
     eltFactor.id = "elt-new-factor";
@@ -555,7 +554,8 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
 
     const divSpeed = mkElt("div", undefined, [
         mkElt("p", undefined, [
-            "Your feedback changes the speed of the pattern (in seconds/count):",
+            "Feedback changes speed ",
+            mkElt("span", {style:"display:inline-block;"}, "(seconds/count):"),
         ]),
         pSpeedValue,
     ]);
@@ -568,7 +568,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
     eltNoticeNow.id = "notice-now";
     const body = mkElt("div", undefined, [
         eltCompleted,
-        mkElt("h2", { style: "margin-bottom:5px;" }, "Feedback for progress"),
+        mkElt("h2", { style: "margin-bottom:5px;" }, "Feedback"),
         eltNoticeNow,
         divCats,
         divSpeed
@@ -641,11 +641,20 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
 
         if (hasAll) {
             const factor = collectFeedback();
-            eltFactor.textContent = factor.toFixed(2);
+
+            eltFactor.textContent = "";
+            const eltNewFactor = mkElt("span", undefined, factor.toFixed(2));
+            eltNewFactor.style = `
+                background-color: greenyellow;
+                padding: 2px;
+            `;
+            eltFactor.appendChild(eltNewFactor);
+
             const newSpeed = oldSpeed * factor;
             settingSpeed.value = newSpeed;
             eltNewSpeed.textContent = newSpeed.toFixed(2);
             updateEltPatternSpeed();
+
             return;
         }
         let part = 10;
