@@ -91,6 +91,11 @@
             --checkbox-disabled-bg-color: #d9d9d9;
         }
 
+        :root {
+            --some-gold: color-mix(in oklab, gold 80%, transparent 100%);
+            /* --some-gold: lightskyblue; */
+        }
+
         input[type="checkbox"] {
             box-sizing: border-box;
             width: 20px;
@@ -475,8 +480,7 @@
 
             .cat-name.required::after {
                 content: "Please tell!";
-                background-color: darkgoldenrod;
-                background-color: gold;
+                background-color: var(--some-gold);
                 text-transform: none;
                 font-weight: normal;
                 padding: 0px 7px;
@@ -504,14 +508,6 @@
 
 
 
-            #notice-now {
-                font-weight: bold;
-                padding: 10px;
-                border: 2px solid;
-                border-radius: 8px;
-                background: yellowgreen;
-                border-color: greenyellow;
-            }
         }
 
         #elt-old-speed {
@@ -519,7 +515,24 @@
         }
 
         #elt-new-speed {
-            font-size: 2rem;
+            font-size: 1.5rem;
+        }
+
+        #notice-now {
+            font-weight: bold;
+            padding: 10px;
+            background-color: var(--some-gold);
+            padding: 4px;
+            border-radius: 5px;
+        }
+
+        #div-feedback-result {
+            display: flex;
+            flex-direction: column;
+            background-color: gold;
+            background-color: var(--some-gold);
+            border-radius: 5px;
+            padding: 8px;
         }
     </style>
 </head>

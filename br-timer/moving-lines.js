@@ -545,33 +545,62 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
     ]);
     eltShowChanges.style = `
         display: flex;
+        flex-wrap: wrap;
         gap: 10px;
         margin-left: 15px;
     `;
-    const pSpeedValue = mkElt("p", undefined, [
+    const divSpeedChange = mkElt("div", undefined, [
         eltShowChanges
     ]);
 
-    const divSpeed = mkElt("div", undefined, [
-        mkElt("p", undefined, [
-            "Feedback changes speed ",
-            mkElt("span", {style:"display:inline-block;"}, "(seconds/count):"),
+
+    const divResult = mkElt("p", undefined, [
+        mkElt("div", undefined, [
+            "New speed ",
+            mkElt("span", { style: "display:inline-block;" }, "(count/s):"),
         ]),
-        pSpeedValue,
+        divSpeedChange,
     ]);
-    const eltNoticeNow = mkElt("div", undefined, "What do you notice now?");
-    eltNoticeNow.style = `
-        background: gold;
-        padding: 4px;
+    divResult.id = "div-feedback-result";
+    /*
+    divResult.style = `
+        display: flex;
+        flex-direction: column;
+        background-color: gold;
         border-radius: 5px;
+        padding: 8px;
     `;
+    */
+
+
+    const eltExplainSpeed =
+        mkElt("div", undefined, [
+            "later..."
+        ]);
+    eltExplainSpeed.style = `
+        padding: 8px;
+        padding-left: 15px;
+        background: #fff3;
+    `;
+
+    const detExplainSpeed =
+        mkElt("details", undefined, [
+            mkElt("summary", undefined, `Explain "speed"`),
+            eltExplainSpeed
+        ]);
+
+
+    const eltNoticeNow = mkElt("div", undefined, "What do you notice now?");
     eltNoticeNow.id = "notice-now";
+
+
     const body = mkElt("div", undefined, [
         eltCompleted,
         mkElt("h2", { style: "margin-bottom:5px;" }, "Feedback"),
         eltNoticeNow,
         divCats,
-        divSpeed
+        divResult,
+        detExplainSpeed
     ]);
     body.classList.add("colored-dialog");
     body.style.height = "80vh";
@@ -652,7 +681,9 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
 
             const newSpeed = oldSpeed * factor;
             settingSpeed.value = newSpeed;
-            eltNewSpeed.textContent = newSpeed.toFixed(2);
+            // eltNewSpeed.textContent = newSpeed.toFixed(2);
+            eltNewSpeed.textContent = "";
+            eltNewSpeed.appendChild(mkEltSpeed(newSpeed, true));
             updateEltPatternSpeed();
 
             return;
@@ -732,31 +763,9 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
                 debugger;
                 throw Error(msg);
         }
-        const factor = safeMath(change);
+        const factor = safeMath(`1 / (${change})`);
         return factor;
 
-        /*
-        if (change) {
-            const factor = safeMath(change);
-            const newVal = factor * val;
-            ls.value = newVal;
-            let msg;
-            if (varPart) {
-                const textForParts = {
-                    holdLow: "Hold low",
-                    breathIn: "Inhale",
-                    holdHigh: "Hold high",
-                    breathOut: "Exhale",
-                }
-                const varPartUI = textForParts[varPart];
-                // msg = `New "${varPartUI}" length: ${strMultiplier(factor)} => ${strMultiplier(newVal)}`;
-            } else {
-                // msg = `New ${patternName} speed: ${strMultiplier(factor)} => ${strMultiplier(newVal)}`;
-            }
-            // modMdc.mkMDCsnackbar(msg);
-            return factor;
-        }
-        */
 
         function calculateMean(arr) {
             const sum = arr.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
@@ -3077,13 +3086,6 @@ async function dialogTestSounds() {
     modSound.dialogTestWAsound();
 }
 
-/**
- * @param {number} mult
- * @returns {string}
- */
-function strMultiplier(mult) {
-    return toPrecision(mult, 2);
-}
 
 /**
  * @param {number} number
@@ -3138,9 +3140,11 @@ console.log(toPrecision(0.0005, 2));     // "0.0005"
  * @returns {HTMLSpanElement}
  */
 function mkEltSpeed(speed, onlyDigits = false) {
-    let str = strMultiplier(speed);
-    if (!onlyDigits) str = str.concat(" s/count");
+    // let str = strMultiplier(speed);
+    let str = speed.toFixed(2);
+    if (!onlyDigits) str = str.concat(" count/s");
     const elt = mkElt("span", undefined, str);
+    elt.style.fontStyle = "italic";
     return elt;
 }
 
