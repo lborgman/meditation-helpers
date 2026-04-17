@@ -577,8 +577,8 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
     const eltSpeedExamples =
         mkElt("p", undefined, [
             "Examples:",
-            mkElt("div", undefined, [mkEltSpeed(1), ": ", mkElt("div", undefined, "4 means 4 seconds.")]),
-            mkElt("div", undefined, [mkEltSpeed(0.5), ": ", mkElt("div", undefined, "4 means 8 seconds.")]),
+            mkElt("div", undefined, [mkEltSpeed(1), ": ", mkElt("div", undefined, "4 counts = 4 seconds.")]),
+            mkElt("div", undefined, [mkEltSpeed(0.5), ": ", mkElt("div", undefined, "4 counts = 8 seconds.")]),
         ]);
     eltSpeedExamples.style = `
         display: flex;
