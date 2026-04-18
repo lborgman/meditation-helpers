@@ -1,4 +1,4 @@
-#videos #timer-div {
+#videos #div-timer {
     opacity: 1;
     background-color: olive;
     background-color: chocolate;
@@ -8,7 +8,7 @@
     transition: background-color 2s, opacity 1s, xheight 1s, xwidth 1s;
     xheight: 120px;
 }
-#timer-div img {
+#div-timer img {
     margin-top: 20px;
     width: 100%;
     xmax-height: 160px;
@@ -26,7 +26,7 @@
 #goal-info {
     color: #3c3c3c;
 }
-#timer-div button#start-meditate {
+#div-timer button#start-meditate {
     font-size: 30px;
     xdisplay: block;
     max-width: 300px;
@@ -44,7 +44,7 @@
     margin-right: 10px;
     margin-bottom: 5px;
 }
-.starting-meditation #videos #timer-div {
+.starting-meditation #videos #div-timer {
     opacity: 0;
     xbackground: firebrick;
 }
@@ -55,27 +55,27 @@
 .starting-meditation #videos #message {
     opacity: 0;
 }
-.meditating #videos #timer-div {
+.meditating #videos #div-timer {
     opacity: 1;
     background: orange;
 }
-.asking #videos #timer-div {
+.asking #videos #div-timer {
     background: rgb(100, 189, 4);
 }
-.replied #videos #timer-div {
+.replied #videos #div-timer {
     background: rgb(100, 189, 4);
 }
 
-.asking #videos #timer-div,
-.meditating #videos #timer-div,
-.replied #videos #timer-div {
+.asking #videos #div-timer,
+.meditating #videos #div-timer,
+.replied #videos #div-timer {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
 }
-.meditating #timer-div img {
+.meditating #div-timer img {
     opacity: 1;
     display: inline-block;
     width: 100%;
@@ -92,10 +92,10 @@
     display: none;
 }
 
-#asking-div {
+#div-asking {
     display: none;
 }
-.asking #asking-div {
+.asking #div-asking {
     display: block;
 }
 
@@ -107,13 +107,13 @@
     display: block;
 }
 
-#volume-div {
+#div-volume {
     display: none;
     position: fixed;
     bottom: 60px;
     width: 90vw;
 }
-.asking #volume-div {
+.asking #div-volume {
     display: flex;
 }
 #alarm-controls {
@@ -151,10 +151,10 @@
     text-align: center;
 }
 
-#timer-div img#icon-timer-div {
+#div-timer img#icon-div-timer {
     display: none;
 }
-.meditating #timer-div img#icon-timer-div {
+.meditating #div-timer img#icon-div-timer {
     display: block;
     position: fixed;
     top: 40px;
@@ -162,8 +162,8 @@
     width: 70px;
     opacity: 0.7;
 }
-.asking #timer-div img#icon-timer-div,
-.replied #timer-div img#icon-timer-div {
+.asking #div-timer img#icon-div-timer,
+.replied #div-timer img#icon-div-timer {
     display: block;
     width: 100px;
     float: left;
@@ -251,10 +251,10 @@ header > * {
     color: black !important;
 }
 
-#timer-div * {
+#div-timer * {
     font-size: 1.5rem;
 }
-#timer-div button {
+#div-timer button {
     background-color: #529c02;
     border-color: #529c02;
     border-radius: 3px;

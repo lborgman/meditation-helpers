@@ -186,12 +186,9 @@ let stepEaseInOut = secEaseInOut / 30; // 0.2;
 
 var myAudio; // FIXME:
 
-let imgMeditatorSrc = "img/wikimedia/";
-// imgMeditatorSrc += "Spiritually_Happy_Cartoon_Man_In_Meditation.svg";
-imgMeditatorSrc += "Curious_Meditating_Cartoon_Man.svg";
+const imgMeditatorSrc = "img/wikimedia/Curious_Meditating_Cartoon_Man.svg";
 // FIXME: img=> embed, https://stackoverflow.com/questions/41195669/images-in-svg-image-tags-not-showing-up-in-chrome-but-displays-locally/43526391
 let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditatorSrc });
-// let imgMeditator1 = mkElt("img", { "id": "meditator-on-btn", "svgsrc": imgMeditatorSrc });
 
 thePromiseDOMready.then(() => {
     let promImg = preLoadImg();
@@ -381,19 +378,20 @@ thePromiseDOMready.then(() => {
     }
     fillInFooter();
 
-    function setState(state) {
+    setMdState("initial");
+    function setMdState(state) {
         const states = [
+            "initial",
             "starting-meditation",
             "meditating",
             "asking",
             "replied",
         ];
-        let ok;
-        states.map(s => {
-            document.documentElement.classList.remove(s);
-            if (s === state) ok = true;
-        });
-        if (!ok) throw "Bad state: " + state;
+        if (!states.includes(state)) {
+            debugger;
+            throw "Bad md state: " + state;
+        }
+        states.forEach(s => { document.documentElement.classList.remove(s); });
         document.documentElement.classList.add(state);
     }
     function formatSecondsMSS(sec) {
@@ -551,9 +549,10 @@ thePromiseDOMready.then(() => {
         );
         return div;
     }
-    const soundReadyLink = makeAbsLink("./sounds/freesound.org/260881__trautwein__cat-purr-add9.mp3");
+    // const soundReadyLink = makeAbsLink("./sounds/freesound.org/260881__trautwein__cat-purr-add9.mp3");
+    const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
     let objAudio;
-    let timerDiv = document.getElementById("timer-div");
+    let timerDiv = document.getElementById("div-timer");
     // timerDiv.classList.add("hero");
     let imgMeditator = imgMeditator1.cloneNode();
     // timerDiv.appendChild(imgMeditator);
@@ -561,17 +560,21 @@ thePromiseDOMready.then(() => {
     let btnStart = mkElt(
         "button",
         { class: "popup-button", id: "start-meditate" },
-        ["Start meditation timer ", imgMeditator]
-        // [ "Start meditation timer 🧘"]
+        [
+            // "Start meditation timer ",
+            "Start",
+            // imgMeditator
+        ]
     );
-    timerDiv.appendChild(mkElt("div", { "class": "buttons" }, btnStart));
+    const divInitial = mkElt("div", { "id": "div-initial" }, btnStart);
+    timerDiv.appendChild(divInitial);
     // imgMeditator.setAttribute("src", imgMeditator.getAttribute("svgsrc"));
     btnStart.addEventListener("click", evt => {
         // seconds = unknownVar; // FIXME: error testing.
         // seconds = 0;
         progressBar.max = secondsGoal;
         // document.documentElement.requestFullscreen();
-        setState("starting-meditation");
+        setMdState("starting-meditation");
         timerDiv.classList.add("hero");
         const perSeconds = 25.0;
         // const interval = 1 / perSeconds;
@@ -593,7 +596,7 @@ thePromiseDOMready.then(() => {
             }, interval1000);
         }
         function startIt() {
-            setState("meditating");
+            setMdState("meditating");
             setTimeout(startRunner, 2000);
         }
         // objAudio = objAudio || new Audio(soundReadyLink);
@@ -608,16 +611,19 @@ thePromiseDOMready.then(() => {
         setTimeout(startIt, 2000);
     });
 
-    let progressBar = mkElt("progress", {
+    const lengthDiv = getMeditationLength();
+    divInitial.appendChild(lengthDiv);
+
+    const progressBar = mkElt("progress", {
         id: "progress-bar",
         class: "uploading",
         // max: secondsGoal,
         value: 0
     });
-    timerDiv.appendChild(progressBar);
+    const divMeditating = mkElt("div", { "id": "div-meditating" }, progressBar);
+    timerDiv.appendChild(divMeditating);
+    // timerDiv.appendChild(progressBar);
 
-    let lengthDiv = getMeditationLength();
-    timerDiv.appendChild(lengthDiv);
 
     let imgTimer = mkElt("img");
     // timerDiv.appendChild(imgTimer);
@@ -657,7 +663,7 @@ thePromiseDOMready.then(() => {
         handleReply(true);
     });
     function handleReply(success) {
-        setState("replied");
+        setMdState("replied");
         // document.exitFullscreen();
         stopAlarms();
 
@@ -705,7 +711,7 @@ thePromiseDOMready.then(() => {
 
     }
 
-    let divAsk = mkElt("div", { "id": "asking-div" }, [
+    let divAsk = mkElt("div", { "id": "div-asking" }, [
         pAsk,
         mkElt("p", { "class": "buttons" }, [btnFail, btnSuccess])
     ]);
@@ -751,7 +757,7 @@ thePromiseDOMready.then(() => {
     // const divMaxInfo = mkElt("div", null, "Max volume:");
     const alarmControls = mkElt("div", { "id": "alarm-controls" }, [lblVolume, lblVibrate]);
     const ourCat = mkElt("i", { "id": "the-cat", "class": "fas fa-cat" });
-    const divAlarm = mkElt("div", { "id": "volume-div" }, [ourCat, alarmControls]);
+    const divAlarm = mkElt("div", { "id": "div-controls" }, [ourCat, alarmControls]);
     timerDiv.appendChild(divAlarm);
     // volSlider.addEventListener("change", console.log("volslider change", volSlider.value));
     volSlider.addEventListener("input", evt => {
@@ -780,7 +786,7 @@ thePromiseDOMready.then(() => {
 
 
     function askAttention() {
-        setState("asking");
+        setMdState("asking");
         // imgTimer.style.display = "none";
         divAsk.scrollIntoView();
     }

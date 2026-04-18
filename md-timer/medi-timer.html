@@ -37,9 +37,9 @@
 
   <link rel="stylesheet" href="css/caped.css">
   <link rel="stylesheet" href="css/color.css">
-  <link rel="stylesheet" href="css/menu.css">
-  <link rel="stylesheet" href="css/popup.css">
-  <link rel="stylesheet" href="css/videos.css">
+  <!-- <link rel="stylesheet" href="css/menu.css"> -->
+  <!-- <link rel="stylesheet" href="css/popup.css"> -->
+  <!-- <link rel="stylesheet" href="css/videos.css"> -->
   <link rel="stylesheet" href="css/timer.css">
 
   <!--
@@ -50,9 +50,126 @@
   <link rel="stylesheet" href="css/fontawesome/css/solid.css">
   <link rel="stylesheet" href="css/fontawesome/css/brands.css">
   <style>
-    #main {
-      display: flex;
+    :root {
+      font-size: 16px;
     }
+
+    .display-none {
+      display: none;
+    }
+
+    header {
+      padding: 15px;
+      background: #fff3;
+      width: 100vw;
+
+      .logo {
+        max-width: 64px;
+      }
+
+      span {
+        display: flex;
+        gap: 20px;
+      }
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      max-width: 32rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    details#how-to {
+      margin-top: 60px;
+      margin-bottom: 30px;
+
+      img {
+        height: 4rem;
+      }
+
+      p {
+        line-height: 1.4;
+        margin-left: 20px;
+      }
+
+      img#logo-instr {
+        float: left;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        height: 40px;
+      }
+    }
+
+
+    /******** States ****/
+    header {
+      display: none;
+    }
+
+    #how-to {
+      display: none;
+      border-radius: 8px;
+    }
+
+    #div-timer {
+      background-color: #fff8;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    #div-initial {
+      outline: 2px dotted red;
+      display: none;
+    }
+
+    #div-meditating {
+      display: none;
+    }
+
+    #div-asking {
+      display: none;
+    }
+
+    #div-controls {
+      display: none;
+    }
+
+
+    html.initial {
+      header {
+        display: unset;
+      }
+
+      #how-to {
+        display: block;
+      }
+
+      #div-initial {
+        outline: 2px dotted green;
+        display: unset;
+      }
+    }
+
+    html.starting-meditation {}
+
+    html.meditating {
+      #div-meditating {
+        display: unset;
+      }
+    }
+
+    html.asking {
+      #div-asking {
+        display: unset;
+      }
+
+      #div-controls {
+        display: unset;
+      }
+
+      html.replied {}
   </style>
 
   <script src="../src/js/error.js"></script>
@@ -73,16 +190,16 @@
 </head>
 
 <body class="signed-out">
-  <div id="too-old-browser" style="background:black; color:red; padding:15px; display:none;">
-    If this text text is shown then it means your web browser is too old too use for
-    Mindfulness Meditation Training timer.
-    A fresh version of Google Chrome or Firefox will work.
+  <div id="too-old-browser" style="background:black; color:red; padding:15px; position:fixed; display:none;">
+    If this text text is shown then it means your web browser is outdated.
+    <p style="font-size:1.5rem;">
+      Please update your web browser!
+    </p>
   </div>
-  <script>
-    // es6?
-    console.log("es6?")
+  <script type="module">
     setTimeout(function () {
       if (typeof Symbol === "undefined") {
+        console.log("not es6?");
         var ee = document.getElementById("too-old-browser");
         ee.style.display = "block";
       }
@@ -90,34 +207,34 @@
   </script>
   <header>
     <span>
-      <img id="icon" alt="Logo" src="img/meditation-timer.svg">
+      <img class="logo" alt="Logo" src="img/meditation-timer.svg">
       <h1>Mindfulness Meditation<br>Training Timer</h1>
     </span>
   </header>
 
   <!-- <section id="videos"> -->
-  <section id="main">
+  <main>
 
     <div id="message" class="display-none">
-      <p style="overflow:auto">
-        <!-- https://vectr.com/ecap/f2dRxcG9j -->
-        This timing app can help you start training mindfulness meditation.
-        It should work similar to the app described in this
-        <a href="https://www.sciencedaily.com/releases/2019/06/190603124705.htm" target="_blank"
-          rel="noreferrer">study</a>.
-      </p>
-      <details>
-        <summary>Instructions&nbsp;&nbsp;
-          <img class="logo-instr" alt="Logo" src="img/meditation-timer.svg">
+      <details id="how-to">
+        <summary>How to do it
+          <!-- <img class="logo-instr" alt="Logo" src="img/meditation-timer.svg"> -->
           <img class="meditator-instr" alt="Meditator" src="img/wikimedia/Curious_Meditating_Cartoon_Man.svg" />
         </summary>
+        <p style="overflow:auto">
+          <!-- https://vectr.com/ecap/f2dRxcG9j -->
+          This timing app can help you start training mindfulness meditation.
+          It should work similar to the app described in this
+          <a href="https://www.sciencedaily.com/releases/2019/06/190603124705.htm" target="_blank"
+            rel="noreferrer">study</a>.
+        </p>
+        <img id="logo-instr" alt="Logo" src="img/meditation-timer.svg">
         <p>
           If you want to do as in the study you should use this app several times each day,
           for a total of at least 10&nbsp;minutes.
           This app will keep track of how much time you have used the app each day.
         </p>
         <p>
-          <img class="logo-instr" alt="Logo" src="img/meditation-timer.svg">
           Each time you use the app you meditate for as long as the app tells you.
           After that you tell the app if you managed to keep your attention on the breath.
         </p>
@@ -271,8 +388,8 @@
         </p>
       </details>
     </div>
-    <div id="timer-div">
-      <img id="icon-timer-div" alt="Logo" src="img/meditation-timer.svg">
+    <div id="div-timer">
+      <!-- <img id="icon-div-timer" alt="Logo" src="img/meditation-timer.svg"> -->
     </div>
 
     <div id="about" class="display-none">
@@ -289,7 +406,7 @@
           I have no affiliation whatsoever with the study authors.
         </p>
       </details>
-      <details>
+      <details style="display:none;">
         <summary>About this app <span class="fa"><i class="fas fa-info-circle"></i></span></summary>
         <p>
           This is a "web app" (actually a
@@ -335,8 +452,7 @@
         <summary></summary>
       </details>
       -->
-  </section>
-  </section>
+  </main>
 
   <footer>
     <span id="footer-version"></span>
