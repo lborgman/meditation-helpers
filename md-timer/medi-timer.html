@@ -76,13 +76,14 @@
     main {
       display: flex;
       flex-direction: column;
+      align-items: center;
       max-width: 32rem;
       margin-left: auto;
       margin-right: auto;
     }
 
     details#how-to {
-      margin-top: 60px;
+      margin-top: 40px;
       margin-bottom: 30px;
 
       img {
@@ -114,6 +115,9 @@
     }
 
     #div-timer {
+      display: flex;
+      width: fit-content;
+      margin-top: 40px;
       background-color: #fff8;
       padding: 20px;
       border-radius: 8px;
@@ -121,6 +125,7 @@
 
     #div-initial {
       outline: 2px dotted red;
+      width: 240px;
       display: none;
     }
 
@@ -148,7 +153,7 @@
 
       #div-initial {
         outline: 2px dotted green;
-        display: unset;
+        display: block;
       }
     }
 
@@ -214,6 +219,10 @@
 
   <!-- <section id="videos"> -->
   <main>
+
+    <div id="div-timer">
+      <!-- <img id="icon-div-timer" alt="Logo" src="img/meditation-timer.svg"> -->
+    </div>
 
     <div id="message" class="display-none">
       <details id="how-to">
@@ -387,9 +396,6 @@
         </details>
         </p>
       </details>
-    </div>
-    <div id="div-timer">
-      <!-- <img id="icon-div-timer" alt="Logo" src="img/meditation-timer.svg"> -->
     </div>
 
     <div id="about" class="display-none">
