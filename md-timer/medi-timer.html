@@ -55,14 +55,20 @@
       font-size: 16px;
     }
 
+    html {
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+    }
+
     .display-none {
       display: none;
     }
 
     header {
       padding: 15px;
-      background: #fff3;
-      width: 100vw;
+      width: 100%;
 
       .logo {
         max-width: 64px;
@@ -70,7 +76,17 @@
 
       span {
         display: flex;
-        gap: 20px;
+        gap: 10px;
+      }
+
+      h1 {
+        font-size: 1.2rem;
+        background: #d9980c;
+        padding: 20px;
+        margin: 0px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
       }
     }
 
@@ -143,7 +159,7 @@
       display: flex;
       width: fit-content;
       margin-top: 40px;
-      background-color: #fff8;
+      background-color: #fffc;
       padding: 20px;
       border-radius: 8px;
     }
@@ -221,7 +237,8 @@
       left: 0px;
       bottom: 0px;
       right: 0px;
-      z-index: -1; /* I have no idea why this is needed??? */
+      z-index: -1;
+      /* I have no idea why this is needed??? */
       background: #0f03;
     }
   </style>
@@ -265,7 +282,7 @@
   <header>
     <span>
       <img class="logo" alt="Logo" src="img/meditation-timer.svg">
-      <h1>Mindfulness Meditation<br>Training Timer</h1>
+      <h1>Mindfulness Training Timer</h1>
     </span>
   </header>
 

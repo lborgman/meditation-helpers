@@ -8,6 +8,17 @@ const modImages = await importFc4i("user-images");
 // modSound.setStoringPrefix(STORING_PREFIX);
 modImages.setStoringPrefix(STORING_PREFIX);
 
+{
+    const modPubImages = await import("public-images")
+    const ourImages = modPubImages.ourImages;
+    const numImages = modPubImages.ourImages.length;
+    console.log({ numImages });
+    const iImage = Math.floor(Math.random() * numImages)
+    const urlImage = ourImages[iImage];
+    console.log({ urlImage });
+    document.documentElement.style.backgroundImage = `url(${urlImage})`;
+}
+
 // Goals, per session and day
 let initialGoal = 20; // FIXME:
 let minGoal = 5; // FIXME:
@@ -636,6 +647,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     // timerDiv.appendChild(imgTimer);
 
     promImg.then(img => {
+        return;
         if (!img) return;
         // console.log("using image", img.src)
         let root = document.documentElement;
