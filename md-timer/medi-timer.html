@@ -21,7 +21,8 @@
   <script src="../make-abs.js"></script>
   <script>
     insertHereImportmap({
-      "util-mdc": "../src/js/mod/util-mdc.js",
+      // "util-mdc": "../src/js/mod/util-mdc.js",
+      "public-images": "../js/mod/public-images.js",
       "qr-url": "../src/js/mod/qr-url.js",
       "qrjs2": "../ext/qr/qrjs2.js",
     });
@@ -40,7 +41,7 @@
   <!-- <link rel="stylesheet" href="css/menu.css"> -->
   <!-- <link rel="stylesheet" href="css/popup.css"> -->
   <!-- <link rel="stylesheet" href="css/videos.css"> -->
-  <link rel="stylesheet" href="css/timer.css">
+  <!-- <link rel="stylesheet" href="css/timer.css"> -->
 
   <!--
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
@@ -78,11 +79,13 @@
       flex-direction: column;
       align-items: center;
       max-width: 32rem;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 10px;
+      NOmargin-left: auto;
+      NOmargin-right: auto;
     }
 
     details#how-to {
+      max-width: 32rem;
       margin-top: 40px;
       margin-bottom: 30px;
 
@@ -101,7 +104,29 @@
         margin-bottom: 10px;
         height: 40px;
       }
+
     }
+
+    #div-volume {
+      display: none;
+      position: fixed;
+      bottom: 60px;
+      width: 90vw;
+    }
+
+    .asking #div-volume {
+      display: flex;
+    }
+
+    #progress-bar {
+      display: none;
+      width: 60vw;
+    }
+
+    .meditating #progress-bar {
+      display: block;
+    }
+
 
 
     /******** States ****/
@@ -123,10 +148,18 @@
       border-radius: 8px;
     }
 
+    #div-timer * {
+      font-size: 1.4rem;
+    }
+
     #div-initial {
       outline: 2px dotted red;
       width: 240px;
       display: none;
+    }
+
+    #time-goal-info {
+      text-align: center;
     }
 
     #div-meditating {
@@ -173,11 +206,29 @@
       #div-controls {
         display: unset;
       }
+    }
 
-      html.replied {}
+    #div-initial button#start-meditate {
+      font-size: 30px;
+      margin-bottom: 40px;
+      background-color: #4ee7f6;
+    }
+
+    /* html.replied {} */
+    #background-filter {
+      position: fixed;
+      top: 0px;
+      left: 0px;
+      bottom: 0px;
+      right: 0px;
+      z-index: -1; /* I have no idea why this is needed??? */
+      background: #0f03;
+    }
   </style>
 
-  <script src="../src/js/error.js"></script>
+  <!-- <script src="../src/js/error.js"></script> -->
+  <script src="../init-error-new.js"></script>
+  <script src="../importmaps.js"></script>
 
   <!-- Required styles for Material Web -->
   <!-- <link rel="stylesheet" href="/ext/mdc/14.0.0/material-components-web.css"> -->
@@ -186,7 +237,7 @@
     const mcwPromise = insertHereScript("../ext/mdc/material-components-web.js", "loaded-mcw");
   </script>
 
-  <script src="js/meditimer.js"></script>
+  <script src="js/meditimer.js" type="module"></script>
 
   <!--
   <script src="js/external/cookies.js"></script>
@@ -195,6 +246,7 @@
 </head>
 
 <body class="signed-out">
+  <div id="background-filter"></div>
   <div id="too-old-browser" style="background:black; color:red; padding:15px; position:fixed; display:none;">
     If this text text is shown then it means your web browser is outdated.
     <p style="font-size:1.5rem;">
@@ -239,9 +291,9 @@
         </p>
         <img id="logo-instr" alt="Logo" src="img/meditation-timer.svg">
         <p>
-          If you want to do as in the study you should use this app several times each day,
+          If you want to do as in the study you should use this app one or more times each day,
           for a total of at least 10&nbsp;minutes.
-          This app will keep track of how much time you have used the app each day.
+          The app will keep track of how much time you have meditated each day.
         </p>
         <p>
           Each time you use the app you meditate for as long as the app tells you.

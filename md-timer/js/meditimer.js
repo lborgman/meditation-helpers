@@ -3,6 +3,11 @@
 "use strict";
 const theMeditimerVersion = "1.0.025";
 
+const STORING_PREFIX = "MEDITIM-";
+const modImages = await importFc4i("user-images");
+// modSound.setStoringPrefix(STORING_PREFIX);
+modImages.setStoringPrefix(STORING_PREFIX);
+
 // Goals, per session and day
 let initialGoal = 20; // FIXME:
 let minGoal = 5; // FIXME:
@@ -190,7 +195,9 @@ const imgMeditatorSrc = "img/wikimedia/Curious_Meditating_Cartoon_Man.svg";
 // FIXME: img=> embed, https://stackoverflow.com/questions/41195669/images-in-svg-image-tags-not-showing-up-in-chrome-but-displays-locally/43526391
 let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditatorSrc });
 
-thePromiseDOMready.then(() => {
+//// Loading as module now
+// thePromiseDOMready.then(() =>
+{
     let promImg = preLoadImg();
 
     let pVer = document.getElementById("version");
@@ -530,7 +537,7 @@ thePromiseDOMready.then(() => {
         let eltGoal = mkElt(
             "span",
             null,
-            "Time " + formatSecondsMSS(secondsGoal) + " "
+            "Duration " + formatSecondsMSS(secondsGoal) + " "
         );
         let sec2dailyGoal = dailySecondsGoal - secondsToday;
         let eltGoalInfo;
@@ -540,7 +547,7 @@ thePromiseDOMready.then(() => {
             eltGoalInfo = mkElt(
                 "div",
                 null,
-                " (" + formatSecondsMSS(sec2dailyGoal) + " to daily goal 💛)"
+                "" + formatSecondsMSS(sec2dailyGoal) + " to daily goal 💛"
             );
         }
         eltGoalInfo.setAttribute("id", "goal-info");
@@ -559,7 +566,7 @@ thePromiseDOMready.then(() => {
 
     let btnStart = mkElt(
         "button",
-        { class: "popup-button", id: "start-meditate" },
+        { class: "NOpopup-button", id: "start-meditate" },
         [
             // "Start meditation timer ",
             "Start",
@@ -792,5 +799,6 @@ thePromiseDOMready.then(() => {
     }
 
 
-});
+}
+// );
 

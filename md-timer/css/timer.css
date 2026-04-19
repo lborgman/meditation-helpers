@@ -8,6 +8,7 @@
     transition: background-color 2s, opacity 1s, xheight 1s, xwidth 1s;
     xheight: 120px;
 }
+
 #div-timer img {
     margin-top: 20px;
     width: 100%;
@@ -23,9 +24,11 @@
     xopacity: 0.3;
     color: #3c3c3c;
 }
+
 #goal-info {
     color: #3c3c3c;
 }
+
 #div-timer button#start-meditate {
     font-size: 30px;
     xdisplay: block;
@@ -37,6 +40,7 @@
     border-color: #6cc8c0;
     background-color: #4ee7f6;
 }
+
 #icon {
     max-width: 64px;
     max-height: 64px;
@@ -44,24 +48,30 @@
     margin-right: 10px;
     margin-bottom: 5px;
 }
+
 .starting-meditation #videos #div-timer {
     opacity: 0;
     xbackground: firebrick;
 }
+
 #videos #message {
     transition: opacity 1s;
     z-index: 10;
 }
+
 .starting-meditation #videos #message {
     opacity: 0;
 }
+
 .meditating #videos #div-timer {
     opacity: 1;
     background: orange;
 }
+
 .asking #videos #div-timer {
     background: rgb(100, 189, 4);
 }
+
 .replied #videos #div-timer {
     background: rgb(100, 189, 4);
 }
@@ -75,6 +85,7 @@
     width: 100vw;
     height: 100vh;
 }
+
 .meditating #div-timer img {
     opacity: 1;
     display: inline-block;
@@ -86,36 +97,16 @@
 .replied #start-meditate {
     display: none;
 }
+
 .meditating #time-goal-info,
 .asking #time-goal-info,
 .replied #time-goal-info {
     display: none;
 }
 
-#div-asking {
-    display: none;
-}
-.asking #div-asking {
-    display: block;
-}
 
-#progress-bar {
-    display: none;
-    width: 100%;
-}
-.meditating #progress-bar {
-    display: block;
-}
 
-#div-volume {
-    display: none;
-    position: fixed;
-    bottom: 60px;
-    width: 90vw;
-}
-.asking #div-volume {
-    display: flex;
-}
+
 #alarm-controls {
     display: flex;
     flex-direction: column;
@@ -123,13 +114,15 @@
     margin-left: 25px;
     width: 100%;
 }
+
 #alarm-controls input[type=checkbox] {
     width: 25px;
     height: 25px;
     vertical-align: bottom;
 }
-#alarm-controls input[type=range] {
-}
+
+#alarm-controls input[type=range] {}
+
 #volume {
     height: 40px;
     width: 100%;
@@ -147,6 +140,7 @@
 .center-me {
     margin: 0 auto;
 }
+
 .center-children {
     text-align: center;
 }
@@ -154,6 +148,7 @@
 #div-timer img#icon-div-timer {
     display: none;
 }
+
 .meditating #div-timer img#icon-div-timer {
     display: block;
     position: fixed;
@@ -162,6 +157,7 @@
     width: 70px;
     opacity: 0.7;
 }
+
 .asking #div-timer img#icon-div-timer,
 .replied #div-timer img#icon-div-timer {
     display: block;
@@ -170,18 +166,22 @@
     opacity: 1;
     margin-bottom: 20px;
 }
+
 p {
     clear: both;
 }
+
 #meditator-on-btn {
     height: 60px;
     max-width: 60px;
     vertical-align: text-top;
 }
+
 .meditator-instr {
     height: 35px;
     vertical-align: text-top;
 }
+
 .logo-instr {
     height: 25px;
     vertical-align: text-top;
@@ -203,7 +203,8 @@ footer {
     color: #c7cdfa;
     color: #686b80;
 }
-footer > * {
+
+footer>* {
     width: 100%;
     height: 100%;
     line-height: var(--footer-height);
@@ -213,6 +214,7 @@ footer > * {
 section#videos {
     margin-bottom: var(--footer-height);
 }
+
 :root {
     --footer-height: 30px;
 }
@@ -235,7 +237,8 @@ header {
     padding: 10px;
     text-align: center;
 }
-header > * {
+
+header>* {
     background: transparent;
     margin: 0;
     padding: 0;
@@ -244,16 +247,19 @@ header > * {
 #about {
     z-index: 10;
 }
-#about summary span.fa > * {
+
+#about summary span.fa>* {
     font-size: 1.7rem;
 }
-.fa > * {
+
+.fa>* {
     color: black !important;
 }
 
 #div-timer * {
     font-size: 1.5rem;
 }
+
 #div-timer button {
     background-color: #529c02;
     border-color: #529c02;
@@ -265,7 +271,8 @@ header > * {
     display: flex;
     justify-content: center;
 }
-.buttons > button {
+
+.buttons>button {
     flex-grow: 1;
     margin-right: 5px;
     max-width: 300px;
@@ -284,6 +291,7 @@ header > * {
 :root {
     --bg-image: url(/img/background-1932466_1920-320x212.jpg);
 }
+
 .hero::before {
     background-image: var(--bg-image);
     background-size: cover;
@@ -299,6 +307,7 @@ header > * {
     filter: grayscale(0.5);
     opacity: 0.3;
 }
+
 .hero::after {
     xbackground-color: #563d7c;
     content: "";
@@ -330,6 +339,7 @@ header > * {
     color: greenyellow;
     transition-property: all;
 }
+
 html body .copy-button {
     margin: 10px;
     background-color: greenyellow;
@@ -342,25 +352,23 @@ p.after-med-info {
     background: #ffffff36;
     text-align: center;
 }
+
 /************************** States */
-.meditating footer > *,
-.asking footer > *,
-.replied footer > *
-{
+.meditating footer>*,
+.asking footer>*,
+.replied footer>* {
     display: none;
 }
 
 .meditating #about,
 .asking #about,
-.replied #about
-{
+.replied #about {
     display: none;
 }
 
 .meditating #message,
 .asking #message,
-.replied #message
-{
+.replied #message {
     display: none;
 }
 
