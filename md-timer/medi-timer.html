@@ -147,6 +147,10 @@
       display: none;
     }
 
+    details {
+      margin-top: 20px;
+    }
+
     details:open {
       summary {
         font-size: 1.3rem;
@@ -159,6 +163,8 @@
       margin-bottom: 30px;
 
       background-color: yellow;
+      transition: background-color 3s;
+
       padding: 20px;
 
       img {
@@ -453,7 +459,7 @@
         </summary>
         <p style="overflow:auto">
           <!-- https://vectr.com/ecap/f2dRxcG9j -->
-          This timing app can help you start training mindfulness meditation.
+          This timer app can help you start training mindfulness meditation.
           It should work similar to the app described in this
           <a href="https://www.sciencedaily.com/releases/2019/06/190603124705.htm" target="_blank"
             rel="noreferrer">study</a>.
@@ -461,7 +467,7 @@
         <img id="logo-instr" alt="Logo" src="img/meditation-timer.svg">
         <p>
           If you want to do as in the study you should use this app one or more times each day,
-          for a total of at least 10&nbsp;minutes.
+          for a total of 10&nbsp;minutes.
           The app will keep track of how much time you have meditated each day.
         </p>
         <p>
@@ -494,24 +500,21 @@
         <details id="tell-more">
           <summary>Tell me more 🕉️</summary>
           <p>
-            You can find the study on
+            The study is still not freely available, but
+            you can probably get a copy of the study on
             <a href="https://www.researchgate.net/publication/333587152_Closed-loop_digital_meditation_improves_sustained_attention_in_young_adults"
               target="_blank" rel="noreferrer">ResearchGate</a>.
-          </p>
-          <p>
-            The
+            The 
             <a href="https://static-content.springer.com/esm/art%3A10.1038%2Fs41562-019-0611-9/MediaObjects/41562_2019_611_MOESM1_ESM.pdf"
-              target="_blank" rel="noreferrer">Supplementary Information</a> is freely available.
-            It contains the written instructions from
-            <a href="https://jackkornfield.com/" target="_blank" rel="noreferrer">Jack Kornfield</a>.
-            (Copied below.)
+              target="_blank" rel="noreferrer">Supplementary Information</a> from the study is free.
+            The instructions below by <a href="https://jackkornfield.com/" target="_blank" rel="noreferrer">Jack Kornfield</a>
+            are from this supplement.
           </p>
 
           <details id="kornfield">
-            <summary>️Copy of Jack Kornfield´s instructions</summary>
-            <h3>Supplementary Methods</h3>
+            <summary>️Jack Kornfield´s instructions</summary>
             <p>
-              Mindfulness lessons by Jack Kornfield that preceded the MediTrain program:
+              Below are the instructions to the participants in the study:
             </p>
             <h3>
               Initial Meditation Instructions
@@ -529,10 +532,13 @@
                 This
                 is not a breath control practice, but a practice of awareness.</mark>
 
+            <p>
               Now I’ll give you some suggestions for
               how
               to start
               in your journey of learning to mindfully attend to your breath.
+            </p>
+            <p>
               The first step is to settle into your body. Find a way to sit that is both comfortable, relaxed, yet
               also
               alert and
@@ -544,6 +550,9 @@
               face be soft, loosen the jaw, let the shoulders relax and rest your arms and hand rest comfortably. Now
               let your
               belly be soft and your breath natural.
+            </p>
+
+            <p>
               Now the next step is to notice your body breathing; feel how the body breathes on its own in a natural
               rhythm,
               sometimes fast or slow, sometimes deep or shallow. Now simply bring your attention to wherever you can
@@ -559,6 +568,8 @@
               place it on your belly and feel the rise and fall of your belly in the palm of your hand, and rest it
               there as your
               place of awareness.
+            </p>
+            <p>
               Now that you’ve settled in you body and begun to sense your breath, notice it's natural rhythms and
               variations.
               Some breaths might be shorter or longer than others. Let your body breathe as it wishes. As you feel
@@ -571,11 +582,15 @@
               feelings, and body sensations come and go, rise and fall like waves of the ocean around the breath. Keep
               your
               attention resting on the natural rhythm of the breath.
+            </p>
 
+            <p>
               <mark>
                 Be aware if, at any point, your attention has
                 fully
                 wandered away from the breath. Without any judgement, gently bring it back to the next breath.</mark>
+            </p>
+            <p>
 
               It is
               like
