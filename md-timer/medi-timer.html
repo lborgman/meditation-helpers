@@ -53,6 +53,9 @@
   <style>
     :root {
       font-size: 16px;
+      font-family: Arial, Helvetica, sans-serif;
+      --button-bg: greenyellow;
+      --button-bg: yellowgreen;
     }
 
     html {
@@ -64,6 +67,21 @@
 
     .display-none {
       display: none;
+    }
+
+    button,
+    button-style {
+      padding: 8px;
+      border-radius: 8px;
+      /* background-color: rgb(82, 156, 2); */
+      background-color: var(--button-bg);
+      /* border-color: rgb(82, 156, 2); */
+      border-color: var(--button-bg);
+      box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+      border-bottom-width: 0.813008px;
+      border-left-width: 0.813008px;
+      border-right-width: 0.813008px;
+      border-top-width: 0.813008px;
     }
 
     header {
@@ -172,15 +190,20 @@
 
     /******** States ****/
     header {
-      display: none;
+      nodisplay: none;
+      opacity: 0;
     }
 
     #how-to {
-      display: none;
+      nodisplay: none;
+      opacity: 0;
       border-radius: 8px;
     }
 
     #div-timer {
+      opacity: 1;
+      transition-property: opacity;
+      transition-duration: 3s;
       display: flex;
       width: fit-content;
       margin-top: 40px;
@@ -194,7 +217,6 @@
     }
 
     #div-initial {
-      outline: 2px dotted red;
       width: 240px;
       display: none;
     }
@@ -212,18 +234,23 @@
 
       p.buttons {
         display: flex;
+        justify-content: center;
         gap: 20px;
       }
     }
 
     #div-controls {
       display: none;
+      background: color-mix(orange 37%, transparent 54%);
+      padding: 15px;
+      border-radius: 8px;
     }
 
 
     html.initial {
       header {
-        display: unset;
+        nodisplay: unset;
+        opacity: 1;
       }
 
       #how-to {
@@ -231,7 +258,7 @@
       }
 
       #div-initial {
-        outline: 2px dotted green;
+        nooutline: 2px dotted green;
         display: block;
       }
     }
@@ -250,14 +277,22 @@
       }
 
       #div-controls {
-        display: unset;
+        display: flex;
+        gap: 20px;
+      }
+
+      #alarm-controls {
+        label {
+          display: flex;
+          gap: 10px;
+        }
       }
     }
 
     #div-initial button#start-meditate {
       font-size: 30px;
-      margin-bottom: 40px;
-      background-color: #4ee7f6;
+      margin-bottom: 20px;
+      nobackground-color: #4ee7f6;
     }
 
     /* html.replied {} */
@@ -294,7 +329,7 @@
 
     html.asking {
       #background-filter {
-        background-color: color-mix(green 60%, transparent 40%);
+        background-color: color-mix(yellowgreen 60%, transparent 40%);
       }
     }
 

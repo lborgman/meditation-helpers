@@ -593,7 +593,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         progressBar.max = secondsGoal;
         // document.documentElement.requestFullscreen();
         setMdState("starting-meditation");
-        timerDiv.classList.add("hero");
+        // timerDiv.classList.add("hero");
         const perSeconds = 25.0;
         // const interval = 1 / perSeconds;
         const interval1000 = 1000 / perSeconds;
@@ -651,8 +651,8 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         if (!img) return;
         // console.log("using image", img.src)
         let root = document.documentElement;
-        root.style.setProperty("--bg-image", "url(" + img.src + ")");
-        root.classList.add("hero");
+        // root.style.setProperty("--bg-image", "url(" + img.src + ")");
+        // root.classList.add("hero");
         return;
         imgTimer = img;
         imgTimer.style.transitionDuration = secondsGoal + "s";
@@ -702,17 +702,17 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         let divpThanks;
         if (secondsLeft < 0) {
             divpThanks = mkElt("div", null,
-                " 🌺 You have now done your goal today. (And " +
+                " 🌺 Done your goal today. (And " +
                 formatSecondsMSS(-secondsLeft) +
                 " more!)");
         } else {
             divpThanks = mkElt("div", null,
                 [
-                    "🌱 You have done " +
+                    "🌱 Done " +
                     formatSecondsMSS(secondsToday) +
                     " today.",
                     mkElt("br"),
-                    "🧡 You have " +
+                    "🧡 " +
                     formatSecondsMSS(secondsLeft) +
                     " more to your daily goal.",
                 ]);
@@ -763,7 +763,8 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         soundOff = !soundOff;
         setDisplaySound();
     })
-    const lblVolume = mkElt("label", null, [btnSound, mkElt("br"), volSlider]);
+    // const lblVolume = mkElt("label", null, [btnSound, mkElt("br"), volSlider]);
+    const lblVolume = mkElt("label", null, [btnSound, volSlider]);
     lblVolume.style.marginBottom = "15px";
     const chkVibrate = mkElt("input", { "type": "checkbox" });
     let spanVibTxt = mkElt("span", null, "Vibrate:");
