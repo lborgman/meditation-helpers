@@ -143,6 +143,10 @@
       display: none;
     }
 
+    #div-instructions {
+      display: none;
+    }
+
     details:open {
       summary {
         font-size: 1.3rem;
@@ -189,11 +193,12 @@
     }
 
     details#how-to:open {
-      background: white;
       background: color-mix(yellow 50%, white 50%);
     }
 
-    /* details#tell-more * { margin-left: 0px; } */
+    details#tell-more * {
+      margin-left: 0px !important;
+    }
 
     #div-volume {
       display: none;
@@ -291,6 +296,10 @@
         }
       }
 
+      #div-instructions {
+        display: block;
+      }
+
       #how-to {
         display: block;
       }
@@ -311,6 +320,10 @@
 
     html.asking {
       #div-asking {
+        display: unset;
+      }
+
+      #div-instructions {
         display: unset;
       }
 
@@ -432,7 +445,7 @@
       <!-- <img id="icon-div-timer" alt="Logo" src="img/meditation-timer.svg"> -->
     </div>
 
-    <div id="message" class="display-none">
+    <div id="div-instructions" class="display-none">
       <details id="how-to">
         <summary>How to do it
           <!-- <img class="logo-instr" alt="Logo" src="img/meditation-timer.svg"> -->
@@ -479,7 +492,7 @@
           -->
         </details>
         <details id="tell-more">
-          <summary>Please tell me more? 🕉️</summary>
+          <summary>Tell me more 🕉️</summary>
           <p>
             You can find the study on
             <a href="https://www.researchgate.net/publication/333587152_Closed-loop_digital_meditation_improves_sustained_attention_in_young_adults"

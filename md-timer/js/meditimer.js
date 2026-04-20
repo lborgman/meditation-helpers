@@ -321,7 +321,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                 });
         });
 
-        let infoDiv = document.getElementById("message");
+        let infoDiv = document.getElementById("div-instructions");
         let footerInfo = document.getElementById("footer-info");
         if (!localStorage.getItem("info-invisible")) infoDiv.classList.remove("display-none");
         footerInfo.addEventListener("click", evt => {
@@ -660,8 +660,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     })
 
     let pAsk = mkElt("p", { "class": "after-med-info" }, [
-        // "🙏 Did you manage to keep attention to your breath", " without even loosing it once?"
-        "🙏 Did you maintain focus?"
+        "🙏 Did you keep focus on your breath?"
     ]);
     let btnFail = mkElt("button",
         { class: "popup-button" },
