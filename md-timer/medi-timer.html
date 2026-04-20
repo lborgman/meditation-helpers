@@ -143,10 +143,19 @@
       display: none;
     }
 
+    details:open {
+      summary {
+        font-size: 1.3rem;
+      }
+    }
+
     details#how-to {
       max-width: 32rem;
       margin-top: 40px;
       margin-bottom: 30px;
+
+      background-color: yellow;
+      padding: 20px;
 
       img {
         height: 4rem;
@@ -164,7 +173,27 @@
         height: 40px;
       }
 
+      details#kornfield {
+        margin-left: 20px;
+      }
+
+      details#kornfield:open {
+        background: white;
+        padding: 10px;
+
+        p {
+          margin-left: unset;
+          line-height: 1.5;
+        }
+      }
     }
+
+    details#how-to:open {
+      background: white;
+      background: color-mix(yellow 50%, white 50%);
+    }
+
+    /* details#tell-more * { margin-left: 0px; } */
 
     #div-volume {
       display: none;
@@ -190,13 +219,15 @@
 
     /******** States ****/
     header {
-      nodisplay: none;
-      opacity: 0;
+      h1 {
+        opacity: 0;
+        transition: opacity 1s;
+      }
     }
 
     #how-to {
       nodisplay: none;
-      opacity: 0;
+      noopacity: 0;
       border-radius: 8px;
     }
 
@@ -205,11 +236,12 @@
       transition-property: opacity;
       transition-duration: 3s;
       display: flex;
+      display: block;
       width: fit-content;
       margin-top: 40px;
       background-color: #fffc;
       padding: 20px;
-      border-radius: 8px;
+      border-radius: 20px;
     }
 
     #div-timer * {
@@ -223,6 +255,11 @@
 
     #time-goal-info {
       text-align: center;
+    }
+
+    #goal-info {
+      font-size: 1rem;
+      color: gray;
     }
 
     #div-meditating {
@@ -249,8 +286,9 @@
 
     html.initial {
       header {
-        nodisplay: unset;
-        opacity: 1;
+        h1 {
+          opacity: 1;
+        }
       }
 
       #how-to {
@@ -346,10 +384,13 @@
 
   <!-- Required styles for Material Web -->
   <!-- <link rel="stylesheet" href="/ext/mdc/14.0.0/material-components-web.css"> -->
+
+  <!-- 
   <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.css">
   <script>
     const mcwPromise = insertHereScript("../ext/mdc/material-components-web.js", "loaded-mcw");
   </script>
+  -->
 
   <script src="js/meditimer.js" type="module"></script>
 
@@ -387,6 +428,7 @@
   <main>
 
     <div id="div-timer">
+      <!-- <div>(#div-timer)</div> -->
       <!-- <img id="icon-div-timer" alt="Logo" src="img/meditation-timer.svg"> -->
     </div>
 
@@ -419,7 +461,7 @@
         <p id="version"></p>
         <p>
         <details>
-          <summary>But what should I do when I meditate?&nbsp;
+          <summary>Meditate? How?&nbsp;
             <img class="meditator-instr" alt="Meditator" src="img/wikimedia/Curious_Meditating_Cartoon_Man.svg" />
           </summary>
           <p>
@@ -430,12 +472,14 @@
             Be aware if, at any point, your attention has fully wandered away from the breath. Without any judgement,
             gently bring it back to the next breath.
           </p>
+          <!-- 
           <p>
             There will be a gentle audible and visual alarm when the meditation time is over.
           </p>
+          -->
         </details>
-        <details>
-          <summary>Can you please tell me more? 🕉️</summary>
+        <details id="tell-more">
+          <summary>Please tell me more? 🕉️</summary>
           <p>
             You can find the study on
             <a href="https://www.researchgate.net/publication/333587152_Closed-loop_digital_meditation_improves_sustained_attention_in_young_adults"
@@ -450,7 +494,7 @@
             (Copied below.)
           </p>
 
-          <details>
+          <details id="kornfield">
             <summary>️Copy of Jack Kornfield´s instructions</summary>
             <h3>Supplementary Methods</h3>
             <p>

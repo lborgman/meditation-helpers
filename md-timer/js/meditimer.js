@@ -558,7 +558,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
             eltGoalInfo = mkElt(
                 "div",
                 null,
-                "" + formatSecondsMSS(sec2dailyGoal) + " to daily goal 💛"
+                "" + formatSecondsMSS(sec2dailyGoal) + " to goal 💛"
             );
         }
         eltGoalInfo.setAttribute("id", "goal-info");
@@ -698,13 +698,13 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         // putMeditationLength(newSecondsGoal);
         putMeditationLength();
         // const secondsLeft = dailySecondsGoal - doneToday;
-        const secondsLeft = dailySecondsGoal - secondsToday;
+        let secondsLeft = dailySecondsGoal - secondsToday;
         let divpThanks;
         if (secondsLeft < 0) {
             divpThanks = mkElt("div", null,
-                " 🌺 Done your goal today. (And " +
+                " 🌺 Today you have now done " +
                 formatSecondsMSS(-secondsLeft) +
-                " more!)");
+                " more than your goal!");
         } else {
             divpThanks = mkElt("div", null,
                 [
@@ -714,7 +714,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                     mkElt("br"),
                     "🧡 " +
                     formatSecondsMSS(secondsLeft) +
-                    " more to your daily goal.",
+                    " more to your goal.",
                 ]);
         }
         let pThanks = mkElt("p", { "class": "after-med-info" }, ["Thanks!", mkElt("br"), divpThanks]);

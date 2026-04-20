@@ -27,6 +27,8 @@
 
 #goal-info {
     color: #3c3c3c;
+    color: gray;
+    font-size: 1rem;
 }
 
 #div-timer button#start-meditate {
