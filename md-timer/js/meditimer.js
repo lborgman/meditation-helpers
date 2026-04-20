@@ -730,9 +730,10 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 
     }
 
-    let divAsk = mkElt("div", { "id": "div-asking" }, [
+    const divAsk = mkElt("div", { "id": "div-asking" }, [
         pAsk,
-        mkElt("p", { "class": "buttons" }, [btnFail, btnSuccess])
+        mkElt("p", { "class": "buttons" }, [btnFail, btnSuccess]),
+        // divAlarm
     ]);
     timerDiv.appendChild(divAsk);
 
@@ -777,8 +778,8 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     const alarmControls = mkElt("div", { "id": "alarm-controls" }, [lblVolume, lblVibrate]);
     const ourCat = mkElt("i", { "id": "the-cat", "class": "fas fa-cat" });
     const divAlarm = mkElt("div", { "id": "div-controls" }, [ourCat, alarmControls]);
-    timerDiv.appendChild(divAlarm);
-    // volSlider.addEventListener("change", console.log("volslider change", volSlider.value));
+    // timerDiv.appendChild(divAlarm);
+    divAsk.appendChild(divAlarm);
     volSlider.addEventListener("input", evt => {
         // console.log("volslider input", evt, volSlider.value);
         clearInterval(intervalVolume);
