@@ -268,8 +268,40 @@
       bottom: 0px;
       right: 0px;
       z-index: -1;
-      /* I have no idea why this is needed??? */
-      background: #0f03;
+      /* I have no idea why z-index is needed??? */
+      background-color: transparent;
+      transition-property: background-color;
+      transition-duration: 1.3s;
+    }
+
+    html.initial {
+      #background-filter {
+        background-color: transparent;
+      }
+    }
+
+    html.starting-meditation {
+      #background-filter {
+        background-color: color-mix(red 20%, transparent 80%);
+      }
+    }
+
+    html.meditating {
+      #background-filter {
+        background-color: color-mix(yellow 40%, transparent 60%);
+      }
+    }
+
+    html.asking {
+      #background-filter {
+        background-color: color-mix(green 60%, transparent 40%);
+      }
+    }
+
+    html.replied {
+      #background-filter {
+        background-color: color-mix(goldenrod 60%, transparent 40%);
+      }
     }
   </style>
 
