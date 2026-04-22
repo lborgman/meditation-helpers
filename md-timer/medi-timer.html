@@ -136,13 +136,14 @@
     }
 
     footer {
+      width: 100dvw;
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       justify-items: center;
       align-items: center;
       position: fixed;
       z-index: 20;
-      min-height: 30px;
+      min-height: 32px;
       bottom: 0;
       left: 0;
       right: 0;
@@ -410,6 +411,15 @@
         background-color: color-mix(goldenrod 60%, transparent 40%);
       }
     }
+
+    #about {
+      width: 80dvw;
+      margin-bottom: 60px;
+      background-color: #fffd;
+      color: blue;
+      padding: 20px;
+      border-radius: 8px;
+    }
   </style>
 
   <!-- <script src="../src/js/error.js"></script> -->
@@ -660,11 +670,11 @@
           It is just me. Who happen to know a bit about psychology, meditation and IT.
         </p>
         <p>
-          I wrote this small app when I read about the study I mention.
-          It looks like a good idea making a tool like this widely and free available.
+          I wrote this small app when I read about the study I mention in "How to do it".
+          It looked like a good idea making a tool like this widely and freely available.
         </p>
         <p>
-          I have no affiliation whatsoever with the study authors.
+          (I have no affiliation whatsoever with the study authors.)
         </p>
       </details>
       <details style="display:none;">
@@ -688,19 +698,21 @@
       <details>
         <summary>Privacy <span class="fa"><i class="fas fa-user-secret"></i></span></summary>
         <p>
-          We store info about your current meditation session length.
-          And we store info about your daily success.
+          Information is only stored on your own computer/mobile.
         </p>
         <p>
-          This is only stored on your computer/mobile.
+          We store info about your meditation session length.
+          And your daily success.
+          Nothing else.
         </p>
       </details>
       <details>
         <summary>Contact <span class="fa"><i class="fas fa-comments"></i></span></summary>
         <p>
-          You may contact us on Facebook.
+          You can find me here on 
           <a href="https://facebook.com/groups/380924549203529/" target="_blank" rel="noreferrer">
-            <span class="fa"><i class="fab fa-facebook"></i></span></a>
+            Facebook
+            <span class="fa"><i class="fab fa-facebook"></i></span></a>.
         </p>
       </details>
 
@@ -718,8 +730,8 @@
   <footer>
     <span id="footer-version"></span>
     <span id="footer-share" tabindex="0" role="button" title="Share"><i class="fas fa-share-alt"></i></span>
-    <span id="footer-qr" tabindex="0" role="button" title="QR code"><i class="fas fa-qrcode"></i></span>
-    <span id="footer-info" tabindex="0" role="button" title="Information"><i class="fas fa-info-circle"></i></span>
+    <!-- <span id="footer-qr" tabindex="0" role="button" title="QR code"><i class="fas fa-qrcode"></i></span> -->
+    <!-- <span id="footer-info" tabindex="0" role="button" title="Information"><i class="fas fa-info-circle"></i></span> -->
     <span id="footer-about" tabindex="0" role="button" title="About"><i class="fas fa-address-card"></i></span>
     <span id="footer-install" tabindex="0" role="button" title="Install this PWA"><i
         class="fab fa-google-play"></i></span>

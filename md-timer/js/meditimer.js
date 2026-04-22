@@ -1,4 +1,4 @@
-/* @license Copyright 2019 Lennart Borgman (lennart.borgman@gmail.com) All rights reserved. */
+// @ts-check
 
 "use strict";
 const theMeditimerVersion = "1.0.025";
@@ -222,6 +222,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         })
         footerVer.style.opacity = 0.3;
 
+        /*
         let footerQR = document.getElementById("footer-qr");
         let popQR;
         footerQR.addEventListener("click", async evt => {
@@ -265,11 +266,13 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
             popQR = new Popup(title, body, null, true, "qr-popup");
             popQR.show();
         });
+        */
 
         let footerShare = document.getElementById("footer-share");
         footerShare.addEventListener("click", evt => {
             // "url": "https://medi-timer-81281.firebaseapp.com/"
-            let url = location.protocol + "//" + location.host;
+            // let url = location.protocol + "//" + location.host;
+            const url = location.href;
             let texts = [
                 "🧘 The link below goes to a simple mindfulness meditation app. " +
                 " (It is a web app so you do not have to install anything.)",
@@ -321,6 +324,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                 });
         });
 
+        /*
         let infoDiv = document.getElementById("div-instructions");
         let footerInfo = document.getElementById("footer-info");
         if (!localStorage.getItem("info-invisible")) infoDiv.classList.remove("display-none");
@@ -333,6 +337,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                 localStorage.setItem("info-invisible", true);
             }
         });
+        */
 
         let footerAbout = document.getElementById("footer-about");
         let divAbout = document.getElementById("about");
