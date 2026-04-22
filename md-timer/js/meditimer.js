@@ -220,8 +220,8 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 {
     let promImg = preLoadImg();
 
-    let pVer = document.getElementById("version");
-    pVer.innerHTML = "(Version: " + MEDI_TIMER_VER + ")";
+    // let pVer = document.getElementById("version");
+    // pVer.innerHTML = "(Version: " + MEDI_TIMER_VER + ")";
 
     function fillInFooter() {
         let footerVer = document.getElementById("footer-version");
