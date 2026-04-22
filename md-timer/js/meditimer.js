@@ -334,32 +334,35 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         });
 
 
-        let footerAbout = document.getElementById("footer-about");
-        let divAbout = document.getElementById("about");
+        const divAbout = document.getElementById("about");
+        if (!divAbout) throw Error(`Did not find "about"`);
+        const eltCloseAbout = mkElt("button", undefined, "✖" );
+        eltCloseAbout.id = "close-about";
+        divAbout.appendChild(eltCloseAbout);
+        eltCloseAbout.addEventListener("click", evt => {
+            evt.stopImmediatePropagation();
+            setMdState("initial");
+        });
+
+        const footerAbout = document.getElementById("footer-about");
+        if (!footerAbout) throw Error(`Did not find "footer-about"`);
         footerAbout.addEventListener("click", evt => {
             if (currentMdState == "about") {
                 setMdState("initial");
             } else {
                 setMdState("about");
             }
-            return;
-            divAbout.classList.toggle("display-none");
-            if (!divAbout.classList.contains("display-none")) divAbout.scrollIntoView();
-            return;
-            const header = "Info coming soon!";
-            const body = mkElt("div", null, "nothing here yet...");
-            const pop = new Popup(header, body, null, true);
-            pop.show();
         });
 
         let deferredInstallPrompt;
         let userSeenInstalled = false;
-        let footerInstall = document.getElementById("footer-install");
+        const footerInstall = document.getElementById("footer-install");
+        if (!footerInstall) throw Error(`Did not find "footer-install"`);
         footerInstall.addEventListener("click", evt => {
             if (footerInstall.style.visibility === "hidden") return;
             if (!deferredInstallPrompt) return;
             userSeenInstalled = true;
-            footerInstall.firstElementChild.classList.remove("fa-spin");
+            footerInstall.firstElementChild?.classList.remove("fa-spin");
             footerInstall.style.color = "";
             addToHomeScreen();
         });
@@ -596,8 +599,6 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     const divInitial = mkElt("div", { "id": "div-initial" }, btnStart);
     timerDiv.appendChild(divInitial);
     btnStart.addEventListener("click", evt => {
-        // const divAbout = document.getElementById("about");
-        // divAbout?.classList.add("display-none");
 
         progressBar.max = secondsGoal;
         // document.documentElement.requestFullscreen();
