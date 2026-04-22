@@ -1,7 +1,16 @@
 // @ts-check
 
-"use strict";
-const theMeditimerVersion = "1.0.025";
+export const MEDI_TIMER_VER = "1.0.025";
+// @ts-ignore
+window["logConsoleHereIs"](`here is moving-lines-1.js, module, ${MEDI_TIMER_VER}`);
+if (document.currentScript) { throw "moving-lines-1.js is not loaded as module"; }
+
+// @ts-ignore
+const mkElt = window["mkElt"];
+
+// @ts-ignore
+const importFc4i = window["importFc4i"];
+
 
 const STORING_PREFIX = "MEDITIM-";
 const modImages = await importFc4i("user-images");
@@ -212,11 +221,11 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     let promImg = preLoadImg();
 
     let pVer = document.getElementById("version");
-    pVer.innerHTML = "(Version: " + theMeditimerVersion + ")";
+    pVer.innerHTML = "(Version: " + MEDI_TIMER_VER + ")";
 
     function fillInFooter() {
         let footerVer = document.getElementById("footer-version");
-        footerVer.innerHTML = " v" + theMeditimerVersion;
+        footerVer.innerHTML = " v" + MEDI_TIMER_VER;
         footerVer.addEventListener("click", evt => {
             footerVer.style.opacity = 1;
         })
@@ -324,24 +333,16 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                 });
         });
 
-        /*
-        let infoDiv = document.getElementById("div-instructions");
-        let footerInfo = document.getElementById("footer-info");
-        if (!localStorage.getItem("info-invisible")) infoDiv.classList.remove("display-none");
-        footerInfo.addEventListener("click", evt => {
-            if (localStorage.getItem("info-invisible")) {
-                infoDiv.classList.remove("display-none");
-                localStorage.removeItem("info-invisible");
-            } else {
-                infoDiv.classList.add("display-none");
-                localStorage.setItem("info-invisible", true);
-            }
-        });
-        */
 
         let footerAbout = document.getElementById("footer-about");
         let divAbout = document.getElementById("about");
         footerAbout.addEventListener("click", evt => {
+            if (currentMdState == "about") {
+                setMdState("initial");
+            } else {
+                setMdState("about");
+            }
+            return;
             divAbout.classList.toggle("display-none");
             if (!divAbout.classList.contains("display-none")) divAbout.scrollIntoView();
             return;
@@ -401,9 +402,14 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     }
     fillInFooter();
 
+    /** @type {string} */ let currentMdState;
     setMdState("initial");
+
+    /** @param {string} state */
     function setMdState(state) {
+        currentMdState = state;
         const states = [
+            "about",
             "initial",
             "starting-meditation",
             "meditating",
@@ -590,8 +596,8 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     const divInitial = mkElt("div", { "id": "div-initial" }, btnStart);
     timerDiv.appendChild(divInitial);
     btnStart.addEventListener("click", evt => {
-        const divAbout = document.getElementById("about");
-        divAbout?.classList.add("display-none");
+        // const divAbout = document.getElementById("about");
+        // divAbout?.classList.add("display-none");
 
         progressBar.max = secondsGoal;
         // document.documentElement.requestFullscreen();
@@ -662,7 +668,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     })
 
     let pAsk = mkElt("p", { "class": "after-med-info" }, [
-        "🙏 Did you keep focus on your breath?"
+        "🙏 Did you focus on your breath?"
     ]);
     let btnFail = mkElt("button",
         { class: "popup-button" },

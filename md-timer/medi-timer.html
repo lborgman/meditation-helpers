@@ -149,6 +149,7 @@
       right: 0;
       background: black;
       color: #686b80;
+      border-top: 1px solid currentColor;
     }
 
     footer span[role=button]:hover {
@@ -164,12 +165,15 @@
     }
 
     details {
-      margin-top: 20px;
+      NOmargin-bottom: 10px;
+      NOmin-height: 32px;
     }
 
-    details:open {
+    details {
       summary {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
+        line-height: 32px;
+        cursor: pointer;
       }
     }
 
@@ -184,7 +188,8 @@
       padding: 20px;
 
       img {
-        height: 4rem;
+        height: 3em;
+        vertical-align: middle;
       }
 
       p {
@@ -259,8 +264,6 @@
 
 
     #how-to {
-      nodisplay: none;
-      noopacity: 0;
       border-radius: 8px;
     }
 
@@ -316,6 +319,42 @@
       border-radius: 8px;
     }
 
+    #about {
+      display: none;
+      opacity: 0;
+      position: relative;
+      margin-top: 30px;
+      width: 80dvw;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: 60px;
+      background-color: #fffd;
+      color: blue;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+
+    html.about {
+      header {
+        h1 {
+          opacity: 1;
+        }
+      }
+
+      footer {
+        opacity: 1;
+      }
+
+      main {
+        display: none;
+      }
+
+      #about {
+        display: block;
+        opacity: 1;
+      }
+    }
 
     html.initial {
       header {
@@ -352,9 +391,7 @@
     }
 
     html.asking {
-      footer {
-        opacity: 1;
-      }
+      /* footer { opacity: 1; } */
 
       #div-asking {
         display: unset;
@@ -427,14 +464,10 @@
       }
     }
 
-    #about {
-      margin-top: 30px;
-      width: 80dvw;
-      margin-bottom: 60px;
-      background-color: #fffd;
-      color: blue;
-      padding: 20px;
-      border-radius: 8px;
+
+    #NOabout details:last-child {
+      margin-bottom: 0px;
+      outline: 2px dotted green;
     }
   </style>
 
@@ -492,7 +525,7 @@
       <!-- <img id="icon-div-timer" alt="Logo" src="img/meditation-timer.svg"> -->
     </div>
 
-    <div id="div-instructions" class="display-none">
+    <div id="div-instructions">
       <details id="how-to">
         <summary>How to do it
           <!-- <img class="logo-instr" alt="Logo" src="img/meditation-timer.svg"> -->
@@ -658,90 +691,42 @@
             </p>
           </details>
         </details>
-        <!-- 
-        <details id="tell-more">
-          <summary>Tell me more 🕉️</summary>
-          <p>
-            The study is still not freely available, but
-            you can probably get a copy of the study on
-            <a href="https://www.researchgate.net/publication/333587152_Closed-loop_digital_meditation_improves_sustained_attention_in_young_adults"
-              target="_blank" rel="noreferrer">ResearchGate</a>.
-            The
-            <a href="https://static-content.springer.com/esm/art%3A10.1038%2Fs41562-019-0611-9/MediaObjects/41562_2019_611_MOESM1_ESM.pdf"
-              target="_blank" rel="noreferrer">Supplementary Information</a> from the study is free.
-            The instructions below by <a href="https://jackkornfield.com/" target="_blank" rel="noreferrer">Jack
-              Kornfield</a>
-            are from this supplement.
-          </p>
-        </details>
-        -->
         </p>
       </details>
     </div>
-
-    <div id="about" class="display-none">
-      <details>
-        <summary>About us <span class="fa"><i class="fas fa-user-friends"></i></span></summary>
-        <p>
-          It is just me. Who happen to know a bit about psychology, meditation and IT.
-        </p>
-        <p>
-          I wrote this small app when I read about the study I mention in "How to do it".
-          It looked like a good idea making a tool like this widely and freely available.
-        </p>
-        <p>
-          (I have no affiliation whatsoever with the study authors.)
-        </p>
-      </details>
-      <details style="display:none;">
-        <summary>About this app <span class="fa"><i class="fas fa-info-circle"></i></span></summary>
-        <p>
-          This is a "web app" (actually a
-          <a href="https://en.wikipedia.org/wiki/Progressive_web_applications" target="_blank" rel="noreferrer">PWA</a>
-          ).
-          You can say it runs in your web browser so you can use it anywhere.
-        </p>
-        <p>
-          You don't have to install anything, but you can install a PWA.
-          Then you can use it offline.
-          And you get an icon on your mobile where it will look like any app.
-        </p>
-        <p>
-          You will need a modern web browser for this to work.
-          Google Chrome and Firefox are ok.
-        </p>
-      </details>
-      <details>
-        <summary>Privacy <span class="fa"><i class="fas fa-user-secret"></i></span></summary>
-        <p>
-          Information is only stored on your own computer/mobile.
-        </p>
-        <p>
-          We store info about your meditation session length.
-          And your daily success.
-          Nothing else.
-        </p>
-      </details>
-      <details>
-        <summary>Contact <span class="fa"><i class="fas fa-comments"></i></span></summary>
-        <p>
-          You can find me here on
-          <a href="https://facebook.com/groups/380924549203529/" target="_blank" rel="noreferrer">
-            Facebook
-            <span class="fa"><i class="fab fa-facebook"></i></span></a>.
-        </p>
-      </details>
-
-
-      <!--
-      <details>
-        <summary></summary>
-      </details>
-      <details>
-        <summary></summary>
-      </details>
-      -->
   </main>
+
+  <div id="about">
+    <details>
+      <summary>About us <span class="fa"><i class="fas fa-user-friends"></i></span></summary>
+      <p>
+        It is just me. Who happen to know a bit about psychology, meditation and IT.
+      </p>
+      <p>
+        I wrote <a href="https://lborgman.github.io/">some more apps</a>.
+      </p>
+    </details>
+    <details>
+      <summary>Privacy <span class="fa"><i class="fas fa-user-secret"></i></span></summary>
+      <p>
+        This app store some data, but only on your own computer/mobile.
+      </p>
+      <p>
+        We store data about meditation session length.
+        And daily total sessions length.
+        Nothing else.
+      </p>
+    </details>
+    <details>
+      <summary>Contact <span class="fa"><i class="fas fa-comments"></i></span></summary>
+      <p>
+        You can find me here on
+        <a href="https://facebook.com/groups/380924549203529/" target="_blank" rel="noreferrer">
+          Facebook
+          <span class="fa"><i class="fab fa-facebook"></i></span></a>.
+      </p>
+    </details>
+  </div>
 
   <footer>
     <span id="footer-version"></span>
