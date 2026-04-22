@@ -575,10 +575,8 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     // const soundReadyLink = makeAbsLink("./sounds/freesound.org/260881__trautwein__cat-purr-add9.mp3");
     const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
     let objAudio;
-    let timerDiv = document.getElementById("div-timer");
-    // timerDiv.classList.add("hero");
+    const timerDiv = document.getElementById("div-timer");
     let imgMeditator = imgMeditator1.cloneNode();
-    // timerDiv.appendChild(imgMeditator);
 
     let btnStart = mkElt(
         "button",
@@ -591,10 +589,10 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     );
     const divInitial = mkElt("div", { "id": "div-initial" }, btnStart);
     timerDiv.appendChild(divInitial);
-    // imgMeditator.setAttribute("src", imgMeditator.getAttribute("svgsrc"));
     btnStart.addEventListener("click", evt => {
-        // seconds = unknownVar; // FIXME: error testing.
-        // seconds = 0;
+        const divAbout = document.getElementById("about");
+        divAbout?.classList.add("display-none");
+
         progressBar.max = secondsGoal;
         // document.documentElement.requestFullscreen();
         setMdState("starting-meditation");
@@ -645,7 +643,6 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     });
     const divMeditating = mkElt("div", { "id": "div-meditating" }, progressBar);
     timerDiv.appendChild(divMeditating);
-    // timerDiv.appendChild(progressBar);
 
 
     let imgTimer = mkElt("img");

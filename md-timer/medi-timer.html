@@ -83,7 +83,7 @@
     }
 
     .display-none {
-      display: none;
+      display: none !important;
     }
 
     button,
@@ -252,6 +252,12 @@
       }
     }
 
+    footer {
+      opacity: 0;
+      transition: opacity 1s;
+    }
+
+
     #how-to {
       nodisplay: none;
       noopacity: 0;
@@ -318,6 +324,11 @@
         }
       }
 
+      footer {
+        opacity: 1;
+      }
+
+
       #div-instructions {
         display: block;
       }
@@ -341,6 +352,10 @@
     }
 
     html.asking {
+      footer {
+        opacity: 1;
+      }
+
       #div-asking {
         display: unset;
       }
@@ -413,6 +428,7 @@
     }
 
     #about {
+      margin-top: 30px;
       width: 80dvw;
       margin-bottom: 60px;
       background-color: #fffd;
@@ -709,7 +725,7 @@
       <details>
         <summary>Contact <span class="fa"><i class="fas fa-comments"></i></span></summary>
         <p>
-          You can find me here on 
+          You can find me here on
           <a href="https://facebook.com/groups/380924549203529/" target="_blank" rel="noreferrer">
             Facebook
             <span class="fa"><i class="fab fa-facebook"></i></span></a>.
