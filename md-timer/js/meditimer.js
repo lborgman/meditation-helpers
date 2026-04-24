@@ -336,7 +336,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 
         const divAbout = document.getElementById("about");
         if (!divAbout) throw Error(`Did not find "about"`);
-        const eltCloseAbout = mkElt("button", undefined, "✖" );
+        const eltCloseAbout = mkElt("button", undefined, "✖");
         eltCloseAbout.id = "close-about";
         divAbout.appendChild(eltCloseAbout);
         eltCloseAbout.addEventListener("click", evt => {
@@ -407,6 +407,12 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 
     /** @type {string} */ let currentMdState;
     setMdState("initial");
+
+
+    window["smsInitial"] = () => setMdState("initial");
+    window["smsStarting"] = () => setMdState("starting-meditation");
+    window["smsMeditating"] = () => setMdState("meditating");
+
 
     /** @param {string} state */
     function setMdState(state) {

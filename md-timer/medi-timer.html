@@ -231,6 +231,12 @@
       margin-left: 0px !important;
     }
 
+    #progress-bar {
+      width: 60vw;
+      transition-property: width, height;
+      transition-duration: 2s;
+    }
+
     #div-volume {
       display: none;
       position: fixed;
@@ -242,13 +248,9 @@
       display: flex;
     }
 
-    #progress-bar {
-      display: none;
-      width: 60vw;
-    }
 
     .meditating #progress-bar {
-      display: block;
+      nodisplay: block;
     }
 
 
@@ -274,7 +276,7 @@
     #div-timer {
       opacity: 1;
       /* transition-property: opacity, max-width; */
-      transition-property: opacity;
+      transition-property: opacity, background-color;
       transition-duration: 3s;
       display: flex;
       display: block;
@@ -308,14 +310,19 @@
     }
 
     #div-meditating {
-      display: none;
+      nodisplay: none;
+      outline: 1px dotted green;
     }
 
     #div-asking {
-      display: none;
+      NOdisplay: none;
+      overflow: hidden;
+      width: 0;
+      height: 0;
       opacity: 0;
-      transition: opacity, display;
-      transition-behavior: allow-discrete;
+      transition: opacity;
+      notransition: opacity, display;
+      notransition-behavior: allow-discrete;
 
       p.buttons {
         display: flex;
@@ -411,9 +418,14 @@
 
     html.starting-meditation {
       #div-timer {
-        opacity: 0.2;
-        background: red;
-        max-width: 40px;
+        noopacity: 0.2;
+        background: goldenrod;
+        NOmax-width: 40px;
+      }
+
+      #progress-bar {
+        width: 0;
+        height: 0;
       }
     }
 
@@ -426,9 +438,15 @@
     html.asking {
       /* footer { opacity: 1; } */
 
+      #div-meditating {
+        display: none;
+      }
+
       #div-asking {
-        display: unset;
+        NOdisplay: unset;
         opacity: 1;
+        height: unset;
+        width: unset;
       }
 
       #div-instructions {
@@ -444,6 +462,7 @@
         label {
           display: flex;
           gap: 10px;
+
           input[type=range] {
             width: 100%;
           }
@@ -472,6 +491,10 @@
     }
 
     html.initial {
+      #div-meditating {
+        display: none;
+      }
+
       #background-filter {
         background-color: transparent;
       }
@@ -496,6 +519,10 @@
     }
 
     html.replied {
+      #div-meditating {
+        display: none;
+      }
+
       #background-filter {
         background-color: color-mix(goldenrod 60%, transparent 40%);
       }
@@ -504,7 +531,6 @@
 
     #NOabout details:last-child {
       margin-bottom: 0px;
-      outline: 2px dotted green;
     }
   </style>
 
