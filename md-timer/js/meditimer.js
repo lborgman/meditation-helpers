@@ -180,7 +180,7 @@ function putMeditationLength() {
 
 
 ////////////////////////////////////////////
-let runner;
+// let runner;
 
 function mkEaseInOut(min, max, start, end) {
     if (isNaN(min)) throw `Parameter min=${min} is not a number`;
@@ -619,6 +619,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         function startRunner() {
             const startMs = Date.now();
             const endMs = new Date(startMs + 1000 * secondsGoal);
+            /*
             runner = setInterval(() => {
                 const nowMs = Date.now();
                 if (nowMs > endMs) {
@@ -633,6 +634,18 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                 }
                 progressBar.value = 0.001 * (nowMs - startMs);
             }, interval1000);
+            */
+            updateRunner();
+            function updateRunner() {
+                const nowMs = Date.now();
+                if (nowMs > endMs) {
+                    setMdState("stopping-meditation");
+                    setTimeout(() => { startAlarms(); askAttention(); }, 2000);
+                    return;
+                }
+                progressBar.value = 0.001 * (nowMs - startMs);
+                requestAnimationFrame(updateRunner);
+            }
         }
         function startIt() {
             setMdState("meditating");
