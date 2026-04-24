@@ -29,20 +29,28 @@ modImages.setStoringPrefix(STORING_PREFIX);
 }
 
 // Goals, per session and day
-let initialGoal = 20; // FIXME:
-let minGoal = 5; // FIXME:
-const dailySecondsGoal = 10 * 60;
+/** @type {number} */ let initialGoal = 20; // FIXME:
+/** @type {number} */ let minGoal = 5; // FIXME:
+/** @type {number} */ const dailySecondsGoal = 10 * 60;
 
 // Done today?
-let secondsGoal;
-let secondsToday;
-let nFailToday = 0, nSuccessToday = 0;
+/** @type {number} */ let secondsGoal;
+/** @type {number} */ let secondsToday;
+/** @type {number} */ let nFailToday = 0;
+/** @type {number} */ let nSuccessToday = 0;
+
 
 
 ////////////////////////////////////////////
 // images
 
 /* Returns a random integer between min (inclusive) and max (exclusive) */
+/**
+ * 
+ * @param {number} min 
+ * @param {number} max 
+ * @returns {number}
+ */
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -74,6 +82,7 @@ let images = [
     "https://lh3.googleusercontent.com/sHYUlSEkv8AiBD09xK4hVo0qQr3SQ7VK-sBHBKP7GnRGeq0WoAUD1bRbIuG0-l4IIKSZlMg6hTeeHomdz9bUinzXg92SZ293L7dfiOcdAA7L6cJ1PQ2EZvq1ao6thpT_XAZkx_6sxl0jUf5SiSj1UC0XYLARpOjT8eAjH6iBYO5z0bNHMThBMyiRAH4Q0GNFGIzr0_uQPQKGl9pAAZzoI79Jb18zYJSMNKSrD9QYJ2QNt21G2ndNcRmZmqp6F_O6ZVxjFUrnPVF8ng2AQU9z65j9xwsBSTq6nWjT0bfFUII_dFKlRd93NhdLJ58f9Nyhggj8Ra60GQliJ1_1-SHJGbpmyF-JPWJJuyXAGdEmNSpK5LlgJNbR5JC32VysFkClYkbj_WLuG1I2cC40SsFW-7lI9Av9ELdImrSQX-BWEFF6Ht4V1RWYDh_IvwsdZFM7BwCoSsDoM008xmR7G_0kaAqauGXXfRd5Pmq7LLiTND3LItK2kG6wBIulMQ0v3MVLMk6RfuMFScYDTeM_U3tTU1rCKbHQkobHaFoeexXmTm5RwHTJDfOXKsERy-MOUd7bwUOM6WWdyop0dhSkCSZKoahE3h4zqplAuHi-7x1g0DrcUbLR-UQ7VehJxQyb_Rpw6jAlMS5vG7zm7npyvlSwO3Qci7jfrbhz=w1236-h927-no",
 ];
 
+/*
 function copyToClipboardAndNotify(elt, txt) {
     const notifier = mkElt("div", { "class": "clipboard-notifier" }, "Copied!");
     const rectElt = elt.getBoundingClientRect();
@@ -93,6 +102,8 @@ function copyToClipboardAndNotify(elt, txt) {
         setTimeout(() => { document.body.removeChild(notifier) }, 1500);
     }
 }
+*/
+
 // After dom loading: FIXME: how does this work with the cache handler, do I get an "error"?
 function preLoadImg() {
     const preloadImage = new Image();
@@ -139,14 +150,29 @@ function dumpLocalStorage() {
         console.log(key, localStorage.getItem(key));
     }
 }
+/**
+ * 
+ * @param {string} key 
+ * @param {string} str 
+ */
 function setItemString(key, str) {
     console.log("setItemString", key, str);
     // docCookies.setItem(key, str, Infinity, "/");
     localStorage.setItem(key, str);
 }
+/**
+ * 
+ * @param {string} key 
+ * @returns {string|null}
+ */
 function getItemString(key) {
     return localStorage.getItem(key);
 }
+/**
+ * 
+ * @param {string} key 
+ * @returns {void}
+ */
 function removeItemString(key) {
     return localStorage.removeItem(key);
 }
@@ -182,6 +208,15 @@ function putMeditationLength() {
 ////////////////////////////////////////////
 // let runner;
 
+// FIX-ME: correct??
+/**
+ * 
+ * @param {number} min 
+ * @param {number} max 
+ * @param {number} start 
+ * @param {number} end 
+ * @returns {function}
+ */
 function mkEaseInOut(min, max, start, end) {
     if (isNaN(min)) throw `Parameter min=${min} is not a number`;
     if (isNaN(max)) throw `Parameter max=${max} is not a number`;
@@ -201,15 +236,15 @@ function mkEaseInOut(min, max, start, end) {
 let secEaseInOut = 12;
 let secAlarmTime = 60;
 let funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
+
 // Check middle step size:
 let stepEaseInOut = secEaseInOut / 30; // 0.2;
 {
     let stepChange = funEaseInOut(secEaseInOut / 2 + stepEaseInOut) - funEaseInOut(secEaseInOut / 2);
-    // console.log("stepChange", stepChange);
     if (stepChange > 0.1) throw `step ${stepEaseInOut} is too large`;
 }
 
-var myAudio; // FIXME:
+// var myAudio; // FIXME:
 
 const imgMeditatorSrc = "img/wikimedia/Curious_Meditating_Cartoon_Man.svg";
 // FIXME: img=> embed, https://stackoverflow.com/questions/41195669/images-in-svg-image-tags-not-showing-up-in-chrome-but-displays-locally/43526391
@@ -224,12 +259,13 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     // pVer.innerHTML = "(Version: " + MEDI_TIMER_VER + ")";
 
     function fillInFooter() {
-        let footerVer = document.getElementById("footer-version");
+        const footerVer = document.getElementById("footer-version");
+        if (!footerVer) throw Error(`Could not find "footer-version"`);
         footerVer.innerHTML = " v" + MEDI_TIMER_VER;
         footerVer.addEventListener("click", evt => {
-            footerVer.style.opacity = 1;
+            footerVer.style.opacity = "1";
         })
-        footerVer.style.opacity = 0.3;
+        footerVer.style.opacity = "0.3";
 
         /*
         let footerQR = document.getElementById("footer-qr");
@@ -277,24 +313,13 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         });
         */
 
-        let footerShare = document.getElementById("footer-share");
+        const footerShare = document.getElementById("footer-share");
+        if (!footerShare) throw Error(`Could not find "footer-share"`);
         footerShare.addEventListener("click", evt => {
-            // "url": "https://medi-timer-81281.firebaseapp.com/"
-            // let url = location.protocol + "//" + location.host;
             const url = location.href;
             let texts = [
-                "🧘 The link below goes to a simple mindfulness meditation app. " +
-                " (It is a web app so you do not have to install anything.)",
-
-                " The idea for the app comes from a study released 2019-06-05." +
-                " The study study got surprisingly good results in a short time." +
-                " Please see the link for details.",
-
-                "⏳ The purpose of the app is to help get started with maintaining focus." +
-                " It does this with a timer, adjusted by your own progress.",
-
-                "It was tested with beginners in the study." +
-                " They started with just 20 seconds.",
+                "🧘 The link below goes to a simple mindfulness timer app. " +
+                " (It is a web page app so you do not have to install anything.)",
             ]
             let shareRec = {
                 "url": url,
@@ -303,7 +328,6 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
             };
             let promShare;
 
-            // FIXME error: "Uncaught (in promise) TypeError:" Failed to execute 'share' on 'Navigator': Illegal invocation"
             if (navigator.share) {
                 promShare = navigator.share(shareRec);
             } else {
@@ -314,14 +338,16 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                     mkElt("p", null, textsP),
                     mkElt("a",
                         {
-                            "href": "https://medi-timer-81281.firebaseapp.com/",
+                            "href": location.href,
                             "target": "_blank",
                             "rel": "noreferrer"
                         },
-                        "https://medi-timer-81281.firebaseapp.com/")
+                        // old version: "https://medi-timer-81281.firebaseapp.com/")
+                        location.href)
                 ]);
-                const pop = new Popup(header, body, null, true);
-                pop.show();
+                const pop = mkElt("dialog", undefined, [header, body]);
+                document.body.appendChild(pop);
+                pop.showModal();
                 promShare = Promise.resolve();
             }
             promShare
@@ -375,7 +401,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
             footerInstall.title = "Do you wan't to install this PWA so you can use it offline?";
             if (!userSeenInstalled) {
                 footerInstall.style.color = "yellow";
-                footerInstall.firstElementChild.classList.add("fa-spin");
+                footerInstall.firstElementChild?.classList.add("fa-spin");
             }
             footerInstall.style.visibility = "visible";
             // log the platforms provided as options in an install prompt 
@@ -383,7 +409,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
             e.userChoice.then(function (outcome) {
                 console.log(outcome); // either "accepted" or "dismissed"
             }, err => {
-                console.log("beforeinstallprompt, some error", error);
+                console.log("beforeinstallprompt, some error", err);
             });
         });
         function addToHomeScreen() {
@@ -484,7 +510,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         useVibration = false;
         clearInterval(vibrationTimer);
     }
-    let sliderVolume;
+    /** @type {number} */ let sliderVolume;
     let intervalVolume;
     function playReadySound() {
         objAudio.currentTime = 0;
@@ -615,10 +641,10 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         // timerDiv.classList.add("hero");
         const perSeconds = 25.0;
         // const interval = 1 / perSeconds;
-        const interval1000 = 1000 / perSeconds;
+        // const interval1000 = 1000 / perSeconds;
         function startRunner() {
             const startMs = Date.now();
-            const endMs = new Date(startMs + 1000 * secondsGoal);
+            const endMs = startMs + 1000 * secondsGoal;
             /*
             runner = setInterval(() => {
                 const nowMs = Date.now();
