@@ -273,11 +273,13 @@
 
     #div-timer {
       opacity: 1;
+      /* transition-property: opacity, max-width; */
       transition-property: opacity;
       transition-duration: 3s;
       display: flex;
       display: block;
       width: fit-content;
+      max-width: 90dvw;
       margin-top: 40px;
       background-color: #fffc;
       padding: 20px;
@@ -291,6 +293,9 @@
     #div-initial {
       width: 240px;
       display: none;
+      opacity: 0;
+      transition: opacity, display;
+      transition-behavior: allow-discrete;
     }
 
     #time-goal-info {
@@ -308,6 +313,9 @@
 
     #div-asking {
       display: none;
+      opacity: 0;
+      transition: opacity, display;
+      transition-behavior: allow-discrete;
 
       p.buttons {
         display: flex;
@@ -396,12 +404,18 @@
       }
 
       #div-initial {
-        nooutline: 2px dotted green;
         display: block;
+        opacity: 1;
       }
     }
 
-    html.starting-meditation {}
+    html.starting-meditation {
+      #div-timer {
+        opacity: 0.2;
+        background: red;
+        max-width: 40px;
+      }
+    }
 
     html.meditating {
       #div-meditating {
@@ -414,6 +428,7 @@
 
       #div-asking {
         display: unset;
+        opacity: 1;
       }
 
       #div-instructions {
@@ -429,6 +444,9 @@
         label {
           display: flex;
           gap: 10px;
+          input[type=range] {
+            width: 100%;
+          }
         }
       }
     }
@@ -446,11 +464,11 @@
       left: 0px;
       bottom: 0px;
       right: 0px;
+      /* I have no idea why z-index is needed for the footer??? */
       z-index: -1;
-      /* I have no idea why z-index is needed??? */
       background-color: transparent;
       transition-property: background-color;
-      transition-duration: 1.3s;
+      transition-duration: 2s;
     }
 
     html.initial {
@@ -536,13 +554,9 @@
     </span>
   </header>
 
-  <!-- <section id="videos"> -->
   <main>
 
-    <div id="div-timer">
-      <!-- <div>(#div-timer)</div> -->
-      <!-- <img id="icon-div-timer" alt="Logo" src="img/meditation-timer.svg"> -->
-    </div>
+    <div id="div-timer"></div>
 
     <div id="div-instructions">
       <details id="how-to">
