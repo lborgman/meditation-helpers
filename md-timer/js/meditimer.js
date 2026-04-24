@@ -412,6 +412,8 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     window["smsInitial"] = () => setMdState("initial");
     window["smsStarting"] = () => setMdState("starting-meditation");
     window["smsMeditating"] = () => setMdState("meditating");
+    window["smsStopping"] = () => setMdState("stopping-meditation");
+    window["smsAsking"] = () => setMdState("asking");
 
 
     /** @param {string} state */
@@ -422,6 +424,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
             "initial",
             "starting-meditation",
             "meditating",
+            "stopping-meditation",
             "asking",
             "replied",
         ];
@@ -621,9 +624,11 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                 if (nowMs > endMs) {
                     clearInterval(runner);
                     progressBar.value = secondsGoal;
-                    // playReadySound();
-                    startAlarms();
-                    askAttention();
+                    setMdState("stopping-meditation");
+                    setTimeout(() => {
+                        startAlarms();
+                        askAttention();
+                    }, 2000);
                     return;
                 }
                 progressBar.value = 0.001 * (nowMs - startMs);

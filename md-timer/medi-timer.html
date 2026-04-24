@@ -166,6 +166,9 @@
 
     #div-instructions {
       display: none;
+      transition-property: opacity;
+      transition-duration: 2s;
+      transition-behavior: allow-discrete;
     }
 
     details {
@@ -187,7 +190,8 @@
       margin-bottom: 30px;
 
       background-color: yellow;
-      transition: background-color 3s;
+      transition-property: background-color, opacity;
+      transition-duration: 3s;
 
       padding: 20px;
 
@@ -418,9 +422,7 @@
 
     html.starting-meditation {
       #div-timer {
-        noopacity: 0.2;
         background: goldenrod;
-        NOmax-width: 40px;
       }
 
       #progress-bar {
@@ -435,6 +437,20 @@
       }
     }
 
+    html.stopping-meditation {
+      #div-timer {
+        background: yellowgreen;
+        opacity: 0;
+      }
+
+      #div-asking {
+        opacity: 0;
+      }
+      #div-instructions {
+        opacity: 0;
+      }
+    }
+
     html.asking {
       /* footer { opacity: 1; } */
 
@@ -443,14 +459,14 @@
       }
 
       #div-asking {
-        NOdisplay: unset;
         opacity: 1;
         height: unset;
         width: unset;
       }
 
-      #div-instructions {
+      #NOdiv-instructions {
         display: unset;
+        opacity: 1;
       }
 
       #div-controls {
@@ -511,6 +527,13 @@
         background-color: color-mix(yellow 40%, transparent 60%);
       }
     }
+
+    html.stopping-meditation {
+      #background-filter {
+        background-color: color-mix(yellowgreen 40%, transparent 60%);
+      }
+    }
+
 
     html.asking {
       #background-filter {
