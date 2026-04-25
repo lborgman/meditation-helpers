@@ -643,27 +643,38 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 
     btnImage.addEventListener("click", async evt => {
         evt.stopPropagation();
-        // debugger;
-        selectAndSaveFile();
-        return;
-        const imageBlobUrl = await pickImage();
-        try {
-            await new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = resolve;
-                img.onerror = reject;
-                img.src = imageBlobUrl;
-            });
-        } catch (err) {
-            debugger;
-        }
-        console.log("before background");
-        document.documentElement.style.backgroundImage = `url(${imageBlobUrl})`;
-        // debugger;
-        // No need to revoke??
-        // https://stackoverflow.com/questions/49209756/do-i-always-need-to-call-url-revokeobjecturl-explicitly
-        // setTimeout(() => { URL.revokeObjectURL(imageBlob); }, 1000);
-        // setItemString("html-bg", imageBlobUrl)
+        // selectAndSaveFile();
+        const btnOwn = mkElt("button", undefined, "Select");
+        const btnDefault = mkElt("button", undefined, "Default");
+        const btnClose = mkElt("button", undefined, "Close");
+        const divButtons = mkElt("div", undefined, [
+            btnOwn,
+            btnDefault,
+            btnClose
+        ]);
+        divButtons.classList.add("dialog-buttons");
+        const dlg = mkElt("dialog", undefined, [
+            mkElt("p", undefined, `
+                Background image
+                `),
+            divButtons
+        ]);
+        document.documentElement.appendChild(dlg);
+        btnOwn.addEventListener("click", evt => {
+            evt.stopPropagation();
+            dlg.close();
+            selectAndSaveFile();
+        });
+        btnDefault.addEventListener("click", evt => {
+            evt.stopPropagation();
+            dlg.close();
+            // How??
+        });
+        btnClose.addEventListener("click", evt => {
+            evt.stopPropagation();
+            dlg.close();
+        });
+        dlg.showModal();
     });
     btnStart.addEventListener("click", evt => {
 
