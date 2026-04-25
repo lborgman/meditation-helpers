@@ -380,8 +380,8 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 
         const divAbout = document.getElementById("about");
         if (!divAbout) throw Error(`Did not find "about"`);
-        const eltCloseAbout = mkElt("button", undefined, "✖");
-        eltCloseAbout.id = "close-about";
+        const eltCloseAbout = mkElt("button", { class: "x-close" }, "✖");
+        // eltCloseAbout.id = "close-about";
         divAbout.appendChild(eltCloseAbout);
         eltCloseAbout.addEventListener("click", evt => {
             evt.stopImmediatePropagation();
@@ -1120,11 +1120,10 @@ async function setBackgroundImage() {
 }
 
 function backgroundImageDialog() {
-
-    // selectAndSaveFile();
     const btnMy = mkElt("button", undefined, "Select");
     const btnDefault = mkElt("button", undefined, "Default");
     const btnClose = mkElt("button", undefined, "Close");
+    const xClose = mkElt("button", { class: "x-close" }, "✖");
 
     const chkMy = mkElt("input", { type: "checkbox" });
     chkMy.checked = getUseMyBackground();
@@ -1150,7 +1149,8 @@ function backgroundImageDialog() {
     `
     const divInputs = mkElt("div", undefined, [
         divMy,
-        btnClose
+        // btnClose,
+        xClose
     ]);
     const bdy = mkElt("div", undefined, [
         mkElt("h2", undefined, `Background image`),
@@ -1185,6 +1185,10 @@ function backgroundImageDialog() {
         // How??
     });
     btnClose.addEventListener("click", evt => {
+        evt.stopPropagation();
+        dlg.close();
+    });
+    xClose.addEventListener("click", evt => {
         evt.stopPropagation();
         dlg.close();
     });
