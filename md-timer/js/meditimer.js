@@ -25,7 +25,6 @@ async function setExternalBackground() {
     const iImage = Math.floor(Math.random() * numImages)
     const urlImage = ourImages[iImage];
     console.log({ urlImage });
-    // document.documentElement.style.backgroundImage = `url(${urlImage})`;
     setBackgroundImageWithRetry(document.documentElement, urlImage);
 }
 
@@ -130,13 +129,10 @@ function preLoadImg() {
                 return;
             }
             imgInt = getRandomInt(0, images.length - 1);
-            let imgUrl = images[imgInt];
-            let a = document.createElement("a");
+            const imgUrl = images[imgInt];
+            const a = document.createElement("a");
             a.href = imgUrl;
-            // console.log("imgInt", imgInt, imgUrl);
-            // console.log("a", a, a.hostname, a.pathname);
-            let ourImgPath = "/img/" + a.hostname + a.pathname;
-            // console.log("ourImgPath", ourImgPath);
+            const ourImgPath = "/img/" + a.hostname + a.pathname;
             preloadImage.src = imgUrl; // images[imgInt];
         }
     });
@@ -1032,8 +1028,18 @@ function loadSavedHandle() {
     });
 }
 
+/** * @param {boolean} useMy */
+function setUseMyBackground(useMy) {
+    setItemString("use-my-bg", useMy.toString());
+}
+function getUseMyBackground() {
+    const strMy = getItemString("use-my-bg");
+    if (strMy == "true") return true;
+    return false;
+}
 // --- On page load, restore previous file ---
 async function restoreFromLastSession() {
+    if (!getUseMyBackground()) return false;
     const savedHandle = await loadSavedHandle();
     if (savedHandle) {
         // Check if permission still granted
@@ -1084,11 +1090,12 @@ async function restoreFromLastSession() {
     }
 }
 
-// --- Initialize ---
-// document.getElementById('filePicker').addEventListener('click', selectAndSaveFile);
-// debugger;
-if (!restoreFromLastSession()) {
-    setExternalBackground();
+// --- Background ---
+setBackgroundImage();
+function setBackgroundImage() {
+    if (!restoreFromLastSession()) {
+        setExternalBackground();
+    }
 }
 
 function backgroundImageDialog() {
@@ -1099,6 +1106,11 @@ function backgroundImageDialog() {
     const btnClose = mkElt("button", undefined, "Close");
 
     const chkMy = mkElt("input", { type: "checkbox" });
+    chkMy.addEventListener("change", evt => {
+        // debugger;
+        setUseMyBackground(chkMy.checked)
+        setBackgroundImage();
+    });
     const lblMy = mkElt("label", undefined, [
         chkMy,
         "Use my image",
@@ -1109,7 +1121,7 @@ function backgroundImageDialog() {
         flex-wrap: wrap;
         align-items: center;
     `;
-    const divMy = mkElt("p",undefined, [lblMy, btnMy]);
+    const divMy = mkElt("p", undefined, [lblMy, btnMy]);
     divMy.style = `
         display: flex;
         gap: 35px;
@@ -1124,7 +1136,7 @@ function backgroundImageDialog() {
     ]);
     // bdy.style.outline = "1px dotted red";
     // bdy.style.border = "1px dotted green";
-    bdy.style.padding = "20px";
+    // bdy.style.padding = "20px";
     const dlg = mkElt("dialog", undefined, [
         bdy
     ]);
