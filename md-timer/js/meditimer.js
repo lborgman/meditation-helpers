@@ -17,7 +17,7 @@ const modImages = await importFc4i("user-images");
 // modSound.setStoringPrefix(STORING_PREFIX);
 modImages.setStoringPrefix(STORING_PREFIX);
 
-{
+async function setExternalBackground() {
     const modPubImages = await import("public-images")
     const ourImages = modPubImages.ourImages;
     const numImages = modPubImages.ourImages.length;
@@ -25,7 +25,8 @@ modImages.setStoringPrefix(STORING_PREFIX);
     const iImage = Math.floor(Math.random() * numImages)
     const urlImage = ourImages[iImage];
     console.log({ urlImage });
-    document.documentElement.style.backgroundImage = `url(${urlImage})`;
+    // document.documentElement.style.backgroundImage = `url(${urlImage})`;
+    setBackgroundImageWithRetry(document.documentElement, urlImage);
 }
 
 // Goals, per session and day
@@ -620,19 +621,50 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
     let objAudio;
     const timerDiv = document.getElementById("div-timer");
-    let imgMeditator = imgMeditator1.cloneNode();
+    // let imgMeditator = imgMeditator1.cloneNode();
 
-    let btnStart = mkElt(
+    const btnStart = mkElt(
         "button",
         { class: "NOpopup-button", id: "start-meditate" },
         [
-            // "Start meditation timer ",
             "Start",
-            // imgMeditator
         ]
     );
-    const divInitial = mkElt("div", { "id": "div-initial" }, btnStart);
+    const btnImage = mkElt(
+        "button",
+        { class: "NOpopup-button", id: "btn-image" },
+        [
+            "Image",
+        ]
+    );
+
+    const divInitial = mkElt("div", { "id": "div-initial" }, [btnStart, btnImage]);
     timerDiv.appendChild(divInitial);
+
+    btnImage.addEventListener("click", async evt => {
+        evt.stopPropagation();
+        // debugger;
+        selectAndSaveFile();
+        return;
+        const imageBlobUrl = await pickImage();
+        try {
+            await new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = resolve;
+                img.onerror = reject;
+                img.src = imageBlobUrl;
+            });
+        } catch (err) {
+            debugger;
+        }
+        console.log("before background");
+        document.documentElement.style.backgroundImage = `url(${imageBlobUrl})`;
+        // debugger;
+        // No need to revoke??
+        // https://stackoverflow.com/questions/49209756/do-i-always-need-to-call-url-revokeobjecturl-explicitly
+        // setTimeout(() => { URL.revokeObjectURL(imageBlob); }, 1000);
+        // setItemString("html-bg", imageBlobUrl)
+    });
     btnStart.addEventListener("click", evt => {
 
         progressBar.max = secondsGoal;
@@ -874,3 +906,198 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 }
 // );
 
+
+function pickImage() {
+    return new Promise((resolve) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.addEventListener('change', () => {
+            resolve(URL.createObjectURL(input.files[0]));
+        });
+        input.click();
+    });
+}
+
+/**
+ * 
+ * @param {HTMLElement} el 
+ * @param {string} url 
+ * @param {number} retries 
+ * @param {number} delay 
+ */
+function setBackgroundImageWithRetry(el, url, retries = 0, delay = 1000) {
+    const img = new Image();
+
+    img.onload = () => {
+        el.style.backgroundImage = `url(${url})`;
+    };
+
+    img.onerror = () => {
+        if (retries > 0) {
+            console.warn(`Failed, retrying... (${retries} left)`);
+            setTimeout(() => {
+                setBackgroundImageWithRetry(el, url, retries - 1, delay * 2); // exponential backoff
+            }, delay);
+        } else {
+            console.error('Gave up loading:', url);
+        }
+    };
+
+    img.src = url;
+}
+
+// Save file handle after user selects a file
+async function selectAndSaveFile() {
+    try {
+        // Ask user to pick a file
+        const [handle] = await window.showOpenFilePicker();
+
+        // Save the handle to IndexedDB (or just keep in memory for demo)
+        await saveFileHandle(handle);
+
+        // Get the file and display it
+        await loadAndDisplayFile(handle);
+    } catch (err) {
+        console.error('User cancelled or error:', err);
+    }
+}
+
+// Load file from saved handle and create object URL
+async function loadAndDisplayFile(handle) {
+    try {
+        // Get the actual File object from the handle
+        const file = await handle.getFile();
+
+        // Create object URL (fresh each page load!)
+        const url = URL.createObjectURL(file);
+
+        // Use it (e.g., display an image)
+        // const img = document.getElementById('preview');
+        // img.src = url;
+        // backgroundImage =
+        document.documentElement.style.backgroundImage = `url(${url})`;
+
+        // Store URL to revoke later if needed
+        // img.onload = () => URL.revokeObjectURL(url); // optional cleanup
+    } catch (err) {
+        console.error('Error loading file:', err);
+    }
+}
+
+// --- IndexedDB helpers to persist the handle ---
+function saveFileHandle(handle) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('FileHandlesDB', 2);
+
+        request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains('handles')) {
+                db.createObjectStore('handles');
+            }
+        };
+
+        request.onsuccess = () => {
+            const db = request.result;
+            const tx = db.transaction('handles', 'readwrite');
+            const store = tx.objectStore('handles');
+            store.put(handle, 'savedFileHandle');
+            tx.oncomplete = () => {
+                db.close();
+                resolve();
+            };
+            tx.onerror = () => reject(tx.error);
+        };
+
+        request.onerror = () => reject(request.error);
+    });
+}
+
+function loadSavedHandle() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('FileHandlesDB', 2);
+
+        request.onsuccess = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains('handles')) {
+                db.close();
+                resolve(null);
+                return;
+            }
+
+            const tx = db.transaction('handles', 'readonly');
+            const store = tx.objectStore('handles');
+            const getRequest = store.get('savedFileHandle');
+
+            getRequest.onsuccess = () => {
+                db.close();
+                resolve(getRequest.result || null);
+            };
+            getRequest.onerror = () => {
+                db.close();
+                reject(getRequest.error);
+            };
+        };
+
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// --- On page load, restore previous file ---
+async function restoreFromLastSession() {
+    const savedHandle = await loadSavedHandle();
+    if (savedHandle) {
+        // Check if permission still granted
+        const permission = await savedHandle.queryPermission({ mode: 'read' });
+
+        if (permission === 'granted') {
+            await loadAndDisplayFile(savedHandle);
+            return true;
+        } else if (permission === 'prompt') {
+            // Request permission again
+            // const newPermission = await savedHandle.requestPermission({ mode: 'read' });
+            // let newPermission;
+
+            // We have to create a popup and do this!
+            return new Promise((resolve, reject) => {
+                const btnYes = mkElt("button", undefined, "Yes");
+                const btnNo = mkElt("button", undefined, "No");
+                const divButtons = mkElt("div", undefined, [btnYes, btnNo]);
+                const bdy = mkElt("div", undefined, [
+                    mkElt("p", undefined, `
+                    Do you want to use the background image you picked before?
+                    `),
+                    divButtons
+                ])
+                const dialog = mkElt("dialog", undefined, bdy);
+                document.documentElement.appendChild(dialog);
+                btnYes.addEventListener("click", async evt => {
+                    evt.stopPropagation();
+                    dialog.close();
+                    const newPermission = await savedHandle.requestPermission({ mode: 'read' });
+                    if (newPermission === 'granted') {
+                        await loadAndDisplayFile(savedHandle);
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                });
+                btnNo.addEventListener("click", evt => {
+                    evt.stopPropagation();
+                    dialog.close();
+                    resolve(false);
+                });
+
+                dialog.showModal();
+                debugger;
+            });
+        }
+    }
+}
+
+// --- Initialize ---
+// document.getElementById('filePicker').addEventListener('click', selectAndSaveFile);
+// debugger;
+if (!restoreFromLastSession()) {
+    setExternalBackground();
+}
