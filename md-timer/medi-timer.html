@@ -142,7 +142,7 @@
     footer {
       width: 100dvw;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       justify-items: center;
       align-items: center;
       position: fixed;
@@ -156,14 +156,33 @@
       border-top: 1px solid currentColor;
     }
 
+    footer span[role=button] {
+      cursor: pointer;
+    }
+
     footer span[role=button]:hover {
       color: red;
+    }
+
+
+    dialog {
+      border: 1px solid gray;
+      border-radius: 8px;
+      padding: 0;
+    }
+
+    dialog::backdrop {
+      background-color: #9996;
+      background-color: #0008;
+      backdrop-filter: blur(2px);
     }
 
     .dialog-buttons {
       display: flex;
       gap: 10px;
     }
+
+
 
     #footer-install {
       display: none;
@@ -451,6 +470,7 @@
       #div-asking {
         opacity: 0;
       }
+
       #div-instructions {
         opacity: 0;
       }
@@ -816,13 +836,14 @@
   </div>
 
   <footer>
-    <span id="footer-version"></span>
     <span id="footer-share" tabindex="0" role="button" title="Share"><i class="fas fa-share-alt"></i></span>
     <!-- <span id="footer-qr" tabindex="0" role="button" title="QR code"><i class="fas fa-qrcode"></i></span> -->
     <!-- <span id="footer-info" tabindex="0" role="button" title="Information"><i class="fas fa-info-circle"></i></span> -->
+    <span id="footer-image" tabindex="0" role="button" title="Background image">Image</span>
     <span id="footer-about" tabindex="0" role="button" title="About"><i class="fas fa-address-card"></i></span>
     <span id="footer-install" tabindex="0" role="button" title="Install this PWA"><i
         class="fab fa-google-play"></i></span>
+    <span id="footer-version"></span>
   </footer>
 
 </body>

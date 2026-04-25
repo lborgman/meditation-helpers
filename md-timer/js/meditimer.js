@@ -360,6 +360,14 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                 });
         });
 
+        const footerImage = document.getElementById("footer-image");
+        if (!footerImage) throw Error(`Could not find "footer-image"`);
+        footerImage.addEventListener("click", evt => {
+            evt.stopPropagation();
+            // alert("image"); // btnImage
+            backgroundImageDialog();
+        });
+
 
         const divAbout = document.getElementById("about");
         if (!divAbout) throw Error(`Did not find "about"`);
@@ -638,44 +646,14 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         ]
     );
 
-    const divInitial = mkElt("div", { "id": "div-initial" }, [btnStart, btnImage]);
+    const divInitial = mkElt("div", { "id": "div-initial" }, [btnStart]);
     timerDiv.appendChild(divInitial);
 
     btnImage.addEventListener("click", async evt => {
         evt.stopPropagation();
-        // selectAndSaveFile();
-        const btnOwn = mkElt("button", undefined, "Select");
-        const btnDefault = mkElt("button", undefined, "Default");
-        const btnClose = mkElt("button", undefined, "Close");
-        const divButtons = mkElt("div", undefined, [
-            btnOwn,
-            btnDefault,
-            btnClose
-        ]);
-        divButtons.classList.add("dialog-buttons");
-        const dlg = mkElt("dialog", undefined, [
-            mkElt("p", undefined, `
-                Background image
-                `),
-            divButtons
-        ]);
-        document.documentElement.appendChild(dlg);
-        btnOwn.addEventListener("click", evt => {
-            evt.stopPropagation();
-            dlg.close();
-            selectAndSaveFile();
-        });
-        btnDefault.addEventListener("click", evt => {
-            evt.stopPropagation();
-            dlg.close();
-            // How??
-        });
-        btnClose.addEventListener("click", evt => {
-            evt.stopPropagation();
-            dlg.close();
-        });
-        dlg.showModal();
+        backgroundImageDialog();
     });
+
     btnStart.addEventListener("click", evt => {
 
         progressBar.max = secondsGoal;
@@ -1111,4 +1089,70 @@ async function restoreFromLastSession() {
 // debugger;
 if (!restoreFromLastSession()) {
     setExternalBackground();
+}
+
+function backgroundImageDialog() {
+
+    // selectAndSaveFile();
+    const btnMy = mkElt("button", undefined, "Select");
+    const btnDefault = mkElt("button", undefined, "Default");
+    const btnClose = mkElt("button", undefined, "Close");
+
+    const chkMy = mkElt("input", { type: "checkbox" });
+    const lblMy = mkElt("label", undefined, [
+        chkMy,
+        "Use my image",
+    ]);
+    lblMy.style = `
+        display: inline-flex;
+        gap: 5px;
+        flex-wrap: wrap;
+        align-items: center;
+    `;
+    const divMy = mkElt("p",undefined, [lblMy, btnMy]);
+    divMy.style = `
+        display: flex;
+        gap: 35px;
+    `
+    const divInputs = mkElt("div", undefined, [
+        divMy,
+        btnClose
+    ]);
+    const bdy = mkElt("div", undefined, [
+        mkElt("h2", undefined, `Background image`),
+        divInputs
+    ]);
+    // bdy.style.outline = "1px dotted red";
+    // bdy.style.border = "1px dotted green";
+    bdy.style.padding = "20px";
+    const dlg = mkElt("dialog", undefined, [
+        bdy
+    ]);
+
+    // FIX-ME: delegate
+    dlg.addEventListener("click", evt => {
+        evt.stopPropagation();
+        // bdy covers the whole <dialog>
+        const target = evt.target;
+        const currentTarget = evt.currentTarget;
+        const onDialog = target == currentTarget;
+        // console.log({onDialog});
+        if (onDialog) dlg.close();
+    });
+    document.documentElement.appendChild(dlg);
+    btnMy.addEventListener("click", evt => {
+        evt.stopPropagation();
+        dlg.close();
+        selectAndSaveFile();
+    });
+    btnDefault.addEventListener("click", evt => {
+        evt.stopPropagation();
+        dlg.close();
+        // How??
+    });
+    btnClose.addEventListener("click", evt => {
+        evt.stopPropagation();
+        dlg.close();
+    });
+    dlg.showModal();
 }
