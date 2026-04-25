@@ -18,14 +18,27 @@ const modImages = await importFc4i("user-images");
 modImages.setStoringPrefix(STORING_PREFIX);
 
 async function setExternalBackground() {
+    console.log("---- setExternalBackground");
     const modPubImages = await import("public-images")
     const ourImages = modPubImages.ourImages;
     const numImages = modPubImages.ourImages.length;
     console.log({ numImages });
-    const iImage = Math.floor(Math.random() * numImages)
-    const urlImage = ourImages[iImage];
-    console.log({ urlImage });
-    setBackgroundImageWithRetry(document.documentElement, urlImage);
+    let didIt = false;
+    const setTried = new Set();
+    let nLoop = 0;
+    while (++nLoop < 50) {
+        const iImage = Math.floor(Math.random() * numImages)
+        console.log("trying iImage", iImage);
+        if (setTried.has(iImage)) continue;
+        setTried.add(iImage);
+        const urlImage = ourImages[iImage];
+        console.log({ urlImage });
+        didIt = await setBackgroundImageWithRetry(document.documentElement, urlImage);
+        if (didIt) return true;
+    }
+    console.log("could not load any external image");
+    debugger;
+    return false;
 }
 
 // Goals, per session and day
@@ -912,24 +925,29 @@ function pickImage() {
  * @param {number} delay 
  */
 function setBackgroundImageWithRetry(el, url, retries = 0, delay = 1000) {
-    const img = new Image();
+    // resolve
+    return new Promise((resolve, reject) => {
+        const img = new Image();
 
-    img.onload = () => {
-        el.style.backgroundImage = `url(${url})`;
-    };
+        img.onload = () => {
+            el.style.backgroundImage = `url(${url})`;
+            resolve(true);
+        };
 
-    img.onerror = () => {
-        if (retries > 0) {
-            console.warn(`Failed, retrying... (${retries} left)`);
-            setTimeout(() => {
-                setBackgroundImageWithRetry(el, url, retries - 1, delay * 2); // exponential backoff
-            }, delay);
-        } else {
-            console.error('Gave up loading:', url);
-        }
-    };
+        img.onerror = () => {
+            if (retries > 0) {
+                console.warn(`Failed, retrying... (${retries} left)`);
+                setTimeout(() => {
+                    setBackgroundImageWithRetry(el, url, retries - 1, delay * 2); // exponential backoff
+                }, delay);
+            } else {
+                console.error('Gave up loading:', url);
+                resolve(false);
+            }
+        };
 
-    img.src = url;
+        img.src = url;
+    });
 }
 
 // Save file handle after user selects a file
@@ -1039,6 +1057,7 @@ function getUseMyBackground() {
 }
 // --- On page load, restore previous file ---
 async function restoreFromLastSession() {
+    console.log("++++++ restoreFromLastSession");
     if (!getUseMyBackground()) return false;
     const savedHandle = await loadSavedHandle();
     if (savedHandle) {
@@ -1092,8 +1111,10 @@ async function restoreFromLastSession() {
 
 // --- Background ---
 setBackgroundImage();
-function setBackgroundImage() {
-    if (!restoreFromLastSession()) {
+async function setBackgroundImage() {
+    const restore = await restoreFromLastSession();
+    console.log("---------setBackgroundImage", { restore });
+    if (!restore) {
         setExternalBackground();
     }
 }
@@ -1106,6 +1127,7 @@ function backgroundImageDialog() {
     const btnClose = mkElt("button", undefined, "Close");
 
     const chkMy = mkElt("input", { type: "checkbox" });
+    chkMy.checked = getUseMyBackground();
     chkMy.addEventListener("change", evt => {
         // debugger;
         setUseMyBackground(chkMy.checked)
