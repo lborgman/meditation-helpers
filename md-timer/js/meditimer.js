@@ -713,7 +713,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     })
 
     let pAsk = mkElt("p", { "class": "after-med-info" }, [
-        "🙏 Did you focus on your breath?"
+        "Did you keep focus on your breath?"
     ]);
     let btnFail = mkElt("button",
         { class: "popup-button" },
@@ -821,7 +821,8 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     const chkVibrate = mkElt("input", { "type": "checkbox" });
     let spanVibTxt = mkElt("span", null, "Vibrate:");
     const lblVibrate = mkElt("label", null, [spanVibTxt, chkVibrate]);
-    if (typeof navigator.vibrate !== "function") {
+    if (typeof navigator.nOvibrate !== "function") {
+        lblVibrate.style.display = "none";
         spanVibTxt.innerHTML = "(No vibration)";
         lblVibrate.setAttribute("title", "Your browser does not support vibration.\nTry Chrome if you want it.");
         chkVibrate.setAttribute("disabled", true);
@@ -914,7 +915,6 @@ function setBackgroundImageWithRetry(el, url, retries = 0, delay = 1000) {
     });
 }
 
-// Save file handle after user selects a file
 async function selectAndSaveFile() {
     try {
         // Ask user to pick a file
@@ -957,7 +957,7 @@ async function saveBgFile(fileBg) {
 
 }
 
-async function loadSavedBg() {
+async function getSavedBg() {
     const db = await getOurDatabase();
     return new Promise((resolve, reject) => {
         const tx = db.transaction('images', 'readonly');
@@ -989,7 +989,7 @@ function getUseMyBackground() {
 async function restoreFromLastSession() {
     console.log("++++++ restoreFromLastSession");
     if (!getUseMyBackground()) return false;
-    const savedFileBlob = await loadSavedBg();
+    const savedFileBlob = await getSavedBg();
     if (!savedFileBlob) return false;
     const url = URL.createObjectURL(savedFileBlob);
     document.documentElement.style.backgroundImage = `url(${url})`;
@@ -1006,12 +1006,11 @@ async function setBackgroundImage() {
     }
 }
 
-function backgroundImageDialog() {
+async function backgroundImageDialog() {
     const btnMy = mkElt("button", undefined, "Select");
     const xClose = mkElt("button", { class: "x-close" }, "✖");
 
     const chkMy = mkElt("input", { type: "checkbox" });
-    chkMy.checked = getUseMyBackground();
     chkMy.addEventListener("change", evt => {
         setUseMyBackground(chkMy.checked)
         setBackgroundImage();
@@ -1026,6 +1025,13 @@ function backgroundImageDialog() {
         flex-wrap: wrap;
         align-items: center;
     `;
+    if (!await getSavedBg()) {
+        lblMy.inert = true;
+        setUseMyBackground(false);
+    }
+    chkMy.checked = getUseMyBackground();
+
+
     const divMy = mkElt("p", undefined, [lblMy, btnMy]);
     divMy.style = `
         display: flex;
@@ -1037,6 +1043,12 @@ function backgroundImageDialog() {
     ]);
     const bdy = mkElt("div", undefined, [
         mkElt("h2", undefined, `Background image`),
+        mkElt("p", undefined, `
+            There are a number of background images
+            that are randomly choosen for you.
+            If you prefer your own image you can select
+            it here.
+            `),
         divInputs
     ]);
     // bdy.style.outline = "1px dotted red";

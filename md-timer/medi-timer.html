@@ -218,7 +218,8 @@
       margin-top: 40px;
       margin-bottom: 30px;
 
-      background-color: yellow;
+      NObackground-color: yellow;
+      background-color: gold;
       transition-property: background-color, opacity;
       transition-duration: 3s;
 
@@ -499,7 +500,10 @@
     }
 
     html.asking {
-      /* footer { opacity: 1; } */
+
+      #div-timer {
+        background-color: gold;
+      }
 
       #div-meditating {
         display: none;
@@ -539,7 +543,12 @@
       nobackground-color: #4ee7f6;
     }
 
-    /* html.replied {} */
+    html.replied {
+      #div-timer {
+        background-color: gold;
+      }
+    }
+
     #background-filter {
       position: fixed;
       top: 0px;
@@ -601,6 +610,14 @@
 
     #NOabout details:last-child {
       margin-bottom: 0px;
+    }
+
+    [inert] {
+      /* Your styles for inert elements */
+      opacity: 0.4;
+      pointer-events: none;
+      cursor: not-allowed;
+      filter: grayscale(100%);
     }
   </style>
 
