@@ -1264,10 +1264,13 @@ async function getOurDatabase() {
 }
 
 /**
+ * @param {string} dbName
+ * @param {number} dbVersion
+ * @param {function} [handleVersionChange]
  * @returns {Promise<IDBDatabase>}
  * @throws
  */
-async function getDatabase(dbName, dbVersion) {
+async function getDatabase(dbName, dbVersion, handleVersionChange) {
     if (dbInstance) return dbInstance;
 
     return new Promise((resolve, reject) => {
@@ -1277,7 +1280,14 @@ async function getDatabase(dbName, dbVersion) {
             console.log("Setting up database schema");
             if (event.target == null) throw Error("onupgradeneeded, event.target == null");
             const db = event.target.result;
-
+            db.onversionchange = () => {
+                db.close();
+                dbInstance = null;
+                // Your app may need to do something:
+                if (handleVersionChange) {
+                    handleVersionChange();
+                }
+            };
             // const usersStore = db.createObjectStore("users", { keyPath: "id" });
             // usersStore.createIndex("email", "email", { unique: true });
             db.createObjectStore('handles');
@@ -1308,7 +1318,7 @@ async function myFeature() {
 */
 
 /** @returns {void} */
-export function closeDatabase() {
+function closeDatabase() {
     if (dbInstance) {
         dbInstance.close();
         dbInstance = null;
