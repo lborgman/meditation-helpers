@@ -961,7 +961,9 @@ async function selectAndSaveFile() {
         await saveFileHandle(handle);
 
         // Get the file and display it
-        await loadAndDisplayFile(handle);
+        // await loadAndDisplayFile(handle);
+        // Try to trigger the permissions dialog:
+        setTimeout(() => { loadAndDisplayFile(handle); }, 1000);
     } catch (err) {
         console.error('User cancelled or error:', err);
     }
@@ -1003,7 +1005,7 @@ async function saveFileHandle(handle) {
             reject(putRequest.error);
         };
         tx.oncomplete = () => {
-            debugger;
+            // debugger;
             // db.close();
             resolve(true);
         };
