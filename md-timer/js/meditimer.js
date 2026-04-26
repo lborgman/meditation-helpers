@@ -956,9 +956,9 @@ async function selectAndSaveFile() {
     try {
         // Ask user to pick a file
         const [handle] = await window.showOpenFilePicker();
-
+        const file = await handle.getFile();
         // Save the handle to IndexedDB (or just keep in memory for demo)
-        await saveFileHandle(handle);
+        await saveBgFile(file);
 
         // Get the file and display it
         // await loadAndDisplayFile(handle);
@@ -992,13 +992,13 @@ async function loadAndDisplayFile(handle) {
 }
 
 // --- IndexedDB helpers to persist the handle ---
-const versionFilehandlesDB = 4;
-async function saveFileHandle(handle) {
+// const versionFilehandlesDB = 4;
+async function saveBgFile(fileBg) {
     const db = await getOurDatabase();
     return new Promise((resolve, reject) => {
-        const tx = db.transaction('handles', 'readwrite');
-        const store = tx.objectStore('handles');
-        const putRequest = store.put(handle, 'savedFileHandle');
+        const tx = db.transaction('images', 'readwrite');
+        const store = tx.objectStore('images');
+        const putRequest = store.put(fileBg, 'savedBg');
         putRequest.onerror = () => {
             debugger;
             console.error('Put failed:', putRequest.error);
@@ -1015,44 +1015,14 @@ async function saveFileHandle(handle) {
         }
     });
 
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open('FileHandlesDB', versionFilehandlesDB);
-
-        request.onupgradeneeded = () => {
-            const db = request.result;
-            debugger;
-            if (!db.objectStoreNames.contains('handles')) {
-                debugger;
-                db.createObjectStore('handles');
-            }
-        };
-
-        request.onsuccess = () => {
-            debugger;
-            const db = request.result;
-            const tx = db.transaction('handles', 'readwrite');
-            const store = tx.objectStore('handles');
-            store.put(handle, 'savedFileHandle');
-            tx.oncomplete = () => {
-                db.close();
-                resolve();
-            };
-            tx.onerror = () => reject(tx.error);
-        };
-
-        request.onerror = () => {
-            debugger;
-            reject(request.error);
-        }
-    });
 }
 
-async function loadSavedHandle() {
+async function loadSavedBg() {
     const db = await getOurDatabase();
     return new Promise((resolve, reject) => {
-        const tx = db.transaction('handles', 'readonly');
-        const store = tx.objectStore('handles');
-        const getRequest = store.get('savedFileHandle');
+        const tx = db.transaction('images', 'readonly');
+        const store = tx.objectStore('images');
+        const getRequest = store.get('savedBg');
 
         getRequest.onsuccess = () => {
             // db.close();
@@ -1063,33 +1033,6 @@ async function loadSavedHandle() {
             // db.close();
             reject(getRequest.error);
         };
-    });
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open('FileHandlesDB', versionFilehandlesDB);
-
-        request.onsuccess = () => {
-            const db = request.result;
-            if (!db.objectStoreNames.contains('handles')) {
-                db.close();
-                resolve(null);
-                return;
-            }
-
-            const tx = db.transaction('handles', 'readonly');
-            const store = tx.objectStore('handles');
-            const getRequest = store.get('savedFileHandle');
-
-            getRequest.onsuccess = () => {
-                db.close();
-                resolve(getRequest.result || null);
-            };
-            getRequest.onerror = () => {
-                db.close();
-                reject(getRequest.error);
-            };
-        };
-
-        request.onerror = () => reject(request.error);
     });
 }
 
@@ -1106,8 +1049,12 @@ function getUseMyBackground() {
 async function restoreFromLastSession() {
     console.log("++++++ restoreFromLastSession");
     if (!getUseMyBackground()) return false;
-    const savedHandle = await loadSavedHandle();
-    if (!savedHandle) return false;
+    const savedFileBlob = await loadSavedBg();
+    if (!savedFileBlob) return false;
+    const url = URL.createObjectURL(savedFileBlob);
+    document.documentElement.style.backgroundImage = `url(${url})`;
+    return true;
+    /*
     if (savedHandle) {
         // Check if permission still granted
         const permission = await savedHandle.queryPermission({ mode: 'read' });
@@ -1160,6 +1107,7 @@ async function restoreFromLastSession() {
             });
         }
     }
+    */
 }
 
 // --- Background ---
@@ -1259,10 +1207,13 @@ function backgroundImageDialog() {
  */
 async function getOurDatabase() {
     const DB_NAME = 'FileHandlesDB';
-    const DB_VERSION = 5;
+    const DB_VERSION = 7;
     return getDatabase(DB_NAME, DB_VERSION);
 }
 
+
+
+// FIX-ME: separate file?? Switch to idb.js?? (dexie? Not needed here, of course)
 /**
  * @param {string} dbName
  * @param {number} dbVersion
@@ -1290,7 +1241,8 @@ async function getDatabase(dbName, dbVersion, handleVersionChange) {
             };
             // const usersStore = db.createObjectStore("users", { keyPath: "id" });
             // usersStore.createIndex("email", "email", { unique: true });
-            db.createObjectStore('handles');
+            if (!db.objectStoreNames.contains("images")) db.createObjectStore('images');
+            if (db.objectStoreNames.contains("handles")) db.deleteObjectStore('handles');
         };
 
         request.onsuccess = (event) => {
@@ -1307,15 +1259,6 @@ async function getDatabase(dbName, dbVersion, handleVersionChange) {
     });
 }
 
-/*
-// In your app - always use the same function
-import { getDatabase } from './db.js';
-
-async function myFeature() {
-    const db = await getDatabase();  // Always same connection
-    // Use db here
-}
-*/
 
 /** @returns {void} */
 function closeDatabase() {
