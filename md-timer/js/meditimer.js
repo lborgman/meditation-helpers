@@ -11,6 +11,7 @@ const mkElt = window["mkElt"];
 // @ts-ignore
 const importFc4i = window["importFc4i"];
 
+/** @type {IDBDatabase|null} */ let dbInstance = null;
 
 const STORING_PREFIX = "MEDITIM-";
 const modImages = await importFc4i("user-images");
@@ -989,18 +990,43 @@ async function loadAndDisplayFile(handle) {
 }
 
 // --- IndexedDB helpers to persist the handle ---
-function saveFileHandle(handle) {
+const versionFilehandlesDB = 4;
+async function saveFileHandle(handle) {
+    const db = await getOurDatabase();
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('FileHandlesDB', 2);
+        const tx = db.transaction('handles', 'readwrite');
+        const store = tx.objectStore('handles');
+        const putRequest = store.put(handle, 'savedFileHandle');
+        putRequest.onerror = () => {
+            debugger;
+            console.error('Put failed:', putRequest.error);
+            reject(putRequest.error);
+        };
+        tx.oncomplete = () => {
+            debugger;
+            // db.close();
+            resolve(true);
+        };
+        tx.onerror = () => {
+            debugger;
+            reject(tx.error);
+        }
+    });
+
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('FileHandlesDB', versionFilehandlesDB);
 
         request.onupgradeneeded = () => {
             const db = request.result;
+            debugger;
             if (!db.objectStoreNames.contains('handles')) {
+                debugger;
                 db.createObjectStore('handles');
             }
         };
 
         request.onsuccess = () => {
+            debugger;
             const db = request.result;
             const tx = db.transaction('handles', 'readwrite');
             const store = tx.objectStore('handles');
@@ -1012,13 +1038,32 @@ function saveFileHandle(handle) {
             tx.onerror = () => reject(tx.error);
         };
 
-        request.onerror = () => reject(request.error);
+        request.onerror = () => {
+            debugger;
+            reject(request.error);
+        }
     });
 }
 
-function loadSavedHandle() {
+async function loadSavedHandle() {
+    const db = await getOurDatabase();
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('FileHandlesDB', 2);
+        const tx = db.transaction('handles', 'readonly');
+        const store = tx.objectStore('handles');
+        const getRequest = store.get('savedFileHandle');
+
+        getRequest.onsuccess = () => {
+            // db.close();
+            resolve(getRequest.result || null);
+        };
+        getRequest.onerror = () => {
+            debugger;
+            // db.close();
+            reject(getRequest.error);
+        };
+    });
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('FileHandlesDB', versionFilehandlesDB);
 
         request.onsuccess = () => {
             const db = request.result;
@@ -1060,6 +1105,7 @@ async function restoreFromLastSession() {
     console.log("++++++ restoreFromLastSession");
     if (!getUseMyBackground()) return false;
     const savedHandle = await loadSavedHandle();
+    if (!savedHandle) return false;
     if (savedHandle) {
         // Check if permission still granted
         const permission = await savedHandle.queryPermission({ mode: 'read' });
@@ -1077,9 +1123,14 @@ async function restoreFromLastSession() {
                 const btnYes = mkElt("button", undefined, "Yes");
                 const btnNo = mkElt("button", undefined, "No");
                 const divButtons = mkElt("div", undefined, [btnYes, btnNo]);
+                divButtons.style = `
+                    display: flex;
+                    gap: 20px;
+                `;
                 const bdy = mkElt("div", undefined, [
                     mkElt("p", undefined, `
-                    Do you want to use the background image you picked before?
+                        Do you want to use the background image you picked before?
+                        (Sorry for this. I must ask once.)
                     `),
                     divButtons
                 ])
@@ -1193,4 +1244,71 @@ function backgroundImageDialog() {
         dlg.close();
     });
     dlg.showModal();
+}
+
+// db.js - Single source of truth
+
+// /** @type {IDBDatabase|null} */ let dbInstance = null;
+
+
+/**
+ * @returns {Promise<IDBDatabase>}
+ * @throws
+ */
+async function getOurDatabase() {
+    const DB_NAME = 'FileHandlesDB';
+    const DB_VERSION = 5;
+    return getDatabase(DB_NAME, DB_VERSION);
+}
+
+/**
+ * @returns {Promise<IDBDatabase>}
+ * @throws
+ */
+async function getDatabase(dbName, dbVersion) {
+    if (dbInstance) return dbInstance;
+
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(dbName, dbVersion);
+
+        request.onupgradeneeded = (event) => {
+            console.log("Setting up database schema");
+            if (event.target == null) throw Error("onupgradeneeded, event.target == null");
+            const db = event.target.result;
+
+            // const usersStore = db.createObjectStore("users", { keyPath: "id" });
+            // usersStore.createIndex("email", "email", { unique: true });
+            db.createObjectStore('handles');
+        };
+
+        request.onsuccess = (event) => {
+            if (event.target == null) throw Error("onsuccess, event.target == null");
+            dbInstance = event.target.result;
+            resolve(dbInstance);
+        };
+
+        request.onerror = (event) => {
+            debugger;
+            if (event.target == null) throw Error("onerror, event.target == null");
+            reject(event.target.error);
+        };
+    });
+}
+
+/*
+// In your app - always use the same function
+import { getDatabase } from './db.js';
+
+async function myFeature() {
+    const db = await getDatabase();  // Always same connection
+    // Use db here
+}
+*/
+
+/** @returns {void} */
+export function closeDatabase() {
+    if (dbInstance) {
+        dbInstance.close();
+        dbInstance = null;
+    }
 }
