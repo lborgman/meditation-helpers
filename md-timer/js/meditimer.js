@@ -96,27 +96,6 @@ let images = [
     "https://lh3.googleusercontent.com/sHYUlSEkv8AiBD09xK4hVo0qQr3SQ7VK-sBHBKP7GnRGeq0WoAUD1bRbIuG0-l4IIKSZlMg6hTeeHomdz9bUinzXg92SZ293L7dfiOcdAA7L6cJ1PQ2EZvq1ao6thpT_XAZkx_6sxl0jUf5SiSj1UC0XYLARpOjT8eAjH6iBYO5z0bNHMThBMyiRAH4Q0GNFGIzr0_uQPQKGl9pAAZzoI79Jb18zYJSMNKSrD9QYJ2QNt21G2ndNcRmZmqp6F_O6ZVxjFUrnPVF8ng2AQU9z65j9xwsBSTq6nWjT0bfFUII_dFKlRd93NhdLJ58f9Nyhggj8Ra60GQliJ1_1-SHJGbpmyF-JPWJJuyXAGdEmNSpK5LlgJNbR5JC32VysFkClYkbj_WLuG1I2cC40SsFW-7lI9Av9ELdImrSQX-BWEFF6Ht4V1RWYDh_IvwsdZFM7BwCoSsDoM008xmR7G_0kaAqauGXXfRd5Pmq7LLiTND3LItK2kG6wBIulMQ0v3MVLMk6RfuMFScYDTeM_U3tTU1rCKbHQkobHaFoeexXmTm5RwHTJDfOXKsERy-MOUd7bwUOM6WWdyop0dhSkCSZKoahE3h4zqplAuHi-7x1g0DrcUbLR-UQ7VehJxQyb_Rpw6jAlMS5vG7zm7npyvlSwO3Qci7jfrbhz=w1236-h927-no",
 ];
 
-/*
-function copyToClipboardAndNotify(elt, txt) {
-    const notifier = mkElt("div", { "class": "clipboard-notifier" }, "Copied!");
-    const rectElt = elt.getBoundingClientRect();
-    const top = rectElt.top + 3;
-    const left = rectElt.left + 3;
-    notifier.style.top = top + "px";
-    notifier.style.left = left + "px";
-    document.body.appendChild(notifier);
-    notifier.style.transitionDuration = "1.5s";
-    navigator.clipboard.writeText(txt)
-        .then(() => {
-            setTimeout(fadeAway, 500);
-        })
-    function fadeAway() {
-        notifier.style.top = (top - 30) + "px";
-        notifier.style.opacity = 0;
-        setTimeout(() => { document.body.removeChild(notifier) }, 1500);
-    }
-}
-*/
 
 // After dom loading: FIXME: how does this work with the cache handler, do I get an "error"?
 function preLoadImg() {
@@ -676,22 +655,6 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         function startRunner() {
             const startMs = Date.now();
             const endMs = startMs + 1000 * secondsGoal;
-            /*
-            runner = setInterval(() => {
-                const nowMs = Date.now();
-                if (nowMs > endMs) {
-                    clearInterval(runner);
-                    progressBar.value = secondsGoal;
-                    setMdState("stopping-meditation");
-                    setTimeout(() => {
-                        startAlarms();
-                        askAttention();
-                    }, 2000);
-                    return;
-                }
-                progressBar.value = 0.001 * (nowMs - startMs);
-            }, interval1000);
-            */
             updateRunner();
             function updateRunner() {
                 const nowMs = Date.now();
@@ -957,42 +920,19 @@ async function selectAndSaveFile() {
         // Ask user to pick a file
         const [handle] = await window.showOpenFilePicker();
         const file = await handle.getFile();
-        // Save the handle to IndexedDB (or just keep in memory for demo)
+        // debugger;
+        if (!file) {
+            debugger;
+            throw Error("SelectAndSaveFile: !file");
+        }
         await saveBgFile(file);
-
-        // Get the file and display it
-        // await loadAndDisplayFile(handle);
-        // Try to trigger the permissions dialog:
-        setTimeout(() => { loadAndDisplayFile(handle); }, 1000);
+        return true;
     } catch (err) {
         console.error('User cancelled or error:', err);
+        return false;
     }
 }
 
-// Load file from saved handle and create object URL
-async function loadAndDisplayFile(handle) {
-    try {
-        // Get the actual File object from the handle
-        const file = await handle.getFile();
-
-        // Create object URL (fresh each page load!)
-        const url = URL.createObjectURL(file);
-
-        // Use it (e.g., display an image)
-        // const img = document.getElementById('preview');
-        // img.src = url;
-        // backgroundImage =
-        document.documentElement.style.backgroundImage = `url(${url})`;
-
-        // Store URL to revoke later if needed
-        // img.onload = () => URL.revokeObjectURL(url); // optional cleanup
-    } catch (err) {
-        console.error('Error loading file:', err);
-    }
-}
-
-// --- IndexedDB helpers to persist the handle ---
-// const versionFilehandlesDB = 4;
 async function saveBgFile(fileBg) {
     const db = await getOurDatabase();
     return new Promise((resolve, reject) => {
@@ -1054,60 +994,6 @@ async function restoreFromLastSession() {
     const url = URL.createObjectURL(savedFileBlob);
     document.documentElement.style.backgroundImage = `url(${url})`;
     return true;
-    /*
-    if (savedHandle) {
-        // Check if permission still granted
-        const permission = await savedHandle.queryPermission({ mode: 'read' });
-
-        if (permission === 'granted') {
-            await loadAndDisplayFile(savedHandle);
-            return true;
-        } else if (permission === 'prompt') {
-            // Request permission again
-            // const newPermission = await savedHandle.requestPermission({ mode: 'read' });
-            // let newPermission;
-
-            // We have to create a popup and do this!
-            return new Promise((resolve, reject) => {
-                const btnYes = mkElt("button", undefined, "Yes");
-                const btnNo = mkElt("button", undefined, "No");
-                const divButtons = mkElt("div", undefined, [btnYes, btnNo]);
-                divButtons.style = `
-                    display: flex;
-                    gap: 20px;
-                `;
-                const bdy = mkElt("div", undefined, [
-                    mkElt("p", undefined, `
-                        Do you want to use the background image you picked before?
-                        (Sorry for this. I must ask once.)
-                    `),
-                    divButtons
-                ])
-                const dialog = mkElt("dialog", undefined, bdy);
-                document.documentElement.appendChild(dialog);
-                btnYes.addEventListener("click", async evt => {
-                    evt.stopPropagation();
-                    dialog.close();
-                    const newPermission = await savedHandle.requestPermission({ mode: 'read' });
-                    if (newPermission === 'granted') {
-                        await loadAndDisplayFile(savedHandle);
-                        resolve(true);
-                    } else {
-                        resolve(false);
-                    }
-                });
-                btnNo.addEventListener("click", evt => {
-                    evt.stopPropagation();
-                    dialog.close();
-                    resolve(false);
-                });
-
-                dialog.showModal();
-                debugger;
-            });
-        }
-    }
-    */
 }
 
 // --- Background ---
@@ -1122,14 +1008,11 @@ async function setBackgroundImage() {
 
 function backgroundImageDialog() {
     const btnMy = mkElt("button", undefined, "Select");
-    const btnDefault = mkElt("button", undefined, "Default");
-    const btnClose = mkElt("button", undefined, "Close");
     const xClose = mkElt("button", { class: "x-close" }, "✖");
 
     const chkMy = mkElt("input", { type: "checkbox" });
     chkMy.checked = getUseMyBackground();
     chkMy.addEventListener("change", evt => {
-        // debugger;
         setUseMyBackground(chkMy.checked)
         setBackgroundImage();
     });
@@ -1150,7 +1033,6 @@ function backgroundImageDialog() {
     `
     const divInputs = mkElt("div", undefined, [
         divMy,
-        // btnClose,
         xClose
     ]);
     const bdy = mkElt("div", undefined, [
@@ -1175,19 +1057,14 @@ function backgroundImageDialog() {
         if (onDialog) dlg.close();
     });
     document.documentElement.appendChild(dlg);
-    btnMy.addEventListener("click", evt => {
+    btnMy.addEventListener("click", async evt => {
         evt.stopPropagation();
         dlg.close();
-        selectAndSaveFile();
-    });
-    btnDefault.addEventListener("click", evt => {
-        evt.stopPropagation();
-        dlg.close();
-        // How??
-    });
-    btnClose.addEventListener("click", evt => {
-        evt.stopPropagation();
-        dlg.close();
+        const newBg = await selectAndSaveFile();
+        if (newBg) {
+            setUseMyBackground(true);
+            restoreFromLastSession();
+        }
     });
     xClose.addEventListener("click", evt => {
         evt.stopPropagation();
