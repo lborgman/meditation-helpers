@@ -819,9 +819,39 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     const lblVolume = mkElt("label", null, [btnSound, volSlider]);
     lblVolume.style.marginBottom = "15px";
     const chkVibrate = mkElt("input", { "type": "checkbox" });
-    let spanVibTxt = mkElt("span", null, "Vibrate:");
-    const lblVibrate = mkElt("label", null, [spanVibTxt, chkVibrate]);
-    if (typeof navigator.nOvibrate !== "function") {
+    const spanVibTxt = mkElt("span", null, "Vibrate:");
+    const btnVibInfo = mkElt("button", { class: "btn-1-char" }, "i");
+    const spanBtn = mkElt("span", undefined, btnVibInfo)
+    const lblVibrate = mkElt("label", null, [spanVibTxt, chkVibrate, spanBtn]);
+    lblVibrate.style.gap = "20px";
+
+    btnVibInfo.addEventListener("click", evt => {
+        evt.stopPropagation();
+        function makeVibrationInstructions() {
+            const title = mkElt('div', { class: 'info-title' }, 'No vibration? Check Android settings');
+            const settingsNote = mkElt('div', { class: 'info-row' }, [
+                'Go to ',
+                mkElt('code', {}, 'Settings → Sound & vibration → Vibrations & haptics'),
+                ' and make sure both ',
+                mkElt('code', {}, 'Use vibration and haptics'),
+                ' and ',
+                mkElt('code', {}, 'Touch feedback'),
+                ' are on, and that Do Not Disturb is off.',
+            ]);
+            const iosNote = mkElt('div', { class: 'info-row' }, 'iOS Safari does not support the Vibration API.');
+            return mkElt('div', { class: 'info' }, [title, settingsNote, iosNote]);
+        }
+
+        // document.body.appendChild(makeVibrationInstructions());
+        const bdy = makeVibrationInstructions();
+        const dlg = mkElt("dialog", undefined, bdy);
+        document.body.appendChild(dlg);
+        dlg.showModal();
+    })
+
+    // const canVibrate = typeof navigator.vibrate == "function";
+    const canVibrate = true;
+    if (!canVibrate) {
         lblVibrate.style.display = "none";
         spanVibTxt.innerHTML = "(No vibration)";
         lblVibrate.setAttribute("title", "Your browser does not support vibration.\nTry Chrome if you want it.");
