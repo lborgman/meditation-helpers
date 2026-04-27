@@ -828,18 +828,28 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     btnVibInfo.addEventListener("click", evt => {
         evt.stopPropagation();
         function makeVibrationInstructions() {
-            const title = mkElt('div', { class: 'info-title' }, 'No vibration? Check Android settings');
-            const settingsNote = mkElt('div', { class: 'info-row' }, [
+            const title = mkElt('h2', { class: 'info-title' }, 'No vibration? Check Android settings');
+            const settingsNote = mkElt('p', { class: 'info-row' }, [
                 'Go to ',
                 mkElt('code', {}, 'Settings → Sound & vibration → Vibrations & haptics'),
                 ' and make sure both ',
                 mkElt('code', {}, 'Use vibration and haptics'),
                 ' and ',
                 mkElt('code', {}, 'Touch feedback'),
-                ' are on, and that Do Not Disturb is off.',
+                " are on.",
+                " (Also check that ",
+                mkElt("code", undefined, "Do Not Disturb"),
+                " is off.)",
             ]);
-            const iosNote = mkElt('div', { class: 'info-row' }, 'iOS Safari does not support the Vibration API.');
-            return mkElt('div', { class: 'info' }, [title, settingsNote, iosNote]);
+            // const iosNote = mkElt('p', { class: 'info-row' }, 'iOS Safari does not support the Vibration API.');
+            const supportedNote = mkElt('p', { class: 'info-row' },
+                'Vibration is only support on Android. And only on newer mobiles.');
+            return mkElt('div', { id: 'info-vibration' }, [
+                title,
+                settingsNote,
+                // iosNote,
+                supportedNote
+            ]);
         }
 
         // document.body.appendChild(makeVibrationInstructions());
