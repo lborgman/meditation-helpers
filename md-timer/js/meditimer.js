@@ -769,17 +769,16 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                     " more to your goal.",
                 ]);
         }
-        let pThanks = mkElt("p", { "class": "after-med-info" }, ["Thanks!", mkElt("br"), divpThanks]);
-        let btnRestart = mkElt("button", { "class": "popup-button" }, "Meditate again");
-        btnRestart.addEventListener("click", evt => {
-            location.reload();
-        })
-        let divThanks = mkElt("div", { "id": "thanks" }, [
+        const pThanks = mkElt("p", { "class": "after-med-info" }, ["Thanks!", mkElt("br"), divpThanks]);
+        // const btnRestart = mkElt("button", { "class": "popup-button" }, "Meditate again");
+        // btnRestart.addEventListener("click", evt => { location.reload(); })
+        const xClose = mkXclose(() => { location.reload(); });
+        const divThanks = mkElt("div", { "id": "thanks" }, [
             pThanks,
-            mkElt("p", { "class": "buttons" }, btnRestart),
+            // mkElt("p", { "class": "buttons" }, btnRestart),
+            xClose
         ]);
         timerDiv.appendChild(divThanks);
-
     }
 
     const divAsk = mkElt("div", { "id": "div-asking" }, [
@@ -854,7 +853,9 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 
         // document.body.appendChild(makeVibrationInstructions());
         const bdy = makeVibrationInstructions();
-        const dlg = mkElt("dialog", undefined, bdy);
+        // const xClose = mkElt("button", { class: "x-close" }, "✖");
+        const xClose = mkXclose();
+        const dlg = mkElt("dialog", undefined, [bdy, xClose]);
         document.body.appendChild(dlg);
         dlg.showModal();
     })
@@ -1048,7 +1049,8 @@ async function setBackgroundImage() {
 
 async function backgroundImageDialog() {
     const btnMy = mkElt("button", undefined, "Select");
-    const xClose = mkElt("button", { class: "x-close" }, "✖");
+    // const xClose = mkElt("button", { class: "x-close" }, "✖");
+    const xClose = mkXclose();
 
     const chkMy = mkElt("input", { type: "checkbox" });
     chkMy.addEventListener("change", evt => {
@@ -1118,10 +1120,7 @@ async function backgroundImageDialog() {
             restoreFromLastSession();
         }
     });
-    xClose.addEventListener("click", evt => {
-        evt.stopPropagation();
-        dlg.close();
-    });
+    // xClose.addEventListener("click", evt => { evt.stopPropagation(); dlg.close(); });
     dlg.showModal();
 }
 
@@ -1195,4 +1194,23 @@ function closeDatabase() {
         dbInstance.close();
         dbInstance = null;
     }
+}
+
+
+/**
+ * @param {function} [funClose]
+ * @returns {HTMLButtonElement}
+ */
+function mkXclose(funClose) {
+    const xClose = mkElt("button", { class: "x-close" }, "✖");
+    xClose.addEventListener("click", evt => {
+        evt.stopPropagation();
+        debugger;
+        if (funClose) {
+            funClose();
+            return;
+        }
+        (xClose.closest("dialog"))?.close();
+    });
+    return xClose;
 }
