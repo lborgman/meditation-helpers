@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cat Purr – Debug</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, sans-serif;
+    background: #1a1208;
+    color: #e8d5a3;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 2rem;
+  }
+  h1 { font-size: 13px; letter-spacing: 0.15em; color: #9a7d4a; font-weight: 400; text-transform: uppercase; }
+  .card {
+    background: #231a0c;
+    border: 1px solid #3a2810;
+    border-radius: 12px;
+    padding: 1.2rem 1.4rem;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card-title { font-size: 11px; color: #7a6035; text-transform: uppercase; letter-spacing: 0.1em; }
+  .diag-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .diag-key { color: #7a6035; }
+  .diag-val { font-family: monospace; font-size: 12px; }
+  .ok { color: #6abf6a; }
+  .warn { color: #c8923a; }
+  .err { color: #c84a3a; }
+  button {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    border: 1px solid #5a4020;
+    background: #2e2010;
+    color: #e8d5a3;
+    font-size: 13px;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-user-select: none; user-select: none;
+  }
+  button:active { background: #3e2e18; }
+  #log {
+    font-family: monospace;
+    font-size: 11px;
+    color: #7a6035;
+    background: #0e0a04;
+    border-radius: 8px;
+    padding: 0.8rem;
+    width: 300px;
+    min-height: 80px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .purr-btn {
+    width: 150px; height: 150px;
+    border-radius: 50%;
+    border: 1px solid #5a4020;
+    background: #231a0c;
+    cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px;
+    touch-action: none;
+    -webkit-user-select: none; user-select: none;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .purr-btn.active { background: #2e2010; border-color: #c8923a; }
+  .purr-btn span { font-size: 11px; letter-spacing: 0.08em; color: #7a6035; text-transform: uppercase; }
+  .purr-btn.active span { color: #c8923a; }
+</style>
+</head>
+<body>
+
+<h1>Cat Purr — Debug</h1>
+
+<div class="card">
+  <div class="card-title">Environment</div>
+  <div class="diag-row">
+    <span class="diag-key">navigator.vibrate</span>
+    <span class="diag-val" id="d-api">checking…</span>
+  </div>
+  <div class="diag-row">
+    <span class="diag-key">user agent</span>
+    <span class="diag-val" id="d-ua" style="max-width:170px;text-align:right;font-size:10px;word-break:break-all"></span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Test — single 500 ms buzz</div>
+  <button id="testBtn">Tap to test buzz</button>
+  <div class="diag-row">
+    <span class="diag-key">vibrate() returned</span>
+    <span class="diag-val" id="d-ret">—</span>
+  </div>
+</div>
+
+<button class="purr-btn" id="purrBtn">
+  <svg width="60" height="55" viewBox="0 0 72 66" fill="none">
+    <polygon points="14,26 8,8 22,20" fill="#5a4020" stroke="#8a6030" stroke-width="0.8"/>
+    <polygon points="58,26 64,8 50,20" fill="#5a4020" stroke="#8a6030" stroke-width="0.8"/>
+    <ellipse cx="36" cy="40" rx="24" ry="20" fill="#3a2810" stroke="#8a6030" stroke-width="0.8"/>
+    <ellipse cx="29" cy="39" rx="5" ry="7" fill="#c8923a" opacity="0.25"/>
+    <ellipse cx="43" cy="39" rx="5" ry="7" fill="#c8923a" opacity="0.25"/>
+    <ellipse cx="36" cy="46" rx="4" ry="3" fill="#a06040" opacity="0.5"/>
+    <line x1="22" y1="44" x2="10" y2="43" stroke="#8a6030" stroke-width="0.8"/>
+    <line x1="22" y1="47" x2="9" y2="49" stroke="#8a6030" stroke-width="0.8"/>
+    <line x1="50" y1="44" x2="62" y2="43" stroke="#8a6030" stroke-width="0.8"/>
+    <line x1="50" y1="47" x2="63" y2="49" stroke="#8a6030" stroke-width="0.8"/>
+  </svg>
+  <span id="purrLabel">hold to purr</span>
+</button>
+
+<div id="log">— log —</div>
+
+<script>
+const log = document.getElementById('log');
+const dApi = document.getElementById('d-api');
+const dUa = document.getElementById('d-ua');
+const dRet = document.getElementById('d-ret');
+const testBtn = document.getElementById('testBtn');
+const purrBtn = document.getElementById('purrBtn');
+const purrLabel = document.getElementById('purrLabel');
+
+function appendLog(msg) {
+  const ts = new Date().toISOString().slice(11,23);
+  log.textContent += `[${ts}] ${msg}\n`;
+  log.scrollTop = log.scrollHeight;
+}
+
+const supported = 'vibrate' in navigator;
+dApi.textContent = supported ? 'present' : 'MISSING';
+dApi.className = 'diag-val ' + (supported ? 'ok' : 'err');
+dUa.textContent = navigator.userAgent;
+appendLog('vibrate in navigator: ' + supported);
+
+testBtn.addEventListener('click', () => {
+  appendLog('calling navigator.vibrate(500)…');
+  if (!supported) { appendLog('ERROR: API not available'); return; }
+  const result = navigator.vibrate(500);
+  dRet.textContent = String(result);
+  dRet.className = 'diag-val ' + (result ? 'ok' : 'err');
+  appendLog('returned: ' + result);
+  if (!result) appendLog('NOTE: false means the call was ignored by the browser.');
+});
+
+const PURR = [18, 12, 18, 12, 18, 12, 18, 12, 18, 12, 18, 12, 18, 12, 130];
+let purrInterval = null;
+let isPurring = false;
+
+function startPurr() {
+  if (isPurring) return;
+  isPurring = true;
+  purrBtn.classList.add('active');
+  purrLabel.textContent = 'purring…';
+  appendLog('starting purr loop');
+  function fire() {
+    if (!supported) return;
+    const r = navigator.vibrate(PURR);
+    appendLog('vibrate(pattern) → ' + r);
+  }
+  fire();
+  purrInterval = setInterval(fire, PURR.reduce((a,b)=>a+b,0));
+}
+function stopPurr() {
+  if (!isPurring) return;
+  isPurring = false;
+  purrBtn.classList.remove('active');
+  purrLabel.textContent = 'hold to purr';
+  clearInterval(purrInterval);
+  if (supported) navigator.vibrate(0);
+  appendLog('stopped');
+}
+
+purrBtn.addEventListener('pointerdown', e => { e.preventDefault(); startPurr(); });
+purrBtn.addEventListener('pointerup', stopPurr);
+purrBtn.addEventListener('pointerleave', stopPurr);
+purrBtn.addEventListener('pointercancel', stopPurr);
+</script>
+</body>
+</html>
