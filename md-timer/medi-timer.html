@@ -307,6 +307,8 @@
       border-radius: 8px;
     }
 
+    /* #div-thanks { opacity: 1; transition: opacity 1s; } */
+
     #div-timer {
       opacity: 1;
       position: relative;
@@ -444,6 +446,25 @@
       }
     }
 
+    html {
+      header {
+        h1 {
+          opacity: 0;
+          transition: opacity 0.7s;
+        }
+      }
+
+      footer {
+        opacity: 0;
+        transition: opacity 0.7s;
+      }
+    }
+
+    #div-timer {
+      opacity: 0;
+      transition: opacity 0.7s;
+    }
+
     html.initial {
       header {
         h1 {
@@ -452,6 +473,10 @@
       }
 
       footer {
+        opacity: 1;
+      }
+
+      #div-timer {
         opacity: 1;
       }
 
@@ -473,7 +498,9 @@
     html.starting-meditation {
       #div-timer {
         background: goldenrod;
+        opacity: 1;
       }
+
 
       #progress-bar {
         width: 0;
@@ -484,6 +511,10 @@
     html.meditating {
       #div-meditating {
         display: unset;
+      }
+
+      #div-timer {
+        opacity: 1;
       }
     }
 
@@ -506,6 +537,7 @@
 
       #div-timer {
         background-color: gold;
+        opacity: 1;
       }
 
       #div-meditating {
@@ -550,6 +582,7 @@
     html.replied {
       #div-timer {
         background-color: gold;
+        opacity: 1;
       }
     }
 

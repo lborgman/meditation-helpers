@@ -772,12 +772,27 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         const pThanks = mkElt("p", { "class": "after-med-info" }, ["Thanks!", mkElt("br"), divpThanks]);
         // const btnRestart = mkElt("button", { "class": "popup-button" }, "Meditate again");
         // btnRestart.addEventListener("click", evt => { location.reload(); })
-        const xClose = mkXclose(() => { location.reload(); });
-        const divThanks = mkElt("div", { "id": "thanks" }, [
+        const divThanks = mkElt("div", { "id": "div-thanks" }, [
             pThanks,
             // mkElt("p", { "class": "buttons" }, btnRestart),
-            xClose
+            // xClose
         ]);
+        const xClose = mkXclose(() => {
+            // debugger;
+            // divThanks.style.opacity = "0";
+            const divTimer = document.getElementById("div-timer");
+            if (!divTimer) throw Error("Could not find div-timer");
+            divTimer.style.opacity = "0";
+            setTimeout(() => {
+                // delete divTimer.style.opacity;
+                // divTimer.style.opacity = "";
+                divTimer.style.removeProperty('opacity');
+                divThanks.remove();
+                setMdState("initial");
+            }, 1000);
+        });
+        divThanks.appendChild(xClose);
+
         timerDiv.appendChild(divThanks);
     }
 
@@ -1205,7 +1220,7 @@ function mkXclose(funClose) {
     const xClose = mkElt("button", { class: "x-close" }, "✖");
     xClose.addEventListener("click", evt => {
         evt.stopPropagation();
-        debugger;
+        // debugger;
         if (funClose) {
             funClose();
             return;
