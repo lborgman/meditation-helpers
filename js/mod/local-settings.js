@@ -21,7 +21,7 @@ export function getVersion() { return LOCAL_SETTINGS_VER; }
  * 
  * */
 export class LocalSetting {
-    #key; #defaultValue; #tofDef;
+    #key; #definition; #defaultValue; #tofDef;
     // /** @type {string | number | boolean} */ #cachedValue;
     /** @type {inputType | jsonObjectType} */ #cachedValue;
     #input;
@@ -31,14 +31,15 @@ export class LocalSetting {
      * Create a LocalSetting
      * @param {string} prefix - prefix for stored key
      * @param {string} key 
-     * @param {string | number | boolean | object} defaultValue 
+     * @param {string | number | boolean | object} definitionValue 
      */
-    constructor(prefix, key, defaultValue) {
+    constructor(prefix, key, definitionValue) {
         this.#key = prefix + key;
-        this.#defaultValue = defaultValue;
+        this.#definition = definitionValue;
+        this.#defaultValue = definitionValue;
 
-        const tofDef = typeof defaultValue;
-        const arrDef = ["string", "number", "boolean", "object"];
+        const tofDef = typeof definitionValue;
+        const arrDef = ["string", "number", "boolean", "object", "range"];
         if (!arrDef.includes(tofDef)) throw Error(`LocalSetting value type must be: ${arrDef}`);
         this.#tofDef = tofDef;
         // #addAndSetupInput() {}
@@ -49,12 +50,36 @@ export class LocalSetting {
                 case "string": itype = "text"; break;
                 case "number": itype = "number"; break;
                 case "boolean": itype = "checkbox"; break;
-                case "object": return;
+                case "object":
+                    // return;
+                    {
+                        const isArray = Array.isArray(definitionValue);
+                        if (isArray) {
+                            if (definitionValue.length == 3) {
+                                // debugger;
+                                const isStrictlyAscending = (arr) =>
+                                    arr.every((val, i) => i === 0 || (!isNaN(val)) && val > arr[i - 1]);
+                                if (isStrictlyAscending(definitionValue)) {
+                                    // debugger;
+                                    itype = "range";
+                                    this.#tofDef = itype;
+                                    this.#defaultValue = definitionValue[1];
+                                    this.#cachedValue = this.#defaultValue;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 default: throw Error("What did I do???");
             }
             const inp = document.createElement("input");
             this.#input = inp;
             inp.type = itype;
+            if (itype == "range") {
+                inp.min = definitionValue[0];
+                inp.value = definitionValue[1];
+                inp.max = definitionValue[2];
+            }
             // debugger;
             const handleInput = (evt) => {
                 let val;
@@ -96,7 +121,7 @@ export class LocalSetting {
         })();
         // console.log("this.#input", this.#input);
 
-        this.#cachedValue = defaultValue;
+        this.#cachedValue = definitionValue;
         this.#get_stored_itemValue();
         this.#setInputValue();
         // FIX-ME: I have no idea how .ourSettings was supposed to be used???
@@ -141,7 +166,10 @@ export class LocalSetting {
     #set_stored_itemValue(val) {
         const tofVal = typeof val;
         if (tofVal !== this.#tofDef) {
-            throw Error(`#set_itemValue, ${this.#key}: typeof val==${tofVal}, expected ${this.#tofDef}`);
+            if (this.#tofDef != "range") {
+                throw Error(`#set_itemValue, ${this.#key}: typeof val==${tofVal}, expected ${this.#tofDef}`);
+            }
+            debugger;
         }
         this.#cachedValue = val;
         localStorage.setItem(this.#key, JSON.stringify(val)); // FIX-ME: is this correct?
@@ -218,6 +246,12 @@ export class LocalSetting {
             return;
         }
         const typeofCV = typeof this.#cachedValue;
+        if (typeofCV == "object") {
+            if (this.#input.type = "range") {
+                // ok, not ready yet
+                return;
+            }
+        }
         switch (this.#input.type) {
             case "checkbox":
                 if (typeofCV !== "boolean") throw Error("expected boolean");

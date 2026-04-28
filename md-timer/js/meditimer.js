@@ -22,13 +22,17 @@ const modLocalSettings = await importFc4i("local-settings");
 class OurLocalSetting extends modLocalSettings.LocalSetting {
     /**
      * @param {string} key
-     * @param {number|boolean} defaultValue
+     * @param {number|boolean} definitionValue
      */
-    constructor(key, defaultValue) {
-        super(STORING_PREFIX, key, defaultValue);
+    constructor(key, definitionValue) {
+        super(STORING_PREFIX, key, definitionValue);
     }
 }
+const settingVibrSpeed = new OurLocalSetting("vibr-speed", [0, 1, 2]);
+debugger;
 const settingSoundOff = new OurLocalSetting("sound-off", false);
+const settingUseMyBg = new OurLocalSetting("use-my-bg", false);
+const settingVolume = new OurLocalSetting("volume", 100);
 
 async function setExternalBackground() {
     console.log("---- setExternalBackground");
@@ -146,30 +150,17 @@ function preLoadImg() {
 ////////////////////////////////////////////
 // Saving
 
+/*
 function dumpLocalStorage() {
     for (var i = 0; i < localStorage.length; i++) {
         let key = localStorage.key(i);
         console.log(key, localStorage.getItem(key));
     }
 }
-/**
- * 
- * @param {string} key 
- * @param {string} str 
- */
-function setItemString(key, str) {
-    console.log("setItemString", key, str);
-    // docCookies.setItem(key, str, Infinity, "/");
-    localStorage.setItem(key, str);
-}
-/**
- * 
- * @param {string} key 
- * @returns {string|null}
- */
-function getItemString(key) {
-    return localStorage.getItem(key);
-}
+*/
+function OLDsetItemString(key, str) { localStorage.setItem(key, str); }
+function OLDgetItemString(key) { return localStorage.getItem(key); }
+
 /**
  * 
  * @param {string} key 
@@ -200,10 +191,10 @@ function createRecord() {
 }
 function saveTimerHistory() {
     const when = thisDay();
-    setItemString("meditation-" + when, createRecord());
+    OLDsetItemString("meditation-" + when, createRecord());
 }
 function putMeditationLength() {
-    setItemString("meditation-length", createRecord());
+    OLDsetItemString("meditation-length", createRecord());
 }
 
 
@@ -526,11 +517,12 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     let intervalVolume;
     function playReadySound() {
         objAudio.currentTime = 0;
-        // let strVol = docCookies.getItem("volume") || "100";
-        let strVol = getItemString("volume") || "100";
-        // console.log("strVol", strVol)
-        volSlider.value = parseFloat(strVol);
+
+        // let strVol = OLDgetItemString("volume") || "100";
+        // volSlider.value = parseFloat(strVol);
+        volSlider.value = settingVolume.valueN;
         sliderVolume = volSlider.value / 100;
+
         setDisplaySound();
         // https://davidwalsh.name/javascript-volume
         // console.log("audio", audio, audio.volume); // volume = 1, 100%
@@ -556,9 +548,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     }
     function getMeditationLength() {
         console.log("getMeditationLength")
-        // let s = docCookies.getItem("meditation-length");
-        let s = getItemString("meditation-length");
-        // console.log("s", "'" + s + "'");
+        let s = OLDgetItemString("meditation-length");
         if (!s) {
             secondsToday = 0;
             secondsGoal = initialGoal;
@@ -902,14 +892,25 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         chkVibrate.style.display = "none";
     }
     // const divMaxInfo = mkElt("div", null, "Max volume:");
-    const alarmControls = mkElt("div", { "id": "alarm-controls" }, [lblVolume, lblVibrate]);
+    const alarmControls = mkElt("div", { "id": "alarm-controls" }, [
+        lblVolume,
+        lblVibrate,
+        settingVibrSpeed.getInputElement()
+    ]);
     const ourCat = mkElt("i", { "id": "the-cat", "class": "fas fa-cat" });
-    const divAlarm = mkElt("div", { "id": "div-controls" }, [ourCat, alarmControls]);
+    const divAlarmControls = mkElt("div", { "id": "div-controls" }, [ourCat, alarmControls]);
     // timerDiv.appendChild(divAlarm);
 
+    const divAlarms = mkElt("div", undefined, [
+        mkElt("p", undefined, `
+            You can set audio/vibration alarms when meditation time is over.
+            `),
+        divAlarmControls
+    ])
+
     const detAlarm = mkElt("details", { "id": "det-controls" }, [
-        mkElt("summary", undefined, "Alarm settings"),
-        divAlarm
+        mkElt("summary", undefined, "Alarms"),
+        divAlarms
     ]);
     // divAsk.appendChild(divAlarm);
     divAsk.appendChild(detAlarm);
@@ -919,8 +920,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         clearInterval(intervalVolume);
         sliderVolume = volSlider.value / 100;
         objAudio.volume = sliderVolume; // / 100;
-        // docCookies.setItem("volume", volSlider.value, Infinity, "/");
-        setItemString("volume", volSlider.value);
+        OLDsetItemString("volume", volSlider.value);
     });
     let useVibration = false;
     chkVibrate.addEventListener("change", evt => {
@@ -1056,19 +1056,15 @@ async function getSavedBg() {
     });
 }
 
-/** * @param {boolean} useMy */
-function setUseMyBackground(useMy) {
-    setItemString("use-my-bg", useMy.toString());
-}
-function getUseMyBackground() {
-    const strMy = getItemString("use-my-bg");
-    if (strMy == "true") return true;
-    return false;
-}
+// /** * @param {boolean} useMy */
+// function OLDsetUseMyBackground(useMy) { settingUseMyBg.value = useMy; }
+// function OLDgetUseMyBackground() { return settingUseMyBg.valueB; }
+
 // --- On page load, restore previous file ---
 async function restoreFromLastSession() {
     console.log("++++++ restoreFromLastSession");
-    if (!getUseMyBackground()) return false;
+    // if (!getUseMyBackground()) return false;
+    if (!settingUseMyBg.valueB) return false;
     const savedFileBlob = await getSavedBg();
     if (!savedFileBlob) return false;
     const url = URL.createObjectURL(savedFileBlob);
@@ -1091,9 +1087,10 @@ async function backgroundImageDialog() {
     // const xClose = mkElt("button", { class: "x-close" }, "✖");
     const xClose = mkXclose();
 
-    const chkMy = mkElt("input", { type: "checkbox" });
+    // const chkMy = mkElt("input", { type: "checkbox" });
+    const chkMy = settingUseMyBg.getInputElement();
     chkMy.addEventListener("change", evt => {
-        setUseMyBackground(chkMy.checked)
+        // setUseMyBackground(chkMy.checked)
         setBackgroundImage();
     });
     const lblMy = mkElt("label", undefined, [
@@ -1108,9 +1105,10 @@ async function backgroundImageDialog() {
     `;
     if (!await getSavedBg()) {
         lblMy.inert = true;
-        setUseMyBackground(false);
+        // setUseMyBackground(false);
+        settingUseMyBg.value = false;
     }
-    chkMy.checked = getUseMyBackground();
+    // chkMy.checked = getUseMyBackground();
 
 
     const divMy = mkElt("p", undefined, [lblMy, btnMy]);
@@ -1155,7 +1153,8 @@ async function backgroundImageDialog() {
         dlg.close();
         const newBg = await selectAndSaveFile();
         if (newBg) {
-            setUseMyBackground(true);
+            // setUseMyBackground(true);
+            settingUseMyBg.value = true;
             restoreFromLastSession();
         }
     });
