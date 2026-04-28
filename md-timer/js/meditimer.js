@@ -468,11 +468,13 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 
     function startAlarms() {
         playReadySound();
-        startVibrationTimer();
+        // startVibrationTimer();
+        startVibrationPurr();
     }
     function stopAlarms() {
         objAudio.pause();
-        stopVibrationTimer();
+        // stopVibrationTimer();
+        stopVibrationPurr();
     }
     let vibrationTimer;
     function startVibrationTimer() {
@@ -778,14 +780,10 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
             // xClose
         ]);
         const xClose = mkXclose(() => {
-            // debugger;
-            // divThanks.style.opacity = "0";
             const divTimer = document.getElementById("div-timer");
             if (!divTimer) throw Error("Could not find div-timer");
             divTimer.style.opacity = "0";
             setTimeout(() => {
-                // delete divTimer.style.opacity;
-                // divTimer.style.opacity = "";
                 divTimer.style.removeProperty('opacity');
                 divThanks.remove();
                 setMdState("initial");
@@ -1228,4 +1226,31 @@ function mkXclose(funClose) {
         (xClose.closest("dialog"))?.close();
     });
     return xClose;
+}
+
+function startVibrationPurr() {
+    navigator.vibrate(getPurrPattern(1, 1));
+}
+function stopVibrationPurr() {
+    navigator.vibrate(0);
+}
+
+/**
+ * @param {number} intensity
+ * @param {number} tempo
+ * @returns {any[]}
+ */
+function getPurrPattern(intensity, tempo) {
+    if (![0, 1, 2].includes(intensity)) { debugger; throw Error(`Bad intensity: ${intensity}`); }
+    if (![0, 1, 2].includes(tempo)) { debugger; throw Error(`Bad tempo: ${tempo}`); }
+    // const intensity = parseInt(intensitySlider.value);
+    // const tempo = parseInt(tempoSlider.value);
+    const pulseOn = [12, 18, 26][intensity - 1];
+    const pulseOff = [8, 12, 16][intensity - 1];
+    const pulses = [5, 7, 9][tempo - 1];
+    const breathPause = [180, 130, 90][tempo - 1];
+    const pattern = [];
+    for (let i = 0; i < pulses; i++) pattern.push(pulseOn, pulseOff);
+    pattern.push(breathPause);
+    return pattern;
 }
