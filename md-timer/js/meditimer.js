@@ -18,6 +18,18 @@ const modImages = await importFc4i("user-images");
 // modSound.setStoringPrefix(STORING_PREFIX);
 modImages.setStoringPrefix(STORING_PREFIX);
 
+const modLocalSettings = await importFc4i("local-settings");
+class OurLocalSetting extends modLocalSettings.LocalSetting {
+    /**
+     * @param {string} key
+     * @param {number|boolean} defaultValue
+     */
+    constructor(key, defaultValue) {
+        super(STORING_PREFIX, key, defaultValue);
+    }
+}
+const settingSoundOff = new OurLocalSetting("sound-off", false);
+
 async function setExternalBackground() {
     console.log("---- setExternalBackground");
     const modPubImages = await import("public-images")
@@ -533,7 +545,8 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                         clearInterval(intervalVolume);
                         return;
                     }
-                    if (soundOff) return;
+                    // if (soundOff) return;
+                    if (settingSoundOff.valueB) return;
                     objAudio.volume = sliderVolume * funEaseInOut(dur);
                 }
                 intervalVolume = setInterval(raiseVolume, stepEaseInOut * 1000);
@@ -807,24 +820,30 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     spanSoundOn.innerHTML = '<i class="fas fa-volume-up"></i>';
     spanSoundOff.innerHTML = '<i class="fas fa-volume-mute"></i>';
     const btnSound = mkElt("button", { "class": "popup-button sound-on-off" }, [spanSoundOff, spanSoundOn]);
-    let soundOff = getItemString("sound-off") && true;
+    // let soundOff = getItemString("sound-off") && true;
+    // let soundOff = settingSoundOff.valueB;
+    // debugger;
     function setDisplaySound() {
-        if (!soundOff) {
+        // if (!soundOff) {
+        if (!settingSoundOff.valueB) {
             spanSoundOff.style.display = "none";
             spanSoundOn.style.display = "inline";
             volSlider.removeAttribute("disabled");
-            removeItemString("sound-off");
+            // removeItemString("sound-off");
+            // settingSoundOff.reset();
             objAudio.volume = sliderVolume; // / 100;
         } else {
             spanSoundOff.style.display = "inline";
             spanSoundOn.style.display = "none";
             volSlider.setAttribute("disabled", true);
-            setItemString("sound-off", "true");
+            // setItemString("sound-off", "true");
+            // settingSoundOff.value = true;
             objAudio.volume = 0;
         }
     }
     btnSound.addEventListener("click", evt => {
-        soundOff = !soundOff;
+        // soundOff = !soundOff;
+        settingSoundOff.value = !settingSoundOff.valueB;
         setDisplaySound();
     })
     // const lblVolume = mkElt("label", null, [btnSound, mkElt("br"), volSlider]);
@@ -887,7 +906,14 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     const ourCat = mkElt("i", { "id": "the-cat", "class": "fas fa-cat" });
     const divAlarm = mkElt("div", { "id": "div-controls" }, [ourCat, alarmControls]);
     // timerDiv.appendChild(divAlarm);
-    divAsk.appendChild(divAlarm);
+
+    const detAlarm = mkElt("details", { "id": "det-controls" }, [
+        mkElt("summary", undefined, "Alarm settings"),
+        divAlarm
+    ]);
+    // divAsk.appendChild(divAlarm);
+    divAsk.appendChild(detAlarm);
+
     volSlider.addEventListener("input", evt => {
         // console.log("volslider input", evt, volSlider.value);
         clearInterval(intervalVolume);
