@@ -368,7 +368,28 @@
       }
     }
 
+    #the-cat {
+      font-size: 2em;
+    }
+
     /* #div-controls { */
+    #div-controls {
+      display: flex;
+      gap: 20px;
+    }
+
+    #alarm-controls {
+      label {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+
+        input[type=range] {
+          width: 100%;
+        }
+      }
+    }
+
     #det-controls {
       /* display: none; */
       background: color-mix(orange 37%, transparent 54%);
@@ -556,22 +577,6 @@
         opacity: 1;
       }
 
-      #div-controls {
-        display: flex;
-        gap: 20px;
-      }
-
-      #alarm-controls {
-        label {
-          display: flex;
-          gap: 10px;
-          align-items: center;
-
-          input[type=range] {
-            width: 100%;
-          }
-        }
-      }
     }
 
     #div-initial button#start-meditate {
@@ -933,7 +938,7 @@
     <span id="footer-share" tabindex="0" role="button" title="Share"><i class="fas fa-share-alt"></i></span>
     <!-- <span id="footer-qr" tabindex="0" role="button" title="QR code"><i class="fas fa-qrcode"></i></span> -->
     <!-- <span id="footer-info" tabindex="0" role="button" title="Information"><i class="fas fa-info-circle"></i></span> -->
-    <span id="footer-image" tabindex="0" role="button" title="Background image">Image</span>
+    <span id="footer-image" tabindex="0" role="button" title="Settings Dialog">Settings</span>
     <span id="footer-about" tabindex="0" role="button" title="About"><i class="fas fa-address-card"></i></span>
     <span id="footer-install" tabindex="0" role="button" title="Install this PWA"><i
         class="fab fa-google-play"></i></span>

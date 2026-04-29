@@ -29,10 +29,23 @@ class OurLocalSetting extends modLocalSettings.LocalSetting {
     }
 }
 const settingVibrSpeed = new OurLocalSetting("vibr-speed", [0, 1, 2]);
-debugger;
+// debugger;
 const settingSoundOff = new OurLocalSetting("sound-off", false);
 const settingUseMyBg = new OurLocalSetting("use-my-bg", false);
 const settingVolume = new OurLocalSetting("volume", 100);
+
+let objAudio;
+const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
+function loadAudio() {
+    if (objAudio) return;
+    objAudio = new Audio();
+    objAudio.onerror = (err) => {
+        console.error("Error playing", soundReadyLink);
+        throw Error(`Error playing "${soundReadyLink}`);
+    }
+    objAudio.src = soundReadyLink;
+}
+
 
 async function setExternalBackground() {
     console.log("---- setExternalBackground");
@@ -356,8 +369,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         if (!footerImage) throw Error(`Could not find "footer-image"`);
         footerImage.addEventListener("click", evt => {
             evt.stopPropagation();
-            // alert("image"); // btnImage
-            backgroundImageDialog();
+            dialogSettings();
         });
 
 
@@ -619,9 +631,6 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         );
         return div;
     }
-    // const soundReadyLink = makeAbsLink("./sounds/freesound.org/260881__trautwein__cat-purr-add9.mp3");
-    const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
-    let objAudio;
     const timerDiv = document.getElementById("div-timer");
     // let imgMeditator = imgMeditator1.cloneNode();
 
@@ -632,20 +641,20 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
             "Start",
         ]
     );
-    const btnImage = mkElt(
+    const btnSettings = mkElt(
         "button",
         { class: "NOpopup-button", id: "btn-image" },
         [
-            "Image",
+            "Settings",
         ]
     );
 
     const divInitial = mkElt("div", { "id": "div-initial" }, [btnStart]);
     timerDiv.appendChild(divInitial);
 
-    btnImage.addEventListener("click", async evt => {
+    btnSettings.addEventListener("click", async evt => {
         evt.stopPropagation();
-        backgroundImageDialog();
+        dialogSettings();
     });
 
     btnStart.addEventListener("click", evt => {
@@ -677,6 +686,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
             setTimeout(startRunner, 2000);
         }
         // objAudio = objAudio || new Audio(soundReadyLink);
+        /*
         if (!objAudio) {
             objAudio = new Audio();
             objAudio.onerror = (err) => {
@@ -685,6 +695,8 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
             }
             objAudio.src = soundReadyLink;
         }
+        */
+        loadAudio();
         setTimeout(startIt, 2000);
     });
 
@@ -810,9 +822,6 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     spanSoundOn.innerHTML = '<i class="fas fa-volume-up"></i>';
     spanSoundOff.innerHTML = '<i class="fas fa-volume-mute"></i>';
     const btnSound = mkElt("button", { "class": "popup-button sound-on-off" }, [spanSoundOff, spanSoundOn]);
-    // let soundOff = getItemString("sound-off") && true;
-    // let soundOff = settingSoundOff.valueB;
-    // debugger;
     function setDisplaySound() {
         // if (!soundOff) {
         if (!settingSoundOff.valueB) {
@@ -833,6 +842,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     }
     btnSound.addEventListener("click", evt => {
         // soundOff = !soundOff;
+        debugger;
         settingSoundOff.value = !settingSoundOff.valueB;
         setDisplaySound();
     })
@@ -848,39 +858,8 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 
     btnVibInfo.addEventListener("click", evt => {
         evt.stopPropagation();
-        function makeVibrationInstructions() {
-            const title = mkElt('h2', { class: 'info-title' }, 'No vibration? Check Android settings');
-            const settingsNote = mkElt('p', { class: 'info-row' }, [
-                'Go to ',
-                mkElt('code', {}, 'Settings → Sound & vibration → Vibrations & haptics'),
-                ' and make sure both ',
-                mkElt('code', {}, 'Use vibration and haptics'),
-                ' and ',
-                mkElt('code', {}, 'Touch feedback'),
-                " are on.",
-                " (Also check that ",
-                mkElt("code", undefined, "Do Not Disturb"),
-                " is off.)",
-            ]);
-            // const iosNote = mkElt('p', { class: 'info-row' }, 'iOS Safari does not support the Vibration API.');
-            const supportedNote = mkElt('p', { class: 'info-row' },
-                'Vibration is only support on Android. And only on newer mobiles.');
-            return mkElt('div', { id: 'info-vibration' }, [
-                title,
-                settingsNote,
-                // iosNote,
-                supportedNote
-            ]);
-        }
-
-        // document.body.appendChild(makeVibrationInstructions());
-        const bdy = makeVibrationInstructions();
-        // const xClose = mkElt("button", { class: "x-close" }, "✖");
-        const xClose = mkXclose();
-        const dlg = mkElt("dialog", undefined, [bdy, xClose]);
-        document.body.appendChild(dlg);
-        dlg.showModal();
-    })
+        showVibInstructions();
+    });
 
     // const canVibrate = typeof navigator.vibrate == "function";
     const canVibrate = true;
@@ -1082,7 +1061,7 @@ async function setBackgroundImage() {
     }
 }
 
-async function backgroundImageDialog() {
+async function dialogSettings() {
     const btnMy = mkElt("button", undefined, "Select");
     // const xClose = mkElt("button", { class: "x-close" }, "✖");
     const xClose = mkXclose();
@@ -1120,15 +1099,100 @@ async function backgroundImageDialog() {
         divMy,
         xClose
     ]);
-    const bdy = mkElt("div", undefined, [
-        mkElt("h2", undefined, `Background image`),
-        mkElt("p", undefined, `
+    const eltBgImage =
+        mkElt("p", undefined,
+            mkElt("details", undefined, [
+                mkElt("summary", undefined, `Background image`),
+                mkElt("p", undefined, `
             There are a number of background images
             that are randomly choosen for you.
             If you prefer your own image you can select
             it here.
             `),
-        divInputs
+                divInputs
+            ]));
+    eltBgImage.style = `
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+    `;
+
+    // div-controls
+    const volSlider = mkElt("input", { "type": "range", "min": 0, "max": 100, "value": 100, "id": "volume" });
+    let spanSoundOn = mkElt("span");
+    let spanSoundOff = mkElt("span");
+    spanSoundOn.innerHTML = '<i class="fas fa-volume-up"></i>';
+    spanSoundOff.innerHTML = '<i class="fas fa-volume-mute"></i>';
+    const btnSound = mkElt("button", { "class": "popup-button sound-on-off" }, [spanSoundOff, spanSoundOn]);
+    function setDisplaySound() {
+        debugger;
+        loadAudio();
+        if (!settingSoundOff.valueB) {
+            spanSoundOff.style.display = "none";
+            spanSoundOn.style.display = "inline";
+            volSlider.removeAttribute("disabled");
+            // objAudio.volume = sliderVolume; // / 100;
+            objAudio.volume = volSlider.value / 100;
+        } else {
+            spanSoundOff.style.display = "inline";
+            spanSoundOn.style.display = "none";
+            volSlider.setAttribute("disabled", true);
+            objAudio.volume = 0;
+        }
+    }
+    btnSound.addEventListener("click", evt => {
+        debugger;
+        settingSoundOff.value = !settingSoundOff.valueB;
+        setDisplaySound();
+    });
+
+    const lblVolume = mkElt("label", null, [btnSound, volSlider]);
+    lblVolume.style.marginBottom = "15px";
+
+    const chkVibrate = mkElt("input", { "type": "checkbox" });
+    const spanVibTxt = mkElt("span", null, "Vibrate:");
+    const btnVibInfo = mkElt("button", { class: "btn-1-char" }, "i");
+    btnVibInfo.addEventListener("click", evt => {
+        evt.stopPropagation();
+        showVibInstructions();
+    });
+
+    const spanBtn = mkElt("span", undefined, btnVibInfo)
+    const lblVibrate = mkElt("label", null, [spanBtn, spanVibTxt, chkVibrate]);
+
+    const alarmControls = mkElt("div", { "id": "alarm-controls" }, [
+        lblVolume,
+        lblVibrate,
+        settingVibrSpeed.getInputElement()
+    ]);
+
+    const ourCat = mkElt("i", { "id": "the-cat", "class": "fas fa-cat" });
+    const divAlarmControls = mkElt("div", { "id": "div-controls" }, [alarmControls]);
+    const eltAlarms =
+        mkElt("p", undefined,
+            mkElt("details", undefined, [
+                mkElt("summary", undefined, `Alarms`),
+                mkElt("p", undefined, [
+                    ourCat,
+                    `
+                    When you are meditating you can see when
+                    the time is finished.
+                    You can also get audio/vibration alarms.
+                    `
+                ]),
+                divAlarmControls,
+            ]),
+        );
+    eltAlarms.style = `
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+    `;
+
+    const bdy = mkElt("div", undefined, [
+        mkElt("h2", undefined, `Settings`),
+        eltBgImage,
+        eltAlarms
     ]);
     // bdy.style.outline = "1px dotted red";
     // bdy.style.border = "1px dotted green";
@@ -1278,4 +1342,38 @@ function getPurrPattern(intensity, tempo) {
     for (let i = 0; i < pulses; i++) pattern.push(pulseOn, pulseOff);
     pattern.push(breathPause);
     return pattern;
+}
+
+
+
+function makeVibrationInstructions() {
+    const title = mkElt('h2', { class: 'info-title' }, 'No vibration? Check Android settings');
+    const settingsNote = mkElt('p', { class: 'info-row' }, [
+        'Go to ',
+        mkElt('code', {}, 'Settings → Sound & vibration → Vibrations & haptics'),
+        ' and make sure both ',
+        mkElt('code', {}, 'Use vibration and haptics'),
+        ' and ',
+        mkElt('code', {}, 'Touch feedback'),
+        " are on.",
+        " (Also check that ",
+        mkElt("code", undefined, "Do Not Disturb"),
+        " is off.)",
+    ]);
+    // const iosNote = mkElt('p', { class: 'info-row' }, 'iOS Safari does not support the Vibration API.');
+    const supportedNote = mkElt('p', { class: 'info-row' },
+        'Vibration is only support on Android. And only on newer mobiles.');
+    return mkElt('div', { id: 'info-vibration' }, [
+        title,
+        settingsNote,
+        // iosNote,
+        supportedNote
+    ]);
+}
+function showVibInstructions() {
+    const bdy = makeVibrationInstructions();
+    const xClose = mkXclose();
+    const dlg = mkElt("dialog", undefined, [bdy, xClose]);
+    document.body.appendChild(dlg);
+    dlg.showModal();
 }
