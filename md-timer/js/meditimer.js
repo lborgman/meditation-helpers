@@ -532,10 +532,10 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 
         // let strVol = OLDgetItemString("volume") || "100";
         // volSlider.value = parseFloat(strVol);
-        volSlider.value = settingVolume.valueN;
-        sliderVolume = volSlider.value / 100;
+        // volSlider.value = settingVolume.valueN;
+        // sliderVolume = volSlider.value / 100;
 
-        setDisplaySound();
+        // setDisplaySound();
         // https://davidwalsh.name/javascript-volume
         // console.log("audio", audio, audio.volume); // volume = 1, 100%
         objAudio.volume = 0;
@@ -551,6 +551,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                     }
                     // if (soundOff) return;
                     if (settingSoundOff.valueB) return;
+                    const sliderVolume = parseFloat(OLDgetItemString("volume")) / 100;
                     objAudio.volume = sliderVolume * funEaseInOut(dur);
                 }
                 intervalVolume = setInterval(raiseVolume, stepEaseInOut * 1000);
@@ -816,12 +817,11 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     ]);
     timerDiv.appendChild(divAsk);
 
+    /*
     const volSlider = mkElt("input", { "type": "range", "min": 0, "max": 100, "value": 100, "id": "volume" });
-    let spanSoundOn = mkElt("span");
-    let spanSoundOff = mkElt("span");
-    spanSoundOn.innerHTML = '<i class="fas fa-volume-up"></i>';
-    spanSoundOff.innerHTML = '<i class="fas fa-volume-mute"></i>';
-    const btnSound = mkElt("button", { "class": "popup-button sound-on-off" }, [spanSoundOff, spanSoundOn]);
+    const imgSound = mkElt("img",{src:"./img/speaker.svg"});
+    const btnSound = mkElt("button", { "class": "popup-button sound-on-off" }, [imgSound]);
+    setDisplaySound();
     function setDisplaySound() {
         // if (!soundOff) {
         if (!settingSoundOff.valueB) {
@@ -841,8 +841,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         }
     }
     btnSound.addEventListener("click", evt => {
-        // soundOff = !soundOff;
-        debugger;
+        // debugger;
         settingSoundOff.value = !settingSoundOff.valueB;
         setDisplaySound();
     })
@@ -916,6 +915,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         chkVibrate.checked = true;
         useVibration = true;
     }
+    */
 
 
     function askAttention() {
@@ -1119,32 +1119,31 @@ async function dialogSettings() {
 
     // div-controls
     const volSlider = mkElt("input", { "type": "range", "min": 0, "max": 100, "value": 100, "id": "volume" });
-    let spanSoundOn = mkElt("span");
-    let spanSoundOff = mkElt("span");
-    spanSoundOn.innerHTML = '<i class="fas fa-volume-up"></i>';
-    spanSoundOff.innerHTML = '<i class="fas fa-volume-mute"></i>';
-    const btnSound = mkElt("button", { "class": "popup-button sound-on-off" }, [spanSoundOff, spanSoundOn]);
+
+    const imgSound = mkElt("img", { src: "./img/speaker.svg" });
+    const btnSound = mkElt("button", { "class": "img-button sound" }, [imgSound]);
+    btnSound.addEventListener("click", evt => {
+        settingSoundOff.value = !settingSoundOff.valueB;
+        setDisplaySound();
+    });
+
+    const imgVibrate = mkElt("img", { src: "./img/mobile-vibration.svg" });
+    const btnVibrate = mkElt("button", { "class": "img-button vibration" }, [imgVibrate]);
+
+    setDisplaySound();
     function setDisplaySound() {
-        debugger;
+        // debugger;
         loadAudio();
         if (!settingSoundOff.valueB) {
-            spanSoundOff.style.display = "none";
-            spanSoundOn.style.display = "inline";
+            document.documentElement.classList.remove("sound-off");
             volSlider.removeAttribute("disabled");
-            // objAudio.volume = sliderVolume; // / 100;
             objAudio.volume = volSlider.value / 100;
         } else {
-            spanSoundOff.style.display = "inline";
-            spanSoundOn.style.display = "none";
+            document.documentElement.classList.add("sound-off");
             volSlider.setAttribute("disabled", true);
             objAudio.volume = 0;
         }
     }
-    btnSound.addEventListener("click", evt => {
-        debugger;
-        settingSoundOff.value = !settingSoundOff.valueB;
-        setDisplaySound();
-    });
 
     const lblVolume = mkElt("label", null, [btnSound, volSlider]);
     lblVolume.style.marginBottom = "15px";
@@ -1158,7 +1157,8 @@ async function dialogSettings() {
     });
 
     const spanBtn = mkElt("span", undefined, btnVibInfo)
-    const lblVibrate = mkElt("label", null, [spanBtn, spanVibTxt, chkVibrate]);
+    const lblVibrate = mkElt("label", null, [btnVibrate, spanBtn, spanVibTxt, chkVibrate]);
+
 
     const alarmControls = mkElt("div", { "id": "alarm-controls" }, [
         lblVolume,

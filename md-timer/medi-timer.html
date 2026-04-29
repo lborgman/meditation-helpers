@@ -68,6 +68,46 @@
       cursor: pointer;
     }
 
+    button.img-button {
+      height: 40px;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      position: relative;
+      img {
+        width: 70%;
+        height: 70%;
+      }
+    }
+
+    button.sound:hover::before {
+      NOcontent: "X";
+      content: "⟋";
+      font-size: 2.5em;
+      font-weight: bold;
+      color: gray !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      inset: 0;
+    }
+
+    html.sound-off button.sound::before {
+      NOcontent: "X";
+      content: "⟋";
+      font-size: 2.5em;
+      font-weight: bold;
+      color: red;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      inset: 0;
+    }
+
     html,
     body {
       min-height: 100dvh;
