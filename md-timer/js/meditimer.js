@@ -28,14 +28,42 @@ class OurLocalSetting extends modLocalSettings.LocalSetting {
         super(STORING_PREFIX, key, definitionValue);
     }
 }
-const settingVibrSpeed = new OurLocalSetting("vibr-speed", [0, 1, 2]);
+const settingVibrTempo = new OurLocalSetting("vibr-speed", [0, 1, 2]);
 // debugger;
 const settingSoundOff = new OurLocalSetting("sound-off", false);
+const settingVibrationOff = new OurLocalSetting("vibration-off", false);
 const settingUseMyBg = new OurLocalSetting("use-my-bg", false);
 const settingVolume = new OurLocalSetting("volume", 100);
 
 let objAudio;
 const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
+
+// if (!eltMarkers012)
+{
+    const datalist012 = {
+        "0": "low",
+        "1": "mid",
+        "2": "high"
+    }
+    /**
+     * @param {Object} datalistObj 
+     * @param {string} id 
+     * @returns {HTMLDataListElement}
+     */
+    function mkDatalist(datalistObj, id) {
+        const elt = mkElt("datalist", { id });
+        Object.keys(datalistObj).forEach(key => {
+            // The "label" part is not supported in any browser.
+            // Just skip it here to avoid future surprices.
+            const opt = mkElt("option", { value: key });
+            elt.appendChild(opt);
+        });
+        return elt;
+    }
+    const eltMarkers012 = mkDatalist(datalist012, "markers012");
+    document.body.appendChild(eltMarkers012);
+}
+
 function loadAudio() {
     if (objAudio) return;
     objAudio = new Audio();
@@ -530,14 +558,8 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     function playReadySound() {
         objAudio.currentTime = 0;
 
-        // let strVol = OLDgetItemString("volume") || "100";
-        // volSlider.value = parseFloat(strVol);
-        // volSlider.value = settingVolume.valueN;
-        // sliderVolume = volSlider.value / 100;
-
-        // setDisplaySound();
         // https://davidwalsh.name/javascript-volume
-        // console.log("audio", audio, audio.volume); // volume = 1, 100%
+
         objAudio.volume = 0;
         objAudio.play()
             .then(() => {
@@ -817,106 +839,6 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     ]);
     timerDiv.appendChild(divAsk);
 
-    /*
-    const volSlider = mkElt("input", { "type": "range", "min": 0, "max": 100, "value": 100, "id": "volume" });
-    const imgSound = mkElt("img",{src:"./img/speaker.svg"});
-    const btnSound = mkElt("button", { "class": "popup-button sound-on-off" }, [imgSound]);
-    setDisplaySound();
-    function setDisplaySound() {
-        // if (!soundOff) {
-        if (!settingSoundOff.valueB) {
-            spanSoundOff.style.display = "none";
-            spanSoundOn.style.display = "inline";
-            volSlider.removeAttribute("disabled");
-            // removeItemString("sound-off");
-            // settingSoundOff.reset();
-            objAudio.volume = sliderVolume; // / 100;
-        } else {
-            spanSoundOff.style.display = "inline";
-            spanSoundOn.style.display = "none";
-            volSlider.setAttribute("disabled", true);
-            // setItemString("sound-off", "true");
-            // settingSoundOff.value = true;
-            objAudio.volume = 0;
-        }
-    }
-    btnSound.addEventListener("click", evt => {
-        // debugger;
-        settingSoundOff.value = !settingSoundOff.valueB;
-        setDisplaySound();
-    })
-    // const lblVolume = mkElt("label", null, [btnSound, mkElt("br"), volSlider]);
-    const lblVolume = mkElt("label", null, [btnSound, volSlider]);
-    lblVolume.style.marginBottom = "15px";
-    const chkVibrate = mkElt("input", { "type": "checkbox" });
-    const spanVibTxt = mkElt("span", null, "Vibrate:");
-    const btnVibInfo = mkElt("button", { class: "btn-1-char" }, "i");
-    const spanBtn = mkElt("span", undefined, btnVibInfo)
-    const lblVibrate = mkElt("label", null, [spanVibTxt, chkVibrate, spanBtn]);
-    lblVibrate.style.gap = "20px";
-
-    btnVibInfo.addEventListener("click", evt => {
-        evt.stopPropagation();
-        showVibInstructions();
-    });
-
-    // const canVibrate = typeof navigator.vibrate == "function";
-    const canVibrate = true;
-    if (!canVibrate) {
-        lblVibrate.style.display = "none";
-        spanVibTxt.innerHTML = "(No vibration)";
-        lblVibrate.setAttribute("title", "Your browser does not support vibration.\nTry Chrome if you want it.");
-        chkVibrate.setAttribute("disabled", true);
-        chkVibrate.style.display = "none";
-    }
-    // const divMaxInfo = mkElt("div", null, "Max volume:");
-    const alarmControls = mkElt("div", { "id": "alarm-controls" }, [
-        lblVolume,
-        lblVibrate,
-        settingVibrSpeed.getInputElement()
-    ]);
-    const ourCat = mkElt("i", { "id": "the-cat", "class": "fas fa-cat" });
-    const divAlarmControls = mkElt("div", { "id": "div-controls" }, [ourCat, alarmControls]);
-    // timerDiv.appendChild(divAlarm);
-
-    const divAlarms = mkElt("div", undefined, [
-        mkElt("p", undefined, `
-            You can set audio/vibration alarms when meditation time is over.
-            `),
-        divAlarmControls
-    ])
-
-    const detAlarm = mkElt("details", { "id": "det-controls" }, [
-        mkElt("summary", undefined, "Alarms"),
-        divAlarms
-    ]);
-    // divAsk.appendChild(divAlarm);
-    divAsk.appendChild(detAlarm);
-
-    volSlider.addEventListener("input", evt => {
-        // console.log("volslider input", evt, volSlider.value);
-        clearInterval(intervalVolume);
-        sliderVolume = volSlider.value / 100;
-        objAudio.volume = sliderVolume; // / 100;
-        OLDsetItemString("volume", volSlider.value);
-    });
-    let useVibration = false;
-    chkVibrate.addEventListener("change", evt => {
-        // console.log("evt change", evt);
-        if (evt.target.checked) {
-            useVibration = true;
-            localStorage.setItem("use-vibration", true);
-        } else {
-            useVibration = false;
-            localStorage.removeItem("use-vibration", true);
-        }
-    });
-    if (localStorage.getItem("use-vibration")) {
-        chkVibrate.checked = true;
-        useVibration = true;
-    }
-    */
-
 
     function askAttention() {
         setMdState("asking");
@@ -1063,13 +985,10 @@ async function setBackgroundImage() {
 
 async function dialogSettings() {
     const btnMy = mkElt("button", undefined, "Select");
-    // const xClose = mkElt("button", { class: "x-close" }, "✖");
     const xClose = mkXclose();
 
-    // const chkMy = mkElt("input", { type: "checkbox" });
     const chkMy = settingUseMyBg.getInputElement();
     chkMy.addEventListener("change", evt => {
-        // setUseMyBackground(chkMy.checked)
         setBackgroundImage();
     });
     const lblMy = mkElt("label", undefined, [
@@ -1094,10 +1013,11 @@ async function dialogSettings() {
     divMy.style = `
         display: flex;
         gap: 35px;
-    `
+    `;
+    // console.log("dialogSettings", { xClose });
     const divInputs = mkElt("div", undefined, [
         divMy,
-        xClose
+        // xClose
     ]);
     const eltBgImage =
         mkElt("p", undefined,
@@ -1122,13 +1042,21 @@ async function dialogSettings() {
 
     const imgSound = mkElt("img", { src: "./img/speaker.svg" });
     const btnSound = mkElt("button", { "class": "img-button sound" }, [imgSound]);
+    btnSound.title = "- Turn on/off sound";
     btnSound.addEventListener("click", evt => {
+        evt.stopPropagation();
         settingSoundOff.value = !settingSoundOff.valueB;
         setDisplaySound();
     });
 
     const imgVibrate = mkElt("img", { src: "./img/mobile-vibration.svg" });
     const btnVibrate = mkElt("button", { "class": "img-button vibration" }, [imgVibrate]);
+    btnVibrate.title = "- Turn on/off vibration";
+    btnVibrate.addEventListener("click", evt => {
+        // chkVibrate
+        settingVibrationOff.value = !settingVibrationOff.valueB;
+        setDisplayVibration();
+    });
 
     setDisplaySound();
     function setDisplaySound() {
@@ -1136,34 +1064,81 @@ async function dialogSettings() {
         loadAudio();
         if (!settingSoundOff.valueB) {
             document.documentElement.classList.remove("sound-off");
-            volSlider.removeAttribute("disabled");
+            // volSlider.removeAttribute("disabled");
+            volSlider.removeAttribute("inert");
             objAudio.volume = volSlider.value / 100;
         } else {
             document.documentElement.classList.add("sound-off");
-            volSlider.setAttribute("disabled", true);
+            // volSlider.setAttribute("disabled", true);
+            volSlider.setAttribute("inert", "");
             objAudio.volume = 0;
         }
     }
+    setDisplayVibration();
+    function setDisplayVibration() {
+        // loadAudio();
+        if (!settingVibrationOff.valueB) {
+            document.documentElement.classList.remove("vibration-off");
+        } else {
+            document.documentElement.classList.add("vibration-off");
+        }
+    }
 
-    const lblVolume = mkElt("label", null, [btnSound, volSlider]);
-    lblVolume.style.marginBottom = "15px";
+    const divVolume = mkElt("div", null, [btnSound, volSlider]);
+    divVolume.style = `
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    `;
 
-    const chkVibrate = mkElt("input", { "type": "checkbox" });
-    const spanVibTxt = mkElt("span", null, "Vibrate:");
+    // const chkVibrate = mkElt("input", { "type": "checkbox" });
+    // const spanVibTxt = mkElt("span", null, "Vibrate:");
     const btnVibInfo = mkElt("button", { class: "btn-1-char" }, "i");
     btnVibInfo.addEventListener("click", evt => {
         evt.stopPropagation();
         showVibInstructions();
     });
 
-    const spanBtn = mkElt("span", undefined, btnVibInfo)
-    const lblVibrate = mkElt("label", null, [btnVibrate, spanBtn, spanVibTxt, chkVibrate]);
+    // const spanBtn = mkElt("span", undefined, btnVibInfo)
+    // const lblVibrate = mkElt("label", null, [btnVibrate, spanBtn]);
 
 
+    const spanTempoVal = mkElt("span", { class: "ctrl-val", id: "tempoVal" });
+    const inpTempo = settingVibrTempo.getInputElement();
+    inpTempo.step = "1";
+    inpTempo.setAttribute("list", "markers012");
+    const divTempo = mkElt("div", undefined, [
+        "TEMPO",
+        inpTempo,
+        spanTempoVal
+    ]);
+    const divVibSliders = mkElt("div", { id: "vibration-sliders" }, [
+        divTempo,
+    ]);
+    divVibSliders.style = `
+        outline: 3px dotted green;
+    `;
+    const divVibrCtrls = mkElt("div", { id: "vibration-controls" }, [
+        btnVibrate,
+        divVibSliders,
+    ]);
+    divVibrCtrls.style = `
+        display: flex;
+        gap: 10px;
+        outline: 1px dotted red;
+    `;
+    const divVibration = mkElt("div", undefined, [
+        divVibrCtrls,
+        // Preserve button aspect ratio:
+        mkElt("span", undefined, btnVibInfo)
+    ]);
+    divVibration.style = `
+        display: flex;
+        gap: 30px;
+    `;
     const alarmControls = mkElt("div", { "id": "alarm-controls" }, [
-        lblVolume,
-        lblVibrate,
-        settingVibrSpeed.getInputElement()
+        divVolume,
+        divVibration
     ]);
 
     const ourCat = mkElt("i", { "id": "the-cat", "class": "fas fa-cat" });
@@ -1175,8 +1150,8 @@ async function dialogSettings() {
                 mkElt("p", undefined, [
                     ourCat,
                     `
-                    When you are meditating you can see when
-                    the time is finished.
+                    When you are meditating you can see
+                    on the screen when the time is finished.
                     You can also get audio/vibration alarms.
                     `
                 ]),
@@ -1192,7 +1167,8 @@ async function dialogSettings() {
     const bdy = mkElt("div", undefined, [
         mkElt("h2", undefined, `Settings`),
         eltBgImage,
-        eltAlarms
+        eltAlarms,
+        xClose
     ]);
     // bdy.style.outline = "1px dotted red";
     // bdy.style.border = "1px dotted green";
@@ -1201,16 +1177,6 @@ async function dialogSettings() {
         bdy
     ]);
 
-    // FIX-ME: delegate
-    dlg.addEventListener("click", evt => {
-        evt.stopPropagation();
-        // bdy covers the whole <dialog>
-        const target = evt.target;
-        const currentTarget = evt.currentTarget;
-        const onDialog = target == currentTarget;
-        // console.log({onDialog});
-        if (onDialog) dlg.close();
-    });
     document.documentElement.appendChild(dlg);
     btnMy.addEventListener("click", async evt => {
         evt.stopPropagation();
@@ -1316,6 +1282,20 @@ function mkXclose(funClose) {
     });
     return xClose;
 }
+
+document.documentElement.addEventListener("click", evt => {
+    evt.stopPropagation();
+    // debugger;
+    // NOTE: first child element must covers the whole <dialog>
+    const targetDialog = evt.target;
+    if (targetDialog?.tagName == "DIALOG") {
+        targetDialog.close();
+    }
+    // const currentTarget = evt.currentTarget;
+    // const onDialog = targetDialog == currentTarget;
+    // if (onDialog) targetDialog.close();
+});
+
 
 function startVibrationPurr() {
     navigator.vibrate(getPurrPattern(1, 1));

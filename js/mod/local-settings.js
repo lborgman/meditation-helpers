@@ -169,7 +169,7 @@ export class LocalSetting {
             if (this.#tofDef != "range") {
                 throw Error(`#set_itemValue, ${this.#key}: typeof val==${tofVal}, expected ${this.#tofDef}`);
             }
-            debugger;
+            // debugger;
         }
         this.#cachedValue = val;
         localStorage.setItem(this.#key, JSON.stringify(val)); // FIX-ME: is this correct?
