@@ -64,7 +64,8 @@
       --button-bg: yellowgreen;
     }
 
-    button, input[type=range] {
+    button,
+    input[type=range] {
       cursor: pointer;
     }
 
@@ -83,17 +84,19 @@
       }
     }
 
-    button.img-button:hover::before {
-      NOcontent: "X";
-      content: "⟋";
-      font-size: 2.5em;
-      font-weight: bold;
-      color: yellow !important;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: absolute;
-      inset: 0;
+    @media (hover: hover) and (pointer: fine) {
+      button.img-button:hover::before {
+        NOcontent: "X";
+        content: "⟋";
+        font-size: 2.5em;
+        font-weight: bold;
+        color: yellow !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        inset: 0;
+      }
     }
 
     html.sound-off button.sound::before,
@@ -202,8 +205,10 @@
       cursor: pointer;
     }
 
-    footer span[role=button]:hover {
-      color: red;
+    @media (hover: hover) and (pointer: fine) {
+      footer span[role=button]:hover {
+        color: red;
+      }
     }
 
 
