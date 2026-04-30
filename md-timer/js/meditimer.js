@@ -66,11 +66,18 @@ const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
 
 function loadAudio() {
     if (objAudio) return;
+    console.warn("loadAudio");
+    debugger;
     objAudio = new Audio();
-    objAudio.onerror = (err) => {
+    objAudio.addEventListener("error", evt  => {
+        debugger;
         console.error("Error playing", soundReadyLink);
         throw Error(`Error playing "${soundReadyLink}`);
-    }
+    });
+    objAudio.addEventListener("loadedmetadata", evt  => {
+        debugger;
+    });
+    debugger;
     objAudio.src = soundReadyLink;
 }
 
@@ -1046,6 +1053,11 @@ async function dialogSettings() {
     btnSound.addEventListener("click", evt => {
         evt.stopPropagation();
         settingSoundOff.value = !settingSoundOff.valueB;
+        // objAudio
+        if (!settingSoundOff.valueB) {
+            debugger;
+            loadAudio();
+        }
         setDisplaySound();
     });
 
@@ -1084,7 +1096,10 @@ async function dialogSettings() {
         }
     }
 
-    const divVolume = mkElt("div", null, [btnSound, volSlider]);
+    const divVolume = mkElt("div", null, [
+        btnSound, volSlider,
+        mkElt("span", {style:"color:red;"}, "Something is wrong with sound at the moment?")
+    ]);
     divVolume.style = `
         display: flex;
         gap: 10px;
