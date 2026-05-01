@@ -69,12 +69,12 @@ function loadAudio() {
     console.warn("loadAudio");
     debugger;
     objAudio = new Audio();
-    objAudio.addEventListener("error", evt  => {
+    objAudio.addEventListener("error", evt => {
         debugger;
         console.error("Error playing", soundReadyLink);
         throw Error(`Error playing "${soundReadyLink}`);
     });
-    objAudio.addEventListener("loadedmetadata", evt  => {
+    objAudio.addEventListener("loadedmetadata", evt => {
         debugger;
     });
     debugger;
@@ -1096,13 +1096,38 @@ async function dialogSettings() {
         }
     }
 
+    const btnSoundTest = mkElt("button", undefined, "Test sound");
+    btnSoundTest.addEventListener("click", evt => {
+        evt.stopPropagation();
+        debugger;
+        objAudio.play();
+    });
+    const eltBad = mkElt("div", undefined, [
+        mkElt("h3", undefined, "Alarm tests"),
+        mkElt("p", { style: "color:darkred" }, "Something is wrong with sound at the moment?"),
+        mkElt("p", undefined, [
+            btnSoundTest,
+        ])
+    ]);
+    eltBad.style = `
+        color: blue;
+        background: lightblue;
+        border: 2px solid;
+        border-radius: 8px;
+        padding: 1rem;
+    `;
+    volSlider.style = `
+        min-width: 0;
+        flex-shrink: 1;
+    `;
     const divVolume = mkElt("div", null, [
         btnSound, volSlider,
-        mkElt("span", {style:"color:red;"}, "Something is wrong with sound at the moment?")
+        // eltBad,
     ]);
     divVolume.style = `
         display: flex;
         gap: 10px;
+        flex-wrap: wrap;
         margin-bottom: 15px;
     `;
 
@@ -1152,6 +1177,7 @@ async function dialogSettings() {
         gap: 30px;
     `;
     const alarmControls = mkElt("div", { "id": "alarm-controls" }, [
+        eltBad,
         divVolume,
         divVibration
     ]);
