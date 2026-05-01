@@ -67,7 +67,7 @@ const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
 function loadAudio() {
     if (objAudio) return;
     console.warn("loadAudio");
-    debugger;
+    // debugger;
     objAudio = new Audio();
     objAudio.addEventListener("error", evt => {
         debugger;
@@ -75,9 +75,15 @@ function loadAudio() {
         throw Error(`Error playing "${soundReadyLink}`);
     });
     objAudio.addEventListener("loadedmetadata", evt => {
+        // debugger;
+    });
+    objAudio.addEventListener("canplay", evt => {
+        // debugger;
+    });
+    objAudio.addEventListener("canplaythrough", evt => {
         debugger;
     });
-    debugger;
+    // debugger;
     objAudio.src = soundReadyLink;
 }
 
@@ -579,9 +585,16 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                         return;
                     }
                     if (settingSoundOff.valueB) return;
-                    // const sliderVolume = parseFloat(OLDgetItemString("volume")) / 100;
-                    // objAudio.volume = sliderVolume * funEaseInOut(dur);
-                    objAudio.volume = settingVolume.valueN * funEaseInOut(dur);
+                    const newVolume = settingVolume.valueN * 0.01 * funEaseInOut(dur);
+                    console.log("newVolume", newVolume, dur);
+                    try {
+                    objAudio.volume = newVolume;
+                    } catch(err) {
+                        console.error(err);
+                        debugger;
+                        clearInterval(intervalVolume);
+                        return;
+                    }
                 }
                 intervalVolume = setInterval(raiseVolume, stepEaseInOut * 1000);
             }).catch(err => {
