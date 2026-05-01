@@ -35,7 +35,7 @@ const settingVibrationOff = new OurLocalSetting("vibration-off", false);
 const settingUseMyBg = new OurLocalSetting("use-my-bg", false);
 const settingVolume = new OurLocalSetting("volume", 100);
 
-let objAudio;
+/** @type {HTMLMediaElement | undefined} */ let objAudio;
 const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
 
 // if (!eltMarkers012)
@@ -64,27 +64,28 @@ const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
     document.body.appendChild(eltMarkers012);
 }
 
-function loadAudio() {
-    if (objAudio) return;
-    console.warn("loadAudio");
-    // debugger;
-    objAudio = new Audio();
-    objAudio.addEventListener("error", evt => {
-        debugger;
-        console.error("Error playing", soundReadyLink);
-        throw Error(`Error playing "${soundReadyLink}`);
+async function loadAudio() {
+    function canPlayNow(mediaElement) {
+        return mediaElement.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA;
+    }
+    return new Promise((resolve, reject) => {
+        console.warn("loadAudio");
+        if (objAudio) {
+            if (canPlayNow(objAudio)) resolve(true);
+            return;
+        }
+        console.warn("loadAudio loading...");
+        objAudio = new Audio();
+        objAudio.addEventListener("error", evt => {
+            debugger;
+            console.error("Error playing", soundReadyLink);
+            throw Error(`Error playing "${soundReadyLink}`);
+        });
+        objAudio.addEventListener("canplaythrough", evt => {
+            resolve(true);
+        });
+        objAudio.src = soundReadyLink;
     });
-    objAudio.addEventListener("loadedmetadata", evt => {
-        // debugger;
-    });
-    objAudio.addEventListener("canplay", evt => {
-        // debugger;
-    });
-    objAudio.addEventListener("canplaythrough", evt => {
-        debugger;
-    });
-    // debugger;
-    objAudio.src = soundReadyLink;
 }
 
 
@@ -524,12 +525,10 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 
     function startAlarms() {
         playReadySound();
-        // startVibrationTimer();
         startVibrationPurr();
     }
     function stopAlarms() {
         objAudio.pause();
-        // stopVibrationTimer();
         stopVibrationPurr();
     }
     let vibrationTimer;
@@ -573,7 +572,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 
         // https://davidwalsh.name/javascript-volume
 
-        objAudio.volume = 0.1;
+        objAudio.volume = 0.01;
         objAudio.play()
             .then(() => {
                 let dur = 0;
@@ -584,12 +583,16 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                         clearInterval(intervalVolume);
                         return;
                     }
+                    if (objAudio.paused) {
+                        clearInterval(intervalVolume);
+                        return;
+                    }
                     if (settingSoundOff.valueB) return;
                     const newVolume = settingVolume.valueN * 0.01 * funEaseInOut(dur);
                     console.log("newVolume", newVolume, dur);
                     try {
-                    objAudio.volume = newVolume;
-                    } catch(err) {
+                        objAudio.volume = newVolume;
+                    } catch (err) {
                         console.error(err);
                         debugger;
                         clearInterval(intervalVolume);
@@ -700,15 +703,12 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         dialogSettings();
     });
 
-    btnStart.addEventListener("click", evt => {
+    btnStart.addEventListener("click", async evt => {
 
         progressBar.max = secondsGoal;
         // document.documentElement.requestFullscreen();
         setMdState("starting-meditation");
-        // timerDiv.classList.add("hero");
         const perSeconds = 25.0;
-        // const interval = 1 / perSeconds;
-        // const interval1000 = 1000 / perSeconds;
         function startRunner() {
             const startMs = Date.now();
             const endMs = startMs + 1000 * secondsGoal;
@@ -728,18 +728,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
             setMdState("meditating");
             setTimeout(startRunner, 2000);
         }
-        // objAudio = objAudio || new Audio(soundReadyLink);
-        /*
-        if (!objAudio) {
-            objAudio = new Audio();
-            objAudio.onerror = (err) => {
-                console.error("Error playing", soundReadyLink);
-                throw Error(`Error playing "${soundReadyLink}`);
-            }
-            objAudio.src = soundReadyLink;
-        }
-        */
-        loadAudio();
+        await loadAudio();
         setTimeout(startIt, 2000);
     });
 
@@ -775,21 +764,12 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     let pAsk = mkElt("p", { "class": "after-med-info" }, [
         "Did you keep focus on your breath?"
     ]);
-    let btnFail = mkElt("button",
-        { class: "popup-button" },
-        // "Lost attention"
-        "No"
-    );
+    let btnFail = mkElt("button", { class: "popup-button" }, "No");
     // btnFail.style.margin = "10px"; // FIXME:
     btnFail.addEventListener("click", evt => {
         handleReply(false);
     });
-    let btnSuccess = mkElt(
-        "button",
-        { class: "popup-button" },
-        // "Kept attention"
-        "Yes"
-    );
+    let btnSuccess = mkElt( "button", { class: "popup-button" }, "Yes");
     btnSuccess.addEventListener("click", evt => {
         handleReply(true);
     });
@@ -1063,14 +1043,10 @@ async function dialogSettings() {
     const imgSound = mkElt("img", { src: "./img/speaker.svg" });
     const btnSound = mkElt("button", { "class": "img-button sound" }, [imgSound]);
     btnSound.title = "- Turn on/off sound";
-    btnSound.addEventListener("click", evt => {
+    btnSound.addEventListener("click", async evt => {
         evt.stopPropagation();
         settingSoundOff.value = !settingSoundOff.valueB;
-        // objAudio
-        if (!settingSoundOff.valueB) {
-            debugger;
-            loadAudio();
-        }
+        await loadAudio();
         setDisplaySound();
     });
 
@@ -1084,9 +1060,9 @@ async function dialogSettings() {
     });
 
     setDisplaySound();
-    function setDisplaySound() {
+    async function setDisplaySound() {
         // debugger;
-        loadAudio();
+        await loadAudio();
         if (!settingSoundOff.valueB) {
             document.documentElement.classList.remove("sound-off");
             // volSlider.removeAttribute("disabled");
@@ -1101,7 +1077,6 @@ async function dialogSettings() {
     }
     setDisplayVibration();
     function setDisplayVibration() {
-        // loadAudio();
         if (!settingVibrationOff.valueB) {
             document.documentElement.classList.remove("vibration-off");
         } else {
