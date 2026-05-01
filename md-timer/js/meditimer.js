@@ -567,7 +567,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 
         // https://davidwalsh.name/javascript-volume
 
-        objAudio.volume = 0;
+        objAudio.volume = 0.1;
         objAudio.play()
             .then(() => {
                 let dur = 0;
@@ -578,10 +578,10 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                         clearInterval(intervalVolume);
                         return;
                     }
-                    // if (soundOff) return;
                     if (settingSoundOff.valueB) return;
-                    const sliderVolume = parseFloat(OLDgetItemString("volume")) / 100;
-                    objAudio.volume = sliderVolume * funEaseInOut(dur);
+                    // const sliderVolume = parseFloat(OLDgetItemString("volume")) / 100;
+                    // objAudio.volume = sliderVolume * funEaseInOut(dur);
+                    objAudio.volume = settingVolume.valueN * funEaseInOut(dur);
                 }
                 intervalVolume = setInterval(raiseVolume, stepEaseInOut * 1000);
             }).catch(err => {
