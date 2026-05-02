@@ -282,12 +282,12 @@ function mkEaseInOut(min, max, start, end) {
         return min + (max - min) * 0.5 * (Math.sin(angle) + 1);
     }
 }
-const secEaseInOut = 6;
-const secMaxAlarmTime = 5;
+const secEaseInOut = 10;
+const secMaxAlarmTime = 10;
 const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
 // const stepEaseInOut = secEaseInOut / 30; // 0.2;
-const stepEaseInOut = Math.max(0.4, secEaseInOut / 30);
+const stepEaseInOut = Math.max(0.4, secEaseInOut / 20);
 {
     // Check middle step size:
     let stepChange = funEaseInOut(secEaseInOut / 2 + stepEaseInOut) - funEaseInOut(secEaseInOut / 2);
