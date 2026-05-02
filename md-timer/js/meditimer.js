@@ -33,7 +33,8 @@ const settingVibrTempo = new OurLocalSetting("vibr-speed", [0, 1, 2]);
 const settingSoundOff = new OurLocalSetting("sound-off", false);
 const settingVibrationOff = new OurLocalSetting("vibration-off", false);
 const settingUseMyBg = new OurLocalSetting("use-my-bg", false);
-const settingVolume = new OurLocalSetting("volume", 100);
+// const settingVolume = new OurLocalSetting("volume", 100);
+const settingVolume = new OurLocalSetting("volume", [0, 50, 100]);
 
 /** @type {HTMLMediaElement | undefined} */ let objAudio;
 const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
@@ -707,7 +708,6 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     });
 
     btnStart.addEventListener("click", async evt => {
-
         progressBar.max = secondsGoal;
         progressBar.value = 0;
         // document.documentElement.requestFullscreen();
@@ -1051,7 +1051,8 @@ async function dialogSettings() {
     `;
 
     // div-controls
-    const volSlider = mkElt("input", { "type": "range", "min": 0, "max": 100, "value": 100, "id": "volume" });
+    // const volSlider = mkElt("input", { "type": "range", "min": 0, "max": 100, "value": 100, "id": "volume" });
+    const volSlider = settingVolume.getInputElement();
 
     const imgSound = mkElt("img", { src: "./img/speaker.svg" });
     const btnSound = mkElt("button", { "class": "img-button sound" }, [imgSound]);
@@ -1078,12 +1079,10 @@ async function dialogSettings() {
         await loadAudio();
         if (!settingSoundOff.valueB) {
             document.documentElement.classList.remove("sound-off");
-            // volSlider.removeAttribute("disabled");
             volSlider.removeAttribute("inert");
             objAudio.volume = volSlider.value / 100;
         } else {
             document.documentElement.classList.add("sound-off");
-            // volSlider.setAttribute("disabled", true);
             volSlider.setAttribute("inert", "");
             objAudio.volume = 0;
         }
