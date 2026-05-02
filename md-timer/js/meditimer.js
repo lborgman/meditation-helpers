@@ -29,15 +29,21 @@ class OurLocalSetting extends modLocalSettings.LocalSetting {
     }
 }
 const settingVibrTempo = new OurLocalSetting("vibr-speed", [0, 1, 2]);
-// debugger;
 const settingSoundOff = new OurLocalSetting("sound-off", false);
 const settingVibrationOff = new OurLocalSetting("vibration-off", false);
 const settingUseMyBg = new OurLocalSetting("use-my-bg", false);
-// const settingVolume = new OurLocalSetting("volume", 100);
 const settingVolume = new OurLocalSetting("volume", [0, 50, 100]);
 
-/** @type {HTMLMediaElement | undefined} */ let objAudio;
+debugger;
+/** @type {HTMLMediaElement} */ const objAudio = new Audio();
 const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
+await loadAudio();
+
+const audioCtx = new AudioContext();
+const audioSource = audioCtx.createMediaElementSource(objAudio);
+const audioGainNode = audioCtx.createGain();
+audioSource.connect(audioGainNode);
+audioGainNode.connect(audioCtx.destination);
 
 // if (!eltMarkers012)
 {
@@ -72,11 +78,13 @@ async function loadAudio() {
     return new Promise((resolve, reject) => {
         console.warn("loadAudio");
         if (objAudio) {
-            if (canPlayNow(objAudio)) resolve(true);
-            return;
+            if (canPlayNow(objAudio)) {
+                resolve(true);
+                return;
+            }
         }
         console.warn("loadAudio loading...");
-        objAudio = new Audio();
+        // objAudio = new Audio();
         objAudio.addEventListener("error", evt => {
             debugger;
             console.error("Error playing", soundReadyLink);
