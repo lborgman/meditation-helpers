@@ -282,22 +282,21 @@ function mkEaseInOut(min, max, start, end) {
         return min + (max - min) * 0.5 * (Math.sin(angle) + 1);
     }
 }
-let secEaseInOut = 12;
-let secAlarmTime = 60;
-let funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
+const secEaseInOut = 6;
+const secMaxAlarmTime = 5;
+const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
-// Check middle step size:
-let stepEaseInOut = secEaseInOut / 30; // 0.2;
+// const stepEaseInOut = secEaseInOut / 30; // 0.2;
+const stepEaseInOut = Math.max(0.4, secEaseInOut / 30);
 {
+    // Check middle step size:
     let stepChange = funEaseInOut(secEaseInOut / 2 + stepEaseInOut) - funEaseInOut(secEaseInOut / 2);
-    if (stepChange > 0.1) throw `step ${stepEaseInOut} is too large`;
+    if (stepChange > 0.15) throw `step ${stepChange} (${stepEaseInOut}) is too large`;
 }
 
-// var myAudio; // FIXME:
-
-const imgMeditatorSrc = "img/wikimedia/Curious_Meditating_Cartoon_Man.svg";
+// const imgMeditatorSrc = "img/wikimedia/Curious_Meditating_Cartoon_Man.svg";
 // FIXME: img=> embed, https://stackoverflow.com/questions/41195669/images-in-svg-image-tags-not-showing-up-in-chrome-but-displays-locally/43526391
-let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditatorSrc });
+// let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditatorSrc });
 
 //// Loading as module now
 // thePromiseDOMready.then(() =>
@@ -527,11 +526,21 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         return minutes + ":" + strSec;
     }
 
+    /** @type {number | undefined} */ let timeoutStopAlarms;
     function startAlarms() {
+        clearTimeout(timeoutStopAlarms);
+        document.documentElement.classList.remove("timeout-answer");
+        timeoutStopAlarms = setTimeout(() => {
+            // debugger;
+            document.documentElement.classList.add("timeout-answer");
+            stopAlarms();
+        }, 1000 * secMaxAlarmTime);
         playReadySound();
         startVibrationPurr();
     }
     function stopAlarms() {
+        // debugger;
+        clearTimeout(timeoutStopAlarms)
         objAudio.pause();
         stopVibrationPurr();
     }
@@ -547,7 +556,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
             let maxMs = 200;
             let durMs = nowMs - startMs;
             let durSec = durMs / 1000;
-            if (durSec > secAlarmTime) {
+            if (durSec > secMaxAlarmTime) {
                 clearInterval(vibrate, 3000);
                 return;
             }
@@ -569,31 +578,41 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         useVibration = false;
         clearInterval(vibrationTimer);
     }
-    /** @type {number} */ let sliderVolume;
-    let intervalVolume;
     function playReadySound() {
+        if (!objAudio) throw Error("!objAudio");
         objAudio.currentTime = 0;
 
         // https://davidwalsh.name/javascript-volume
-
         objAudio.volume = 0.01;
         objAudio.play()
             .then(() => {
-                let dur = 0;
+                // FIXME: use Date().getTime();
+                // let secPlayed = 0;
+                const startMs = new Date().getTime();
+
+                const intervalVolume = setInterval(raiseVolume, stepEaseInOut * 1000);
                 function raiseVolume() {
-                    // FIXME: use Date().getTime();
-                    dur += stepEaseInOut;
-                    if (dur > secEaseInOut) {
-                        clearInterval(intervalVolume);
-                        return;
-                    }
-                    if (objAudio.paused) {
+                    if (!objAudio) throw Error("!objAudio");
+                    const nowMs = new Date().getTime();
+                    const msPlayed = nowMs - startMs;
+                    const secPlayed = msPlayed / 1000;
+                    const finishRaising =
+                        secPlayed > secMaxAlarmTime
+                        ||
+                        secPlayed > secEaseInOut
+                        ||
+                        objAudio.paused
+                        ||
+                        objAudio.ended;
+                    if (finishRaising) {
                         clearInterval(intervalVolume);
                         return;
                     }
                     if (settingSoundOff.valueB) return;
-                    const newVolume = settingVolume.valueN * 0.01 * funEaseInOut(dur);
-                    console.log("newVolume", newVolume, dur);
+                    // const newVolume = settingVolume.valueN * 0.01 * funEaseInOut(secPlayed);
+                    const easeVal = funEaseInOut(secPlayed);
+                    const newVolume = settingVolume.valueN * 0.01 * easeVal;
+                    console.log("newVolume", newVolume, easeVal, secPlayed);
                     try {
                         objAudio.volume = newVolume;
                     } catch (err) {
@@ -603,7 +622,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                         return;
                     }
                 }
-                intervalVolume = setInterval(raiseVolume, stepEaseInOut * 1000);
+                // intervalVolume = setInterval(raiseVolume, stepEaseInOut * 1000);
             }).catch(err => {
                 console.log("Probably just .pause(), see https://goo.gl/LdLk22");
             });
