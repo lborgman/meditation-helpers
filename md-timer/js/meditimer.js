@@ -423,6 +423,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         eltCloseAbout.addEventListener("click", evt => {
             evt.stopImmediatePropagation();
             setMdState("initial");
+            updateGoalInfo();
         });
 
         const footerAbout = document.getElementById("footer-about");
@@ -430,6 +431,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         footerAbout.addEventListener("click", evt => {
             if (currentMdState == "about") {
                 setMdState("initial");
+                updateGoalInfo();
             } else {
                 setMdState("about");
             }
@@ -488,6 +490,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
 
     /** @type {string} */ let currentMdState;
     setMdState("initial");
+    // updateGoalInfo();
 
 
     window["smsInitial"] = () => setMdState("initial");
@@ -672,7 +675,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
             );
         }
         eltGoalInfo.setAttribute("id", "goal-info");
-        let div = mkElt("div", { "id": "time-goal-info", "class": "center-children" },
+        const div = mkElt("div", { "id": "time-goal-info", "class": "center-children" },
             mkElt("div", null, [eltGoal, eltGoalInfo])
         );
         return div;
@@ -706,6 +709,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     btnStart.addEventListener("click", async evt => {
 
         progressBar.max = secondsGoal;
+        progressBar.value = 0;
         // document.documentElement.requestFullscreen();
         setMdState("starting-meditation");
         const perSeconds = 25.0;
@@ -732,8 +736,16 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
         setTimeout(startIt, 2000);
     });
 
-    const lengthDiv = getMeditationLength();
-    divInitial.appendChild(lengthDiv);
+    updateGoalInfo(divInitial);
+    function updateGoalInfo(parentDiv) {
+        console.log("11111 updateGoalInfo", { parentDiv });
+        parentDiv = parentDiv || document.getElementById("div-initial");
+        const divGoalInfo = getMeditationLength();
+        const oldGoalInfo = document.getElementById("time-goal-info");
+        oldGoalInfo?.remove();
+        // divInitial.appendChild(divGoalInfo);
+        parentDiv.appendChild(divGoalInfo);
+    }
 
     const progressBar = mkElt("progress", {
         id: "progress-bar",
@@ -769,7 +781,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
     btnFail.addEventListener("click", evt => {
         handleReply(false);
     });
-    let btnSuccess = mkElt( "button", { class: "popup-button" }, "Yes");
+    let btnSuccess = mkElt("button", { class: "popup-button" }, "Yes");
     btnSuccess.addEventListener("click", evt => {
         handleReply(true);
     });
@@ -825,6 +837,7 @@ let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditat
                 divTimer.style.removeProperty('opacity');
                 divThanks.remove();
                 setMdState("initial");
+                updateGoalInfo();
             }, 1000);
         });
         divThanks.appendChild(xClose);
