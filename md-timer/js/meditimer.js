@@ -530,8 +530,9 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
     }
 
     /** @type {number | undefined} */ let timeoutStopAlarms;
+    /** @type {number | undefined} */ let intervalVolume;
     function startAlarms() {
-        clearTimeout(timeoutStopAlarms);
+        stopReadySound();
         document.documentElement.classList.remove("timeout-answer");
         timeoutStopAlarms = setTimeout(() => {
             // debugger;
@@ -543,36 +544,34 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
     }
     function stopAlarms() {
         // debugger;
-        clearTimeout(timeoutStopAlarms)
-        objAudio.pause();
+        stopReadySound();
         stopVibrationPurr();
     }
-    let vibrationTimer;
+    /** @type {number | undefined} */ let vibrationTimer;
+    /** @type {boolean} */ let useVibration;
     function startVibrationTimer() {
         if (typeof navigator.vibrate !== "function") return;
-        let startMs = new Date().getTime();
-        // console.log("start vibrate", startMs)
-        if (localStorage.getItem("use-vibration")) { useVibration = true; }
+        useVibration = !settingVibrationOff.valueB;
+        if (!useVibration) return;
+        const startMs = new Date().getTime();
         function vibrate() {
             if (!useVibration) return;
-            let nowMs = new Date().getTime();
-            let maxMs = 200;
-            let durMs = nowMs - startMs;
-            let durSec = durMs / 1000;
+            const nowMs = new Date().getTime();
+            const maxMs = 200;
+            const durMs = nowMs - startMs;
+            const durSec = durMs / 1000;
             if (durSec > secMaxAlarmTime) {
-                clearInterval(vibrate, 3000);
+                clearInterval(vibrationTimer, 3000);
                 return;
             }
             let ms = maxMs;
             if (durSec < secEaseInOut) {
                 ms = maxMs * funEaseInOut(durSec);
             }
-            // console.log("vibrate 1", durSec, ms)
             navigator.vibrate(ms);
             setTimeout(() => {
                 if (!useVibration) return;
                 navigator.vibrate(ms);
-                // console.log("vibrate 2");
             }, 500);
         }
         vibrationTimer = setInterval(vibrate, 3000);
@@ -594,8 +593,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
                 objAudio.currentTime = 0;
                 const startMs = performance.now();
 
-                // const intervalVolume = setInterval(raiseVolume, stepEaseInOut * 1000);
-                const intervalVolume = setInterval(raiseVolume, 20);
+                intervalVolume = setInterval(raiseVolume, 20);
                 function raiseVolume() {
                     if (!objAudio) throw Error("!objAudio");
                     const nowMs = performance.now();
@@ -626,10 +624,14 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
                         return;
                     }
                 }
-                // intervalVolume = setInterval(raiseVolume, stepEaseInOut * 1000);
             }).catch(err => {
                 console.log("Probably just .pause(), see https://goo.gl/LdLk22", err);
             });
+    }
+    function stopReadySound() {
+        clearTimeout(timeoutStopAlarms);
+        clearInterval(intervalVolume);
+        objAudio.pause();
     }
     function getMeditationLength() {
         console.log("getMeditationLength")
@@ -718,6 +720,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
         { class: "NOpopup-button", id: "btn-image" },
         [
             "Settings",
+            mkElt("i", { class: "fa-solid fa-gear" })
         ]
     );
 
