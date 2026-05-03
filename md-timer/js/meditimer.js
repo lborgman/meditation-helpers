@@ -297,31 +297,17 @@ function mkEaseInOut(min, max, start, end) {
         return min + (max - min) * 0.5 * (Math.sin(angle) + 1);
     }
 }
-const secEaseInOut = 10;
+const secEaseInOut = 5;
 const secMaxAlarmTime = 10;
 const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
-/*
-// const stepEaseInOut = secEaseInOut / 30; // 0.2;
-const stepEaseInOut = Math.max(0.4, secEaseInOut / 20);
-{
-    // Check middle step size:
-    let stepChange = funEaseInOut(secEaseInOut / 2 + stepEaseInOut) - funEaseInOut(secEaseInOut / 2);
-    if (stepChange > 0.15) throw `step ${stepChange} (${stepEaseInOut}) is too large`;
-}
-*/
 
 // const imgMeditatorSrc = "img/wikimedia/Curious_Meditating_Cartoon_Man.svg";
 // FIXME: img=> embed, https://stackoverflow.com/questions/41195669/images-in-svg-image-tags-not-showing-up-in-chrome-but-displays-locally/43526391
 // let imgMeditator1 = mkElt("embed", { "id": "meditator-on-btn", "src": imgMeditatorSrc });
 
-//// Loading as module now
-// thePromiseDOMready.then(() =>
 {
-    let promImg = preLoadImg();
-
-    // let pVer = document.getElementById("version");
-    // pVer.innerHTML = "(Version: " + MEDI_TIMER_VER + ")";
+    const promImg = preLoadImg();
 
     function fillInFooter() {
         const footerVer = document.getElementById("footer-version");
