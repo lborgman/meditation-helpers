@@ -39,11 +39,18 @@ debugger;
 const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
 await loadAudio();
 
-const audioCtx = new AudioContext();
-const audioSource = audioCtx.createMediaElementSource(objAudio);
-const audioGainNode = audioCtx.createGain();
-audioSource.connect(audioGainNode);
-audioGainNode.connect(audioCtx.destination);
+// const audioCtx = new AudioContext();
+// const audioSource = audioCtx.createMediaElementSource(objAudio);
+
+// const audioGainNode = audioCtx.createGain();
+// audioSource.connect(audioGainNode);
+// audioGainNode.connect(audioCtx.destination);
+
+debugger;
+// const audioAnalyser = audioCtx.createAnalyser();
+// audioSource.connect(audioAnalyser)
+// audioAnalyser.connect(audioCtx.destination);
+// console.log('Channels:', audioAnalyser.channelCount);
 
 // if (!eltMarkers012)
 {
@@ -294,6 +301,7 @@ const secEaseInOut = 10;
 const secMaxAlarmTime = 10;
 const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
+/*
 // const stepEaseInOut = secEaseInOut / 30; // 0.2;
 const stepEaseInOut = Math.max(0.4, secEaseInOut / 20);
 {
@@ -301,6 +309,7 @@ const stepEaseInOut = Math.max(0.4, secEaseInOut / 20);
     let stepChange = funEaseInOut(secEaseInOut / 2 + stepEaseInOut) - funEaseInOut(secEaseInOut / 2);
     if (stepChange > 0.15) throw `step ${stepChange} (${stepEaseInOut}) is too large`;
 }
+*/
 
 // const imgMeditatorSrc = "img/wikimedia/Curious_Meditating_Cartoon_Man.svg";
 // FIXME: img=> embed, https://stackoverflow.com/questions/41195669/images-in-svg-image-tags-not-showing-up-in-chrome-but-displays-locally/43526391
@@ -596,12 +605,14 @@ const stepEaseInOut = Math.max(0.4, secEaseInOut / 20);
             .then(() => {
                 // FIXME: use Date().getTime();
                 // let secPlayed = 0;
-                const startMs = new Date().getTime();
+                objAudio.currentTime = 0;
+                const startMs = performance.now();
 
-                const intervalVolume = setInterval(raiseVolume, stepEaseInOut * 1000);
+                // const intervalVolume = setInterval(raiseVolume, stepEaseInOut * 1000);
+                const intervalVolume = setInterval(raiseVolume, 20);
                 function raiseVolume() {
                     if (!objAudio) throw Error("!objAudio");
-                    const nowMs = new Date().getTime();
+                    const nowMs = performance.now();
                     const msPlayed = nowMs - startMs;
                     const secPlayed = msPlayed / 1000;
                     const finishRaising =
@@ -617,10 +628,9 @@ const stepEaseInOut = Math.max(0.4, secEaseInOut / 20);
                         return;
                     }
                     if (settingSoundOff.valueB) return;
-                    // const newVolume = settingVolume.valueN * 0.01 * funEaseInOut(secPlayed);
                     const easeVal = funEaseInOut(secPlayed);
                     const newVolume = settingVolume.valueN * 0.01 * easeVal;
-                    console.log("newVolume", newVolume, easeVal, secPlayed);
+                    // console.log("newVolume", newVolume, easeVal, secPlayed);
                     try {
                         objAudio.volume = newVolume;
                     } catch (err) {
@@ -632,7 +642,7 @@ const stepEaseInOut = Math.max(0.4, secEaseInOut / 20);
                 }
                 // intervalVolume = setInterval(raiseVolume, stepEaseInOut * 1000);
             }).catch(err => {
-                console.log("Probably just .pause(), see https://goo.gl/LdLk22");
+                console.log("Probably just .pause(), see https://goo.gl/LdLk22", err);
             });
     }
     function getMeditationLength() {
@@ -641,7 +651,6 @@ const stepEaseInOut = Math.max(0.4, secEaseInOut / 20);
         if (!s) {
             secondsToday = 0;
             secondsGoal = initialGoal;
-            // putMeditationLength(initialGoal); // FIXME:
             putMeditationLength(); // FIXME:
         } else {
             let thatDay;
@@ -1124,10 +1133,19 @@ async function dialogSettings() {
     }
 
     const btnSoundTest = mkElt("button", undefined, "Test sound");
-    btnSoundTest.addEventListener("click", evt => {
+    btnSoundTest.addEventListener("click", async evt => {
         evt.stopPropagation();
         debugger;
-        objAudio.play();
+        try {
+            objAudio.currentTime = 0;
+            await objAudio.play();
+        } catch (err) {
+            console.error(err);
+            debugger;
+        }
+        // console.log('Context state:', audioCtx.state);
+        console.log('Audio paused:', objAudio.paused);
+        console.log('Audio currentTime:', objAudio.currentTime);
     });
     const eltBad = mkElt("div", undefined, [
         mkElt("h3", undefined, "Alarm tests"),
