@@ -36,9 +36,12 @@ const settingVolume = new OurLocalSetting("volume", [0, 0.5, 1]);
 
 /** @type {number} */ let currentVolume = -1;
 
-applySliderVolume();
+// applySliderVolume();
 function applySliderVolume() {
     currentVolume = sliderToVolume(settingVolume.valueN);
+    if (!isRaisingVolume()) {
+        objAudio.volume = currentVolume;
+    }
     if (currentVolume == 0) {
         document.documentElement.classList.add("sound-off");
     } else {
@@ -63,25 +66,10 @@ function sliderToVolume(sliderValue) {
     return volume;
 }
 
-debugger;
 /** @type {HTMLMediaElement} */ const objAudio = new Audio();
 const soundReadyLink = makeAbsLink("./sounds/freesound.org/cat-purr-full.mp3");
 await loadAudio();
 
-// const audioCtx = new AudioContext();
-// const audioSource = audioCtx.createMediaElementSource(objAudio);
-
-// const audioGainNode = audioCtx.createGain();
-// audioSource.connect(audioGainNode);
-// audioGainNode.connect(audioCtx.destination);
-
-debugger;
-// const audioAnalyser = audioCtx.createAnalyser();
-// audioSource.connect(audioAnalyser)
-// audioAnalyser.connect(audioCtx.destination);
-// console.log('Channels:', audioAnalyser.channelCount);
-
-// if (!eltMarkers012)
 {
     const datalist012 = {
         "0": "low",
@@ -1046,6 +1034,7 @@ async function dialogSettings() {
     });
 
     // setDisplaySound();
+    /*
     async function setDisplaySound() {
         throw Error("setDisplaySound");
         // debugger;
@@ -1062,6 +1051,7 @@ async function dialogSettings() {
             objAudio.volume = 0;
         }
     }
+    */
     setDisplayVibration();
     function setDisplayVibration() {
         if (!settingVibrationOff.valueB) {
@@ -1091,7 +1081,8 @@ async function dialogSettings() {
     const eltBad = mkElt("div", undefined, [
         mkElt("h3", undefined, "Alarm tests"),
         // mkElt("p", { style: "color:darkred" }, "Something is wrong with sound at the moment?"),
-        mkElt("p", { style: "color:darkred" }, "Changing the sound button."),
+        // mkElt("p", { style: "color:darkred" }, "Changing the sound button."),
+        mkElt("p", { style: "color:darkred" }, "Test isRaisingVolume()"),
         // mkElt("p", undefined, [ btnSoundTest, ])
     ]);
     eltBad.style = `
@@ -1386,8 +1377,14 @@ function showVibInstructions() {
 
 
 
-    /** @type {number | undefined} */ let timeoutStopAlarms;
-    /** @type {number | undefined} */ let intervalVolume;
+/** @type {number | undefined} */ let timeoutStopAlarms;
+/** @type {number | undefined} */ let intervalRaiseVolume;
+applySliderVolume();
+
+function isRaisingVolume() {
+    return intervalRaiseVolume != undefined;
+}
+
 function startAlarms() {
     stopReadySound();
     document.documentElement.classList.remove("timeout-answer");
@@ -1451,7 +1448,7 @@ function playReadySound() {
             objAudio.currentTime = 0;
             const startMs = performance.now();
 
-            intervalVolume = setInterval(raiseVolume, 20);
+            intervalRaiseVolume = setInterval(raiseVolume, 20);
             function raiseVolume() {
                 if (!objAudio) throw Error("!objAudio");
                 const nowMs = performance.now();
@@ -1466,21 +1463,20 @@ function playReadySound() {
                     ||
                     objAudio.ended;
                 if (finishRaising) {
-                    clearInterval(intervalVolume);
+                    clearInterval(intervalRaiseVolume);
+                    intervalRaiseVolume = undefined;
                     return;
                 }
-                // if (settingSoundOff.valueB) return;
                 if (currentVolume == 0) return;
                 const easeVal = funEaseInOut(secPlayed);
-                // const newVolume = settingVolume.valueN * 0.01 * easeVal;
-                // console.log("newVolume", newVolume, easeVal, secPlayed);
                 const newVolume = currentVolume * easeVal;
                 try {
                     objAudio.volume = newVolume;
                 } catch (err) {
                     console.error(err);
                     debugger;
-                    clearInterval(intervalVolume);
+                    clearInterval(intervalRaiseVolume);
+                    intervalRaiseVolume = undefined;
                     return;
                 }
             }
@@ -1490,6 +1486,7 @@ function playReadySound() {
 }
 function stopReadySound() {
     clearTimeout(timeoutStopAlarms);
-    clearInterval(intervalVolume);
+    clearInterval(intervalRaiseVolume);
+    intervalRaiseVolume = undefined;
     objAudio.pause();
 }
