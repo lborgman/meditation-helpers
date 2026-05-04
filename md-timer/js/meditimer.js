@@ -29,10 +29,39 @@ class OurLocalSetting extends modLocalSettings.LocalSetting {
     }
 }
 const settingVibrTempo = new OurLocalSetting("vibr-speed", [0, 1, 2]);
-const settingSoundOff = new OurLocalSetting("sound-off", false);
+// const settingSoundOff = new OurLocalSetting("sound-off", false);
 const settingVibrationOff = new OurLocalSetting("vibration-off", false);
 const settingUseMyBg = new OurLocalSetting("use-my-bg", false);
-const settingVolume = new OurLocalSetting("volume", [0, 50, 100]);
+const settingVolume = new OurLocalSetting("volume", [0, 0.5, 1]);
+
+/** @type {number} */ let currentVolume = -1;
+
+applySliderVolume();
+function applySliderVolume() {
+    currentVolume = sliderToVolume(settingVolume.valueN);
+    if (currentVolume == 0) {
+        document.documentElement.classList.add("sound-off");
+    } else {
+        document.documentElement.classList.remove("sound-off");
+    }
+}
+/**
+ * @param {number} sliderValue 
+ * @returns {number}
+ * @throws
+ */
+function sliderToVolume(sliderValue) {
+    const minDb = -30;
+    const deadZone = 0.03;        // Dead zone at the bottom (0.02 ~ 0.04 works well)
+    // Apply dead zone based on slider position
+    if (sliderValue <= deadZone) { return 0; }
+    // Map remaining slider range (deadZone → 1) to  minDb → 0 dB
+    const normalized = (sliderValue - deadZone) / (1 - deadZone);
+    // Convert to dB and then to linear volume
+    const db = minDb * (1 - normalized);
+    const volume = Math.pow(10, db / 20);
+    return volume;
+}
 
 debugger;
 /** @type {HTMLMediaElement} */ const objAudio = new Audio();
@@ -611,10 +640,12 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
                         clearInterval(intervalVolume);
                         return;
                     }
-                    if (settingSoundOff.valueB) return;
+                    // if (settingSoundOff.valueB) return;
+                    if (currentVolume == 0) return;
                     const easeVal = funEaseInOut(secPlayed);
-                    const newVolume = settingVolume.valueN * 0.01 * easeVal;
+                    // const newVolume = settingVolume.valueN * 0.01 * easeVal;
                     // console.log("newVolume", newVolume, easeVal, secPlayed);
+                    const newVolume = currentVolume * easeVal;
                     try {
                         objAudio.volume = newVolume;
                     } catch (err) {
@@ -1078,15 +1109,29 @@ async function dialogSettings() {
     // div-controls
     // const volSlider = mkElt("input", { "type": "range", "min": 0, "max": 100, "value": 100, "id": "volume" });
     const volSlider = settingVolume.getInputElement();
+    volSlider.addEventListener("change", evt => {
+        applySliderVolume();
+    });
 
     const imgSound = mkElt("img", { src: "./img/speaker.svg" });
     const btnSound = mkElt("button", { "class": "img-button sound" }, [imgSound]);
     btnSound.title = "- Turn on/off sound";
     btnSound.addEventListener("click", async evt => {
         evt.stopPropagation();
-        settingSoundOff.value = !settingSoundOff.valueB;
+        // settingSoundOff.value = !settingSoundOff.valueB;
         await loadAudio();
-        setDisplaySound();
+        // setDisplaySound();
+        try {
+            objAudio.pause();
+            if (currentVolume == 0) return;
+            objAudio.currentTime = 0;
+            objAudio.volume = currentVolume;
+            await objAudio.play();
+        } catch (err) {
+            console.error(err);
+            debugger;
+        }
+
     });
 
     const imgVibrate = mkElt("img", { src: "./img/mobile-vibration.svg" });
@@ -1098,14 +1143,17 @@ async function dialogSettings() {
         setDisplayVibration();
     });
 
-    setDisplaySound();
+    // setDisplaySound();
     async function setDisplaySound() {
+        throw Error("setDisplaySound");
         // debugger;
         await loadAudio();
-        if (!settingSoundOff.valueB) {
+        // if (!settingSoundOff.valueB) {
+        if (!(currentVolume > 0)) {
             document.documentElement.classList.remove("sound-off");
             volSlider.removeAttribute("inert");
-            objAudio.volume = volSlider.value / 100;
+            // objAudio.volume = volSlider.value / 100;
+            objAudio.volume = currentVolume;
         } else {
             document.documentElement.classList.add("sound-off");
             volSlider.setAttribute("inert", "");
@@ -1126,7 +1174,9 @@ async function dialogSettings() {
         evt.stopPropagation();
         debugger;
         try {
+            objAudio.pause();
             objAudio.currentTime = 0;
+            objAudio.volume = currentVolume;
             await objAudio.play();
         } catch (err) {
             console.error(err);

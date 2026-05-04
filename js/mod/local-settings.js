@@ -59,14 +59,16 @@ export class LocalSetting {
                                 // debugger;
                                 const isStrictlyAscending = (arr) =>
                                     arr.every((val, i) => i === 0 || (!isNaN(val)) && val > arr[i - 1]);
-                                if (isStrictlyAscending(definitionValue)) {
-                                    // debugger;
-                                    itype = "range";
-                                    this.#tofDef = itype;
-                                    this.#defaultValue = definitionValue[1];
-                                    this.#cachedValue = this.#defaultValue;
-                                    break;
+                                if (!isStrictlyAscending(definitionValue)) {
+                                    debugger;
+                                    throw Error(`Not ascending ${arr}`);
                                 }
+                                // debugger;
+                                itype = "range";
+                                this.#tofDef = itype;
+                                this.#defaultValue = definitionValue[1];
+                                this.#cachedValue = this.#defaultValue;
+                                break;
                             }
                         }
                     }
@@ -79,6 +81,7 @@ export class LocalSetting {
                 inp.min = definitionValue[0];
                 inp.value = definitionValue[1];
                 inp.max = definitionValue[2];
+                inp.step = "any";
             }
             // debugger;
             const handleInput = (evt) => {
