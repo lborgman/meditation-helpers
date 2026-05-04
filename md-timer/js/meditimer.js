@@ -558,112 +558,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
         return minutes + ":" + strSec;
     }
 
-    /** @type {number | undefined} */ let timeoutStopAlarms;
-    /** @type {number | undefined} */ let intervalVolume;
-    function startAlarms() {
-        stopReadySound();
-        document.documentElement.classList.remove("timeout-answer");
-        timeoutStopAlarms = setTimeout(() => {
-            // debugger;
-            document.documentElement.classList.add("timeout-answer");
-            stopAlarms();
-        }, 1000 * secMaxAlarmTime);
-        playReadySound();
-        startVibrationPurr();
-    }
-    function stopAlarms() {
-        // debugger;
-        stopReadySound();
-        stopVibrationPurr();
-    }
-    /** @type {number | undefined} */ let vibrationTimer;
-    /** @type {boolean} */ let useVibration;
-    function startVibrationTimer() {
-        if (typeof navigator.vibrate !== "function") return;
-        useVibration = !settingVibrationOff.valueB;
-        if (!useVibration) return;
-        const startMs = new Date().getTime();
-        function vibrate() {
-            if (!useVibration) return;
-            const nowMs = new Date().getTime();
-            const maxMs = 200;
-            const durMs = nowMs - startMs;
-            const durSec = durMs / 1000;
-            if (durSec > secMaxAlarmTime) {
-                clearInterval(vibrationTimer, 3000);
-                return;
-            }
-            let ms = maxMs;
-            if (durSec < secEaseInOut) {
-                ms = maxMs * funEaseInOut(durSec);
-            }
-            navigator.vibrate(ms);
-            setTimeout(() => {
-                if (!useVibration) return;
-                navigator.vibrate(ms);
-            }, 500);
-        }
-        vibrationTimer = setInterval(vibrate, 3000);
-    }
-    function stopVibrationTimer() {
-        useVibration = false;
-        clearInterval(vibrationTimer);
-    }
-    function playReadySound() {
-        if (!objAudio) throw Error("!objAudio");
-        objAudio.currentTime = 0;
-
-        // https://davidwalsh.name/javascript-volume
-        objAudio.volume = 0.01;
-        objAudio.play()
-            .then(() => {
-                // FIXME: use Date().getTime();
-                // let secPlayed = 0;
-                objAudio.currentTime = 0;
-                const startMs = performance.now();
-
-                intervalVolume = setInterval(raiseVolume, 20);
-                function raiseVolume() {
-                    if (!objAudio) throw Error("!objAudio");
-                    const nowMs = performance.now();
-                    const msPlayed = nowMs - startMs;
-                    const secPlayed = msPlayed / 1000;
-                    const finishRaising =
-                        secPlayed > secMaxAlarmTime
-                        ||
-                        secPlayed > secEaseInOut
-                        ||
-                        objAudio.paused
-                        ||
-                        objAudio.ended;
-                    if (finishRaising) {
-                        clearInterval(intervalVolume);
-                        return;
-                    }
-                    // if (settingSoundOff.valueB) return;
-                    if (currentVolume == 0) return;
-                    const easeVal = funEaseInOut(secPlayed);
-                    // const newVolume = settingVolume.valueN * 0.01 * easeVal;
-                    // console.log("newVolume", newVolume, easeVal, secPlayed);
-                    const newVolume = currentVolume * easeVal;
-                    try {
-                        objAudio.volume = newVolume;
-                    } catch (err) {
-                        console.error(err);
-                        debugger;
-                        clearInterval(intervalVolume);
-                        return;
-                    }
-                }
-            }).catch(err => {
-                console.log("Probably just .pause(), see https://goo.gl/LdLk22", err);
-            });
-    }
-    function stopReadySound() {
-        clearTimeout(timeoutStopAlarms);
-        clearInterval(intervalVolume);
-        objAudio.pause();
-    }
+    // function playReadySound() {
     function getMeditationLength() {
         console.log("getMeditationLength")
         let s = OLDgetItemString("meditation-length");
@@ -1118,9 +1013,15 @@ async function dialogSettings() {
     btnSound.title = "- Turn on/off sound";
     btnSound.addEventListener("click", async evt => {
         evt.stopPropagation();
-        // settingSoundOff.value = !settingSoundOff.valueB;
         await loadAudio();
         // setDisplaySound();
+        debugger;
+        if (!objAudio.paused) {
+            objAudio.pause();
+            return;
+        }
+        playReadySound();
+        /*
         try {
             objAudio.pause();
             if (currentVolume == 0) return;
@@ -1131,6 +1032,7 @@ async function dialogSettings() {
             console.error(err);
             debugger;
         }
+        */
 
     });
 
@@ -1188,10 +1090,9 @@ async function dialogSettings() {
     });
     const eltBad = mkElt("div", undefined, [
         mkElt("h3", undefined, "Alarm tests"),
-        mkElt("p", { style: "color:darkred" }, "Something is wrong with sound at the moment?"),
-        mkElt("p", undefined, [
-            btnSoundTest,
-        ])
+        // mkElt("p", { style: "color:darkred" }, "Something is wrong with sound at the moment?"),
+        mkElt("p", { style: "color:darkred" }, "Changing the sound button."),
+        // mkElt("p", undefined, [ btnSoundTest, ])
     ]);
     eltBad.style = `
         color: blue;
@@ -1481,4 +1382,114 @@ function showVibInstructions() {
     const dlg = mkElt("dialog", undefined, [bdy, xClose]);
     document.body.appendChild(dlg);
     dlg.showModal();
+}
+
+
+
+    /** @type {number | undefined} */ let timeoutStopAlarms;
+    /** @type {number | undefined} */ let intervalVolume;
+function startAlarms() {
+    stopReadySound();
+    document.documentElement.classList.remove("timeout-answer");
+    timeoutStopAlarms = setTimeout(() => {
+        // debugger;
+        document.documentElement.classList.add("timeout-answer");
+        stopAlarms();
+    }, 1000 * secMaxAlarmTime);
+    playReadySound();
+    startVibrationPurr();
+}
+function stopAlarms() {
+    // debugger;
+    stopReadySound();
+    stopVibrationPurr();
+}
+    /** @type {number | undefined} */ let vibrationTimer;
+    /** @type {boolean} */ let useVibration;
+function startVibrationTimer() {
+    if (typeof navigator.vibrate !== "function") return;
+    useVibration = !settingVibrationOff.valueB;
+    if (!useVibration) return;
+    const startMs = new Date().getTime();
+    function vibrate() {
+        if (!useVibration) return;
+        const nowMs = new Date().getTime();
+        const maxMs = 200;
+        const durMs = nowMs - startMs;
+        const durSec = durMs / 1000;
+        if (durSec > secMaxAlarmTime) {
+            clearInterval(vibrationTimer, 3000);
+            return;
+        }
+        let ms = maxMs;
+        if (durSec < secEaseInOut) {
+            ms = maxMs * funEaseInOut(durSec);
+        }
+        navigator.vibrate(ms);
+        setTimeout(() => {
+            if (!useVibration) return;
+            navigator.vibrate(ms);
+        }, 500);
+    }
+    vibrationTimer = setInterval(vibrate, 3000);
+}
+function stopVibrationTimer() {
+    useVibration = false;
+    clearInterval(vibrationTimer);
+}
+
+function playReadySound() {
+    if (!objAudio) throw Error("!objAudio");
+    objAudio.currentTime = 0;
+
+    // https://davidwalsh.name/javascript-volume
+    objAudio.volume = 0.01;
+    objAudio.play()
+        .then(() => {
+            // FIXME: use Date().getTime();
+            // let secPlayed = 0;
+            objAudio.currentTime = 0;
+            const startMs = performance.now();
+
+            intervalVolume = setInterval(raiseVolume, 20);
+            function raiseVolume() {
+                if (!objAudio) throw Error("!objAudio");
+                const nowMs = performance.now();
+                const msPlayed = nowMs - startMs;
+                const secPlayed = msPlayed / 1000;
+                const finishRaising =
+                    secPlayed > secMaxAlarmTime
+                    ||
+                    secPlayed > secEaseInOut
+                    ||
+                    objAudio.paused
+                    ||
+                    objAudio.ended;
+                if (finishRaising) {
+                    clearInterval(intervalVolume);
+                    return;
+                }
+                // if (settingSoundOff.valueB) return;
+                if (currentVolume == 0) return;
+                const easeVal = funEaseInOut(secPlayed);
+                // const newVolume = settingVolume.valueN * 0.01 * easeVal;
+                // console.log("newVolume", newVolume, easeVal, secPlayed);
+                const newVolume = currentVolume * easeVal;
+                try {
+                    objAudio.volume = newVolume;
+                } catch (err) {
+                    console.error(err);
+                    debugger;
+                    clearInterval(intervalVolume);
+                    return;
+                }
+            }
+        }).catch(err => {
+            console.log("Probably just .pause(), see https://goo.gl/LdLk22", err);
+        });
+}
+function stopReadySound() {
+    clearTimeout(timeoutStopAlarms);
+    clearInterval(intervalVolume);
+    objAudio.pause();
 }
