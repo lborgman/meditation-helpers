@@ -44,8 +44,12 @@ function applySliderVolume() {
     }
     if (currentVolume == 0) {
         document.documentElement.classList.add("sound-off");
+        document.documentElement.classList.remove("sounding");
     } else {
         document.documentElement.classList.remove("sound-off");
+        if (!objAudio.paused) {
+            document.documentElement.classList.add("sounding");
+        }
     }
 }
 
@@ -998,10 +1002,10 @@ async function dialogSettings() {
     });
 
     const imgSound = mkElt("img", { src: "./img/speaker.svg" });
-    const btnSound = mkElt("button", { "class": "img-button sound" }, [imgSound]);
-    btnSound.id = "btn-test-sound";
-    btnSound.title = "- Test sound";
-    btnSound.addEventListener("click", async evt => {
+    const btnSoundTest = mkElt("button", { "class": "img-button sound" }, [imgSound]);
+    btnSoundTest.id = "btn-test-sound";
+    btnSoundTest.title = "- Test sound";
+    btnSoundTest.addEventListener("click", async evt => {
         evt.stopPropagation();
         await loadAudio();
         // setDisplaySound();
@@ -1016,33 +1020,17 @@ async function dialogSettings() {
     });
 
     const imgVibrate = mkElt("img", { src: "./img/mobile-vibration.svg" });
-    const btnVibrate = mkElt("button", { "class": "img-button vibration" }, [imgVibrate]);
-    btnVibrate.title = "- Turn on/off vibration";
-    btnVibrate.addEventListener("click", evt => {
+    const btnVibrationTest = mkElt("button", { "class": "img-button vibration" }, [imgVibrate]);
+    btnVibrationTest.title = "- Test vibration";
+    btnVibrationTest.id = "btn-test-vibration";
+    btnVibrationTest.addEventListener("click", evt => {
         // chkVibrate
-        settingVibrationOff.value = !settingVibrationOff.valueB;
-        setDisplayVibration();
+        // .vibrate()
+        // settingVibrationOff.value = !settingVibrationOff.valueB;
+        // setDisplayVibration();
+        toggleVibrationPurr();
     });
 
-    // setDisplaySound();
-    /*
-    async function setDisplaySound() {
-        throw Error("setDisplaySound");
-        // debugger;
-        await loadAudio();
-        // if (!settingSoundOff.valueB) {
-        if (!(currentVolume > 0)) {
-            document.documentElement.classList.remove("sound-off");
-            volSlider.removeAttribute("inert");
-            // objAudio.volume = volSlider.value / 100;
-            objAudio.volume = currentVolume;
-        } else {
-            document.documentElement.classList.add("sound-off");
-            volSlider.setAttribute("inert", "");
-            objAudio.volume = 0;
-        }
-    }
-    */
     setDisplayVibration();
     function setDisplayVibration() {
         if (!settingVibrationOff.valueB) {
@@ -1068,7 +1056,7 @@ async function dialogSettings() {
         flex-shrink: 1;
     `;
     const divVolume = mkElt("div", null, [
-        btnSound, volSlider,
+        btnSoundTest, volSlider,
         // eltBad,
     ]);
     divVolume.style = `
@@ -1106,7 +1094,7 @@ async function dialogSettings() {
         outline: 3px dotted green;
     `;
     const divVibrCtrls = mkElt("div", { id: "vibration-controls" }, [
-        btnVibrate,
+        btnVibrationTest,
         divVibSliders,
     ]);
     if (typeof navigator.vibrate !== "function") {
@@ -1290,9 +1278,18 @@ document.documentElement.addEventListener("click", evt => {
 
 function startVibrationPurr() {
     navigator.vibrate(getPurrPattern(1, 1));
+    document.documentElement.classList.add("vibrating");
 }
 function stopVibrationPurr() {
     navigator.vibrate(0);
+    document.documentElement.classList.remove("vibrating");
+}
+function toggleVibrationPurr() {
+    if (document.documentElement.classList.contains("vibrating")) {
+        stopVibrationPurr();
+    } else {
+        startVibrationPurr();
+    }
 }
 
 /**
