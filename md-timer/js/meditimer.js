@@ -48,13 +48,14 @@ function applySliderVolume() {
         document.documentElement.classList.remove("sound-off");
     }
 }
+
+const minDb = -30;
 /**
  * @param {number} sliderValue 
  * @returns {number}
  * @throws
  */
 function sliderToVolume(sliderValue) {
-    const minDb = -50;
     const deadZone = 0.03;        // Dead zone at the bottom (0.02 ~ 0.04 works well)
     // Apply dead zone based on slider position
     if (sliderValue <= deadZone) { return 0; }
@@ -998,7 +999,8 @@ async function dialogSettings() {
 
     const imgSound = mkElt("img", { src: "./img/speaker.svg" });
     const btnSound = mkElt("button", { "class": "img-button sound" }, [imgSound]);
-    btnSound.title = "- Turn on/off sound";
+    btnSound.id = "btn-test-sound";
+    btnSound.title = "- Test sound";
     btnSound.addEventListener("click", async evt => {
         evt.stopPropagation();
         await loadAudio();
@@ -1006,21 +1008,10 @@ async function dialogSettings() {
         debugger;
         if (!objAudio.paused) {
             objAudio.pause();
+            document.documentElement.classList.remove("sounding");
             return;
         }
         playReadySound();
-        /*
-        try {
-            objAudio.pause();
-            if (currentVolume == 0) return;
-            objAudio.currentTime = 0;
-            objAudio.volume = currentVolume;
-            await objAudio.play();
-        } catch (err) {
-            console.error(err);
-            debugger;
-        }
-        */
 
     });
 
@@ -1061,32 +1052,9 @@ async function dialogSettings() {
         }
     }
 
-    /*
-    const btnSoundTest = mkElt("button", undefined, "Test sound");
-    btnSoundTest.addEventListener("click", async evt => {
-        evt.stopPropagation();
-        debugger;
-        try {
-            objAudio.pause();
-            objAudio.currentTime = 0;
-            objAudio.volume = currentVolume;
-            await objAudio.play();
-        } catch (err) {
-            console.error(err);
-            debugger;
-        }
-        // console.log('Context state:', audioCtx.state);
-        console.log('Audio paused:', objAudio.paused);
-        console.log('Audio currentTime:', objAudio.currentTime);
-    });
-    */
     const eltBad = mkElt("div", undefined, [
-        mkElt("h3", undefined, "Alarm tests"),
-        // mkElt("p", { style: "color:darkred" }, "Something is wrong with sound at the moment?"),
-        // mkElt("p", { style: "color:darkred" }, "Changing the sound button."),
-        // mkElt("p", { style: "color:darkred" }, "Test isRaisingVolume()"),
-        mkElt("p", { style: "color:darkred" }, "-50dB"),
-        // mkElt("p", undefined, [ btnSoundTest, ])
+        mkElt("h4", undefined, "Alarm tests"),
+        mkElt("p", { style: "" }, `${minDb}dB`),
     ]);
     eltBad.style = `
         color: blue;
@@ -1141,6 +1109,9 @@ async function dialogSettings() {
         btnVibrate,
         divVibSliders,
     ]);
+    if (typeof navigator.vibrate !== "function") {
+        divVibrCtrls.inert = true;
+    }
     divVibrCtrls.style = `
         display: flex;
         gap: 10px;
@@ -1446,6 +1417,7 @@ function playReadySound() {
     objAudio.volume = 0.01;
     objAudio.play()
         .then(() => {
+            document.documentElement.classList.add("sounding");
             // FIXME: use Date().getTime();
             // let secPlayed = 0;
             objAudio.currentTime = 0;
@@ -1492,4 +1464,5 @@ function stopReadySound() {
     clearInterval(intervalRaiseVolume);
     intervalRaiseVolume = undefined;
     objAudio.pause();
+    document.documentElement.classList.remove("sounding");
 }
