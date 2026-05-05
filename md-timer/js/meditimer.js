@@ -1037,8 +1037,9 @@ async function dialogSettings() {
     }
 
     const eltBad = mkElt("div", undefined, [
-        mkElt("h4", undefined, "Alarm tests"),
-        mkElt("p", { style: "" }, `${minDb}dB`),
+        mkElt("div", {style:"font-size:1.5rem;"}, "Alarm tests"),
+        mkElt("div", { style: "" }, `${minDb}dB`),
+        mkElt("div", { style: "" }, `startVibrationPurr(false)`),
     ]);
     eltBad.style = `
         color: blue;
