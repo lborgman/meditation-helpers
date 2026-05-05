@@ -54,7 +54,7 @@ function applySliderVolume() {
  * @throws
  */
 function sliderToVolume(sliderValue) {
-    const minDb = -30;
+    const minDb = -50;
     const deadZone = 0.03;        // Dead zone at the bottom (0.02 ~ 0.04 works well)
     // Apply dead zone based on slider position
     if (sliderValue <= deadZone) { return 0; }
@@ -1061,6 +1061,7 @@ async function dialogSettings() {
         }
     }
 
+    /*
     const btnSoundTest = mkElt("button", undefined, "Test sound");
     btnSoundTest.addEventListener("click", async evt => {
         evt.stopPropagation();
@@ -1078,11 +1079,13 @@ async function dialogSettings() {
         console.log('Audio paused:', objAudio.paused);
         console.log('Audio currentTime:', objAudio.currentTime);
     });
+    */
     const eltBad = mkElt("div", undefined, [
         mkElt("h3", undefined, "Alarm tests"),
         // mkElt("p", { style: "color:darkred" }, "Something is wrong with sound at the moment?"),
         // mkElt("p", { style: "color:darkred" }, "Changing the sound button."),
-        mkElt("p", { style: "color:darkred" }, "Test isRaisingVolume()"),
+        // mkElt("p", { style: "color:darkred" }, "Test isRaisingVolume()"),
+        mkElt("p", { style: "color:darkred" }, "-50dB"),
         // mkElt("p", undefined, [ btnSoundTest, ])
     ]);
     eltBad.style = `
