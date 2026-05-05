@@ -1272,6 +1272,7 @@ document.documentElement.addEventListener("click", evt => {
 });
 
 
+/** @type {number} */ let purrInterval = 0;
 /**
  * @param {boolean} onlyOnce 
  */
@@ -1296,18 +1297,20 @@ function startVibrationPurr(onlyOnce) {
         return;
     }
     // const purrInterval = setInterval(fire, PURR.reduce((a,b)=>a+b,0));
-    const purrInterval = setInterval(fire, msPurrLength)
+    purrInterval = setInterval(fire, msPurrLength)
     navigator.vibrate(PURR);
 }
 function stopVibrationPurr() {
     navigator.vibrate(0);
+    clearInterval(purrInterval);
     document.documentElement.classList.remove("vibrating");
 }
 function toggleVibrationPurr() {
     if (document.documentElement.classList.contains("vibrating")) {
         stopVibrationPurr();
     } else {
-        startVibrationPurr(true);
+        // startVibrationPurr(true);
+        startVibrationPurr(false);
     }
 }
 
