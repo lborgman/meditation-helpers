@@ -1024,10 +1024,6 @@ async function dialogSettings() {
     btnVibrationTest.title = "- Test vibration";
     btnVibrationTest.id = "btn-test-vibration";
     btnVibrationTest.addEventListener("click", evt => {
-        // chkVibrate
-        // .vibrate()
-        // settingVibrationOff.value = !settingVibrationOff.valueB;
-        // setDisplayVibration();
         toggleVibrationPurr();
     });
 
@@ -1276,9 +1272,32 @@ document.documentElement.addEventListener("click", evt => {
 });
 
 
-function startVibrationPurr() {
-    navigator.vibrate(getPurrPattern(1, 1));
+/**
+ * @param {boolean} onlyOnce 
+ */
+function startVibrationPurr(onlyOnce) {
+    const tofOnlyOnce = typeof onlyOnce;
+    if (tofOnlyOnce !== "boolean") {
+        debugger;
+        const msg = `startVibrationPurr: onlyOnce == "${onlyOnce}"`;
+        console.error(msg);
+        throw Error(msg);
+    }
+    const PURR = getPurrPattern(1, 1);
+    const msPurrLength = PURR.reduce((a, b) => a + b, 0);
+    function fire() {
+        const r = navigator.vibrate(PURR);
+        console.log('vibrate(pattern) → ' + r);
+    }
     document.documentElement.classList.add("vibrating");
+    fire();
+    if (onlyOnce) {
+        setTimeout(stopVibrationPurr, msPurrLength);
+        return;
+    }
+    // const purrInterval = setInterval(fire, PURR.reduce((a,b)=>a+b,0));
+    const purrInterval = setInterval(fire, msPurrLength)
+    navigator.vibrate(PURR);
 }
 function stopVibrationPurr() {
     navigator.vibrate(0);
@@ -1288,7 +1307,7 @@ function toggleVibrationPurr() {
     if (document.documentElement.classList.contains("vibrating")) {
         stopVibrationPurr();
     } else {
-        startVibrationPurr();
+        startVibrationPurr(true);
     }
 }
 
@@ -1374,7 +1393,7 @@ function stopAlarms() {
 }
     /** @type {number | undefined} */ let vibrationTimer;
     /** @type {boolean} */ let useVibration;
-function startVibrationTimer() {
+function startVibration() {
     if (typeof navigator.vibrate !== "function") return;
     useVibration = !settingVibrationOff.valueB;
     if (!useVibration) return;
@@ -1400,8 +1419,9 @@ function startVibrationTimer() {
         }, 500);
     }
     vibrationTimer = setInterval(vibrate, 3000);
+    // vibrating
 }
-function stopVibrationTimer() {
+function stopVibration() {
     useVibration = false;
     clearInterval(vibrationTimer);
 }
