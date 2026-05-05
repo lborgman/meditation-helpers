@@ -1027,6 +1027,7 @@ async function dialogSettings() {
         toggleVibrationPurr();
     });
 
+    /*
     setDisplayVibration();
     function setDisplayVibration() {
         if (!settingVibrationOff.valueB) {
@@ -1035,11 +1036,12 @@ async function dialogSettings() {
             document.documentElement.classList.add("vibration-off");
         }
     }
+    */
 
     const eltBad = mkElt("div", undefined, [
-        mkElt("div", {style:"font-size:1.5rem;"}, "Alarm tests"),
+        mkElt("div", { style: "font-size:1.5rem;" }, "Alarm tests"),
         mkElt("div", { style: "" }, `${minDb}dB`),
-        mkElt("div", { style: "" }, `startVibrationPurr(false)`),
+        mkElt("div", { style: "" }, `startVibrationPurr(secRepeat)`),
     ]);
     eltBad.style = `
         color: blue;
@@ -1274,17 +1276,28 @@ document.documentElement.addEventListener("click", evt => {
 
 
 /** @type {number} */ let purrInterval = 0;
+/** @type {number} */ let maxPurrTimer = 0;
 /**
- * @param {boolean} onlyOnce 
+ * @param {number} secRepeat 
  */
-function startVibrationPurr(onlyOnce) {
-    const tofOnlyOnce = typeof onlyOnce;
-    if (tofOnlyOnce !== "boolean") {
+function startVibrationPurr(secRepeat) {
+    const tofSecRepeat = typeof secRepeat;
+    let okSecRepeat =
+        (tofSecRepeat == "number")
+        && secRepeat > 0
+        && secRepeat < 20
+        ;
+
+
+
+    if (!okSecRepeat) {
         debugger;
-        const msg = `startVibrationPurr: onlyOnce == "${onlyOnce}"`;
+        const msg = `startVibrationPurr: secRepeat == "${secRepeat}"`;
         console.error(msg);
         throw Error(msg);
     }
+    stopVibration();
+
     const PURR = getPurrPattern(1, 1);
     const msPurrLength = PURR.reduce((a, b) => a + b, 0);
     function fire() {
@@ -1293,17 +1306,18 @@ function startVibrationPurr(onlyOnce) {
     }
     document.documentElement.classList.add("vibrating");
     fire();
-    if (onlyOnce) {
+    if (secRepeat < msPurrLength / 1000) {
         setTimeout(stopVibrationPurr, msPurrLength);
         return;
     }
-    // const purrInterval = setInterval(fire, PURR.reduce((a,b)=>a+b,0));
     purrInterval = setInterval(fire, msPurrLength)
     navigator.vibrate(PURR);
+    maxPurrTimer = setTimeout(stopVibrationPurr, secRepeat * 1000);
 }
 function stopVibrationPurr() {
     navigator.vibrate(0);
     clearInterval(purrInterval);
+    clearTimeout(maxPurrTimer);
     document.documentElement.classList.remove("vibrating");
 }
 function toggleVibrationPurr() {
@@ -1311,7 +1325,7 @@ function toggleVibrationPurr() {
         stopVibrationPurr();
     } else {
         // startVibrationPurr(true);
-        startVibrationPurr(false);
+        startVibrationPurr(5);
     }
 }
 
@@ -1380,7 +1394,8 @@ function isRaisingVolume() {
 }
 
 function startAlarms() {
-    stopReadySound();
+    // stopReadySound();
+    stopAlarms();
     document.documentElement.classList.remove("timeout-answer");
     timeoutStopAlarms = setTimeout(() => {
         // debugger;
@@ -1388,7 +1403,7 @@ function startAlarms() {
         stopAlarms();
     }, 1000 * secMaxAlarmTime);
     playReadySound();
-    startVibrationPurr();
+    startVibrationPurr(secMaxAlarmTime);
 }
 function stopAlarms() {
     // debugger;
