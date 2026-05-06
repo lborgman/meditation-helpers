@@ -652,6 +652,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
     });
 
     btnStart.addEventListener("click", async evt => {
+        applySliderVolume();
         progressBar.max = secondsGoal;
         progressBar.value = 0;
         // document.documentElement.requestFullscreen();
@@ -717,15 +718,21 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
         timerDiv.appendChild(imgTimer);
     })
 
-    let pAsk = mkElt("p", { "class": "after-med-info" }, [
+    const pAsk = mkElt("p", { "class": "after-med-info" }, [
         "Did you keep focus on your breath?"
     ]);
-    let btnFail = mkElt("button", { class: "popup-button" }, "No");
+    const eltSounding = mkElt("span", undefined, "sounding");
+    eltSounding.id = "asking-sounding";
+    const eltVibrating = mkElt("span", undefined, "vibrating");
+    eltVibrating.id = "asking-vibrating";
+    const pAlarms = mkElt("p", undefined, [eltSounding, " ", eltVibrating]);
+
+    const btnFail = mkElt("button", { class: "popup-button" }, "No");
     // btnFail.style.margin = "10px"; // FIXME:
     btnFail.addEventListener("click", evt => {
         handleReply(false);
     });
-    let btnSuccess = mkElt("button", { class: "popup-button" }, "Yes");
+    const btnSuccess = mkElt("button", { class: "popup-button" }, "Yes");
     btnSuccess.addEventListener("click", evt => {
         handleReply(true);
     });
@@ -791,6 +798,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
     const divAsk = mkElt("div", { "id": "div-asking" }, [
         pAsk,
+        pAlarms,
         mkElt("p", { "class": "buttons" }, [btnFail, btnSuccess]),
         // divAlarm
     ]);
@@ -1287,9 +1295,6 @@ function startVibrationPurr(secRepeat) {
         && secRepeat > 0
         && secRepeat < 20
         ;
-
-
-
     if (!okSecRepeat) {
         debugger;
         const msg = `startVibrationPurr: secRepeat == "${secRepeat}"`;

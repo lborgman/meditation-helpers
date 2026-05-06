@@ -626,6 +626,26 @@
       }
     }
 
+    #asking-vibrating {
+      opacity: 0.2;
+    }
+
+    html.vibrating {
+      #asking-vibrating {
+        opacity: 1;
+      }
+    }
+
+    #asking-sounding {
+      opacity: 0.2;
+    }
+
+    html.sounding:not(.sound-off) {
+      #asking-sounding {
+        opacity: 1;
+      }
+    }
+
     html.asking {
 
       #div-timer {
