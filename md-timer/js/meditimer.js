@@ -28,7 +28,8 @@ class OurLocalSetting extends modLocalSettings.LocalSetting {
         super(STORING_PREFIX, key, definitionValue);
     }
 }
-const settingVibrTempo = new OurLocalSetting("vibr-speed", [0, 1, 2]);
+const settingVibrTempo = new OurLocalSetting("vibr-tempo", [0, 0, 2]);
+const settingVibrIntensity = new OurLocalSetting("vibr-intensity", [0, 1, 3]);
 // const settingSoundOff = new OurLocalSetting("sound-off", false);
 const settingVibrationOff = new OurLocalSetting("vibration-off", false);
 const settingUseMyBg = new OurLocalSetting("use-my-bg", false);
@@ -81,6 +82,12 @@ await loadAudio();
         "1": "mid",
         "2": "high"
     }
+    const datalist0123 = {
+        "0": "off",
+        "1": "low",
+        "2": "mid",
+        "3": "high"
+    }
     /**
      * @param {Object} datalistObj 
      * @param {string} id 
@@ -98,6 +105,8 @@ await loadAudio();
     }
     const eltMarkers012 = mkDatalist(datalist012, "markers012");
     document.body.appendChild(eltMarkers012);
+    const eltMarkers0123 = mkDatalist(datalist0123, "markers0123");
+    document.body.appendChild(eltMarkers0123);
 }
 
 async function loadAudio() {
@@ -1032,6 +1041,9 @@ async function dialogSettings() {
     btnVibrationTest.title = "- Test vibration";
     btnVibrationTest.id = "btn-test-vibration";
     btnVibrationTest.addEventListener("click", evt => {
+        if (document.documentElement.classList.contains("vibration-off")) {
+            debugger; return;
+        }
         toggleVibrationPurr();
     });
 
@@ -1085,17 +1097,42 @@ async function dialogSettings() {
     // const lblVibrate = mkElt("label", null, [btnVibrate, spanBtn]);
 
 
-    const spanTempoVal = mkElt("span", { class: "ctrl-val", id: "tempoVal" });
+    // const spanTempoVal = mkElt("span", { class: "ctrl-val", id: "tempoVal" });
     const inpTempo = settingVibrTempo.getInputElement();
     inpTempo.step = "1";
     inpTempo.setAttribute("list", "markers012");
     const divTempo = mkElt("div", undefined, [
         "TEMPO",
         inpTempo,
-        spanTempoVal
+        // spanTempoVal
     ]);
+
+    const inpIntensity = settingVibrIntensity.getInputElement();
+    inpIntensity.step = "1";
+    inpIntensity.setAttribute("list", "markers0123");
+    const divIntensity = mkElt("div", undefined, [
+        "INTENSITY",
+        inpIntensity,
+        // spanTempoVal
+    ]);
+    inpIntensity.addEventListener("change", evt => {
+        setVibrationIntensity();
+    });
+    setVibrationIntensity();
+    function setVibrationIntensity() {
+        const intensity = settingVibrIntensity.valueN;
+        console.log({ intensity });
+        if (intensity == 0) {
+            // vibration-off
+            document.documentElement.classList.add("vibration-off");
+            return;
+        }
+        document.documentElement.classList.remove("vibration-off");
+    }
+
     const divVibSliders = mkElt("div", { id: "vibration-sliders" }, [
         divTempo,
+        divIntensity
     ]);
     divVibSliders.style = `
         outline: 3px dotted green;
@@ -1303,7 +1340,7 @@ function startVibrationPurr(secRepeat) {
     }
     stopVibration();
 
-    const PURR = getPurrPattern(1, 1);
+    const PURR = getPurrPattern(settingVibrIntensity.valueN - 1, 1);
     const msPurrLength = PURR.reduce((a, b) => a + b, 0);
     function fire() {
         const r = navigator.vibrate(PURR);

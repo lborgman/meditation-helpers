@@ -58,7 +58,7 @@ export class LocalSetting {
                             if (definitionValue.length == 3) {
                                 // debugger;
                                 const isStrictlyAscending = (arr) =>
-                                    arr.every((val, i) => i === 0 || (!isNaN(val)) && val > arr[i - 1]);
+                                    arr.every((val, i) => i === 0 || (!isNaN(val)) && val >= arr[i - 1]);
                                 if (!isStrictlyAscending(definitionValue)) {
                                     debugger;
                                     throw Error(`Not ascending ${arr}`);
