@@ -1116,11 +1116,12 @@ async function dialogSettings() {
         // spanTempoVal
     ]);
     inpIntensity.addEventListener("change", evt => {
-        setVibrationIntensity();
+        setVibrationIntensityDisplay();
     });
-    setVibrationIntensity();
-    function setVibrationIntensity() {
-        const intensity = settingVibrIntensity.valueN;
+    setVibrationIntensityDisplay();
+    function setVibrationIntensityDisplay() {
+        // const intensity = settingVibrIntensity.valueN;
+        const intensity = settingVibrIntensity.getInputElement().value;
         console.log({ intensity });
         if (intensity == 0) {
             // vibration-off
@@ -1340,7 +1341,8 @@ function startVibrationPurr(secRepeat) {
     }
     stopVibration();
 
-    const PURR = getPurrPattern(settingVibrIntensity.valueN - 1, 1);
+    // const PURR = getPurrPattern(settingVibrIntensity.valueN - 1, 1);
+    const PURR = getPurrPattern(settingVibrIntensity.getInputElement().value - 1, 1);
     const msPurrLength = PURR.reduce((a, b) => a + b, 0);
     function fire() {
         const r = navigator.vibrate(PURR);
