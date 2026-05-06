@@ -1032,7 +1032,9 @@ async function dialogSettings() {
             document.documentElement.classList.remove("sounding");
             return;
         }
-        playReadySound();
+        if (!document.documentElement.classList.contains("sound-off")) {
+            playReadySound();
+        }
 
     });
 
@@ -1446,8 +1448,12 @@ function startAlarms() {
         document.documentElement.classList.add("timeout-answer");
         stopAlarms();
     }, 1000 * secMaxAlarmTime);
-    playReadySound();
-    startVibrationPurr(secMaxAlarmTime);
+    if (!document.documentElement.classList.contains("sound-off")) {
+        playReadySound();
+    }
+    if (!document.documentElement.classList.contains("vibration-off")) {
+        startVibrationPurr(secMaxAlarmTime);
+    }
 }
 function stopAlarms() {
     // debugger;
