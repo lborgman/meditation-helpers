@@ -1329,6 +1329,9 @@ function startReadyVibrationIfOn(secRepeat) {
         settingVibrTempo.valueN
     );
     const msPurrLength = PURR.reduce((a, b) => a + b, 0);
+    if (isNaN(msPurrLength)) {
+        debugger;
+    }
     function fire() {
         const r = navigator.vibrate(PURR);
         console.log('vibrate(pattern) → ' + r);
@@ -1366,12 +1369,14 @@ function toggleVibrationTest() {
 function getPurrPattern(intensity, tempo) {
     if (![0, 1, 2].includes(intensity)) { debugger; throw Error(`Bad intensity: ${intensity}`); }
     if (![0, 1, 2].includes(tempo)) { debugger; throw Error(`Bad tempo: ${tempo}`); }
-    // const intensity = parseInt(intensitySlider.value);
-    // const tempo = parseInt(tempoSlider.value);
     const pulseOn = [12, 18, 26][intensity - 1];
+    if (isNaN(pulseOn)) throw Error(`isNaN(pulseOn), ${intensity}`);
     const pulseOff = [8, 12, 16][intensity - 1];
-    const pulses = [5, 7, 9][tempo - 1];
-    const breathPause = [180, 130, 90][tempo - 1];
+    if (isNaN(pulseOff)) throw Error(`isNaN(pulseOff), ${intensity}`);
+    const pulses = [5, 7, 9][tempo];
+    if (isNaN(pulses)) throw Error(`isNaN(pulses), ${tempo}`);
+    const breathPause = [180, 130, 90][tempo];
+    if (isNaN(breathPause)) throw Error(`isNaN(breathPause), ${tempo}`);
     const pattern = [];
     for (let i = 0; i < pulses; i++) pattern.push(pulseOn, pulseOff);
     pattern.push(breathPause);
