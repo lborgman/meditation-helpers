@@ -452,6 +452,8 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
         const divAbout = document.getElementById("about");
         if (!divAbout) throw Error(`Did not find "about"`);
+
+        /*
         const eltCloseAbout = mkElt("button", { class: "x-close" }, "✖");
         // eltCloseAbout.id = "close-about";
         divAbout.appendChild(eltCloseAbout);
@@ -460,10 +462,19 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
             setMdState("initial");
             updateGoalInfo();
         });
+        */
 
         const footerAbout = document.getElementById("footer-about");
         if (!footerAbout) throw Error(`Did not find "footer-about"`);
         footerAbout.addEventListener("click", evt => {
+            const dlgAbout = document.getElementById("about");
+            // debugger;
+            if (!dlgAbout) throw Error(`Could not find "#about"`);
+            if (!(dlgAbout instanceof HTMLDialogElement)) throw Error(`Not <dialog>`);
+            addXclose(dlgAbout);
+            dlgAbout.showModal();
+
+            return;
             if (currentMdState == "about") {
                 setMdState("initial");
                 updateGoalInfo();
@@ -1288,6 +1299,11 @@ function mkXclose(funClose) {
         (xClose.closest("dialog"))?.close();
     });
     return xClose;
+}
+function addXclose(dialog) {
+    const btnClose = dialog.querySelector("button[class=x-close]");
+    if (btnClose) { return; }
+    dialog.appendChild(mkXclose());
 }
 
 document.documentElement.addEventListener("click", evt => {

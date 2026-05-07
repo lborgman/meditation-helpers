@@ -455,7 +455,7 @@
       border-radius: 8px;
     }
 
-    #about {
+    #NOabout {
       display: none;
       opacity: 0;
       position: relative;
@@ -538,6 +538,11 @@
         opacity: 0;
         transition: opacity 0.7s;
       }
+    }
+
+    dialog#about {
+      min-width: 80vw;
+      max-width: calc(min(400px, 80vW));
     }
 
     #div-timer {
@@ -993,37 +998,41 @@
     </div>
   </main>
 
-  <div id="about">
-    <details>
-      <summary>About us <span class="fa"><i class="fas fa-user-friends"></i></span></summary>
-      <p>
-        It is just me. Who happen to know a bit about psychology, meditation and IT.
-      </p>
-      <p>
-        I wrote <a href="https://lborgman.github.io/">some more apps</a>.
-      </p>
-    </details>
-    <details>
-      <summary>Privacy <span class="fa"><i class="fas fa-user-secret"></i></span></summary>
-      <p>
-        This app store some data, but only on your own computer/mobile.
-      </p>
-      <p>
-        We store data about meditation session length.
-        And daily total sessions length.
-        Nothing else.
-      </p>
-    </details>
-    <details>
-      <summary>Contact <span class="fa"><i class="fas fa-comments"></i></span></summary>
-      <p>
-        You can find me here on
-        <a href="https://facebook.com/groups/380924549203529/" target="_blank" rel="noreferrer">
-          Facebook
-          <span class="fa"><i class="fab fa-facebook"></i></span></a>.
-      </p>
-    </details>
-  </div>
+  <dialog id="about">
+    <div>
+      <h2>About Mindfulness Training Timer</h2>
+      <details>
+        <summary>About us <span class="fa"><i class="fas fa-user-friends"></i></span></summary>
+        <p>
+          It is just me. Who happen to know a bit about psychology, meditation and IT.
+        </p>
+        <p>
+          I wrote <a href="https://lborgman.github.io/">some more apps</a>.
+        </p>
+      </details>
+      <details>
+        <summary>Privacy <span class="fa"><i class="fas fa-user-secret"></i></span></summary>
+        <p>
+          This app store some data, but only on your own computer/mobile.
+        </p>
+        <p>
+          We store data about meditation session length.
+          And daily total sessions length.
+          Nothing else.
+        </p>
+      </details>
+      <details>
+        <summary>Contact <span class="fa"><i class="fas fa-comments"></i></span></summary>
+        <p>
+          You can find me here on
+          <a href="https://facebook.com/groups/380924549203529/" target="_blank" rel="noreferrer">
+            Facebook
+            <span class="fa"><i class="fab fa-facebook"></i></span></a>.
+        </p>
+      </details>
+    </div>
+    <!-- <button class="x-close">✖</button> -->
+  </dialog>
 
   <footer>
     <span id="footer-share" tabindex="0" role="button" title="Share"><i class="fas fa-share-alt"></i></span>
