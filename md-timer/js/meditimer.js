@@ -37,7 +37,6 @@ const settingVolume = new OurLocalSetting("volume", [0, 0.5, 1]);
 
 /** @type {number} */ let currentVolume = -1;
 
-// applySliderVolume();
 function applySliderVolume() {
     currentVolume = sliderToVolume(settingVolume.valueN);
     if (!isRaisingVolume()) {
@@ -661,7 +660,6 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
     });
 
     btnStart.addEventListener("click", async evt => {
-        applySliderVolume();
         progressBar.max = secondsGoal;
         progressBar.value = 0;
         // document.documentElement.requestFullscreen();
@@ -1032,10 +1030,7 @@ async function dialogSettings() {
             document.documentElement.classList.remove("sounding");
             return;
         }
-        if (!document.documentElement.classList.contains("sound-off")) {
-            playReadySound();
-        }
-
+        playReadySoundIfOn();
     });
 
     const imgVibrate = mkElt("img", { src: "./img/mobile-vibration.svg" });
@@ -1118,20 +1113,8 @@ async function dialogSettings() {
         // spanTempoVal
     ]);
     inpIntensity.addEventListener("change", evt => {
-        setVibrationIntensityDisplay();
+        setVibrationOnOff();
     });
-    setVibrationIntensityDisplay();
-    function setVibrationIntensityDisplay() {
-        // const intensity = settingVibrIntensity.valueN;
-        const intensity = settingVibrIntensity.getInputElement().value;
-        console.log({ intensity });
-        if (intensity == 0) {
-            // vibration-off
-            document.documentElement.classList.add("vibration-off");
-            return;
-        }
-        document.documentElement.classList.remove("vibration-off");
-    }
 
     const divVibSliders = mkElt("div", { id: "vibration-sliders" }, [
         divTempo,
@@ -1328,7 +1311,8 @@ document.documentElement.addEventListener("click", evt => {
 /**
  * @param {number} secRepeat 
  */
-function startVibrationPurr(secRepeat) {
+function startReadyVibrationIfOn(secRepeat) {
+    if (document.documentElement.classList.contains("vibration-off")) { return false; }
     const tofSecRepeat = typeof secRepeat;
     let okSecRepeat =
         (tofSecRepeat == "number")
@@ -1341,7 +1325,7 @@ function startVibrationPurr(secRepeat) {
         console.error(msg);
         throw Error(msg);
     }
-    stopVibration();
+    stopReadyVibration();
 
     // const PURR = getPurrPattern(settingVibrIntensity.valueN - 1, 1);
     const PURR = getPurrPattern(settingVibrIntensity.getInputElement().value - 1, 1);
@@ -1353,14 +1337,15 @@ function startVibrationPurr(secRepeat) {
     document.documentElement.classList.add("vibrating");
     fire();
     if (secRepeat < msPurrLength / 1000) {
-        setTimeout(stopVibrationPurr, msPurrLength);
+        setTimeout(stopReadyVibration, msPurrLength);
         return;
     }
     purrInterval = setInterval(fire, msPurrLength)
     navigator.vibrate(PURR);
-    maxPurrTimer = setTimeout(stopVibrationPurr, secRepeat * 1000);
+    maxPurrTimer = setTimeout(stopReadyVibration, secRepeat * 1000);
+    return true;
 }
-function stopVibrationPurr() {
+function stopReadyVibration() {
     navigator.vibrate(0);
     clearInterval(purrInterval);
     clearTimeout(maxPurrTimer);
@@ -1368,10 +1353,10 @@ function stopVibrationPurr() {
 }
 function toggleVibrationPurr() {
     if (document.documentElement.classList.contains("vibrating")) {
-        stopVibrationPurr();
+        stopReadyVibration();
     } else {
         // startVibrationPurr(true);
-        startVibrationPurr(5);
+        startReadyVibrationIfOn(5);
     }
 }
 
@@ -1434,6 +1419,7 @@ function showVibInstructions() {
 /** @type {number | undefined} */ let timeoutStopAlarms;
 /** @type {number | undefined} */ let intervalRaiseVolume;
 applySliderVolume();
+setVibrationOnOff();
 
 function isRaisingVolume() {
     return intervalRaiseVolume != undefined;
@@ -1448,54 +1434,21 @@ function startAlarms() {
         document.documentElement.classList.add("timeout-answer");
         stopAlarms();
     }, 1000 * secMaxAlarmTime);
-    if (!document.documentElement.classList.contains("sound-off")) {
-        playReadySound();
-    }
-    if (!document.documentElement.classList.contains("vibration-off")) {
-        startVibrationPurr(secMaxAlarmTime);
-    }
+    playReadySoundIfOn();
+    startReadyVibrationIfOn(secMaxAlarmTime);
 }
 function stopAlarms() {
     // debugger;
+    clearTimeout(timeoutStopAlarms);
     stopReadySound();
-    stopVibrationPurr();
+    stopReadyVibration();
 }
-    /** @type {number | undefined} */ let vibrationTimer;
-    /** @type {boolean} */ let useVibration;
-function startVibration() {
-    if (typeof navigator.vibrate !== "function") return;
-    useVibration = !settingVibrationOff.valueB;
-    if (!useVibration) return;
-    const startMs = new Date().getTime();
-    function vibrate() {
-        if (!useVibration) return;
-        const nowMs = new Date().getTime();
-        const maxMs = 200;
-        const durMs = nowMs - startMs;
-        const durSec = durMs / 1000;
-        if (durSec > secMaxAlarmTime) {
-            clearInterval(vibrationTimer, 3000);
-            return;
-        }
-        let ms = maxMs;
-        if (durSec < secEaseInOut) {
-            ms = maxMs * funEaseInOut(durSec);
-        }
-        navigator.vibrate(ms);
-        setTimeout(() => {
-            if (!useVibration) return;
-            navigator.vibrate(ms);
-        }, 500);
-    }
-    vibrationTimer = setInterval(vibrate, 3000);
-    // vibrating
-}
-function stopVibration() {
-    useVibration = false;
-    clearInterval(vibrationTimer);
-}
+/** @type {number | undefined} */ let vibrationTimer;
+/** @type {boolean} */ let useVibration;
 
-function playReadySound() {
+
+function playReadySoundIfOn() {
+    if (document.documentElement.classList.contains("sound-off")) { return false; }
     if (!objAudio) throw Error("!objAudio");
     objAudio.currentTime = 0;
 
@@ -1551,4 +1504,14 @@ function stopReadySound() {
     intervalRaiseVolume = undefined;
     objAudio.pause();
     document.documentElement.classList.remove("sounding");
+}
+
+function setVibrationOnOff() {
+    const intensity = settingVibrIntensity.getInputElement().value;
+    console.log({ intensity });
+    if (intensity == 0) {
+        document.documentElement.classList.add("vibration-off");
+        return;
+    }
+    document.documentElement.classList.remove("vibration-off");
 }
