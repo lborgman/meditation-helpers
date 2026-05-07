@@ -1324,9 +1324,16 @@ function startReadyVibrationIfOn(secRepeat) {
     stopReadyVibration();
 
     // const PURR = getPurrPattern(settingVibrIntensity.valueN - 1, 1);
+    debugger;
+    // const intensity = settingVibrIntensity.getInputElement().value - 1;
+    // const intensity = settingVibrIntensity.getInputElement().value - 1;
+    const intensity = settingVibrIntensity.valueN - 1;
+    const tempo = settingVibrTempo.valueN;
     const PURR = getPurrPattern(
-        settingVibrIntensity.getInputElement().value - 1,
-        settingVibrTempo.valueN
+        // settingVibrIntensity.getInputElement().value - 1,
+        intensity,
+        // settingVibrTempo.valueN
+        tempo
     );
     const msPurrLength = PURR.reduce((a, b) => a + b, 0);
     if (isNaN(msPurrLength)) {
@@ -1369,9 +1376,9 @@ function toggleVibrationTest() {
 function getPurrPattern(intensity, tempo) {
     if (![0, 1, 2].includes(intensity)) { debugger; throw Error(`Bad intensity: ${intensity}`); }
     if (![0, 1, 2].includes(tempo)) { debugger; throw Error(`Bad tempo: ${tempo}`); }
-    const pulseOn = [12, 18, 26][intensity - 1];
+    const pulseOn = [12, 18, 26][intensity];
     if (isNaN(pulseOn)) throw Error(`isNaN(pulseOn), ${intensity}`);
-    const pulseOff = [8, 12, 16][intensity - 1];
+    const pulseOff = [8, 12, 16][intensity];
     if (isNaN(pulseOff)) throw Error(`isNaN(pulseOff), ${intensity}`);
     const pulses = [5, 7, 9][tempo];
     if (isNaN(pulses)) throw Error(`isNaN(pulses), ${tempo}`);
