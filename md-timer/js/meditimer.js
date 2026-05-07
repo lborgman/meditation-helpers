@@ -38,7 +38,9 @@ const settingVolume = new OurLocalSetting("volume", [0, 0.5, 1]);
 /** @type {number} */ let currentVolume = -1;
 
 function applySliderVolume() {
-    currentVolume = sliderToVolume(settingVolume.valueN);
+    // currentVolume = sliderToVolume(settingVolume.valueN);
+    // settingVolume does not have the value!
+    currentVolume = sliderToVolume(settingVolume.getInputElement().value);
     if (!isRaisingVolume()) {
         objAudio.volume = currentVolume;
     }
