@@ -1343,16 +1343,14 @@ function startReadyVibrationIfOn(secRepeat) {
 
     // const PURR = getPurrPattern(settingVibrIntensity.valueN - 1, 1);
     debugger;
-    // const intensity = settingVibrIntensity.getInputElement().value - 1;
-    // const intensity = settingVibrIntensity.getInputElement().value - 1;
-    const intensity = settingVibrIntensity.valueN - 1;
-    const tempo = settingVibrTempo.valueN;
-    const PURR = getPurrPattern(
-        // settingVibrIntensity.getInputElement().value - 1,
-        intensity,
-        // settingVibrTempo.valueN
-        tempo
-    );
+
+    // const intensity = settingVibrIntensity.valueN - 1;
+    const intensity = settingVibrIntensity.getInputElement().value - 1;
+
+    // const tempo = settingVibrTempo.valueN;
+    const tempo = settingVibrTempo.getInputElement().value - 0;
+
+    const PURR = getPurrPattern(intensity, tempo);
     const msPurrLength = PURR.reduce((a, b) => a + b, 0);
     if (isNaN(msPurrLength)) {
         debugger;
