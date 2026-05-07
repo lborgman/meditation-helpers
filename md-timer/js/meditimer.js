@@ -1394,26 +1394,78 @@ function getPurrPattern(intensity, tempo) {
 
 function makeVibrationInstructions() {
     const title = mkElt('h2', { class: 'info-title' }, 'No vibration? Check Android settings');
+    const mkCode = (txt) => mkElt("code", undefined, txt);
     const settingsNote = mkElt('p', { class: 'info-row' }, [
         'Go to ',
-        mkElt('code', {}, 'Settings → Sound & vibration → Vibrations & haptics'),
+        mkCode('Settings → Sound & vibration → Vibrations & haptics'),
         ' and make sure both ',
-        mkElt('code', {}, 'Use vibration and haptics'),
+        mkCode('Use vibration and haptics'),
         ' and ',
-        mkElt('code', {}, 'Touch feedback'),
+        mkCode('Touch feedback'),
         " are on.",
         " (Also check that ",
-        mkElt("code", undefined, "Do Not Disturb"),
+        mkCode("Do Not Disturb"),
         " is off.)",
     ]);
+    const settingsAndroid16 = mkElt("div", { class: "info-row" }, [
+        mkElt("h3", undefined, "Instructions for Android 16"),
+        mkElt("details", undefined, [
+            mkElt("summary", undefined, "Main switch"),
+            mkElt("p", undefined, [
+                "Go to ", mkCode("Settings -> Accessibility -> Vibration & Haptics")
+            ]),
+            mkElt("ul", undefined, [
+                mkElt("li", undefined, [
+                    "Make sure ",
+                    mkCode("Use vibration & haptics"),
+                    " is ", mkCode("ON"),
+                ]),
+                mkElt("li", undefined, [
+                    "Crucial: Ensure the ",
+                    mkCode("Touch feedback"), " slider is moved to the right."
+                ]),
+            ])
+        ]),
+
+        mkElt("details", undefined, [
+            mkElt("summary", undefined, "Basic checks"),
+            mkElt("ul", undefined, [
+                mkElt("li", undefined, [
+                    "Ensure ", mkCode("Do Not Disturb"), " is ", mkCode("OFF"),
+                ]),
+                mkElt("li", undefined, [
+                    "Ensure ", mkCode("Battery Saver"), " is ", mkCode("OFF"),
+                    "(it may disable haptics to save energy)",
+                ]),
+            ])
+        ]),
+
+        mkElt("details", undefined, [
+            mkElt("summary", undefined, "Device specifics"),
+            mkElt("ul", undefined, [
+                mkElt("li", undefined, [
+                    mkElt("div", { style: "font-weight:bold;" }, "The Still Phone Rule (Pixel 10 Specific)"),
+                    "In the same menu, look for ", mkCode("Adaptive alert vibration"),
+                    `.  If this is ON, your Pixel 10 will intentionally stay quiet
+                        if it is sitting still on a table.
+                        Pick up the phone or turn this setting OFF to test.`
+                ]),
+            ]),
+        ]),
+    ]);
     // const iosNote = mkElt('p', { class: 'info-row' }, 'iOS Safari does not support the Vibration API.');
-    const supportedNote = mkElt('p', { class: 'info-row' },
-        'Vibration is only support on Android. And only on newer mobiles.');
+    const supportedNote = mkElt('p', undefined, 'Vibration is only supported on Android mobiles.');
+    supportedNote.style = `
+        padding: 1rem;
+        border: 1px solid blue;
+        border-radius: 8px;
+        background-color: lightblue;
+    `;
     return mkElt('div', { id: 'info-vibration' }, [
         title,
-        settingsNote,
-        // iosNote,
-        supportedNote
+        supportedNote,
+        // settingsNote,
+        settingsAndroid16,
     ]);
 }
 function showVibInstructions() {
