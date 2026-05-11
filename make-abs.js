@@ -9,7 +9,7 @@ console.log("here is make-abs.js");
 function makeAbsLink(relLink) {
     const urlLink = new URL(relLink, location.href);
     const absLink = urlLink.href;
-    console.log("makeAbsScriptLink:", absLink);
+    // console.log("makeAbsScriptLink:", absLink);
     return absLink;
 }
 
@@ -25,7 +25,7 @@ function insertHereImportmap(objRelMap) {
             )
     }
     const jsonAbsMap = JSON.stringify(objAbsMap);
-    console.log(jsonAbsMap);
+    // console.log(jsonAbsMap);
     const eltMap = insertHereElement("script");
     eltMap.type = "importmap";
     eltMap.textContent = jsonAbsMap;

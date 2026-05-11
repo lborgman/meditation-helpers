@@ -72,6 +72,30 @@ export class LocalSetting {
                             }
                         }
                     }
+                    {
+                        const strJson = JSON.stringify(definitionValue);
+                        let objJson;
+                        try {
+                            objJson = JSON.parse(strJson);
+                        } catch (err) {
+                            const msg = `LocalSetting constructor: Could not JSON.parse("${strJson}")`;
+                            console.error(msg, definitionValue);
+                            debugger;
+                            throw Error(msg);
+                        }
+                        const strObjJson = JSON.stringify(objJson);
+                        if (strJson != strObjJson) {
+                            const msg = `LocalSetting constructor: reparsing failed for "${strJson}"`;
+                            console.error(msg, definitionValue);
+                            debugger;
+                            throw Error(msg);
+                        }
+                        // debugger;
+                        this.#tofDef = "Json";
+                        this.#defaultValue = definitionValue;
+                        this.#cachedValue = this.#defaultValue;
+                        break;
+                    }
                 default: throw Error("What did I do???");
             }
             const inp = document.createElement("input");
