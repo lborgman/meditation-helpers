@@ -122,7 +122,7 @@ async function loadAudio() {
                 return;
             }
         }
-        console.warn("loadAudio loading...");
+        console.warn("loadAudio promise...");
         // objAudio = new Audio();
         objAudio.addEventListener("error", evt => {
             debugger;
