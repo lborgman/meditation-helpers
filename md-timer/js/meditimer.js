@@ -138,21 +138,21 @@ async function loadAudio() {
 
 
 async function setExternalBackground() {
-    console.log("---- setExternalBackground");
+    // console.log("---- setExternalBackground");
     const modPubImages = await import("public-images")
     const ourImages = modPubImages.ourImages;
     const numImages = modPubImages.ourImages.length;
-    console.log({ numImages });
+    // console.log({ numImages });
     let didIt = false;
     const setTried = new Set();
     let nLoop = 0;
     while (++nLoop < 50) {
         const iImage = Math.floor(Math.random() * numImages)
-        console.log("trying iImage", iImage);
+        // console.log("trying iImage", iImage);
         if (setTried.has(iImage)) continue;
         setTried.add(iImage);
         const urlImage = ourImages[iImage];
-        console.log({ urlImage });
+        // console.log({ urlImage });
         didIt = await setBackgroundImageWithRetry(document.documentElement, urlImage);
         if (didIt) return true;
     }
@@ -293,11 +293,12 @@ function createRecord() {
     return record;
 }
 function saveTimerHistory() {
+    return;
     const when = thisDay();
     OLDsetItemString("meditation-" + when, createRecord());
 }
 function putMeditationLength() {
-    OLDsetItemString("meditation-length", createRecord());
+    OLDsetItemString("MEDITIM-length", createRecord());
 }
 
 
@@ -575,7 +576,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
     // function playReadySound() {
     function getMeditationLength() {
         console.log("getMeditationLength")
-        let s = OLDgetItemString("meditation-length");
+        let s = OLDgetItemString("MEDITIM-length");
         if (!s) {
             secondsToday = 0;
             secondsGoal = initialGoal;
@@ -606,12 +607,11 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
             // Check thatDay
             let d = new Date(thatDay);
             if (isNaN(d.getTime())) thatDay = thisDay();
-            console.log("after split", secondsGoal, secondsToday, thatDay, nFailToday, nSuccessToday);
+            // console.log("after split", secondsGoal, secondsToday, thatDay, nFailToday, nSuccessToday);
             thatDay = thatDay || thisDay();
-            let toDay = thisDay();
-            if (toDay === thatDay) {
-                console.log("same day");
-            } else {
+            const toDay = thisDay();
+            if (toDay !== thatDay) {
+                console.log("new day, check days off");
                 const date1 = new Date(toDay);
                 const date2 = new Date(thatDay);
                 const diffTime = Math.abs(date2.getTime() - date1.getTime());
@@ -703,7 +703,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
     updateGoalInfo(divInitial);
     function updateGoalInfo(parentDiv) {
-        console.log("11111 updateGoalInfo", { parentDiv });
+        // console.log("11111 updateGoalInfo", { parentDiv });
         parentDiv = parentDiv || document.getElementById("div-initial");
         const divGoalInfo = getMeditationLength();
         const oldGoalInfo = document.getElementById("time-goal-info");
@@ -976,8 +976,8 @@ async function getSavedBg() {
 // function OLDgetUseMyBackground() { return settingUseMyBg.valueB; }
 
 // --- On page load, restore previous file ---
-async function restoreFromLastSession() {
-    console.log("++++++ restoreFromLastSession");
+async function restoreUsersOwnBg() {
+    // console.log("++++++ restoreUsersOwnBg");
     // if (!getUseMyBackground()) return false;
     if (!settingUseMyBg.valueB) return false;
     const savedFileBlob = await getSavedBg();
@@ -990,9 +990,9 @@ async function restoreFromLastSession() {
 // --- Background ---
 setBackgroundImage();
 async function setBackgroundImage() {
-    const restore = await restoreFromLastSession();
-    console.log("---------setBackgroundImage", { restore });
-    if (!restore) {
+    const restoreBg = await restoreUsersOwnBg();
+    // console.log("---------setBackgroundImage", { restoreBg });
+    if (!restoreBg) {
         setExternalBackground();
     }
 }
@@ -1232,7 +1232,7 @@ async function dialogSettings() {
         if (newBg) {
             // setUseMyBackground(true);
             settingUseMyBg.value = true;
-            restoreFromLastSession();
+            restoreUsersOwnBg();
         }
     });
     // xClose.addEventListener("click", evt => { evt.stopPropagation(); dlg.close(); });
@@ -1371,7 +1371,7 @@ function startReadyVibrationIfOn(secRepeat) {
     stopReadyVibration();
 
     // const PURR = getPurrPattern(settingVibrIntensity.valueN - 1, 1);
-    debugger;
+    // debugger;
 
     // const intensity = settingVibrIntensity.valueN - 1;
     const intensity = settingVibrIntensity.getInputElement().value - 1;
@@ -1386,7 +1386,7 @@ function startReadyVibrationIfOn(secRepeat) {
     }
     function fire() {
         const r = navigator.vibrate(PURR);
-        console.log('vibrate(pattern) → ' + r);
+        // console.log('vibrate(pattern) → ' + r);
     }
     document.documentElement.classList.add("vibrating");
     fire();
@@ -1619,7 +1619,7 @@ function stopReadySound() {
 function setVibrationOnOff() {
     const intensity = settingVibrIntensity.getInputElement().value;
     stopAlarms();
-    console.log({ intensity });
+    // console.log({ intensity });
     if (intensity == 0) {
         document.documentElement.classList.add("vibration-off");
         return;
