@@ -115,14 +115,14 @@ async function loadAudio() {
         return mediaElement.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA;
     }
     return new Promise((resolve, reject) => {
-        console.warn("loadAudio");
+        // console.warn("loadAudio");
         if (objAudio) {
             if (canPlayNow(objAudio)) {
                 resolve(true);
                 return;
             }
         }
-        console.warn("loadAudio promise...");
+        // console.warn("loadAudio promise...");
         // objAudio = new Audio();
         objAudio.addEventListener("error", evt => {
             debugger;
@@ -225,7 +225,7 @@ function preLoadImg() {
     return new Promise((resolve) => {
 
         preloadImage.addEventListener("load", evt => {
-            console.log("preloadImage load", evt);
+            // console.log("preloadImage load", evt);
             resolve(preloadImage);
         });
         preloadImage.addEventListener("error", evt => {
@@ -722,9 +722,10 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
     timerDiv.appendChild(divMeditating);
 
 
-    let imgTimer = mkElt("img");
+    // let imgTimer = mkElt("img");
     // timerDiv.appendChild(imgTimer);
 
+    /*
     promImg.then(img => {
         return;
         if (!img) return;
@@ -736,7 +737,8 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
         imgTimer = img;
         imgTimer.style.transitionDuration = secondsGoal + "s";
         timerDiv.appendChild(imgTimer);
-    })
+    });
+    */
 
     const pAsk = mkElt("p", { "class": "after-med-info" }, [
         "Did you keep focus on your breath?"
@@ -1398,7 +1400,10 @@ function startReadyVibrationIfOn(secRepeat) {
     return true;
 }
 function stopReadyVibration() {
-    navigator.vibrate(0);
+    // Check if user has been active before calling .vibrate(0)
+    if (navigator.vibrate && navigator.userActivation?.hasBeenActive) {
+        navigator.vibrate(0);
+    }
     clearInterval(purrInterval);
     clearTimeout(maxPurrTimer);
     document.documentElement.classList.remove("vibrating");
