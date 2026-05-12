@@ -882,19 +882,46 @@ function setBackgroundImageWithRetry(el, url, retries = 0, delay = 1000) {
 }
 
 async function selectAndSaveFile() {
+    const pickerOptions = {
+        types: [
+            {
+                description: "Images and Videos",
+                accept: {
+                    "image/*": [],
+                    "video/*": [],
+                },
+            },
+        ],
+        excludeAcceptAllOption: true,
+    };
     try {
         // Ask user to pick a file
-        const [handle] = await window.showOpenFilePicker();
+        // @ts-ignore
+        const [handle] = await window.showOpenFilePicker(pickerOptions);
         const file = await handle.getFile();
         // debugger;
         if (!file) {
             debugger;
             throw Error("SelectAndSaveFile: !file");
         }
+        if (file.type.startsWith("video/")) {
+            alert("Sorry, video background not implemented yet.");
+            return false;
+        }
         await saveBgFile(file);
         return true;
     } catch (err) {
-        console.error('User cancelled or error:', err);
+        if (err instanceof Error) {
+            if (err.name != "AbortError") {
+                const msg = `selectAndSaveFile error: ${err.name}`;
+                console.error(msg, err);
+                debugger;
+                throw Error(msg);
+            }
+        } else {
+            debugger;
+            throw err;
+        }
         return false;
     }
 }
