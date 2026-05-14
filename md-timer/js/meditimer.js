@@ -11,6 +11,9 @@ const mkElt = window["mkElt"];
 // @ts-ignore
 const importFc4i = window["importFc4i"];
 
+const modIcons = await importFc4i("google-icons");
+modIcons.setup();
+
 /** @type {IDBDatabase|null} */ let dbInstance = null;
 
 const STORING_PREFIX = "MEDITIM-";
@@ -445,6 +448,8 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
         const footerImage = document.getElementById("footer-image");
         if (!footerImage) throw Error(`Could not find "footer-image"`);
+        const spanIconSetting = modIcons.mkIcon("settings");
+        footerImage.appendChild(spanIconSetting);
         footerImage.addEventListener("click", evt => {
             evt.stopPropagation();
             dialogSettings();

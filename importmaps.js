@@ -130,6 +130,7 @@ const cacheImportFc4i = new Map();
         // "idb-common": "./js/mod/idb-common.js",
         // "images": "./js/mod/images.js",
         // "is-displayed": "./js/mod/is-displayed.js",
+        "google-icons": "../js/mod/google-icons.js",
 
         "local-settings": "../js/mod/local-settings.js",
 

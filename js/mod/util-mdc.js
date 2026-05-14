@@ -2753,6 +2753,7 @@ export function addToUsedSymbols(sym) {
 
     clearTimeout(tmrSaveIconsUsed);
     tmrSaveIconsUsed = setTimeout(async () => {
+        return;
         saveStoredIconsUsed();
         const numMissing = await checkWoff2icons("justCheck");
         if (numMissing > 0) {
