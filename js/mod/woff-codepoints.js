@@ -31,7 +31,11 @@ async function fontkitGetCodepoints(woffUrl) {
         debugger; // eslint-disable-line no-debugger
     }
     if (!response.ok) {
-        if (response.status == 404) return;
+        if (response.status == 404) {
+            console.log({ woffUrl });
+            debugger;
+            return;
+        }
         debugger; // eslint-disable-line no-debugger
     }
     const arrayBuffer = await response.arrayBuffer();

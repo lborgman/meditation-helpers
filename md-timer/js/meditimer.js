@@ -12,7 +12,7 @@ const mkElt = window["mkElt"];
 const importFc4i = window["importFc4i"];
 
 const modIcons = await importFc4i("google-icons");
-modIcons.setup();
+// modIcons.setup();
 
 /** @type {IDBDatabase|null} */ let dbInstance = null;
 
@@ -402,6 +402,8 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
         const footerShare = document.getElementById("footer-share");
         if (!footerShare) throw Error(`Could not find "footer-share"`);
+        const spanIconShare = modIcons.mkIcon("share");
+        footerShare.appendChild(spanIconShare);
         footerShare.addEventListener("click", evt => {
             const url = location.href;
             let texts = [
@@ -446,6 +448,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
                 });
         });
 
+
         const footerImage = document.getElementById("footer-image");
         if (!footerImage) throw Error(`Could not find "footer-image"`);
         const spanIconSetting = modIcons.mkIcon("settings");
@@ -472,6 +475,8 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
         const footerAbout = document.getElementById("footer-about");
         if (!footerAbout) throw Error(`Did not find "footer-about"`);
+        const spanIconInfo = modIcons.mkIcon("info");
+        footerAbout.appendChild(spanIconInfo);
         footerAbout.addEventListener("click", evt => {
             const dlgAbout = document.getElementById("about");
             // debugger;

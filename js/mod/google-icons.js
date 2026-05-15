@@ -49,8 +49,26 @@ const { urlIcons, urlAppName, linkSymbolCss } = await (async () => {
     const l = n.lastIndexOf("/");
     const cssAppName = n.slice(l + 1);
 
-    const urlIcons = new URL("..", hrefSymbolsCss);
+    // const urlIcons = new URL("..", hrefSymbolsCss);
+    const urlIcons = new URL(".", hrefSymbolsCss);
+    console.log({ urlIcons }, urlIcons.href);
     // debugger;
+    const respIcons = await fetch(urlIcons);
+    if (!respIcons.ok) {
+        console.log({ urlIcons });
+        debugger;
+    }
+
+    // Check MaterialSymbolsOutlinedCodepoints.txt
+    // debugger;
+    const uCptxt = new URL("MaterialSymbolsOutlinedCodepoints.txt", urlIcons);
+    const hrefCptxt = uCptxt.href;
+    console.log({uCptxt}, hrefCptxt);
+    const respCptxt = await fetch(hrefCptxt);
+    if (!respCptxt.ok) {
+        debugger;
+    }
+
     const p = hrefSymbolsCss.split("/")
     const last = p[p.length - 1];
     const urlAppName = last.slice(0, - 12);
@@ -65,16 +83,8 @@ const { urlIcons, urlAppName, linkSymbolCss } = await (async () => {
 console.log({ urlIcons, urlAppName });
 
 
-{
-    // Check the hrefIcons dir
-    // debugger;
-    // const hrefSymbolsCss = 
-    // const urlCodepoints = new URL("symbols.css", urlIcons)
-    // const respSymbolsCss = await fetch(hrefSymbolsCss);
 
-}
-
-let tmrSaveIconsUsed;
+let tmrSaveIconsUsed = 0;
 let iconsForApp = "BAD";
 const idBtnSym = "button-mdc-symbols"
 if (location.hostname == "localhost") {
@@ -103,20 +113,8 @@ if (location.hostname == "localhost") {
 }
 
 
-// const urlWoff2File = "../ext/mdc-fonts/my-symbols.woff2";
-// let urlWoff2File = "";
-// export function setWoff2File(url) { urlWoff2File = url; }
-// export function getWoff2File() { return urlWoff2File; }
 let urlWoff2File = "";
 
-export function setup() {
-    // debugger;
-    setIconsFor(urlAppName);
-    const u = new URL(`${urlAppName}-symbols.woff2`, urlIcons);
-    // debugger;
-    urlWoff2File = u.href;
-    init();
-}
 let materialIconsClass = "material-symbols-outlined";
 export function getMaterialIconClass() { return materialIconsClass; }
 /** @param {string} className */
@@ -516,3 +514,13 @@ export async function customDownload(url, customFilename) {
     link.click();
     URL.revokeObjectURL(blobUrl);
 }
+function setup() {
+    // debugger;
+    setIconsFor(urlAppName);
+    const u = new URL(`${urlAppName}-symbols.woff2`, urlIcons);
+    // debugger;
+    urlWoff2File = u.href;
+    init();
+}
+
+setup();
