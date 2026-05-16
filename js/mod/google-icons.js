@@ -18,9 +18,13 @@ const { urlIcons, urlAppName, linkSymbolCss } = await (async () => {
         // @ts-ignore
         return l.href.endsWith("-symbols.css")
     });
-    if (arrSymbolsCss.length != 1) {
+    if (arrSymbolsCss.length == 0) {
         // There should be exactly one symbols.css:
-        // <link rel="stylesheet" href="../ext/mdc-fonts/symbols.css" />
+        // <link rel="stylesheet" href="../ext/mdc-fonts/*-symbols.css" />
+        debugger;
+        throw Error("Did not find -symbols.css");
+    }
+    if (arrSymbolsCss.length != 1) {
         debugger;
     }
     console.log({ arrSymbolsCss });
@@ -135,7 +139,7 @@ let setIconsInWoffFile = new Set();
  * @param {string} iconMaterialName 
  * @returns {HTMLSpanElement}
  */
-export function mkIcon(iconMaterialName) {
+export function mkGIcon(iconMaterialName) {
     addToUsedSymbols(iconMaterialName);
     return mkElt("span", { class: materialIconsClass }, iconMaterialName);
 }
@@ -155,19 +159,20 @@ export function addToUsedSymbols(sym) {
     if (setIconsInWoffFile.has(sym)) return;
 
     requestCheckWoff();
-    function requestCheckWoff() {
-        clearTimeout(tmrSaveIconsUsed);
-        tmrSaveIconsUsed = setTimeout(async () => {
-            debugger;
-            saveStoredIconsUsed();
-            const numMissing = await checkWoff2icons("justCheck");
-            if (numMissing > 0) {
-                const btn = document.getElementById(idBtnSym);
-                btn.style.display = "block";
-                btn.textContent = `New Download missing in Woff2: ${numMissing}`;
-            }
-        }, 1000);
-    }
+}
+
+function requestCheckWoff() {
+    clearTimeout(tmrSaveIconsUsed);
+    tmrSaveIconsUsed = setTimeout(async () => {
+        console.log("tmrSaveIconsUsed");
+        saveStoredIconsUsed();
+        const numMissing = await checkWoff2icons("justCheck");
+        if (numMissing > 0) {
+            const btn = document.getElementById(idBtnSym);
+            btn.style.display = "block";
+            btn.textContent = `New Download missing in Woff2: ${numMissing}`;
+        }
+    }, 1000);
 }
 
 
@@ -529,6 +534,7 @@ function setup() {
     // debugger;
     urlWoff2File = u.href;
     init();
+    requestCheckWoff();
 }
 
 setup();

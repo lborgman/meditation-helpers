@@ -12,7 +12,6 @@ const mkElt = window["mkElt"];
 const importFc4i = window["importFc4i"];
 
 const modIcons = await importFc4i("google-icons");
-// modIcons.setup();
 modIcons.requestIcon("emoji_people");
 modIcons.requestIcon("security");
 modIcons.requestIcon("contact_support");
@@ -406,7 +405,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
         const footerShare = document.getElementById("footer-share");
         if (!footerShare) throw Error(`Could not find "footer-share"`);
-        const spanIconShare = modIcons.mkIcon("share");
+        const spanIconShare = modIcons.mkGIcon("share");
         footerShare.appendChild(spanIconShare);
         footerShare.addEventListener("click", evt => {
             const url = location.href;
@@ -455,7 +454,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
         const footerSetting = document.getElementById("footer-settings");
         if (!footerSetting) throw Error(`Could not find "footer-settings"`);
-        const spanIconSetting = modIcons.mkIcon("settings");
+        const spanIconSetting = modIcons.mkGIcon("settings");
         footerSetting.appendChild(spanIconSetting);
         footerSetting.addEventListener("click", evt => {
             evt.stopPropagation();
@@ -479,7 +478,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
         const footerAbout = document.getElementById("footer-about");
         if (!footerAbout) throw Error(`Did not find "footer-about"`);
-        const spanIconInfo = modIcons.mkIcon("info");
+        const spanIconInfo = modIcons.mkGIcon("info");
         footerAbout.appendChild(spanIconInfo);
         footerAbout.addEventListener("click", evt => {
             const dlgAbout = document.getElementById("about");

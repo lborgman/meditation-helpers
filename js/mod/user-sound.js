@@ -14,6 +14,7 @@ const importFc4i = window["importFc4i"];
 let storingPrefix;
 const KEY = "user-sound";
 
+const modIcons = await importFc4i("google-icons");
 const modBells = await importFc4i("bell-engine");
 const syntBells = modBells.getBellNames();
 const fileBells = [
@@ -111,7 +112,7 @@ function setSoundRec(objJson) {
 export async function dialogSound() {
     // dialogImages
     const modMdc = await importFc4i("util-mdc");
-    const iconSound = modMdc.mkMDCicon("notification_sound");
+    const iconSound = modIcons.mkGIcon("notification_sound");
 
     const soundRec = getSoundRec();
 
@@ -136,19 +137,7 @@ export async function dialogSound() {
         const bellGroup = (isInhale ? "inhale" : "exhale");
         const rad = mkElt("input", { type: "radio", name: bellGroup, value: bell });
         if (bell == currentBell) rad.checked = true;
-        const ico = modMdc.mkMDCicon("play_arrow");
-        /*
-        // Too much trouble using mdc here!
-        const btn = modMdc.mkMDCfab(ico, "Play sound", true);
-        btn.style = `
-        --mdc-ripple-fg-size: 28;
-    --mdc-ripple-fg-scale: 1.7140316281999861;
-    --mdc-ripple-left: 10px;
-    --mdc-ripple-top: 10px;
-        `;
-        */
-        // const btn = mkElt("button", undefined, "Play sound");
-        const icon = modMdc.mkMDCicon("play_arrow");
+        const icon = modIcons.mkGIcon("play_arrow");
         const btn = mkElt("button", undefined, icon);
         btn.style = `
             border: none;

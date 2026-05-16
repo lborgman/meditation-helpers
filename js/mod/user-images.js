@@ -52,6 +52,7 @@ const importFc4i = window["importFc4i"];
 
 const modTools = await importFc4i("toolsJs");
 const modMdc = await importFc4i("util-mdc");
+const modIcons = await importFc4i("google-icons");
 
 // https://stackoverflow.com/questions/5845238/javascript-generate-transparent-1x1-pixel-in-dataurl-format
 /**
@@ -69,7 +70,7 @@ const createPlaceholderSrc = (w, h) => {
 }
 
 export function dialogReason() {
-    const iconCopyright = modMdc.mkMDCicon("copyright");
+    const iconCopyright = modIcons.mkGIcon("copyright");
     const bdy = mkElt("div", { class: "extimg-copyright" }, [
         mkElt("h2", { style: "color:blue" }, [iconCopyright, " Copyright and images"]),
         mkElt("p", undefined,
@@ -216,7 +217,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
     const debounceSetImagesRec = modTools.debounce(setAndApplyImagesRec, 1000);
     const oldObj = getImagesRec();
 
-    const iconCopyright = modMdc.mkMDCicon("info");
+    const iconCopyright = modIcons.mkGIcon("copyright");
     const btnInfoCopyright = modMdc.mkMDCfab(iconCopyright, "Explain copyright issues", true);
     btnInfoCopyright.addEventListener("click", evt => { evt.stopPropagation(); dialogReason(); });
 
@@ -281,7 +282,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
         }
     });
 
-    const iconPlay = modMdc.mkMDCicon("play_circle");
+    const iconPlay = modIcons.mkGIcon("play_circle");
     const btnPlay = modMdc.mkMDCiconButton(iconPlay);
     btnPlay.setAttribute("Xtabindex", 0);
     btnPlay.addEventListener("click", evt => {
@@ -295,8 +296,8 @@ export async function dialogImages(arrBuiltin, applyImage) {
         btnPlay.style.display = "none";
         btnPause.style.display = null;
     });
-    // const iconPause = modMdc.mkMDCicon("pause_circle");
-    const iconPause = modMdc.mkMDCicon("pause");
+    // const iconPause = modIcons.mkGIcon("pause_circle");
+    const iconPause = modIcons.mkGIcon("pause");
     const btnPause = modMdc.mkMDCiconButton(iconPause);
     btnPause.setAttribute("Xtabindex", 0);
     btnPause.style.display = "none";
@@ -532,7 +533,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
         if (checked) { radImg.checked = true; }
         let eltHandle;
         if (!isBuiltin) {
-            const iconDelete = modMdc.mkMDCicon("delete_forever");
+            const iconDelete = modIcons.mkGIcon("delete_forever");
             const btnDelete = modMdc.mkMDCiconButton(iconDelete, "Delete");
             btnDelete.addEventListener("click", evt => {
                 const div = btnDelete.closest("div");

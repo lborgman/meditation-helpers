@@ -10,6 +10,10 @@ const mkElt = window["mkElt"];
 // @ts-ignore
 const importFc4i = window["importFc4i"];
 
+const modIcons = await importFc4i("google-icons");
+// debugger;
+// modIcons.requestIcon("emoji_people");
+
 const modLocalSettings = await importFc4i("local-settings");
 class OurLocalSetting extends modLocalSettings.LocalSetting {
     /**
@@ -1259,7 +1263,7 @@ async function dialogPattern() {
                         font-weight: bold;
                         font-style: italic;
                     `;
-            const iconDelete = modMdc.mkMDCicon("delete_forever");
+            const iconDelete = modIcons.mkGIcon("delete_forever");
             const btnDelete = modMdc.mkMDCiconButton(iconDelete, "Delete");
             btnDelete.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
                 const ans = await modMdc.mkMDCdialogConfirm(`Delete pattern ${existingPattName}?`);
@@ -1507,7 +1511,7 @@ async function dialogPattern() {
         if (!isYour) {
             divList.appendChild(lbl);
         } else {
-            const iconEdit = modMdc.mkMDCicon("edit");
+            const iconEdit = modIcons.mkGIcon("edit");
             const btnEdit = modMdc.mkMDCiconButton(iconEdit);
             btnEdit.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
                 dialogYourPatt(pn);
@@ -2410,7 +2414,11 @@ async function setupControls(controlscontainer) {
         modMdc.mkMDCsnackbar(eltMsg);
     }
     settingNumPatts = new OurLocalSetting("num-patts", 1.5);
-    const iconStart = modMdc.mkMDCicon("play_arrow");
+
+    // console.log({ modIcons });
+    // debugger;
+
+    const iconStart = modIcons.mkGIcon("play_arrow");
     const btnStart = modMdc.mkMDCiconButton(iconStart, "Start");
     btnStart.id = "start-button";
     btnStart.addEventListener("click", evt => {
@@ -2423,7 +2431,7 @@ async function setupControls(controlscontainer) {
     });
 
 
-    const iconReplay = modMdc.mkMDCicon("stop");
+    const iconReplay = modIcons.mkGIcon("stop");
     const btnReplay = modMdc.mkMDCiconButton(iconReplay, "Stop");
     btnReplay.addEventListener("click", evt => {
         initCurrentPattern();
@@ -2453,7 +2461,7 @@ async function setupControls(controlscontainer) {
     const divProgress = TSmkElt("div", { id: "progress" },
         TSmkElt("div", { id: "current-progress" }));
     const divChangeTime = (() => {
-        const iconLess = modMdc.mkMDCicon("expand_circle_down");
+        const iconLess = modIcons.mkGIcon("expand_circle_down");
         const btnLess = modMdc.mkMDCiconButton(iconLess, "Shorter");
         btnLess.addEventListener("click", evt => {
             if (settingDurationIsInSeconds.value) {
@@ -2464,9 +2472,8 @@ async function setupControls(controlscontainer) {
             updateTimeNum();
         });
 
-        // const iconMore = modMdc.mkMDCicon("expand_circle_up");
         // The up version does not work?? Using this workaround:
-        const iconMore = modMdc.mkMDCicon("expand_circle_down");
+        const iconMore = modIcons.mkGIcon("expand_circle_down");
         iconMore.style.transform = "rotate(180deg)";
 
         const btnMore = modMdc.mkMDCiconButton(iconMore, "Longer");
@@ -2493,7 +2500,7 @@ async function setupControls(controlscontainer) {
         return div;
     })();
 
-    const iconSettings = modMdc.mkMDCicon("video_settings");
+    const iconSettings = modIcons.mkGIcon("video_settings");
     const btnSettings = modMdc.mkMDCiconButton(iconSettings, "Start");
     btnSettings.title = "- Debug help";
     btnSettings.style.color = "blueviolet";
@@ -2708,7 +2715,7 @@ async function setupControls(controlscontainer) {
     btnSettings.id = "settings-button";
 
     // mkMDCfab(eltIcon, title, mini, extendTitle)
-    const icoPatternSpa = modMdc.mkMDCicon("spa");
+    const icoPatternSpa = modIcons.mkGIcon("spa");
     icoPatternSpa.style.color = "greenyellow";
     const fabPattern = modMdc.mkMDCfab(icoPatternSpa, "Choose breathing pattern", true);
     fabPattern.addEventListener("click", evt => {
@@ -2718,8 +2725,7 @@ async function setupControls(controlscontainer) {
     fabPattern.style.backgroundColor = "orange";
     fabPattern.style.backgroundColor = "#ffa500a1";
 
-    // const icoImages = modMdc.mkMDCicon("add_photo_alternative");
-    const icoImages = modMdc.mkMDCicon("image_search");
+    const icoImages = modIcons.mkGIcon("image_search");
     icoImages.style.color = "greenyellow";
     const fabImages = modMdc.mkMDCfab(icoImages, "Choose background", true);
     fabImages.addEventListener("click", async evt => {
@@ -2731,7 +2737,7 @@ async function setupControls(controlscontainer) {
     fabImages.style.backgroundColor = "orange";
     fabImages.style.backgroundColor = "#ffa500a1";
 
-    const icoSound = modMdc.mkMDCicon("notification_sound");
+    const icoSound = modIcons.mkGIcon("notification_sound");
     icoSound.style.color = "pink";
     const fabSound = modMdc.mkMDCfab(icoSound, "Choose background", true);
     fabSound.addEventListener("click", async evt => {
@@ -2930,7 +2936,7 @@ export async function setupThings() {
 }
 async function addInfoButton(container) {
     // const modMdc = await importFc4i("util-mdc");
-    const iconInfo = modMdc.mkMDCicon("info");
+    const iconInfo = modIcons.mkGIcon("info");
     iconInfo.style.fontSize = "2.5rem";
     iconInfo.style.color = "mediumslateblue";
     // const aInfo = TSmkElt("a", undefined, iconInfo);
@@ -3014,7 +3020,7 @@ async function setup4Android(container) {
     if (isAndroid == false) return;
     // const modMdc = await TSDEFimport("util-mdc");
     // const modMdc = await importFc4i("util-mdc");
-    const iconAndroid = modMdc.mkMDCicon("android");
+    const iconAndroid = modIcons.mkGIcon("android");
     iconAndroid.style.fontSize = "2.5rem";
     iconAndroid.style.color = "#3DDC84";
     const btnAndroidVKinfo = modMdc.mkMDCiconButton(iconAndroid, "Android virtual keyboard bug");
@@ -3073,9 +3079,7 @@ function makeDialogsFixed() {
 }
 
 async function addTestSoundButton(container) {
-    // const modMdc = await TSDEFimport("util-mdc");
-    // const modMdc = await importFc4i("util-mdc");
-    const iconSound = modMdc.mkMDCicon("flutter_dash");
+    const iconSound = modIcons.mkGIcon("flutter_dash");
     iconSound.style.fontSize = "2.5rem";
     iconSound.style.color = "red";
     const btnTestSound = modMdc.mkMDCiconButton(iconSound, "Test sounds");
@@ -3171,13 +3175,13 @@ function mkWaitingIcon(num) {
     let ico = `BAD ${num}`;
     switch (num) {
         case 10:
-            ico = modMdc.mkMDCicon("clock_loader_10");
+            ico = modIcons.mkGIcon("clock_loader_10");
             break;
         case 40:
-            ico = modMdc.mkMDCicon("clock_loader_40");
+            ico = modIcons.mkGIcon("clock_loader_40");
             break;
         case 60:
-            ico = modMdc.mkMDCicon("clock_loader_60");
+            ico = modIcons.mkGIcon("clock_loader_60");
             break;
     }
     if (typeof ico != "string") {
