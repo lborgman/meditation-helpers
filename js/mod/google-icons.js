@@ -63,7 +63,7 @@ const { urlIcons, urlAppName, linkSymbolCss } = await (async () => {
     // debugger;
     const uCptxt = new URL("MaterialSymbolsOutlinedCodepoints.txt", urlIcons);
     const hrefCptxt = uCptxt.href;
-    console.log({uCptxt}, hrefCptxt);
+    console.log({ uCptxt }, hrefCptxt);
     const respCptxt = await fetch(hrefCptxt);
     if (!respCptxt.ok) {
         debugger;
@@ -128,7 +128,7 @@ export function setMaterialIconClass(className) {
 }
 
 const setIconsUsed = new Set();
-let setIconsInWoffFile;
+let setIconsInWoffFile = new Set();
 
 // https://developers.google.com/fonts/docs/material_icons
 /**
@@ -148,29 +148,31 @@ async function init() {
 
 export function addToUsedSymbols(sym) {
     if (location.hostname != "localhost") return;
-    if (!setIconsInWoffFile) return; // We did not get fontKit
     const tofSym = typeof sym;
     if (tofSym != "string") { throw Error(`typeof sym is not "string", but "${tofSym}"`); }
-    // if (setIconsUsed.has(sym)) return;
     setIconsUsed.add(sym);
+    // if (!setIconsInWoffFile) return; // We did not get fontKit
     if (setIconsInWoffFile.has(sym)) return;
 
-    clearTimeout(tmrSaveIconsUsed);
-    tmrSaveIconsUsed = setTimeout(async () => {
-        debugger;
-        saveStoredIconsUsed();
-        const numMissing = await checkWoff2icons("justCheck");
-        if (numMissing > 0) {
-            const btn = document.getElementById(idBtnSym);
-            btn.style.display = "block";
-            btn.textContent = `New Download missing in Woff2: ${numMissing}`;
-        }
-    }, 1000);
+    requestCheckWoff();
+    function requestCheckWoff() {
+        clearTimeout(tmrSaveIconsUsed);
+        tmrSaveIconsUsed = setTimeout(async () => {
+            debugger;
+            saveStoredIconsUsed();
+            const numMissing = await checkWoff2icons("justCheck");
+            if (numMissing > 0) {
+                const btn = document.getElementById(idBtnSym);
+                btn.style.display = "block";
+                btn.textContent = `New Download missing in Woff2: ${numMissing}`;
+            }
+        }, 1000);
+    }
 }
 
 
 /**
- * @returns {Promise<Set<string>|undefined>}
+ * @returns {Promise<Set<string>>}
  */
 async function getIconsInWoffFile() {
     if (urlWoff2File.length == 0) { debugger; }
@@ -514,6 +516,12 @@ export async function customDownload(url, customFilename) {
     link.click();
     URL.revokeObjectURL(blobUrl);
 }
+export function requestIcon(iconName) {
+    addToUsedSymbols(iconName);
+    // setIconsUsed.add(iconName);
+    // saveStoredIconsUsed();
+}
+
 function setup() {
     // debugger;
     setIconsFor(urlAppName);

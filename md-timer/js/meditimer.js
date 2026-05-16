@@ -13,6 +13,10 @@ const importFc4i = window["importFc4i"];
 
 const modIcons = await importFc4i("google-icons");
 // modIcons.setup();
+modIcons.requestIcon("emoji_people");
+modIcons.requestIcon("security");
+modIcons.requestIcon("contact_support");
+modIcons.requestIcon("download_for_offline");
 
 /** @type {IDBDatabase|null} */ let dbInstance = null;
 
@@ -449,11 +453,11 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
         });
 
 
-        const footerImage = document.getElementById("footer-image");
-        if (!footerImage) throw Error(`Could not find "footer-image"`);
+        const footerSetting = document.getElementById("footer-settings");
+        if (!footerSetting) throw Error(`Could not find "footer-settings"`);
         const spanIconSetting = modIcons.mkIcon("settings");
-        footerImage.appendChild(spanIconSetting);
-        footerImage.addEventListener("click", evt => {
+        footerSetting.appendChild(spanIconSetting);
+        footerSetting.addEventListener("click", evt => {
             evt.stopPropagation();
             dialogSettings();
         });
@@ -502,7 +506,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
             if (footerInstall.style.visibility === "hidden") return;
             if (!deferredInstallPrompt) return;
             userSeenInstalled = true;
-            footerInstall.firstElementChild?.classList.remove("fa-spin");
+            footerInstall.firstElementChild?.classList.remove("spin");
             footerInstall.style.color = "";
             addToHomeScreen();
         });
@@ -515,7 +519,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
             footerInstall.title = "Do you wan't to install this PWA so you can use it offline?";
             if (!userSeenInstalled) {
                 footerInstall.style.color = "yellow";
-                footerInstall.firstElementChild?.classList.add("fa-spin");
+                footerInstall.firstElementChild?.classList.add("spin");
             }
             footerInstall.style.visibility = "visible";
             // log the platforms provided as options in an install prompt 
@@ -665,22 +669,10 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
             "Start",
         ]
     );
-    const btnSettings = mkElt(
-        "button",
-        { class: "NOpopup-button", id: "btn-image" },
-        [
-            "Settings",
-            mkElt("i", { class: "fa-solid fa-gear" })
-        ]
-    );
 
     const divInitial = mkElt("div", { "id": "div-initial" }, [btnStart]);
     timerDiv.appendChild(divInitial);
 
-    btnSettings.addEventListener("click", async evt => {
-        evt.stopPropagation();
-        dialogSettings();
-    });
 
     btnStart.addEventListener("click", async evt => {
         progressBar.max = secondsGoal;
@@ -1198,7 +1190,7 @@ async function dialogSettings() {
         divVibration
     ]);
 
-    const ourCat = mkElt("i", { "id": "the-cat", "class": "fas fa-cat" });
+    const ourCat = mkElt("img", { id: "the-cat", src: "./img/jozefm84-cat.svg" });
     const divAlarmControls = mkElt("div", { "id": "div-controls" }, [alarmControls]);
     const eltAlarms =
         mkElt("p", undefined,

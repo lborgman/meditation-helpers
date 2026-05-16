@@ -59,9 +59,11 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
     integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
   -->
+  <!--
   <link rel="stylesheet" href="css/fontawesome/css/fontawesome.css">
   <link rel="stylesheet" href="css/fontawesome/css/solid.css">
   <link rel="stylesheet" href="css/fontawesome/css/brands.css">
+  -->
   <style>
     *,
     *::before,
@@ -475,7 +477,7 @@
     }
 
     #the-cat {
-      font-size: 2em;
+      width: 3em;
     }
 
     /* #div-controls { */
@@ -1074,7 +1076,7 @@
     <div>
       <h2>About Mindfulness Training Timer</h2>
       <details>
-        <summary>About us <span class="fa"><i class="fas fa-user-friends"></i></span></summary>
+        <summary>About us <span class="material-symbols-outlined">emoji_people</span></summary>
         <p>
           It is just me. Who happen to know a bit about psychology, meditation and IT.
         </p>
@@ -1083,7 +1085,7 @@
         </p>
       </details>
       <details>
-        <summary>Privacy <span class="fa"><i class="fas fa-user-secret"></i></span></summary>
+        <summary>Privacy <span class="material-symbols-outlined">security</span></summary>
         <p>
           This app store some data, but only on your own computer/mobile.
         </p>
@@ -1094,12 +1096,13 @@
         </p>
       </details>
       <details>
-        <summary>Contact <span class="fa"><i class="fas fa-comments"></i></span></summary>
+        <summary>Contact <span class="material-symbols-outlined">contact_support</span></summary>
         <p>
-          You can find me here on
+          You can find me on
           <a href="https://facebook.com/groups/380924549203529/" target="_blank" rel="noreferrer">
             Facebook
-            <span class="fa"><i class="fab fa-facebook"></i></span></a>.
+            <img src="./img/wikimedia/facebook.svg" width="20" />
+          </a>
         </p>
       </details>
     </div>
@@ -1108,12 +1111,11 @@
 
   <footer>
     <span id="footer-share" tabindex="0" role="button" title="Share"></span>
-    <!-- <span id="footer-qr" tabindex="0" role="button" title="QR code"><i class="fas fa-qrcode"></i></span> -->
-    <!-- <span id="footer-info" tabindex="0" role="button" title="Information"><i class="fas fa-info-circle"></i></span> -->
-    <span id="footer-image" tabindex="0" role="button" title="Settings Dialog"></span>
+    <span id="footer-settings" tabindex="0" role="button" title="Settings Dialog"></span>
     <span id="footer-about" tabindex="0" role="button" title="About"></span>
-    <span id="footer-install" tabindex="0" role="button" title="Install this PWA"><i
-        class="fab fa-google-play"></i></span>
+    <span id="footer-install" tabindex="0" role="button" title="Install for offline">
+      <span class="material-symbols-outlined">download_for_offline</span>
+    </span>
     <span id="footer-version"></span>
   </footer>
 
