@@ -744,27 +744,37 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
     const pAsk = mkElt("p", { "class": "after-med-info" }, [
         "Did you keep focus on your breath?"
     ]);
-    const eltSounding = mkElt("span", undefined, "sounding");
+    const eltSounding = mkElt("span", undefined, "sound");
     eltSounding.id = "asking-sounding";
-    const eltVibrating = mkElt("span", undefined, "vibrating");
+    const eltVibrating = mkElt("span", undefined, "vibration");
     eltVibrating.id = "asking-vibrating";
     // const ourCat = mkElt("img", { id: "the-cat", src: "./img/jozefm84-cat.svg" });
     const ourCat = mkOurCat();
+    const eltCatSays = mkElt("span", undefined, "I help you with these alarms:");
+    eltCatSays.style = `
+        font-style: italic;
+        color: brown;
+        font-size: 1rem;
+    `;
     const eltAlertInfo = mkElt("span", undefined, [
-        eltSounding, " ", eltVibrating
+        eltCatSays,
+        mkElt("span", undefined, [
+            eltSounding, " ", eltVibrating
+        ])
     ]);
     eltAlertInfo.style = `
-        display: inline-flex;
-        margin-left: 10px;
+        NOdisplay: inline-flex;
+        display: none;
+        flex-direction: column;
         gap: 10px;
+        margin-left: 10px;
         background: white;
         padding: 1rem;
         border-radius: 0.5rem;
-        visibility: hidden;
     `;
     ourCat.addEventListener("click", evt => {
         evt.stopImmediatePropagation();
-        eltAlertInfo.style.visibility = "";
+        eltAlertInfo.style.display = "inline-flex";
     });
     const pAlarms = mkElt("p", undefined, [
         ourCat,
@@ -773,10 +783,12 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
 
     const btnFail = mkElt("button", { class: "popup-button" }, "No");
     btnFail.addEventListener("click", evt => {
+        eltAlertInfo.style.display = "none";
         handleReply(false);
     });
     const btnSuccess = mkElt("button", { class: "popup-button" }, "Yes");
     btnSuccess.addEventListener("click", evt => {
+        eltAlertInfo.style.none = "none";
         handleReply(true);
     });
     function handleReply(success) {
