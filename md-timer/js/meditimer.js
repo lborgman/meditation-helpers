@@ -748,10 +748,30 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
     eltSounding.id = "asking-sounding";
     const eltVibrating = mkElt("span", undefined, "vibrating");
     eltVibrating.id = "asking-vibrating";
-    const pAlarms = mkElt("p", undefined, [eltSounding, " ", eltVibrating]);
+    // const ourCat = mkElt("img", { id: "the-cat", src: "./img/jozefm84-cat.svg" });
+    const ourCat = mkOurCat();
+    const eltAlertInfo = mkElt("span", undefined, [
+        eltSounding, " ", eltVibrating
+    ]);
+    eltAlertInfo.style = `
+        display: inline-flex;
+        margin-left: 10px;
+        gap: 10px;
+        background: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        visibility: hidden;
+    `;
+    ourCat.addEventListener("click", evt => {
+        evt.stopImmediatePropagation();
+        eltAlertInfo.style.visibility = "";
+    });
+    const pAlarms = mkElt("p", undefined, [
+        ourCat,
+        eltAlertInfo,
+    ]);
 
     const btnFail = mkElt("button", { class: "popup-button" }, "No");
-    // btnFail.style.margin = "10px"; // FIXME:
     btnFail.addEventListener("click", evt => {
         handleReply(false);
     });
@@ -1189,7 +1209,25 @@ async function dialogSettings() {
         divVibration
     ]);
 
-    const ourCat = mkElt("img", { id: "the-cat", src: "./img/jozefm84-cat.svg" });
+    // const ourCat = mkElt("img", { id: "the-cat", src: "./img/jozefm84-cat.svg" });
+    const ourCat = mkOurCat();
+    ourCat.title = "Who's cat is this?";
+    ourCat.addEventListener("click", evt => {
+        evt.stopImmediatePropagation();
+        const idCatDlg = "dlg-cat";
+        let dlg = document.getElementById(idCatDlg);
+        if (!dlg) {
+            const linkCat = "https://pixabay.com/vectors/cat-the-animal-drawing-fur-4888390/";
+            const body = mkElt("div", undefined, [
+                mkElt("p", undefined, "I met this cat here:"),
+                mkElt("a", { href: linkCat }, "Jozef'z cat")
+            ]);
+            dlg = mkElt("dialog", undefined, body);
+            addXclose(dlg);
+            document.documentElement.appendChild(dlg);
+        }
+        dlg.showModal();
+    });
     const divAlarmControls = mkElt("div", { "id": "div-controls" }, [alarmControls]);
     const eltAlarms =
         mkElt("p", undefined,
@@ -1627,3 +1665,5 @@ function setVibrationOnOff() {
     }
     document.documentElement.classList.remove("vibration-off");
 }
+
+function mkOurCat() { return mkElt("img", { id: "the-cat", src: "./img/jozefm84-cat.svg" }); }
