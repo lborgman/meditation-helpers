@@ -246,6 +246,11 @@
       background: black;
       color: #686b80;
       border-top: 1px solid currentColor;
+
+      opacity: 1;
+      pointer-events: all;
+
+      transition: opacity 1s;
     }
 
     footer span[role=button] {
@@ -405,11 +410,7 @@
       }
     }
 
-    footer {
-      opacity: 0;
-      transition: opacity 1s;
-      pointer-events: none;
-    }
+    /* footer { opacity: 0; pointer-events: none; } */
 
 
     #how-to {
@@ -563,9 +564,7 @@
         }
       }
 
-      footer {
-        opacity: 1;
-      }
+      /* footer { opacity: 1; } */
 
       main {
         display: none;
@@ -585,10 +584,7 @@
         }
       }
 
-      footer {
-        opacity: 0;
-        transition: opacity 0.7s;
-      }
+      /* footer { opacity: 0; transition: opacity 0.7s; } */
     }
 
     dialog#about {
@@ -608,10 +604,7 @@
         }
       }
 
-      footer {
-        opacity: 1;
-        pointer-events: all;
-      }
+      /* footer { opacity: 1; pointer-events: all; } */
 
       #div-timer {
         opacity: 1;
@@ -633,6 +626,11 @@
     }
 
     html.starting-meditation {
+      footer {
+        opacity: 0;
+        pointer-events: none;
+      }
+
       #div-timer {
         background: goldenrod;
         opacity: 1;
@@ -646,6 +644,11 @@
     }
 
     html.meditating {
+      footer {
+        opacity: 0;
+        pointer-events: none;
+      }
+
       #div-meditating {
         display: unset;
       }
@@ -656,6 +659,11 @@
     }
 
     html.stopping-meditation {
+      footer {
+        opacity: 0;
+        pointer-events: none;
+      }
+
       #div-timer {
         background: yellowgreen;
         opacity: 0;
