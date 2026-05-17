@@ -748,9 +748,8 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
     eltSounding.id = "asking-sounding";
     const eltVibrating = mkElt("span", undefined, "vibration");
     eltVibrating.id = "asking-vibrating";
-    // const ourCat = mkElt("img", { id: "the-cat", src: "./img/jozefm84-cat.svg" });
     const ourCat = mkOurCat();
-    const eltCatSays = mkElt("span", undefined, "I help you with these alarms:");
+    const eltCatSays = mkElt("span", undefined, "I may help you with these alarms:");
     eltCatSays.style = `
         font-style: italic;
         color: brown;
@@ -763,8 +762,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
         ])
     ]);
     eltAlertInfo.style = `
-        NOdisplay: inline-flex;
-        display: none;
+        display: inline-flex;
         flex-direction: column;
         gap: 10px;
         margin-left: 10px;
@@ -772,13 +770,56 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
         padding: 1rem;
         border-radius: 0.5rem;
     `;
+    /*
     ourCat.addEventListener("click", evt => {
         evt.stopImmediatePropagation();
         eltAlertInfo.style.display = "inline-flex";
     });
+    */
+    ourCat.addEventListener("click", evt => {
+        evt.stopImmediatePropagation();
+        const idCatDlg = "dlg-cat";
+        let dlg = document.getElementById(idCatDlg);
+        if (!dlg) {
+            const linkCat = "https://pixabay.com/vectors/cat-the-animal-drawing-fur-4888390/";
+            const ourCat = mkOurCat();
+            ourCat.style.float = "left";
+            ourCat.style.marginRight = "10px";
+            ourCat.style.marginBottom = "10px";
+            const btnSettings = mkElt("button", undefined, "Tell me what alarms you want!");
+            btnSettings.addEventListener("click", evt => {
+                evt.stopPropagation();
+                dialogSettings();
+            });
+            const body = mkElt("div", undefined, [
+                // the-cat
+                mkElt("p", undefined, [
+                    ourCat,
+                    `I am `,
+                    mkElt("a", { href: linkCat }, "Jozef'z cat"),
+                    `. I was sent here with love to help you.
+                    (Ps: I am not sure Jozef knows where I am.
+                    You may tell him I am here and that I like it.
+                    I will be very glad if he visits me now and then.
+                    And bring some fish.)
+                    `
+                ]),
+                mkElt("p", undefined, [
+                    eltAlertInfo
+                ]),
+                btnSettings,
+                // 
+            ]);
+            dlg = mkElt("dialog", undefined, body);
+            addXclose(dlg);
+            document.documentElement.appendChild(dlg);
+        }
+        dlg.showModal();
+    });
+
     const pAlarms = mkElt("p", undefined, [
         ourCat,
-        eltAlertInfo,
+        // eltAlertInfo,
     ]);
 
     const btnFail = mkElt("button", { class: "popup-button" }, "No");
@@ -1043,28 +1084,24 @@ async function dialogSettings() {
         "Use my image",
     ]);
     lblMy.style = `
-        display: inline-flex;
-        gap: 5px;
-        flex-wrap: wrap;
-        align-items: center;
-    `;
+        display: inline - flex;
+            gap: 5px;
+            flex - wrap: wrap;
+            align - items: center;
+            `;
     if (!await getSavedBg()) {
         lblMy.inert = true;
-        // setUseMyBackground(false);
         settingUseMyBg.value = false;
     }
-    // chkMy.checked = getUseMyBackground();
 
 
     const divMy = mkElt("p", undefined, [lblMy, btnMy]);
     divMy.style = `
-        display: flex;
-        gap: 35px;
-    `;
-    // console.log("dialogSettings", { xClose });
+            display: flex;
+            gap: 35px;
+            `;
     const divInputs = mkElt("div", undefined, [
         divMy,
-        // xClose
     ]);
     const eltBgImage =
         mkElt("p", undefined,
@@ -1081,8 +1118,8 @@ async function dialogSettings() {
     eltBgImage.style = `
             padding: 10px;
             background: white;
-            border-radius: 8px;
-    `;
+            border - radius: 8px;
+            `;
 
     // div-controls
     // const volSlider = mkElt("input", { "type": "range", "min": 0, "max": 100, "value": 100, "id": "volume" });
@@ -1134,30 +1171,32 @@ async function dialogSettings() {
         mkElt("div", undefined, "Set and test alarms"),
     ]);
     eltBad.style = `
-        color: blue;
-        background: lightblue;
-        border: 2px solid;
-        border-radius: 8px;
-        padding: 1rem;
-    `;
+            display: none;
+            color: blue;
+            background: lightblue;
+            border: 2px solid;
+            border - radius: 8px;
+            padding: 1rem;
+            `;
     volSlider.style = `
-        min-width: 0;
-        flex-shrink: 1;
-    `;
+            min - width: 0;
+            flex - shrink: 1;
+            `;
     const divVolume = mkElt("div", null, [
         btnSoundTest, volSlider,
         // eltBad,
     ]);
     divVolume.style = `
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-bottom: 15px;
-    `;
+            display: flex;
+            gap: 10px;
+            flex - wrap: wrap;
+            margin - bottom: 15px;
+            `;
 
     // const chkVibrate = mkElt("input", { "type": "checkbox" });
     // const spanVibTxt = mkElt("span", null, "Vibrate:");
     const btnVibInfo = mkElt("button", { class: "btn-1-char" }, "i");
+    btnVibInfo.style.marginTop = "20px";
     btnVibInfo.addEventListener("click", evt => {
         evt.stopPropagation();
         showVibInstructions();
@@ -1203,43 +1242,28 @@ async function dialogSettings() {
         divVibrCtrls.inert = true;
     }
     divVibrCtrls.style = `
-        display: flex;
-        gap: 10px;
-    `;
+            display: flex;
+            gap: 10px;
+            `;
     const divVibration = mkElt("div", undefined, [
         divVibrCtrls,
         // Preserve button aspect ratio:
         mkElt("span", undefined, btnVibInfo)
     ]);
     divVibration.style = `
-        display: flex;
-        gap: 30px;
-    `;
+            display: flex;
+            gap: 30px;
+            `;
     const alarmControls = mkElt("div", { "id": "alarm-controls" }, [
         eltBad,
         divVolume,
         divVibration
     ]);
 
-    // const ourCat = mkElt("img", { id: "the-cat", src: "./img/jozefm84-cat.svg" });
     const ourCat = mkOurCat();
-    ourCat.title = "Who's cat is this?";
-    ourCat.addEventListener("click", evt => {
-        evt.stopImmediatePropagation();
-        const idCatDlg = "dlg-cat";
-        let dlg = document.getElementById(idCatDlg);
-        if (!dlg) {
-            const linkCat = "https://pixabay.com/vectors/cat-the-animal-drawing-fur-4888390/";
-            const body = mkElt("div", undefined, [
-                mkElt("p", undefined, "I met this cat here:"),
-                mkElt("a", { href: linkCat }, "Jozef'z cat")
-            ]);
-            dlg = mkElt("dialog", undefined, body);
-            addXclose(dlg);
-            document.documentElement.appendChild(dlg);
-        }
-        dlg.showModal();
-    });
+    ourCat.style.float = "left";
+    ourCat.style.marginRight = "10px";
+    ourCat.style.marginBottom = "10px";
     const divAlarmControls = mkElt("div", { "id": "div-controls" }, [alarmControls]);
     const eltAlarms =
         mkElt("p", undefined,
@@ -1250,7 +1274,7 @@ async function dialogSettings() {
                     `
                     When you are meditating you can see
                     on the screen when the time is finished.
-                    You can also get audio/vibration alarms.
+                    You can also get audio / vibration alarms.
                     `
                 ]),
                 divAlarmControls,
@@ -1259,13 +1283,13 @@ async function dialogSettings() {
     eltAlarms.style = `
             padding: 10px;
             background: white;
-            border-radius: 8px;
-    `;
+            border - radius: 8px;
+            `;
 
     const bdy = mkElt("div", undefined, [
         mkElt("h2", undefined, `Settings`),
-        eltBgImage,
         eltAlarms,
+        eltBgImage,
         xClose
     ]);
     // bdy.style.outline = "1px dotted red";
@@ -1473,16 +1497,16 @@ function toggleVibrationTest() {
  * @returns {any[]}
  */
 function getPurrPattern(intensity, tempo) {
-    if (![0, 1, 2].includes(intensity)) { debugger; throw Error(`Bad intensity: ${intensity}`); }
-    if (![0, 1, 2].includes(tempo)) { debugger; throw Error(`Bad tempo: ${tempo}`); }
+    if (![0, 1, 2].includes(intensity)) { debugger; throw Error(`Bad intensity: ${intensity} `); }
+    if (![0, 1, 2].includes(tempo)) { debugger; throw Error(`Bad tempo: ${tempo} `); }
     const pulseOn = [12, 18, 26][intensity];
-    if (isNaN(pulseOn)) throw Error(`isNaN(pulseOn), ${intensity}`);
+    if (isNaN(pulseOn)) throw Error(`isNaN(pulseOn), ${intensity} `);
     const pulseOff = [8, 12, 16][intensity];
-    if (isNaN(pulseOff)) throw Error(`isNaN(pulseOff), ${intensity}`);
+    if (isNaN(pulseOff)) throw Error(`isNaN(pulseOff), ${intensity} `);
     const pulses = [5, 7, 9][tempo];
-    if (isNaN(pulses)) throw Error(`isNaN(pulses), ${tempo}`);
+    if (isNaN(pulses)) throw Error(`isNaN(pulses), ${tempo} `);
     const breathPause = [180, 130, 90][tempo];
-    if (isNaN(breathPause)) throw Error(`isNaN(breathPause), ${tempo}`);
+    if (isNaN(breathPause)) throw Error(`isNaN(breathPause), ${tempo} `);
     const pattern = [];
     for (let i = 0; i < pulses; i++) pattern.push(pulseOn, pulseOff);
     pattern.push(breathPause);
@@ -1545,8 +1569,8 @@ function makeVibrationInstructions() {
                 mkElt("li", undefined, [
                     mkElt("div", { style: "font-weight:bold;" }, "The Still Phone Rule (Pixel 10 Specific)"),
                     "In the same menu, look for ", mkCode("Adaptive alert vibration"),
-                    `.  If this is ON, your Pixel 10 will intentionally stay quiet
-                        if it is sitting still on a table.
+                    `.If this is ON, your Pixel 10 will intentionally stay quiet
+            if it is sitting still on a table.
                         Pick up the phone or turn this setting OFF to test.`
                 ]),
             ]),
@@ -1555,11 +1579,11 @@ function makeVibrationInstructions() {
     // const iosNote = mkElt('p', { class: 'info-row' }, 'iOS Safari does not support the Vibration API.');
     const supportedNote = mkElt('p', undefined, 'Vibration is only supported on Android mobiles.');
     supportedNote.style = `
-        padding: 1rem;
-        border: 1px solid blue;
-        border-radius: 8px;
-        background-color: lightblue;
-    `;
+            padding: 1rem;
+            border: 1px solid blue;
+            border - radius: 8px;
+            background - color: lightblue;
+            `;
     return mkElt('div', { id: 'info-vibration' }, [
         title,
         supportedNote,
@@ -1678,4 +1702,4 @@ function setVibrationOnOff() {
     document.documentElement.classList.remove("vibration-off");
 }
 
-function mkOurCat() { return mkElt("img", { id: "the-cat", src: "./img/jozefm84-cat.svg" }); }
+function mkOurCat() { return mkElt("img", { class: "the-cat", src: "./img/jozefm84-cat.svg" }); }
