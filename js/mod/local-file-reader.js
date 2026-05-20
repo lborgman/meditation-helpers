@@ -85,8 +85,11 @@ async function getDatabase(dbName, dbVersion, handleVersionChange) {
             };
             // const usersStore = db.createObjectStore("users", { keyPath: "id" });
             // usersStore.createIndex("email", "email", { unique: true });
-            if (!db.objectStoreNames.contains("images")) db.createObjectStore('images');
-            if (db.objectStoreNames.contains("handles")) db.deleteObjectStore('handles');
+
+            // if (!db.objectStoreNames.contains("images")) db.createObjectStore('images');
+            if (db.objectStoreNames.contains("images")) db.deleteObjectStore('images');
+            // if (db.objectStoreNames.contains("handles")) db.deleteObjectStore('handles');
+            if (!db.objectStoreNames.contains("handles")) db.createObjectStore('handles');
         };
 
         request.onsuccess = (event) => {
@@ -106,8 +109,10 @@ async function getDatabase(dbName, dbVersion, handleVersionChange) {
 async function saveFileHandle(fileName, fileHandle) {
     const db = await getOurDatabase();
     return new Promise((resolve, reject) => {
-        const tx = db.transaction('images', 'readwrite');
-        const store = tx.objectStore('images');
+        // const tx = db.transaction('images', 'readwrite');
+        const tx = db.transaction('handles', 'readwrite');
+        // const store = tx.objectStore('images');
+        const store = tx.objectStore('handles');
         // const putRequest = store.put(fileHandle, 'savedBg');
         const putRequest = store.put(fileHandle, fileName);
         putRequest.onerror = () => {
@@ -131,8 +136,10 @@ async function saveFileHandle(fileName, fileHandle) {
 export async function getSavedFileBlob(savedName) {
     const db = await getOurDatabase();
     return new Promise((resolve, reject) => {
-        const tx = db.transaction('images', 'readonly');
-        const store = tx.objectStore('images');
+        // const tx = db.transaction('images', 'readonly');
+        const tx = db.transaction('handles', 'readonly');
+        // const store = tx.objectStore('images');
+        const store = tx.objectStore('handles');
         // const getRequest = store.get('savedBg');
         const getRequest = store.get(savedName);
 
@@ -155,6 +162,6 @@ export async function getSavedFileBlob(savedName) {
  */
 async function getOurDatabase() {
     const DB_NAME = 'FileHandlesDB';
-    const DB_VERSION = 7;
+    const DB_VERSION = 8;
     return getDatabase(DB_NAME, DB_VERSION);
 }

@@ -1262,13 +1262,14 @@ async function OLDgetOurDatabase() {
 
 
 // FIX-ME: separate file?? Switch to idb.js?? (dexie? Not needed here, of course)
-/**
+/*
  * @param {string} dbName
  * @param {number} dbVersion
  * @param {function} [handleVersionChange]
  * @returns {Promise<IDBDatabase>}
  * @throws
  */
+/*
 async function OLDgetDatabase(dbName, dbVersion, handleVersionChange) {
     if (dbInstance) return dbInstance;
 
@@ -1306,15 +1307,17 @@ async function OLDgetDatabase(dbName, dbVersion, handleVersionChange) {
         };
     });
 }
+*/
 
-
-/** @returns {void} */
-function closeDatabase() {
+/* @returns {void} */
+/*
+function OLDcloseDatabase() {
     if (dbInstance) {
         dbInstance.close();
         dbInstance = null;
     }
 }
+*/
 
 
 /**
