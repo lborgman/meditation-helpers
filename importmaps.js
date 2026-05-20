@@ -132,6 +132,7 @@ const cacheImportFc4i = new Map();
         // "is-displayed": "./js/mod/is-displayed.js",
         "google-icons": "../js/mod/google-icons.js",
 
+        "local-file-reader": "../js/mod/local-file-reader.js",
         "local-settings": "../js/mod/local-settings.js",
 
         "moving-lines": "./moving-lines.js",

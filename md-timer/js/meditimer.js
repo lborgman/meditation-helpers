@@ -11,6 +11,9 @@ const mkElt = window["mkElt"];
 // @ts-ignore
 const importFc4i = window["importFc4i"];
 
+const modLocalFileReader = await importFc4i("local-file-reader");
+const bgFileName = "savedBg";
+
 const modIcons = await importFc4i("google-icons");
 modIcons.requestIcon("emoji_people");
 modIcons.requestIcon("security");
@@ -957,93 +960,6 @@ function setBackgroundImageWithRetry(el, url, retries = 0, delay = 1000) {
     });
 }
 
-async function selectAndSaveFile() {
-    const pickerOptions = {
-        types: [
-            {
-                description: "Images and Videos",
-                accept: {
-                    "image/*": [],
-                    "video/*": [],
-                },
-            },
-        ],
-        excludeAcceptAllOption: true,
-    };
-    try {
-        // Ask user to pick a file
-        // @ts-ignore
-        const [handle] = await window.showOpenFilePicker(pickerOptions);
-        const file = await handle.getFile();
-        // debugger;
-        if (!file) {
-            debugger;
-            throw Error("SelectAndSaveFile: !file");
-        }
-        if (file.type.startsWith("video/")) {
-            alert("Sorry, video background not implemented yet.");
-            return false;
-        }
-        await saveBgFile(file);
-        return true;
-    } catch (err) {
-        if (err instanceof Error) {
-            if (err.name != "AbortError") {
-                const msg = `selectAndSaveFile error: ${err.name}`;
-                console.error(msg, err);
-                debugger;
-                throw Error(msg);
-            }
-        } else {
-            debugger;
-            throw err;
-        }
-        return false;
-    }
-}
-
-async function saveBgFile(fileBg) {
-    const db = await getOurDatabase();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction('images', 'readwrite');
-        const store = tx.objectStore('images');
-        const putRequest = store.put(fileBg, 'savedBg');
-        putRequest.onerror = () => {
-            debugger;
-            console.error('Put failed:', putRequest.error);
-            reject(putRequest.error);
-        };
-        tx.oncomplete = () => {
-            // debugger;
-            // db.close();
-            resolve(true);
-        };
-        tx.onerror = () => {
-            debugger;
-            reject(tx.error);
-        }
-    });
-
-}
-
-async function getSavedBg() {
-    const db = await getOurDatabase();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction('images', 'readonly');
-        const store = tx.objectStore('images');
-        const getRequest = store.get('savedBg');
-
-        getRequest.onsuccess = () => {
-            // db.close();
-            resolve(getRequest.result || null);
-        };
-        getRequest.onerror = () => {
-            debugger;
-            // db.close();
-            reject(getRequest.error);
-        };
-    });
-}
 
 // /** * @param {boolean} useMy */
 // function OLDsetUseMyBackground(useMy) { settingUseMyBg.value = useMy; }
@@ -1054,7 +970,8 @@ async function restoreUsersOwnBg() {
     // console.log("++++++ restoreUsersOwnBg");
     // if (!getUseMyBackground()) return false;
     if (!settingUseMyBg.valueB) return false;
-    const savedFileBlob = await getSavedBg();
+    // const savedFileBlob = await getSavedFileBlob();
+    const savedFileBlob = await modLocalFileReader.getSavedFileBlob(bgFileName);
     if (!savedFileBlob) return false;
     const url = URL.createObjectURL(savedFileBlob);
     document.documentElement.style.backgroundImage = `url(${url})`;
@@ -1089,7 +1006,8 @@ async function dialogSettings() {
             flex - wrap: wrap;
             align - items: center;
             `;
-    if (!await getSavedBg()) {
+    // if (!await getSavedFileBlob()) {
+    if (!await modLocalFileReader.getSavedFileBlob(bgFileName)) {
         lblMy.inert = true;
         settingUseMyBg.value = false;
     }
@@ -1303,7 +1221,19 @@ async function dialogSettings() {
     btnMy.addEventListener("click", async evt => {
         evt.stopPropagation();
         dlg.close();
-        const newBg = await selectAndSaveFile();
+        const pickerOptions = {
+            types: [
+                {
+                    description: "Images and Videos",
+                    accept: {
+                        "image/*": [],
+                        // "video/*": [],
+                    },
+                },
+            ],
+            excludeAcceptAllOption: true,
+        };
+        const newBg = await modLocalFileReader.selectAndSaveFile(bgFileName, pickerOptions);
         if (newBg) {
             // setUseMyBackground(true);
             settingUseMyBg.value = true;
@@ -1323,7 +1253,7 @@ async function dialogSettings() {
  * @returns {Promise<IDBDatabase>}
  * @throws
  */
-async function getOurDatabase() {
+async function OLDgetOurDatabase() {
     const DB_NAME = 'FileHandlesDB';
     const DB_VERSION = 7;
     return getDatabase(DB_NAME, DB_VERSION);
@@ -1339,7 +1269,7 @@ async function getOurDatabase() {
  * @returns {Promise<IDBDatabase>}
  * @throws
  */
-async function getDatabase(dbName, dbVersion, handleVersionChange) {
+async function OLDgetDatabase(dbName, dbVersion, handleVersionChange) {
     if (dbInstance) return dbInstance;
 
     return new Promise((resolve, reject) => {
