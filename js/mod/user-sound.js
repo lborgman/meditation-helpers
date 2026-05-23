@@ -15,18 +15,37 @@ let storingPrefix;
 const KEY = "user-sound";
 
 const modIcons = await importFc4i("google-icons");
-const modBells = await importFc4i("bell-engine");
-const syntBells = modBells.getBellNames();
-const fileBells = [
-    // '../md-timer/sounds/freesound.org/cat-purr-full.mp3',
-    // '../ext/bells/sbell2_10s.mp3',
-];
+const modLocalFileReader = importFc4i("local-file-reader");
+// const modBells = await importFc4i("bell-engine");
+// const syntBells = modBells.getBellNames();
+// const fileBells = [ ];
 const fileBellGroups = {
     "pixabay": {
         urlInternal: "pixabay",
         urlExternal: "https://pixabay.com/sound-effects/"
     }
 };
+
+async function getFirstBell() {
+    const groups = Object.keys(fileBellGroups);
+    const grpName = groups[0];
+    const grp = fileBellGroups[grpName];
+    const urlInternal = `../../ext/sounds/${grp.urlInternal}/out/index-files.mjs`;
+    const mod = await import(urlInternal);
+    console.log(mod);
+    const files = mod.files();
+    const file0 = files[0]
+    // debugger;
+    return mod.myUrl(file0);
+}
+try {
+    const first = await getFirstBell();
+    console.log({ first });
+    // debugger;
+} catch (err) {
+    console.log({ err });
+    debugger;
+}
 
 /**
  *
@@ -82,15 +101,19 @@ function checkSoundRec(objJson) {
     checkVal(inVal);
 }
 /**
- * 
- * @returns {SoundRec}
+ * @returns {Promise<SoundRec>}
  */
-export function getSoundRec() {
+export async function getSoundRec() {
     checkStoringPrefix();
     const strJson = localStorage.getItem(storingPrefix + KEY);
     let objJson;
     if (!strJson) {
-        objJson = { inhale: `s:${syntBells[0]}`, exhale: "same" }
+        const first = await getFirstBell();
+        const [firstBell] = first.split(";;");
+        debugger;
+        objJson = { inhale: `f:${firstBell}`, exhale: "same" }
+        // return null;
+        // objJson = { inhale: `s:${syntBells[0]}`, exhale: "same" }
     } else {
         objJson = JSON.parse(strJson);
     }
@@ -114,7 +137,7 @@ export async function dialogSound() {
     const modMdc = await importFc4i("util-mdc");
     const iconSound = modIcons.mkGIcon("notification_sound");
 
-    const soundRec = getSoundRec();
+    const soundRec = await getSoundRec();
 
     /** @type {Object|undefined} */
     let lastBell;
@@ -158,7 +181,7 @@ export async function dialogSound() {
             const showName = lbl.firstElementChild.nextSibling.textContent;
             let bellName = rad.value;
             if (bellName == "same") {
-                const rec = getSoundRec();
+                const rec = await getSoundRec();
                 bellName = rec.inhale;
             }
             const modVizVol = await importFc4i("viz-volume")
@@ -185,9 +208,9 @@ export async function dialogSound() {
         });
         const lbl = mkElt("label", undefined, [rad, label, btn]);
         if (isInhale) {
-            if (bell == soundRec.inhale) rad.checked = true;
+            if (bell == soundRec?.inhale) rad.checked = true;
         } else {
-            if (bell == soundRec.exhale) rad.checked = true;
+            if (bell == soundRec?.exhale) rad.checked = true;
         }
         lbl.style = `
             display: grid;
@@ -247,9 +270,10 @@ export async function dialogSound() {
      * @param {string} currentBell 
      */
 
-    /** @type {FunAddBell2UI} */
+    /* @type {FunAddBell2UI} */
+    /*
     const addSyntBells = (targetDiv, isInhale, currentBell) => {
-        const eltGrpName = mkElt("div", undefined, `Syntetich bells:`);
+        const eltGrpName = mkElt("div", undefined, `Synthetic bells:`);
         targetDiv.appendChild(eltGrpName);
         syntBells.forEach(bellName => {
             const name4UI = sound2UI(bellName);
@@ -259,8 +283,11 @@ export async function dialogSound() {
             targetDiv.appendChild(lbl);
         });
     }
+    */
+
     /** @type {FunAddBell2UI} */
     const addFileBells = async (targetDiv, isInhale, currentBell) => {
+        /*
         fileBells.forEach(bellRow => {
             const [bellName, _start, name4UI] = bellRow.split(";;");
             const showName = name4UI ? name4UI : bellName;
@@ -268,6 +295,7 @@ export async function dialogSound() {
             lbl.classList.add("label-bell");
             targetDiv.appendChild(lbl);
         });
+        */
         const proms = [];
         const groups = Object.keys(fileBellGroups);
         groups.forEach(async grpName => {
@@ -300,6 +328,7 @@ export async function dialogSound() {
                     const lbl = mkRadBell(showName, `f:${bellUrl}`, isInhale, currentBell);
                     lbl.classList.add("label-bell");
                     lbl.title = nameSourceUI;
+                    // debugger;
                     targetDiv.appendChild(lbl);
                 })
             } catch (err) {
@@ -320,7 +349,7 @@ export async function dialogSound() {
         gap: 10px;
     `;
 
-    const currentBells = getSoundRec();
+    const currentBells = await getSoundRec();
     const divInhaleBells = mkElt("div");
     divInhaleBells.style = styleDivBells;
     const divInhale = mkElt("p", undefined, [
@@ -328,9 +357,20 @@ export async function dialogSound() {
         divInhaleBells,
     ]);
     await addFileBells(divInhaleBells, true, currentBells.inhale);
-    addSyntBells(divInhaleBells, true, currentBells.inhale);
+    const btnUserChoice = mkElt("button", undefined, "Select");
+    const eltUserChoice = mkElt("span", { style: "color:red" }, [
+        "Your choice",
+        btnUserChoice
+    ]);
+    eltUserChoice.style = `
+        display: inline-flex;
+        gap: 20px;
+    `;
+    const eltUserBell2 = mkRadBell(eltUserChoice, "user2", false, undefined);
+    divInhaleBells.appendChild(eltUserBell2);
+    // addSyntBells(divInhaleBells, true, currentBells.inhale);
 
-    const lblSame = mkRadBell("Same (lower frequency)", "same", false, currentBells.exhale);
+    const lblSame = mkRadBell("Same (lower frequency)", "same", false, currentBells?.exhale);
     lblSame.classList.add("label-bell");
     const divExhaleBells = mkElt("div", undefined, lblSame);
     divExhaleBells.style = styleDivBells;
@@ -339,8 +379,8 @@ export async function dialogSound() {
         divExhaleBells,
     ]);
     // await addFileBells(divExhaleBells, false, currentBells.exhale);
-    await addFileBells(divExhaleBells, true, currentBells.exhale);
-    addSyntBells(divExhaleBells, false, currentBells.exhale);
+    await addFileBells(divExhaleBells, false, currentBells.exhale);
+    // addSyntBells(divExhaleBells, false, currentBells.exhale);
     const divBells = mkElt("div", undefined, [
         divInhale,
         divExhale,

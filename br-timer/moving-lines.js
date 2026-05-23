@@ -10,6 +10,10 @@ const mkElt = window["mkElt"];
 // @ts-ignore
 const importFc4i = window["importFc4i"];
 
+const modLocalFileReader = await importFc4i("local-file-reader");
+const usersInhaleSound = "inhale-sound";
+const usersExhaleSound = "inhale-sound";
+
 const modIcons = await importFc4i("google-icons");
 // debugger;
 // modIcons.requestIcon("emoji_people");
@@ -891,8 +895,8 @@ const modUserSounds = await importFc4i("user-sound");
 
 /** @type {string} */ let inhaleId;
 /** @type {string} */ let exhaleId;
-function getInhaleAndExhale() {
-    const rec = modUserSounds.getSoundRec();
+async function getInhaleAndExhale() {
+    const rec = await modUserSounds.getSoundRec();
     inhaleId = rec.inhale;
     exhaleId = rec.exhale;
 }
