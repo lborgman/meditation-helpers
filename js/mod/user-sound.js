@@ -15,7 +15,19 @@ let storingPrefix;
 const KEY = "user-sound";
 
 const modIcons = await importFc4i("google-icons");
-const modLocalFileReader = importFc4i("local-file-reader");
+
+const modLocalFileReader = await importFc4i("local-file-reader");
+const keyUserExhale = "user-exhale-sound";
+const keyUserInhale = "user-inhale-sound";
+async function getUserInhaleSound() {
+    // FIX-ME: When to release the blob??
+    const savedFileBlob = await modLocalFileReader.getSavedFileBlob(keyUserInhale);
+    if (!savedFileBlob) return "";
+    const url = URL.createObjectURL(savedFileBlob);
+    // document.documentElement.style.backgroundImage = `url(${url})`;
+    return url;
+}
+
 // const modBells = await importFc4i("bell-engine");
 // const syntBells = modBells.getBellNames();
 // const fileBells = [ ];
@@ -133,6 +145,24 @@ function setSoundRec(objJson) {
 
 
 export async function dialogSound() {
+    const blobUserExhale = await modLocalFileReader.getSavedFileBlob(keyUserExhale);
+    const blobUserInhale = await modLocalFileReader.getSavedFileBlob(keyUserInhale);
+    let hasUserExhale = false;
+    let hasUserInhale = false;
+    setUserExhale(!!blobUserExhale);
+    setUserInhale(!!blobUserInhale);
+    /** @param {boolean} has */
+    function setUserInhale(has) {
+        console.log("setUserInhale", has);
+        hasUserInhale = has;
+    }
+    /** @param {boolean} has */
+    function setUserExhale(has) {
+        console.log("setUserExhale", has);
+        hasUserExhale = has;
+    }
+
+    // debugger;
     // dialogImages
     const modMdc = await importFc4i("util-mdc");
     const iconSound = modIcons.mkGIcon("notification_sound");
@@ -158,8 +188,15 @@ export async function dialogSound() {
      */
     const mkRadBell = (label, bell, isInhale, currentBell) => {
         const bellGroup = (isInhale ? "inhale" : "exhale");
+
         const rad = mkElt("input", { type: "radio", name: bellGroup, value: bell });
+        if (isInhale) {
+            if (bell == soundRec?.inhale) rad.checked = true;
+        } else {
+            if (bell == soundRec?.exhale) rad.checked = true;
+        }
         if (bell == currentBell) rad.checked = true;
+
         const icon = modIcons.mkGIcon("play_arrow");
         const btn = mkElt("button", undefined, icon);
         btn.style = `
@@ -206,20 +243,22 @@ export async function dialogSound() {
                 stopLastBell();
             }, 5 * 1000);
         });
-        const lbl = mkElt("label", undefined, [rad, label, btn]);
-        if (isInhale) {
-            if (bell == soundRec?.inhale) rad.checked = true;
-        } else {
-            if (bell == soundRec?.exhale) rad.checked = true;
-        }
+        // const lbl = mkElt("label", undefined, [rad, label, btn]);
+        const lbl = mkElt("label", undefined, [rad, label]);
         lbl.style = `
-            display: grid;
+            display: inline-grid;
             align-items: center;
-            width: 280px;
             grid-template-columns: max-content 1fr max-content;
             gap: 5px;
         `;
-        return lbl;
+        const div = mkElt("div", undefined, [ lbl, btn]);
+        div.style = `
+            width: 280px;
+            display: flex;
+            justify-content: space-between;
+        `;
+        // return lbl;
+        return div;
     }
     const mkGroupName = (grp) => mkElt("div", { style: "font-weight:bold; font-size:1.2em" }, grp);
 
@@ -358,15 +397,15 @@ export async function dialogSound() {
     ]);
     await addFileBells(divInhaleBells, true, currentBells.inhale);
     const btnUserChoice = mkElt("button", undefined, "Select");
-    const eltUserChoice = mkElt("span", { style: "color:red" }, [
-        "Your choice",
-        btnUserChoice
-    ]);
-    eltUserChoice.style = `
-        display: inline-flex;
-        gap: 20px;
-    `;
-    const eltUserBell2 = mkRadBell(eltUserChoice, "user2", false, undefined);
+    btnUserChoice.addEventListener("click", evt => {
+        evt.stopImmediatePropagation();
+        alert("not ready");
+    })
+    // const eltUserChoice = mkElt("span", { style: "color:red" }, [ "Your choice", btnUserChoice ]);
+    const eltUserBell2 = mkRadBell("Your sound", "user-inhale", true, undefined);
+    eltUserBell2.insertBefore(btnUserChoice, eltUserBell2.lastElementChild);
+    eltUserBell2.id = "div-user-inhale";
+    eltUserBell2.firstElementChild.inert = true;
     divInhaleBells.appendChild(eltUserBell2);
     // addSyntBells(divInhaleBells, true, currentBells.inhale);
 
