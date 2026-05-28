@@ -10,6 +10,7 @@ const mkElt = window["mkElt"];
 // @ts-ignore
 const importFc4i = window["importFc4i"];
 
+const modBasicUI = await importFc4i("basic-ui");
 const modLocalFileReader = await importFc4i("local-file-reader");
 const usersInhaleSound = "inhale-sound";
 const usersExhaleSound = "inhale-sound";
@@ -40,7 +41,6 @@ function getSettingSpeed(patternName) {
 }
 
 const modTools = await importFc4i("toolsJs");
-const modMdc = await importFc4i("util-mdc");
 const modSound = await importFc4i("user-sound");
 const STORING_PREFIX = "MOVLIN-";
 modSound.setStoringPrefix(STORING_PREFIX);
@@ -199,22 +199,6 @@ The frequency of calls to the callback function will generally match the display
 The most common refresh rate is 60hz, (60 cycles/frames per second), though 75hz, 120hz, and 144hz are also widely used.
 */
 let numRedraw; // Protect about looping
-
-/*
-// Probably useless
-let screenRefreshRate = 120;
-(async () => {
-    // @ts-ignore
-    const modRefreshRate = await import("refresh-rate");
-    // console.log({ modRefreshRate });
-    const rr = await modRefreshRate.promScreenRefreshRate(500);
-    // console.log({ rr });
-    screenRefreshRate = rr;
-    // @ts-ignore
-    const modMdc = await import("util-mdc");
-    modMdc.mkMDCsnackbar(`Refresh rate ${screenRefreshRate}`);
-})();
-*/
 
 const maxRedraw = 120 * 60;
 
@@ -531,9 +515,6 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         border-radius: 4px;
     `;
 
-    // const icon10 = modMdc.mkMDCicon("clock_loader_10");
-    // const icon40 = modMdc.mkMDCicon("clock_loader_40");
-    // const icon50 = modMdc.mkMDCicon("clock_loader_60");
 
     const settingSpeed = getSettingSpeed(patternName);
     const oldSpeed = settingSpeed.valueN;
@@ -1153,7 +1134,6 @@ async function dialogImages() {
     modExtImages.dialogImages(myGooglePhotos, setCanvasBackgroundToCurrent);
 }
 async function dialogPattern() {
-    // const modMdc = await importFc4i("util-mdc");
     const OLDdivPattList = TSmkElt("div");
     OLDdivPattList.id = "OLD-div-patt-list";
     // @ts-ignore style
@@ -1162,18 +1142,6 @@ async function dialogPattern() {
                     flex-direction: column;
                     gap: 10px;
                 `;
-    /*
-    const funHandleResult = (saveIt) => {
-        if (!saveIt) return true;
-        const rad =
-            OLDdivPattList.querySelector("input[name=pattName]:checked")
-            ||
-            OLDdivPattList.querySelector("input[name=pattName]")
-            ;
-        if (rad == null) throw Error("Did not find input[name=pattName]");
-        return { pattName: rad.value };
-    };
-    */
 
     const styleDetPattList = `
         background-color: #fff3;
@@ -1236,7 +1204,8 @@ async function dialogPattern() {
     builtinPn.forEach(pn => { addPn(pn); });
 
     OLDdivPattList.appendChild(TSmkElt("h3", undefined, "Your Own:"));
-    const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
+    // const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
+    const btnAddPatt = mkElt("button", undefined, "Add");
     const divBtnAddPatt = TSmkElt("div", undefined, btnAddPatt);
     divBtnAddPatt.style.marginTop = "-20px";
     divBtnAddPatt.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
@@ -1268,7 +1237,7 @@ async function dialogPattern() {
                         font-style: italic;
                     `;
             const iconDelete = modIcons.mkGIcon("delete_forever");
-            const btnDelete = modMdc.mkMDCiconButton(iconDelete, "Delete");
+            const btnDelete = modBasicUI.mkIconButton(iconDelete, "Delete");
             btnDelete.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
                 const ans = await modMdc.mkMDCdialogConfirm(`Delete pattern ${existingPattName}?`);
                 if (ans) {
@@ -1407,8 +1376,6 @@ async function dialogPattern() {
             saveButton = btn;
             saveButton.disabled = true;
         };
-        // mkMDCdialogConfirm(body, titleOk, titleCancel, noCancel, funHandleResult, tellMeOkButton)
-        // const res = await modMdc.mkMDCdialogConfirm(bdy, "Save", true, funResult, funOkButton);
         const dlg = modMdc.mkMDCdialogConfirm(bdy, "Save", true, funResult, funOkButton);
         let closeResult;
         function closeDialogViaButton(hasResult) {
@@ -1429,7 +1396,8 @@ async function dialogPattern() {
                 yourPns[yourPattName].patt = patt;
                 settingYourPatt.value = yourPns;
                 settingPattern.value = yourPattName;
-                modMdc.mkMDCsnackbar(`Switching to new pattern ${yourPattName}`);
+                // modMdc.mkMDCsnackbar(`Switching to new pattern ${yourPattName}`);
+                modBasicUI.snackbar(`Switching to new pattern ${yourPattName}`);
             }
 
             refreshYourList();
@@ -1516,7 +1484,8 @@ async function dialogPattern() {
             divList.appendChild(lbl);
         } else {
             const iconEdit = modIcons.mkGIcon("edit");
-            const btnEdit = modMdc.mkMDCiconButton(iconEdit);
+            // const btnEdit = modMdc.mkMDCiconButton(iconEdit);
+            const btnEdit = modBasicUI.mkIconButton(iconEdit);
             btnEdit.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
                 dialogYourPatt(pn);
             }));
@@ -1524,18 +1493,7 @@ async function dialogPattern() {
             divList.appendChild(row);
         }
     }
-    /*
-    const { pattName } = await modMdc.mkMDCdialogConfirm(bdy, "Close",
-        null, // false,
-        funHandleResult,
-        // tellMeOkButton,
-    );
-    // settingPattern.value = pattName || currentPattern;
-    if (pattName) settingPattern.value = pattName;
-    tellCurrentPatternParts();
-    initCurrentPattern();
-    */
-    modMdc.mkMDCdialogAlert(bdy, "Close");
+    const dlg = modBasicUI.showDialog(bdy);
 }
 async function dialogSound() {
     // const modSound = await importFc4i("user-sound");
@@ -2415,7 +2373,8 @@ async function setupControls(controlscontainer) {
         eltMsg.style.backgroundColor = "red";
         eltMsg.style.color = "yellow";
         eltMsg.style.padding = "4px";
-        modMdc.mkMDCsnackbar(eltMsg);
+        // modMdc.mkMDCsnackbar(eltMsg);
+        modBasicUI.snackbar(eltMsg);
     }
     settingNumPatts = new OurLocalSetting("num-patts", 1.5);
 
@@ -2423,7 +2382,9 @@ async function setupControls(controlscontainer) {
     // debugger;
 
     const iconStart = modIcons.mkGIcon("play_arrow");
-    const btnStart = modMdc.mkMDCiconButton(iconStart, "Start");
+    // const btnStart = modMdc.mkMDCiconButton(iconStart, "Start");
+    const btnStart = modBasicUI.mkIconButton(iconStart, "Start");
+    btnStart.title = "Start";
     btnStart.id = "start-button";
     btnStart.addEventListener("click", evt => {
         getSecondsPattsDuration();
@@ -2436,7 +2397,9 @@ async function setupControls(controlscontainer) {
 
 
     const iconReplay = modIcons.mkGIcon("stop");
-    const btnReplay = modMdc.mkMDCiconButton(iconReplay, "Stop");
+    // const btnReplay = modMdc.mkMDCiconButton(iconReplay, "Stop");
+    const btnReplay = modBasicUI.mkIconButton(iconReplay, "Stop");
+    btnReplay.title = "Stop";
     btnReplay.addEventListener("click", evt => {
         initCurrentPattern();
     });
@@ -2466,7 +2429,9 @@ async function setupControls(controlscontainer) {
         TSmkElt("div", { id: "current-progress" }));
     const divChangeTime = (() => {
         const iconLess = modIcons.mkGIcon("expand_circle_down");
-        const btnLess = modMdc.mkMDCiconButton(iconLess, "Shorter");
+        // const btnLess = modMdc.mkMDCiconButton(iconLess, "Shorter");
+        const btnLess = modBasicUI.mkIconButton(iconLess, "Shorter");
+        btnLess.title = "Shorter";
         btnLess.addEventListener("click", evt => {
             if (settingDurationIsInSeconds.value) {
                 settingDurationSeconds.value--;
@@ -2480,7 +2445,9 @@ async function setupControls(controlscontainer) {
         const iconMore = modIcons.mkGIcon("expand_circle_down");
         iconMore.style.transform = "rotate(180deg)";
 
-        const btnMore = modMdc.mkMDCiconButton(iconMore, "Longer");
+        // const btnMore = modMdc.mkMDCiconButton(iconMore, "Longer");
+        const btnMore = modBasicUI.mkIconButton(iconMore, "Longer");
+        btnMore.title = "Longer";
         btnMore.addEventListener("click", evt => {
             if (settingDurationIsInSeconds.value) {
                 settingDurationSeconds.value++;
@@ -2490,7 +2457,7 @@ async function setupControls(controlscontainer) {
             updateTimeNum();
         })
 
-        const div = TSmkElt("div", { class: "mdc-card", id: "set-time" }, [
+        const div = TSmkElt("div", { class: "basic-card", id: "set-time" }, [
             btnLess, eltShowTimeNum, btnMore
         ]);
         // @ts-ignore style
@@ -2505,7 +2472,8 @@ async function setupControls(controlscontainer) {
     })();
 
     const iconSettings = modIcons.mkGIcon("video_settings");
-    const btnSettings = modMdc.mkMDCiconButton(iconSettings, "Start");
+    // const btnSettings = modMdc.mkMDCiconButton(iconSettings, "Start");
+    const btnSettings = modBasicUI.mkIconButton(iconSettings, "Start");
     btnSettings.title = "- Debug help";
     btnSettings.style.color = "blueviolet";
     btnSettings.addEventListener("click", async evt => {
@@ -2610,17 +2578,20 @@ async function setupControls(controlscontainer) {
             TSmkElt("b", undefined, "Network"),
             divNW
         ]);
-        divNWcard.classList.add("mdc-card");
+        divNWcard.classList.add("basic-card");
         divNWcard.style.backgroundColor = "white";
         divNWcard.style.padding = "10px";
 
-        const btnClearData = modMdc.mkMDCbutton("Reset", "raised");
+        // const btnClearData = modMdc.mkMDCbutton("Reset", "raised");
+        const btnClearData = mkElt("button", {class:"button-raised"}, "Reset");
         btnClearData.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
             const bdy = TSmkElt("div", undefined, [
                 TSmkElt("h2", undefined, "Clear all your choices"),
                 TSmkElt("p", undefined, "Reset everything to default values"),
             ]);
-            const ans = await modMdc.mkMDCdialogConfirm(bdy);
+            // const ans = await modMdc.mkMDCdialogConfirm(bdy);
+            const ans = await modBasicUI.showDialogConfirm(bdy);
+            debugger;
             if (ans) {
                 // modMdc.mkMDCsnackbar("Clearing all your choices...");
                 Object.keys(localStorage).forEach(k => {
@@ -2703,7 +2674,7 @@ async function setupControls(controlscontainer) {
             eltAudio,
             divTestSounds,
         ]);
-        divAudioCard.classList.add("mdc-card");
+        divAudioCard.classList.add("basic-card");
         divAudioCard.style.background = "red";
         divAudioCard.style.padding = "10px";
 
@@ -2713,7 +2684,9 @@ async function setupControls(controlscontainer) {
             TSmkElt("h2", undefined, "Play settings"),
             divColumn,
         ]);
-        await modMdc.mkMDCdialogConfirm(bdy, "Close", null);
+        // await modMdc.mkMDCdialogConfirm(bdy, "Close", null);
+        await modBasicUI.showDialog(bdy);
+        debugger;
         initCurrentPattern();
     });
     btnSettings.id = "settings-button";
@@ -2721,7 +2694,8 @@ async function setupControls(controlscontainer) {
     // mkMDCfab(eltIcon, title, mini, extendTitle)
     const icoPatternSpa = modIcons.mkGIcon("spa");
     icoPatternSpa.style.color = "greenyellow";
-    const fabPattern = modMdc.mkMDCfab(icoPatternSpa, "Choose breathing pattern", true);
+    // const fabPattern = modMdc.mkMDCfab(icoPatternSpa, "Choose breathing pattern", true);
+    const fabPattern = modBasicUI.mkFabButton(icoPatternSpa, "Choose breathing pattern", true);
     fabPattern.addEventListener("click", evt => {
         if (isRunningFun()) { return; }
         dialogPattern();
@@ -2731,7 +2705,8 @@ async function setupControls(controlscontainer) {
 
     const icoImages = modIcons.mkGIcon("image_search");
     icoImages.style.color = "greenyellow";
-    const fabImages = modMdc.mkMDCfab(icoImages, "Choose background", true);
+    // const fabImages = modMdc.mkMDCfab(icoImages, "Choose background", true);
+    const fabImages = modBasicUI.mkFabButton(icoImages, "Choose background", true);
     fabImages.addEventListener("click", async evt => {
         evt.stopPropagation();
         // dialogPattern();
@@ -2743,7 +2718,8 @@ async function setupControls(controlscontainer) {
 
     const icoSound = modIcons.mkGIcon("notification_sound");
     icoSound.style.color = "pink";
-    const fabSound = modMdc.mkMDCfab(icoSound, "Choose background", true);
+    // const fabSound = modMdc.mkMDCfab(icoSound, "Choose background", true);
+    const fabSound = modBasicUI.mkFabButton(icoSound, "Choose background", true);
     fabSound.addEventListener("click", async evt => {
         evt.stopPropagation();
         if (isRunningFun()) { return; }
@@ -2833,7 +2809,8 @@ async function setupControls(controlscontainer) {
     // settingDawnFilter.bindToInput(chkUseDawnFilter);
     const chkUseDawnFilter = settingDawnFilter.getInputElement();
 
-    chkUseDawnFilter.addEventListener("input", evt => {
+    // chkUseDawnFilter.addEventListener("input", evt => {
+    chkUseDawnFilter.addEventListener("change", evt => {
         if (chkUseDawnFilter.checked) {
             document.documentElement.classList.add("use-dawn-filter");
         } else {
@@ -2949,7 +2926,8 @@ async function addInfoButton(container) {
     // const urlAbout = new URL("../about.html", location);
     const urlAbout = new URL("../index.html", location.href);
     aInfo.href = urlAbout.href;
-    const btnInfo = modMdc.mkMDCiconButton(aInfo, "Info");
+    // const btnInfo = modMdc.mkMDCiconButton(aInfo, "Info");
+    const btnInfo = modBasicUI.mkFabButton(aInfo, "Info");
     // @ts-ignore style
     btnInfo.style = `
                 position: absolute;
@@ -3027,7 +3005,8 @@ async function setup4Android(container) {
     const iconAndroid = modIcons.mkGIcon("android");
     iconAndroid.style.fontSize = "2.5rem";
     iconAndroid.style.color = "#3DDC84";
-    const btnAndroidVKinfo = modMdc.mkMDCiconButton(iconAndroid, "Android virtual keyboard bug");
+    // const btnAndroidVKinfo = modMdc.mkMDCiconButton(iconAndroid, "Android virtual keyboard bug");
+    const btnAndroidVKinfo = modBasicUI.mkIconButton(iconAndroid, "Android virtual keyboard bug");
     btnAndroidVKinfo.id = idVKbutton;
     btnAndroidVKinfo.addEventListener("click", evt => {
         evt.stopPropagation();
@@ -3086,7 +3065,8 @@ async function addTestSoundButton(container) {
     const iconSound = modIcons.mkGIcon("flutter_dash");
     iconSound.style.fontSize = "2.5rem";
     iconSound.style.color = "red";
-    const btnTestSound = modMdc.mkMDCiconButton(iconSound, "Test sounds");
+    // const btnTestSound = modMdc.mkMDCiconButton(iconSound, "Test sounds");
+    const btnTestSound = modBasicUI.mkIconButton(iconSound, "Test sounds");
     btnTestSound.addEventListener("click", evt => { dialogTestSounds(); });
     // @ts-ignore style
     btnTestSound.style = `
@@ -3202,3 +3182,6 @@ function updateEltPatternSpeed() {
     const settingSpeed = getSettingSpeed(patternName);
     eltPatternSpeed.appendChild(mkEltSpeed(settingSpeed.valueN));
 }
+
+
+

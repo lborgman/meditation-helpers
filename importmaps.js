@@ -107,6 +107,7 @@ const cacheImportFc4i = new Map();
         // "mod3d-force-graph": "https://unpkg.com/3d-force-graph",
 
         "acc-colors": "./js/mod/acc-colors.js",
+        "basic-ui": "../js/mod/basic-ui.js",
         "color-tools": "./js/mod/color-tools.js",
         // "d3": "./ext/d3/d3.v7.js",
         // "db-mindmaps": "./js/db-mindmaps.js",
@@ -140,7 +141,7 @@ const cacheImportFc4i = new Map();
 
         "sharing-params": "./src/js/mod/sharing-params.js",
         "toolsJs": "../js/mod/tools.js",
-        "util-mdc": "../js/mod/util-mdc.js",
+        // "util-mdc": "../js/mod/util-mdc.js",
         "woff-codepoints": "../js/mod/woff-codepoints.js",
         // "google-symbols-codepoints": "./ext/mdc-fonts/codepoints.js",
         "woff2-mdc-symbols": "../js/mod/woff2-mdc-symbols.js",

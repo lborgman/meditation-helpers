@@ -1221,19 +1221,8 @@ async function dialogSettings() {
     btnMy.addEventListener("click", async evt => {
         evt.stopPropagation();
         dlg.close();
-        const pickerOptions = {
-            types: [
-                {
-                    description: "Images and Videos",
-                    accept: {
-                        "image/*": [],
-                        // "video/*": [],
-                    },
-                },
-            ],
-            excludeAcceptAllOption: true,
-        };
-        const newBg = await modLocalFileReader.selectAndSaveFile(bgFileName, pickerOptions);
+        // const newBg = await modLocalFileReader.selectAndSaveFile(bgFileName, pickerOptions);
+        const newBg = await modLocalFileReader.selectAndSaveFile(bgFileName, "image");
         if (newBg) {
             // setUseMyBackground(true);
             settingUseMyBg.value = true;

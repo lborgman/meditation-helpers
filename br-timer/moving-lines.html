@@ -18,6 +18,7 @@
 
     <!-- <script src="../make-abs.js"></script> -->
 
+    <link rel="stylesheet" href="../js/mod/basic-ui.css" />
 
     <!-- for MWC, https://github.com/material-components/material-web -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,119 +36,23 @@
     -->
 
 
-    <!-- Required styles for Material Web -->
-    <!-- <link rel="stylesheet" href="/ext/mdc/14.0.0/material-components-web.css"> -->
-    <!-- <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.css"> -->
-    <link rel="stylesheet" href="../ext/mdc/14.0.0/material-components-web.css">
+    <!-- <link rel="stylesheet" href="../ext/mdc/14.0.0/material-components-web.css"> -->
 
-    <!-- <script src="http://localhost:8080/public/ext/mdc/material-components-web.js"></script> -->
-    <!-- <script src="/ext/mdc/material-components-web.js"></script> -->
-    <script src="../ext/mdc/material-components-web.js"></script>
-    <!-- <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.js"></script> -->
-    <link rel="stylesheet" href="../ext/mdc/14.0.0/material-components-web.css">
+    <!-- <script src="../ext/mdc/material-components-web.js"></script> -->
+    <!-- <link rel="stylesheet" href="../ext/mdc/14.0.0/material-components-web.css"> -->
 
-    <!-- <script src="//:8080/public/ext/mdc/material-components-web.js"></script> -->
-    <!-- <script src="/src/js/error.js"></script> -->
 
-    <!-- <link rel="stylesheet" href="http://localhost:8080/public/css/rem10m1h.css"> -->
-
-    <!-- "util-mdc": "/src/js/mod/util-mdc.js", -->
-    <!-- 
-    <script type="importmap">
-        {
-          "imports": {
-            "util-mdc":       "../src/js/mod/util-mdc.js",
-            "local-settings": "../src/js/mod/local-settings.js",
-            "log2screen":     "../src/js/mod/log2screen.js",
-            "refresh-rate":   "../src/js/mod/refresh-rate.js",
-            "virt-keyboard":  "../src/js/mod/virt-keyboard.js",
-            "svg-things":     "../src/js/mod/svg-things.js",
-
-            "external-images": "./external-images.js",
-            "tone-test0": "../ext/tonejs/tone-test0.js"
-          }
-        }
-    </script>
-    -->
     <script src="../init-error-new.js"></script>
     <script src="../importmaps.js"></script>
-    <!-- <script src="../src/js/error.js"></script> -->
-    <!-- <script src="../public/src/js/mod/util-mdc.js"></script> -->
-    <!-- <script src="./moving-lines-1.js"></script> -->
     <style>
         /* FIX-ME: wide screen */
 
         /* https://dev.to/adbutterfield/custom-styling-checkboxes-the-modern-way-3o42 */
         :root {
-            --icon-button-size: 48;
-            --checkbox-border-color: #8b8c89;
-            --checkbox-checked-color: #274c77;
-            --checkbox-checked-color: orange;
-            --checkbox-checked-color: darkorange;
-            --checkbox-hover-color: #a3cef1;
-            --checkbox-hover-color: #a3cef133;
-            --checkbox-hover-color: red;
-            --checkbox-hover-color: orange;
-            --checkbox-disabled-bg-color: #d9d9d9;
-        }
-
-        :root {
             --some-gold: color-mix(in oklab, gold 60%, transparent 50%);
             /* --some-gold: lightskyblue; */
             --some-yellowgreen: color-mix(in oklab, yellowgreen 100%, transparent 100%);
             --some-white: color-mix(in oklab, white 60%, transparent 100%);
-        }
-
-        input[type="checkbox"] {
-            box-sizing: border-box;
-            width: 20px;
-            width: 1rem;
-            height: 20px;
-            height: 1rem;
-            padding: 0;
-            border: 2px solid var(--checkbox-border-color);
-            appearance: none;
-            background-color: transparent;
-            outline: none;
-            transition: outline 0.1s, background-color 0.7s, border-color 0.7s;
-        }
-
-        input[type="checkbox"]:checked {
-            background-size: cover;
-            padding: 2px;
-        }
-
-        input[type="checkbox"]:not(:disabled):checked {
-            border-color: var(--checkbox-checked-color);
-            background-color: var(--checkbox-checked-color);
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" viewBox="0 0 32 32" xml:space="preserve"><path style="fill: %23274c77" d="M11.941,28.877l-11.941-11.942l5.695-5.696l6.246,6.246l14.364-14.364L32,8.818"/></svg>');
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" viewBox="0 0 32 32" xml:space="preserve"><path style="fill: black" d="M11.941,28.877l-11.941-11.942l5.695-5.696l6.246,6.246l14.364-14.364L32,8.818"/></svg>');
-        }
-
-        input[type="checkbox"]:disabled {
-            background-color: var(--checkbox-disabled-bg-color);
-        }
-
-        input[type="checkbox"]:disabled:checked {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" viewBox="0 0 32 32" xml:space="preserve"><path style="fill: %238b8c89" d="M11.941,28.877l-11.941-11.942l5.695-5.696l6.246,6.246l14.364-14.364L32,8.818"/></svg>');
-        }
-
-        @media (hover: hover) {
-            input[type="checkbox"]:not(:disabled):hover {
-                background-color: var(--checkbox-hover-color);
-                outline: 6px solid var(--checkbox-hover-color);
-                transform: scale(1.05);
-            }
-        }
-
-        input[type="checkbox"]:focus-visible {
-            outline: 6px solid var(--checkbox-hover-color);
-            transform: scale(1.05);
-        }
-
-        label:has(input[type=checkbox]) {
-            display: flex;
-            align-items: center;
         }
 
 
@@ -236,18 +141,6 @@
         }
 
 
-        div.mdc-dialog__surface:has(.colored-dialog) {
-            background-color: orange;
-        }
-
-        div.mdc-dialog__surface:has(.extimg-colored-dialog) {
-            background-color: orange;
-        }
-
-        div.mdc-dialog__surface:has(.extimg-copyright) {
-            background-color: wheat;
-            border: solid 5px blue;
-        }
 
         #extimg-new-preview {
             display: none;
@@ -271,32 +164,6 @@
         .NOslidecontainer {
             width: 100%;
         }
-
-        .slider {
-            appearance: none;
-            width: 100%;
-            height: 10px;
-            border-radius: 4px;
-            background: olive;
-            outline: none;
-            opacity: 0.7;
-            transition: opacity .2s;
-        }
-
-        .slider:hover {
-            opacity: 1;
-        }
-
-        /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-        .slider::-webkit-slider-thumb {
-            appearance: none;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: olive;
-            cursor: pointer;
-        }
-
 
 
         #button-wa1 {
@@ -341,12 +208,6 @@
         }
 
 
-        /*********************************************/
-        /* Tests for virtual keyboard */
-        /*********************************************/
-        .has-virtual-keyboard body {
-            background: red;
-        }
 
         #div-log2screen {
             background-color: skyblue;
@@ -563,6 +424,9 @@
                 font-weight: bold;
             }
         }
+
+
+
     </style>
 </head>
 

@@ -10,6 +10,11 @@ const mkElt = window["mkElt"];
 // @ts-ignore
 const importFc4i = window["importFc4i"];
 
+const modBasicUI = await importFc4i("basic-ui");
+const modLocalFileReader = await importFc4i("local-file-reader");
+// debugger;
+const keyBackground = "background-image-or-video";
+
 // javascript module for linking external images.
 // The user provides the links which I guess will avoid copyright problems.
 
@@ -51,7 +56,7 @@ const importFc4i = window["importFc4i"];
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 
 const modTools = await importFc4i("toolsJs");
-const modMdc = await importFc4i("util-mdc");
+// const modMdc = await importFc4i("util-mdc");
 const modIcons = await importFc4i("google-icons");
 
 // https://stackoverflow.com/questions/5845238/javascript-generate-transparent-1x1-pixel-in-dataurl-format
@@ -105,7 +110,8 @@ export function dialogReason() {
             you are welcome to give it to me!)
         `),
     ]);
-    modMdc.mkMDCdialogAlert(bdy);
+    // modMdc.mkMDCdialogAlert(bdy);
+    modBasicUI.showDialog(bdy);
 }
 const KEY = "external-images";
 
@@ -218,9 +224,38 @@ export async function dialogImages(arrBuiltin, applyImage) {
     const oldObj = getImagesRec();
 
     const iconCopyright = modIcons.mkGIcon("copyright");
-    const btnInfoCopyright = modMdc.mkMDCfab(iconCopyright, "Explain copyright issues", true);
-    btnInfoCopyright.addEventListener("click", evt => { evt.stopPropagation(); dialogReason(); });
+    const btnInfoCopyright = modBasicUI.mkFabButton(iconCopyright, "Explain copyright issues", true);
+    btnInfoCopyright.addEventListener("click", evt => {
+        evt.stopPropagation();
+        debugger;
+        dialogReason();
+    });
+    const btnSelectBackground = mkElt("button", undefined, "Select");
+    btnSelectBackground.addEventListener("click", evt => {
+        evt.stopPropagation();
+        const btnBrowse = mkElt("button", undefined, "Browse");
+        btnBrowse.addEventListener("click", async evt => {
+            evt.stopPropagation();
+            console.log({ modLocalFileReader });
+            await modLocalFileReader.selectAndSaveFile(keyBackground, "image,video");
+            const blob = await modLocalFileReader.getSavedFileBlob(keyBackground);
+            const blobUrl = URL.createObjectURL(blob);
+            const eltOwnPreview = document.getElementById( "own-preview");
+            // @ts-ignore
+            eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
+            debugger;
+        });
+        const body = mkElt("div", undefined, [
+            mkElt("h2", undefined, "Select background"),
+            mkElt("p", undefined, `
+                You can select an image or video from your device.
+                `),
+            btnBrowse
+        ]);
+        modBasicUI.showDialog(body);
+    })
 
+    /*
     const videoNewPreview = mkElt("video");
     videoNewPreview.muted = true;
     // videoNewPreview.autoplay = true;
@@ -262,7 +297,8 @@ export async function dialogImages(arrBuiltin, applyImage) {
         overflow: hidden;
     `;
 
-    const btnAddNew = modMdc.mkMDCbutton("Add", "raised");
+    // const btnAddNew = modMdc.mkMDCbutton("Add", "raised");
+    const btnAddNew = mkElt("button", {class:"button-raised"}, "Add");
     btnAddNew.style.display = "none";
     btnAddNew.addEventListener("click", evt => {
         evt.stopPropagation();
@@ -478,13 +514,16 @@ export async function dialogImages(arrBuiltin, applyImage) {
         width: 100%;
     `;
 
+    const divOldUrls = mkElt("div");
+    divOldUrls.style = styleUrlAlt;
+    */
+
     const styleUrlAlt = `
         display: flex;
         flex-direction: column;
         gap: 10px;
     `;
-    const divOldUrls = mkElt("div");
-    divOldUrls.style = styleUrlAlt;
+
     const divBuiltinUrls = mkElt("div");
     divBuiltinUrls.style = styleUrlAlt;
 
@@ -602,22 +641,40 @@ export async function dialogImages(arrBuiltin, applyImage) {
         });
     }
 
-    const divNewUrl = mkElt("div", undefined, tfURL);
+    // const divNewUrl = mkElt("div", undefined, tfURL);
 
     const divRandomUrl = mkElt("div", undefined, mkImgChoice("random"));
 
+    const eltOwnPreview = mkElt("div", {id:"own-preview"});
+    eltOwnPreview.style = `
+        width: 100px;
+        height: 100px;
+        border: 1px solid red;
+        background: gray;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    `;
     const bdy = mkElt("div", { class: "extimg-colored-dialog" }, [
         mkElt("h2", undefined, "Background Images"),
         // btnCopyright,
         divRandomUrl,
+                mkElt("h3", undefined, [
+            "Your own: ",
+            // btnInfoCopyright,
+            eltOwnPreview,
+            btnSelectBackground
+        ]),
+
         mkElt("h3", undefined, "Built in:"),
         divBuiltinUrls,
-        mkElt("h3", undefined, ["Your own: ", btnInfoCopyright]),
+        /*
         divOldUrls,
         mkElt("div", { id: "extimg-add-new" }, [
             divNewUrl,
             divNewPreview,
         ]),
+        */
     ]);
     bdy.addEventListener("change", evt => {
         const target = evt.target;
@@ -641,5 +698,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
     };
     // mkMDCdialogConfirm(body, titleOk, titleCancel, funCheckSave, tellMeOkButton) {
     // mkMDCdialogAlert(body, titleClose) {
-    modMdc.mkMDCdialogAlert(bdy, "Close");
+    // modMdc.mkMDCdialogAlert(bdy, "Close");
+
+    modBasicUI.showDialog(bdy);
 }

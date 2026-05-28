@@ -184,7 +184,7 @@ export async function dialogTestWAsound() {
             const divAddedTone = TSmkElt("div", undefined, [
                 spanAddedTone, btnDelete
             ]);
-            divAddedTone.classList.add("mdc-card");
+            divAddedTone.classList.add("basic-card");
             // @ts-ignore style
             divAddedTone.style = `
                 display: grid;

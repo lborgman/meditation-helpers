@@ -15,6 +15,7 @@ let storingPrefix;
 const KEY = "user-sound";
 
 const modIcons = await importFc4i("google-icons");
+const modBasicUI = await importFc4i("basic-ui");
 
 const modLocalFileReader = await importFc4i("local-file-reader");
 const keyUserExhale = "user-exhale-sound";
@@ -28,7 +29,7 @@ async function getUserInhaleSound() {
     return url;
 }
 
-// const modBells = await importFc4i("bell-engine");
+const modBells = await importFc4i("bell-engine");
 // const syntBells = modBells.getBellNames();
 // const fileBells = [ ];
 const fileBellGroups = {
@@ -164,7 +165,7 @@ export async function dialogSound() {
 
     // debugger;
     // dialogImages
-    const modMdc = await importFc4i("util-mdc");
+    // const modMdc = await importFc4i("util-mdc");
     const iconSound = modIcons.mkGIcon("notification_sound");
 
     const soundRec = await getSoundRec();
@@ -200,9 +201,11 @@ export async function dialogSound() {
         const icon = modIcons.mkGIcon("play_arrow");
         const btn = mkElt("button", undefined, icon);
         btn.style = `
+            display: flex;
+            flex-wrap: wrap;
+            align-content: center;
             border: none;
             border-radius: 8px;
-            display: flex;
             background-color: red;
         `;
         btn.addEventListener("click", async evt => {
@@ -246,14 +249,14 @@ export async function dialogSound() {
         // const lbl = mkElt("label", undefined, [rad, label, btn]);
         const lbl = mkElt("label", undefined, [rad, label]);
         lbl.style = `
-            display: inline-grid;
+            display: inline-flex;
             align-items: center;
-            grid-template-columns: max-content 1fr max-content;
             gap: 5px;
         `;
-        const div = mkElt("div", undefined, [ lbl, btn]);
+        const div = mkElt("div", undefined, [lbl, btn]);
         div.style = `
-            width: 280px;
+            max-width: 280px;
+            width: 100%;
             display: flex;
             justify-content: space-between;
         `;
@@ -309,32 +312,9 @@ export async function dialogSound() {
      * @param {string} currentBell 
      */
 
-    /* @type {FunAddBell2UI} */
-    /*
-    const addSyntBells = (targetDiv, isInhale, currentBell) => {
-        const eltGrpName = mkElt("div", undefined, `Synthetic bells:`);
-        targetDiv.appendChild(eltGrpName);
-        syntBells.forEach(bellName => {
-            const name4UI = sound2UI(bellName);
-            const showName = name4UI ? name4UI : bellName;
-            const lbl = mkRadBell(showName, `s:${bellName}`, isInhale, currentBell);
-            lbl.classList.add("label-bell");
-            targetDiv.appendChild(lbl);
-        });
-    }
-    */
 
     /** @type {FunAddBell2UI} */
     const addFileBells = async (targetDiv, isInhale, currentBell) => {
-        /*
-        fileBells.forEach(bellRow => {
-            const [bellName, _start, name4UI] = bellRow.split(";;");
-            const showName = name4UI ? name4UI : bellName;
-            const lbl = mkRadBell(showName, `f:${bellName}`, isInhale, currentBell);
-            lbl.classList.add("label-bell");
-            targetDiv.appendChild(lbl);
-        });
-        */
         const proms = [];
         const groups = Object.keys(fileBellGroups);
         groups.forEach(async grpName => {
@@ -374,10 +354,6 @@ export async function dialogSound() {
                 console.error(grpName, urlInternal, err);
                 debugger;
             }
-            // const name4UI = bell2UI(bellName);
-            // const lbl = mkRadBell(name4UI, `f:${bellName}`, isInhale, currentBell);
-            // lbl.classList.add("label-bell");
-            // targetDiv.appendChild(lbl);
         });
         await Promise.allSettled(proms);
     }
@@ -399,17 +375,43 @@ export async function dialogSound() {
     const btnUserChoice = mkElt("button", undefined, "Select");
     btnUserChoice.addEventListener("click", evt => {
         evt.stopImmediatePropagation();
-        alert("not ready");
-    })
+        // const xClose = mkXclose();
+        const bdy = mkElt("div", undefined, [
+            mkElt("h2", undefined, "Your sound: inhale"),
+            "hej",
+            // xClose
+        ]);
+        const dlg = mkElt("dialog", undefined, bdy);
+        modBasicUI.addXclose(dlg);
+        document.documentElement.appendChild(dlg);
+        dlg.showModal();
+    });
     // const eltUserChoice = mkElt("span", { style: "color:red" }, [ "Your choice", btnUserChoice ]);
     const eltUserBell2 = mkRadBell("Your sound", "user-inhale", true, undefined);
-    eltUserBell2.insertBefore(btnUserChoice, eltUserBell2.lastElementChild);
+    // debugger;
+    // eltUserBell2.insertBefore(btnUserChoice, eltUserBell2.lastElementChild);
+    const btnTestUserInhale = eltUserBell2.lastElementChild;
+    btnTestUserInhale.inert = true;
+    const eltUserChoice = mkElt("div", undefined, [
+        btnTestUserInhale,
+        btnUserChoice,
+    ]);
+    eltUserChoice.style = `
+        display: inline-flex;
+        gap: 10px;
+    `;
+
+    // eltUserChoice.appendChild(btnTestUserInhale);
+    eltUserBell2.appendChild(eltUserChoice);
     eltUserBell2.id = "div-user-inhale";
+
     eltUserBell2.firstElementChild.inert = true;
+
     divInhaleBells.appendChild(eltUserBell2);
     // addSyntBells(divInhaleBells, true, currentBells.inhale);
 
-    const lblSame = mkRadBell("Same (lower frequency)", "same", false, currentBells?.exhale);
+
+    const lblSame = mkRadBell("Same (lower freq)", "same", false, currentBells?.exhale);
     lblSame.classList.add("label-bell");
     const divExhaleBells = mkElt("div", undefined, lblSame);
     divExhaleBells.style = styleDivBells;
@@ -437,7 +439,14 @@ export async function dialogSound() {
         divBells,
     ]);
     body.classList.add("colored-dialog");
-    modMdc.mkMDCdialogAlert(body, "close");
+    // modMdc.mkMDCdialogAlert(body, "close");
+    showDialog(body);
+    function showDialog(body) {
+        const dlg = mkElt("dialog", undefined, body);
+        document.documentElement.appendChild(dlg);
+        dlg.appendChild(modBasicUI.mkXclose());
+        dlg.showModal();
+    }
 }
 
 // audiocontent

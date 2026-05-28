@@ -5,8 +5,75 @@ if (document.currentScript) { throw "local-file-reader.js is not loaded as modul
 
 /** @type {IDBDatabase|null} */ let dbInstance = null;
 
+/**
+ *
+ * @param {string} savedName
+ * @param {string} mediaTypes - comma-separated, like: image/*,video/mp4
+ * @param {string} [title]
+ * @returns {Promise<boolean>}
+ */
+export async function selectAndSaveFile(savedName, mediaTypes, title) {
+    if (typeof savedName != "string") throw Error(`savedName must be string`);
+    title = title || mediaTypes;
+    if (typeof title != "string") throw Error(`title must be string`);
 
-export async function selectAndSaveFile(savedName, pickerOptions) {
+    const arrMediatypes = mediaTypes.split(",").map(mt => mt.trim());
+    const validTypes = "application,audio,font,image,message,model,multipart,text,video,example";
+    const typesArray = validTypes.split(",");
+    arrMediatypes.forEach(mt => {
+        const [mtType, mtSubtype] = mt.split("/");
+        const isValid = typesArray.includes(mtType);
+        if (!isValid) {
+            const msg = `Invalid media type: "${mtType}" (${mt})`;
+            debugger;
+            throw Error(msg);
+        }
+    });
+
+    /** @type {Record<string,string[]>} */
+    const objAccept = {};
+    arrMediatypes.forEach(mt => {
+        let [mtType, mtSubtype] = mt.split("/");
+        mtSubtype = mtSubtype || "*"
+        const ourMt = `${mtType}/${mtSubtype}`;
+        objAccept[ourMt] = [];
+    })
+    /**
+     * Sanitizes a string for use as a secure showOpenFilePicker option ID.
+     * Removes non-alphanumeric/hyphen/underscore chars and caps length at 32.
+     * @param {string} inputString - The raw ID string to clean.
+     * @returns {string} A clean, valid ID string.
+     */
+    function sanitizePickerId(inputString) {
+        if (typeof inputString !== 'string') return '';
+        return inputString
+            // 1. Remove all characters except a-z, A-Z, 0-9, hyphens (-), and underscores (_)
+            .replace(/[^a-zA-Z0-9_-]/g, '')
+            // 2. Enforce the strict 32-character limit
+            .slice(0, 32);
+    }
+
+    const pickerOptions = {
+        id: sanitizePickerId(title),
+        // id: "a",
+        types: [
+            {
+                description: title,
+                accept: objAccept
+            },
+        ],
+        excludeAcceptAllOption: true,
+    };
+    return selectAndSaveFileAdvanced(savedName, pickerOptions);
+}
+
+/**
+ *
+ * @param {string} savedName
+ * @param {object} pickerOptions
+ * @returns {Promise<boolean>}
+ */
+export async function selectAndSaveFileAdvanced(savedName, pickerOptions) {
     /*
     const OLDpickerOptions = {
         types: [
@@ -21,23 +88,13 @@ export async function selectAndSaveFile(savedName, pickerOptions) {
         excludeAcceptAllOption: true,
     };
     */
-    /*
-    return internalSelectAndSaveFile(savedName, pickerOptions);
-}
-async function internalSelectAndSaveFile(savedName, pickerOptions) {
-    */
     try {
-        // Ask user to pick a file
         // @ts-ignore
         const [handle] = await window.showOpenFilePicker(pickerOptions);
         const fileHandle = await handle.getFile();
         if (!fileHandle) {
             debugger;
             throw Error("SelectAndSaveFile: !file");
-        }
-        if (fileHandle.type.startsWith("video/")) {
-            alert("Sorry, video background not implemented yet.");
-            return false;
         }
         await saveFileHandle(savedName, fileHandle);
         return true;

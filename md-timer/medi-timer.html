@@ -19,6 +19,9 @@
   <meta name="Description"
     content="Tries to mimic the app described in the study Closed-loop digital meditation improves sustained attention in young adults" />
 
+
+  <link rel="stylesheet" href="../js/mod/basic-ui.css" />
+
   <!-- for MWC, https://github.com/material-components/material-web -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
@@ -65,23 +68,12 @@
   <link rel="stylesheet" href="css/fontawesome/css/brands.css">
   -->
   <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
+  
     :root {
-      font-size: 16px;
-      font-family: Arial, Helvetica, sans-serif;
       --button-bg: greenyellow;
       --button-bg: yellowgreen;
     }
 
-    button,
-    input[type=range] {
-      cursor: pointer;
-    }
 
     button.img-button {
       height: 40px;
@@ -111,27 +103,6 @@
         position: absolute;
         inset: 0;
       }
-    }
-
-    blockquote {
-      background: #fff4;
-      border-left: 10px solid #ccc;
-      margin: 1.5em 10px;
-      padding: 0.5em 10px;
-      quotes: "\201C" "\201D" "\2018" "\2019";
-    }
-
-    blockquote:before {
-      color: #ccc;
-      content: open-quote;
-      font-size: 4em;
-      line-height: 0.1em;
-      margin-right: 0.25em;
-      vertical-align: -0.4em;
-    }
-
-    blockquote p {
-      display: inline;
     }
 
     html.sounding {
@@ -232,6 +203,8 @@
     }
 
     footer {
+      font-size: 1.4rem;
+      min-height: 40px;
       width: 100dvw;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -239,12 +212,12 @@
       align-items: center;
       position: fixed;
       z-index: 20;
-      min-height: 32px;
       bottom: 0;
       left: 0;
       right: 0;
       background: black;
       color: #686b80;
+      color: #8d9af3;
       border-top: 1px solid currentColor;
 
       opacity: 1;
@@ -481,6 +454,7 @@
     #the-cat {
       width: 3em;
     }
+
     .the-cat {
       width: 3em;
     }
@@ -495,6 +469,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+
       label {
         display: flex;
         gap: 10px;

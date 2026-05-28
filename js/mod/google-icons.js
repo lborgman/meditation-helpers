@@ -232,7 +232,7 @@ async function checkWoff2icons(action) {
         return elt;
     }
     const woff2FileName = `${iconsForApp}-symbols.woff2`;
-    const eltDownload = mkElt("div", { class: "mdc-card" }, [
+    const eltDownload = mkElt("div", { class: "basic-card" }, [
         mkElt("a", { href: linkWOFF2, style: "opacity:0.3; display:none;" }, "OLD, DON'T USE: Download new WOFF2"),
         mkElt("p", { style: "opacity:0.5; display:none;" }, [
             `Replace the file `,
