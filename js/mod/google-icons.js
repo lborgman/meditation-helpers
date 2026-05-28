@@ -6,6 +6,11 @@ logConsoleHereIs(`here is google-icons.js, module,${GOOGLE_ICONS_VER}`);
 if (document.currentScript) throw Error("import .currentScript"); // is module
 
 // @ts-ignore
+const logDebug = (...msg) => {
+    // console.log("DEBUG:", ...msg);
+}
+
+// @ts-ignore
 const mkElt = window["mkElt"];
 
 const mdcIconStyle = "Outlined";
@@ -27,11 +32,12 @@ const { urlIcons, urlAppName, linkSymbolCss } = await (async () => {
     if (arrSymbolsCss.length != 1) {
         debugger;
     }
-    console.log({ arrSymbolsCss });
+    // console.log({ arrSymbolsCss });
+    logDebug("arrSymbolsCss:", arrSymbolsCss );
     const linkSymbolCss = /** @type {HTMLLinkElement} */ (arrSymbolsCss[0]);
     // const hrefSymbolsCss = arrSymbolsCss[0].href;
     const hrefSymbolsCss = linkSymbolCss.href;
-    console.log({ hrefSymbolsCss });
+    logDebug({ hrefSymbolsCss });
     const respSymbolsCss = await fetch(hrefSymbolsCss);
     if (!respSymbolsCss.ok) {
         // Seems like the file is not there?
@@ -39,7 +45,7 @@ const { urlIcons, urlAppName, linkSymbolCss } = await (async () => {
         throw Error(`Could not fetch "${hrefSymbolsCss}"`);
     }
     const css = await respSymbolsCss.text();
-    console.log({ css });
+    logDebug({ css });
     function extractFontUrl(css) {
         // Match url(...) inside src, supporting single/double quotes and no quotes
         const urlRegex = /src:\s*url\s*\(\s*['"]?([^'")]+)['"]?\s*\)/i;
@@ -55,7 +61,7 @@ const { urlIcons, urlAppName, linkSymbolCss } = await (async () => {
 
     // const urlIcons = new URL("..", hrefSymbolsCss);
     const urlIcons = new URL(".", hrefSymbolsCss);
-    console.log({ urlIcons }, urlIcons.href);
+    logDebug({ urlIcons }, urlIcons.href);
     // debugger;
     const respIcons = await fetch(urlIcons);
     if (!respIcons.ok) {
@@ -67,7 +73,7 @@ const { urlIcons, urlAppName, linkSymbolCss } = await (async () => {
     // debugger;
     const uCptxt = new URL("MaterialSymbolsOutlinedCodepoints.txt", urlIcons);
     const hrefCptxt = uCptxt.href;
-    console.log({ uCptxt }, hrefCptxt);
+    logDebug({ uCptxt }, hrefCptxt);
     const respCptxt = await fetch(hrefCptxt);
     if (!respCptxt.ok) {
         debugger;
@@ -84,7 +90,7 @@ const { urlIcons, urlAppName, linkSymbolCss } = await (async () => {
     }
     return { urlIcons, urlAppName, linkSymbolCss };
 })();
-console.log({ urlIcons, urlAppName });
+logDebug({ urlIcons, urlAppName });
 
 
 
@@ -190,8 +196,9 @@ async function getIconsInWoffFile() {
 }
 
 /**
- * 
- * @param {string} action 
+ *
+ * @param {string} action
+ * @return {Promise<number>}
  */
 async function checkWoff2icons(action) {
     if (!["justCheck", "dialog"].includes(action)) throw Error(`Unknown action parameter: "${action}"`);

@@ -1,6 +1,5 @@
 // @ts-check
 const PUBLIC_IMAGES_VER = "0.0.5";
-debugger;
 console.log(`here is user-images.js, module, ${PUBLIC_IMAGES_VER}`);
 // @ts-ignore
 window["logConsoleHereIs"](`here is user-images.js, module, ${PUBLIC_IMAGES_VER}`);

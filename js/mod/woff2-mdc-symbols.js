@@ -75,7 +75,6 @@ function mkSymbol2codepointUrl(mdcIconStyle) {
         `./ext/mdc-fonts/MaterialSymbols${mdcIconStyle}Codepoints.txt`,
         u
     )
-    console.log(u2.href);
-    // debugger;
+    // console.log(u2.href);
     return u2.href;
 }
