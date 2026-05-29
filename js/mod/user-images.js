@@ -231,28 +231,51 @@ export async function dialogImages(arrBuiltin, applyImage) {
         dialogReason();
     });
     const btnSelectBackground = mkElt("button", undefined, "Select");
-    btnSelectBackground.addEventListener("click", evt => {
+    btnSelectBackground.addEventListener("click", async evt => {
         evt.stopPropagation();
+        const eltBrowsePreview = mkElt("div");
+        eltBrowsePreview.classList.add("image-preview");
+        eltBrowsePreview.style = `
+            border: 1px solid red;
+            height: 100px;
+            width: 100px;
+        `;
+        let blobPreview;
+        let blobUrl;
+
         const btnBrowse = mkElt("button", undefined, "Browse");
         btnBrowse.addEventListener("click", async evt => {
             evt.stopPropagation();
             console.log({ modLocalFileReader });
-            await modLocalFileReader.selectAndSaveFile(keyBackground, "image,video");
-            const blob = await modLocalFileReader.getSavedFileBlob(keyBackground);
-            const blobUrl = URL.createObjectURL(blob);
-            const eltOwnPreview = document.getElementById( "own-preview");
+
+            // await modLocalFileReader.selectAndSaveFile(keyBackground, "image,video");
+            // const blob = await modLocalFileReader.getSavedFileBlob(keyBackground);
+            blobPreview = await modLocalFileReader.selectFile("image,video");
+
+            blobUrl = URL.createObjectURL(blobPreview);
+            // const eltOwnPreview = document.getElementById( "own-preview");
             // @ts-ignore
-            eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
-            debugger;
+            // eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
+            eltBrowsePreview.style.backgroundImage = `url("${blobUrl}")`;
         });
         const body = mkElt("div", undefined, [
             mkElt("h2", undefined, "Select background"),
             mkElt("p", undefined, `
                 You can select an image or video from your device.
                 `),
-            btnBrowse
+            btnBrowse,
+            eltBrowsePreview
         ]);
-        modBasicUI.showDialog(body);
+        const ans = await modBasicUI.showDialogConfirm(body);
+        debugger;
+        if (!ans) return;
+        // const eltOwnPreview = document.getElementById("own-preview");
+        // const blobUrl = URL.createObjectURL(blobPreview);
+        // @ts-ignore
+        eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
+
+        const ourBlobUrl = eltBrowsePreview.style.back
+        modLocalFileReader.saveFileHandle(keyBackground, blobUrl);
     })
 
     /*
@@ -645,21 +668,24 @@ export async function dialogImages(arrBuiltin, applyImage) {
 
     const divRandomUrl = mkElt("div", undefined, mkImgChoice("random"));
 
-    const eltOwnPreview = mkElt("div", {id:"own-preview"});
+    const eltOwnPreview = mkElt("div", { id: "own-preview" });
     eltOwnPreview.style = `
         width: 100px;
         height: 100px;
         border: 1px solid red;
-        background: gray;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
     `;
+    eltOwnPreview.classList.add("image-preview");
+    const blobSaved = await modLocalFileReader.getSavedFileBlob(keyBackground);
+    debugger;
+    // const blobUrl = URL.createObjectURL(blobSaved);
+    // eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
+    eltOwnPreview.style.backgroundImage = `url("${blobSaved}")`;
+
     const bdy = mkElt("div", { class: "extimg-colored-dialog" }, [
         mkElt("h2", undefined, "Background Images"),
         // btnCopyright,
         divRandomUrl,
-                mkElt("h3", undefined, [
+        mkElt("h3", undefined, [
             "Your own: ",
             // btnInfoCopyright,
             eltOwnPreview,

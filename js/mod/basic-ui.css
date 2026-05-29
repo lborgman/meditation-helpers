@@ -173,6 +173,7 @@ dialog::backdrop {
 
 .dialog-buttons {
     display: flex;
+    justify-content: flex-end;
     gap: 10px;
 }
 
@@ -255,4 +256,12 @@ dialog#snackbar[open] {
     flex-direction: column;
     background-color: #fff;
     border-radius: 4px;
+
+}
+
+.image-preview {
+    background: gray;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }

@@ -7,13 +7,11 @@ if (document.currentScript) { throw "local-file-reader.js is not loaded as modul
 
 /**
  *
- * @param {string} savedName
  * @param {string} mediaTypes - comma-separated, like: image/*,video/mp4
  * @param {string} [title]
- * @returns {Promise<boolean>}
+ * @returns {object}
  */
-export async function selectAndSaveFile(savedName, mediaTypes, title) {
-    if (typeof savedName != "string") throw Error(`savedName must be string`);
+function makeFilePickerOptions(mediaTypes, title) {
     title = title || mediaTypes;
     if (typeof title != "string") throw Error(`title must be string`);
 
@@ -21,7 +19,7 @@ export async function selectAndSaveFile(savedName, mediaTypes, title) {
     const validTypes = "application,audio,font,image,message,model,multipart,text,video,example";
     const typesArray = validTypes.split(",");
     arrMediatypes.forEach(mt => {
-        const [mtType, mtSubtype] = mt.split("/");
+        const [mtType] = mt.split("/");
         const isValid = typesArray.includes(mtType);
         if (!isValid) {
             const msg = `Invalid media type: "${mtType}" (${mt})`;
@@ -64,30 +62,46 @@ export async function selectAndSaveFile(savedName, mediaTypes, title) {
         ],
         excludeAcceptAllOption: true,
     };
-    return selectAndSaveFileAdvanced(savedName, pickerOptions);
+    return pickerOptions;
 }
 
 /**
  *
  * @param {string} savedName
+ * @param {string} mediaTypes - comma-separated, like: image/*,video/mp4
+ * @param {string} [title]
+ * @returns {Promise<boolean>}
+ */
+export async function selectAndSaveFile(savedName, mediaTypes, title) {
+    if (typeof savedName != "string") throw Error(`savedName must be string`);
+    const pickerOptions = makeFilePickerOptions(mediaTypes, title);
+    return selectAndSaveFileAdvanced(savedName, pickerOptions);
+}
+
+/**
+ * @param {string} savedName
  * @param {object} pickerOptions
  * @returns {Promise<boolean>}
  */
 export async function selectAndSaveFileAdvanced(savedName, pickerOptions) {
-    /*
-    const OLDpickerOptions = {
-        types: [
-            {
-                description: "Images and Videos",
-                accept: {
-                    "image/*": [],
-                    "video/*": [],
-                },
-            },
-        ],
-        excludeAcceptAllOption: true,
-    };
-    */
+    const fileHandle = await selectFile(pickerOptions);
+    await saveFileHandle(savedName, fileHandle);
+}
+
+/**
+ * @param {string} mediaTypes - comma-separated, like: image/*,video/mp4
+ * @param {string} [title]
+ * @returns 
+ */
+export async function selectFile(mediaTypes, title) {
+    const pickerOptions = makeFilePickerOptions(mediaTypes, title);
+    return selectFileAdvanced(pickerOptions);
+}
+/**
+ * @param {object} pickerOptions
+ * @returns {Promise<boolean|undefined>}
+ */
+export async function selectFileAdvanced(pickerOptions) {
     try {
         // @ts-ignore
         const [handle] = await window.showOpenFilePicker(pickerOptions);
@@ -96,21 +110,20 @@ export async function selectAndSaveFileAdvanced(savedName, pickerOptions) {
             debugger;
             throw Error("SelectAndSaveFile: !file");
         }
-        await saveFileHandle(savedName, fileHandle);
-        return true;
+        // await saveFileHandle(savedName, fileHandle);
+        return fileHandle;
     } catch (err) {
         if (err instanceof Error) {
-            if (err.name != "AbortError") {
-                const msg = `selectAndSaveFile error: ${err.name}`;
-                console.error(msg, err);
-                debugger;
-                throw Error(msg);
-            }
+            if (err.name == "AbortError") return false;
+            const msg = `selectAndSaveFile error: ${err.name}`;
+            console.error(msg, err);
+            debugger;
+            throw Error(msg);
         } else {
             debugger;
             throw err;
         }
-        return false;
+        return;
     }
 }
 
@@ -163,7 +176,7 @@ async function getDatabase(dbName, dbVersion, handleVersionChange) {
     });
 }
 
-async function saveFileHandle(fileName, fileHandle) {
+export async function saveFileHandle(fileName, fileHandle) {
     const db = await getOurDatabase();
     return new Promise((resolve, reject) => {
         // const tx = db.transaction('images', 'readwrite');

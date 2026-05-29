@@ -5,6 +5,9 @@ const BASIC_UI_VER = "0.0.01";
 logConsoleHereIs(`here is basic-ui.js, module,${BASIC_UI_VER}`);
 if (document.currentScript) throw Error("import .currentScript"); // is module
 
+// @ts-ignore
+const mkElt = window["mkElt"];
+
 /**
  * @param {function} [funClose]
  * @returns {HTMLButtonElement}
@@ -139,32 +142,45 @@ export async function showDialog(bdy, valFun, buttons) {
     dlg.showModal();
 
     if (!valFun) return;
-    return valFun();
+    const ans = await valFun();
+    const tofAns = typeof ans;
+    if (tofAns != "boolean") {
+        debugger;
+    }
+    return ans;
 }
 /**
  * 
  * @param {HTMLDivElement} bdy 
- * @param {string} [yes]
- * @param {string} [no]
+ * @param {string} [ok]
+ * @param {string} [cancel]
  */
-export async function showDialogConfirm(bdy, yes, no) {
-    yes = yes || "OK";
-    no = no || "Cancel";
-    const btnYes = mkElt("button", undefined, yes);
-    const btnNo = mkElt("button", undefined, no);
+export async function showDialogConfirm(bdy, ok, cancel) {
+    ok = ok || "OK";
+    cancel = cancel || "Cancel";
+    const btnTrue = mkElt("button", undefined, ok);
+    const btnFalse = mkElt("button", undefined, cancel);
     const fun = async () => {
-        await new Promise(resolve => {
-            btnYes.addEventListener("click", evt => {
+        return await new Promise(resolve => {
+            btnTrue.addEventListener("click", evt => {
                 resolve(true);
-                closeDialog(btnYes);
+                closeMyDialog(btnTrue);
             });
-            btnNo.addEventListener("click", evt => {
+            btnFalse.addEventListener("click", evt => {
                 resolve(false);
-                closeDialog(btnNo);
+                closeMyDialog(btnFalse);
             });
         });
     }
-    await showDialog(bdy, fun, [btnYes, btnNo]);
+    const ans = await showDialog(bdy, fun, [btnTrue, btnFalse]);
+    const tofAns = typeof ans;
+    if (tofAns != "boolean") {
+        const msg = `showDialogConfirm: typeof ans == "${tofAns}`;
+        console.error(msg);
+        debugger;
+        throw Error(msg);
+    }
+    return ans;
 }
 export function closeMyDialog(elt) {
     const dlg = elt.closest("dialog");
