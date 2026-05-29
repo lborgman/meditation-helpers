@@ -1203,7 +1203,7 @@ async function dialogPattern() {
     const builtinPn = Object.keys(breathPatterns).sort();
     builtinPn.forEach(pn => { addPn(pn); });
 
-    OLDdivPattList.appendChild(TSmkElt("h3", undefined, "Your Own:"));
+    OLDdivPattList.appendChild(TSmkElt("h3", undefined, "1 Your Own:"));
     // const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
     const btnAddPatt = mkElt("button", undefined, "Add");
     const divBtnAddPatt = TSmkElt("div", undefined, btnAddPatt);

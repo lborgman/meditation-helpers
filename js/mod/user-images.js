@@ -253,9 +253,6 @@ export async function dialogImages(arrBuiltin, applyImage) {
             blobPreview = await modLocalFileReader.selectFile("image,video");
 
             blobUrl = URL.createObjectURL(blobPreview);
-            // const eltOwnPreview = document.getElementById( "own-preview");
-            // @ts-ignore
-            // eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
             eltBrowsePreview.style.backgroundImage = `url("${blobUrl}")`;
         });
         const body = mkElt("div", undefined, [
@@ -267,279 +264,14 @@ export async function dialogImages(arrBuiltin, applyImage) {
             eltBrowsePreview
         ]);
         const ans = await modBasicUI.showDialogConfirm(body);
-        debugger;
         if (!ans) return;
-        // const eltOwnPreview = document.getElementById("own-preview");
-        // const blobUrl = URL.createObjectURL(blobPreview);
         // @ts-ignore
         eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
 
-        const ourBlobUrl = eltBrowsePreview.style.back
+        // const ourBlobUrl = eltBrowsePreview.style.back
         modLocalFileReader.saveFileHandle(keyBackground, blobUrl);
     })
 
-    /*
-    const videoNewPreview = mkElt("video");
-    videoNewPreview.muted = true;
-    // videoNewPreview.autoplay = true;
-    videoNewPreview.controls = false;
-    videoNewPreview.loop = true;
-    videoNewPreview.style = `
-        width: 100%;
-        NOheight: 100%;
-        NOaspect-ratio: 1.6 / 1;
-        display: none;
-    `;
-
-    const imgNewPreview = mkElt("img");
-    imgNewPreview.style = `
-        width: 100%;
-        NOheight: 100%;
-        display: none;
-    `;
-
-    const eltFeedbackImage = mkElt("span", undefined, "Image?");
-    const eltFeedbackVideo = mkElt("span", undefined, "Video?");
-    const divTestFeedback = mkElt("div", undefined, [eltFeedbackImage, eltFeedbackVideo]);
-    divTestFeedback.style = `
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        display: inline-flex;
-        gap: 5px;
-    `;
-
-    const eltNewContainer = mkElt("div", undefined, [divTestFeedback, imgNewPreview, videoNewPreview]);
-    eltNewContainer.setAttribute("tabindex", "0");
-    eltNewContainer.style = `
-        position: relative;
-        max-width: 150px;
-        aspect-ratio: 1 / 1;
-        outline: 1px dotted red;
-        background-color: #80808060;
-        overflow: hidden;
-    `;
-
-    // const btnAddNew = modMdc.mkMDCbutton("Add", "raised");
-    const btnAddNew = mkElt("button", {class:"button-raised"}, "Add");
-    btnAddNew.style.display = "none";
-    btnAddNew.addEventListener("click", evt => {
-        evt.stopPropagation();
-        const val = inpURL.value.trim();
-        const isVideo = videoNewPreview.getBoundingClientRect().width > 0;
-        let catMark = "";
-        if (isVideo) catMark = "V";
-        addImagesRec(val, catMark);
-        const divRec = mkImgChoice(catMark + val, false);
-        divOldUrls.appendChild(divRec);
-        function addImagesRec(val, catMark) {
-            if (!["V", ""].includes(catMark)) throw Error(`Unknown category: "${catMark}"`);
-            const valRec = catMark + val;
-            const obj = getImagesRec();
-            obj.arr.push(valRec);
-            debounceSetImagesRec(obj);
-        }
-    });
-
-    const iconPlay = modIcons.mkGIcon("play_circle");
-    const btnPlay = modMdc.mkMDCiconButton(iconPlay);
-    btnPlay.setAttribute("Xtabindex", 0);
-    btnPlay.addEventListener("click", evt => {
-        // evt.stopImmediatePropagation();
-        // evt.stopPropagation();
-        // evt.preventDefault();
-        if (videoNewPreview.readyState == 0) return;
-        if (videoNewPreview.getBoundingClientRect().width == 0) return;
-        videoNewPreview.play();
-        eltNewContainer.focus();
-        btnPlay.style.display = "none";
-        btnPause.style.display = null;
-    });
-    // const iconPause = modIcons.mkGIcon("pause_circle");
-    const iconPause = modIcons.mkGIcon("pause");
-    const btnPause = modMdc.mkMDCiconButton(iconPause);
-    btnPause.setAttribute("Xtabindex", 0);
-    btnPause.style.display = "none";
-    btnPause.addEventListener("click", evt => {
-        // evt.stopImmediatePropagation();
-        // evt.stopPropagation();
-        // evt.preventDefault();
-        videoNewPreview.pause();
-        eltNewContainer.focus();
-        btnPlay.style.display = null;
-        btnPause.style.display = "none";
-    });
-    const divPlayButtons = mkElt("div", undefined, [btnPlay, btnPause,]);
-    divPlayButtons.setAttribute("tabindex", 0);
-    divPlayButtons.style.visibility = "hidden";
-    const divPreviewButtons = mkElt("div", undefined, [
-        divPlayButtons,
-        btnAddNew,
-    ]);
-    divPreviewButtons.style = `
-        display: grid;
-        grid-template-rows: 1fr;
-        width: 100%;
-        background-color: red;
-        outline: 1px dotted blue;
-    `;
-    const divNewPreview = mkElt("div", undefined, [
-        eltNewContainer,
-        divPreviewButtons
-    ]);
-    divNewPreview.id = "extimg-new-preview";
-    divNewPreview.style = `
-        NOdisplay: grid;
-        grid-template-columns: 1fr min-content;
-        gap: 10px;
-        align-items: center;
-    `;
-    async function isImage(urlImage) {
-        return new Promise((resolve, reject) => {
-            imgNewPreview.onload = () => resolve(true);
-            imgNewPreview.onerror = () => resolve(false);
-            imgNewPreview.src = urlImage;
-        });
-    }
-    async function isVideo(urlVideo) {
-        return new Promise((resolve, reject) => {
-            // https://stackoverflow.com/questions/57675008/onload-event-of-video-element-is-not-firing
-            videoNewPreview.onloadeddata = () => resolve(true);
-            videoNewPreview.onerror = (err) => { resolve(false); }
-            videoNewPreview.src = urlVideo;
-        });
-    }
-
-    const debounceCheckIsImage = modTools.debounce(checkInpUrl, 700);
-
-    let stateInpUrl;
-
-    const inpURL = modMdc.mkMDCtextFieldInput(undefined, "url");
-    async function checkInpUrl(urlImage) {
-        let newStateInpUrl = undefined;
-        if (!inpURL.checkValidity()) return;
-
-        divTestFeedback.style.visibility = "visible";
-        imgNewPreview.style.display = "none";
-        videoNewPreview.style.display = "none";
-        btnAddNew.style.display = "none";
-
-        eltFeedbackImage.style.fontSize = "1.3rem";
-        eltFeedbackImage.style.color = "red";
-        let res = await isImage(urlImage);
-        eltFeedbackImage.style.fontSize = null;
-        eltFeedbackImage.style.color = null;
-        console.log({ res }, "image");
-        if (res) {
-            newStateInpUrl = "image";
-            // imgNewPreview.style.display = null;
-        } else {
-            eltFeedbackVideo.style.fontSize = "1.3rem";
-            eltFeedbackVideo.style.color = "red";
-            res = await isVideo(urlImage);
-            eltFeedbackVideo.style.fontSize = null;
-            eltFeedbackVideo.style.color = null;
-            console.log({ res }, "video");
-            if (res) {
-                newStateInpUrl = "video";
-            }
-        }
-
-        divTestFeedback.style.visibility = "hidden";
-
-        debounceTellUserAboutUrl(newStateInpUrl);
-        return;
-        if (!res) {
-            btnAddNew.style.display = "none";
-            inpURL.setCustomValidity("Is this an image/video? Does CORS prevent access to it?");
-            inpURL.reportValidity();
-        } else {
-            btnAddNew.style.display = null;
-            inpURL.setCustomValidity("");
-        }
-    }
-
-    // inpURL.classList.add("remember-url");
-    const reportInpURLvalidity = () => inpURL.reportValidity();
-    // const debounceReportInpURLvalidity = debounce(reportInpURLvalidity, 3000);
-
-    const tellUserAboutUrl = (state) => {
-        reportInpURLvalidity();
-        stateInpUrl = state;
-        btnPlay.style.display = null;
-        btnPause.style.display = "none";
-        divPlayButtons.style.visibility = "hidden";
-        imgNewPreview.style.display = "none";
-        videoNewPreview.style.display = "none";
-        switch (stateInpUrl) {
-            case undefined:
-                break;
-            case "image":
-                imgNewPreview.style.display = null
-                btnAddNew.style.display = null;
-                break;
-            case "video":
-                divPlayButtons.style.visibility = null;
-                videoNewPreview.style.display = null;
-                btnAddNew.style.display = null;
-                break;
-            default:
-                throw Error(`Unknown stateInpUrl: ${stateInpUrl}`);
-        }
-    }
-    const debounceTellUserAboutUrl = modTools.debounce(tellUserAboutUrl, 3000);
-
-    inpURL.addEventListener("input", evt => {
-        const val = inpURL.value.trim();
-        if (val.length < 15) {
-            imgNewPreview.src = createPlaceholderSrc(1, 1);
-            inpURL.setCustomValidity("");
-            return;
-        }
-        try {
-            const u = new URL(val);
-            // console.log(u);
-            if (u.protocol != "https:") {
-                console.log("start https:");
-                inpURL.setCustomValidity("Link must start with https://");
-                // inpURL.reportValidity();
-                // debounceReportInpURLvalidity();
-                debounceTellUserAboutUrl();
-                return;
-            }
-            if (u.hostname.search("\\.") == -1) {
-                console.log("top level");
-                inpURL.setCustomValidity("Link must contain a top level domain");
-                // inpURL.reportValidity();
-                // debounceReportInpURLvalidity();
-                debounceTellUserAboutUrl();
-                return;
-            }
-        } catch (err) {
-            console.log("not");
-            inpURL.setCustomValidity("Not a valid URL");
-            // inpURL.reportValidity();
-            // debounceReportInpURLvalidity();
-            debounceTellUserAboutUrl();
-            return;
-        }
-        inpURL.setCustomValidity("");
-        const valid = inpURL.checkValidity();
-        if (!valid) {
-            evt.stopImmediatePropagation();
-            // debounceReportInpURLvalidity();
-            debounceTellUserAboutUrl();
-        }
-        debounceCheckIsImage(val);
-    });
-    const tfURL = modMdc.mkMDCtextField("Add image/video link", inpURL);
-    tfURL.style = `
-        width: 100%;
-    `;
-
-    const divOldUrls = mkElt("div");
-    divOldUrls.style = styleUrlAlt;
-    */
 
     const styleUrlAlt = `
         display: flex;
@@ -591,45 +323,88 @@ export async function dialogImages(arrBuiltin, applyImage) {
             const lblRandom = mkElt("label", undefined, [radImg, eltRandomInfo]);
             return mkElt("div", undefined, [lblRandom]);
         }
+        if (url == "users") {
+            // 2 Your
+            const eltOwnPreview = mkElt("div", { id: "own-preview" });
+            eltOwnPreview.style = `
+                width: 100px;
+                height: 100px;
+                border: 1px solid red;
+                `;
+            eltOwnPreview.classList.add("image-preview");
+            // const blobSaved = await modLocalFileReader.getSavedFileBlob(keyBackground);
+            // eltOwnPreview.style.backgroundImage = `url("${blobSaved}")`;
+
+
+            const btnSelectBackground = mkElt("button", undefined, "Select");
+            btnSelectBackground.addEventListener("click", async evt => {
+                evt.stopPropagation();
+                const eltBrowsePreview = mkElt("div");
+                eltBrowsePreview.classList.add("image-preview");
+                eltBrowsePreview.style = `
+            border: 1px solid red;
+            height: 100px;
+            width: 100px;
+        `;
+                let blobPreview;
+                let blobUrl;
+
+                const btnBrowse = mkElt("button", undefined, "Browse");
+                btnBrowse.addEventListener("click", async evt => {
+                    evt.stopPropagation();
+                    console.log({ modLocalFileReader });
+
+                    // await modLocalFileReader.selectAndSaveFile(keyBackground, "image,video");
+                    // const blob = await modLocalFileReader.getSavedFileBlob(keyBackground);
+                    blobPreview = await modLocalFileReader.selectFile("image,video");
+
+                    blobUrl = URL.createObjectURL(blobPreview);
+                    eltBrowsePreview.style.backgroundImage = `url("${blobUrl}")`;
+                });
+                const body = mkElt("div", undefined, [
+                    mkElt("h2", undefined, "Select background"),
+                    mkElt("p", undefined, `
+                You can select an image or video from your device.
+                `),
+                    btnBrowse,
+                    eltBrowsePreview
+                ]);
+                const ans = await modBasicUI.showDialogConfirm(body);
+                if (!ans) return;
+                // @ts-ignore
+                eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
+
+                // const ourBlobUrl = eltBrowsePreview.style.back
+                modLocalFileReader.saveFileHandle(keyBackground, blobUrl);
+            });
+
+
+            const lblUsers = mkElt("label", undefined, [
+                radImg,
+                eltOwnPreview,
+            ]);
+            lblUsers.style = `
+                display: flex;
+                gap: 5px;
+                margin-top: 10px;
+            `;
+            return mkElt("div", undefined, [
+                btnSelectBackground,
+                lblUsers,
+            ]);
+
+        }
         const checked = url == oldObj.choice;
         if (checked) { radImg.checked = true; }
         let eltHandle;
         if (!isBuiltin) {
-            const iconDelete = modIcons.mkGIcon("delete_forever");
-            const btnDelete = modMdc.mkMDCiconButton(iconDelete, "Delete");
-            btnDelete.addEventListener("click", evt => {
-                const div = btnDelete.closest("div");
-                const bcrDiv = div.getBoundingClientRect();
-                div.style.maxHeight = bcrDiv.height + "px";
-                div.style.opacity = 1;
-                div.style.transition = "opacity 1.2s 0s, scale 1.2s 0s";
-                div.style.transformOrigin = "top left";
-                div.style.opacity = 0;
-                // div.style.maxHeight = "0px";
-                div.style.scale = 0.1;
-                const rad = div.querySelector("input");
-                console.log(rad);
-                const valUrl = rad.value;
-                const objRec = getImagesRec();
-                const arr = objRec.arr;
-                const idx = arr.indexOf(valUrl);
-                arr.splice(idx, 1);
-                if (rad.checked) {
-                    // FIX-ME: check random
-                    // eslint-disable-next-line no-debugger
-                    debugger;
-                    const radRandom = divRandomUrl.querySelector("input[type=radio]");
-                    radRandom.checked = true;
-                    // radRandom.click();
-                    objRec.choice = "random";
-                    debounceSetImagesRec(objRec);
-                }
-                debounceSetImagesRec(objRec);
-                setTimeout(() => div.remove(), 1.2 * 1000);
-            });
-            eltHandle = btnDelete;
+            // 2 Your Own
+            // const btnDelete = modMdc.mkMDCiconButton(iconDelete, "Delete");
+            debugger;
+            // eltHandle = btnDelete;
+            // eltHandle = mkElt("span", undefined, "Your image");
         } else {
-            eltHandle = mkElt("span", undefined, "Built in");
+            // eltHandle = mkElt("span", undefined, "Built in");
         }
         const tellVideo = isVideoChoice ? mkElt("span", undefined, "(⚠ video)") : "";
         if (tellVideo.tagName == "SPAN") {
@@ -668,39 +443,20 @@ export async function dialogImages(arrBuiltin, applyImage) {
 
     const divRandomUrl = mkElt("div", undefined, mkImgChoice("random"));
 
-    const eltOwnPreview = mkElt("div", { id: "own-preview" });
-    eltOwnPreview.style = `
-        width: 100px;
-        height: 100px;
-        border: 1px solid red;
-    `;
-    eltOwnPreview.classList.add("image-preview");
-    const blobSaved = await modLocalFileReader.getSavedFileBlob(keyBackground);
-    debugger;
-    // const blobUrl = URL.createObjectURL(blobSaved);
-    // eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
-    eltOwnPreview.style.backgroundImage = `url("${blobSaved}")`;
-
+    const divYourBg = mkElt("div", undefined, mkImgChoice("users"));
     const bdy = mkElt("div", { class: "extimg-colored-dialog" }, [
         mkElt("h2", undefined, "Background Images"),
         // btnCopyright,
         divRandomUrl,
-        mkElt("h3", undefined, [
-            "Your own: ",
-            // btnInfoCopyright,
-            eltOwnPreview,
-            btnSelectBackground
+        mkElt("div", undefined, [
+            mkElt("h3", undefined, "2 Your own: "),
+            divYourBg,
         ]),
+        // eltOwnPreview,
+        // btnSelectBackground
 
         mkElt("h3", undefined, "Built in:"),
         divBuiltinUrls,
-        /*
-        divOldUrls,
-        mkElt("div", { id: "extimg-add-new" }, [
-            divNewUrl,
-            divNewPreview,
-        ]),
-        */
     ]);
     bdy.addEventListener("change", evt => {
         const target = evt.target;
