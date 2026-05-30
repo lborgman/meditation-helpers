@@ -2042,7 +2042,7 @@ function pattY2canvasY(pattY) {
 async function setCanvasBackgroundToCurrent() {
     const modExtImages = await importFc4i("user-images");
     modExtImages.setStoringPrefix(STORING_PREFIX);
-    useImage = modExtImages.getCurrentImageUrl(myGooglePhotos) || useImage;
+    useImage = await modExtImages.getCurrentImageUrl(myGooglePhotos) || useImage;
     // eltCanvas.style.backgroundImage = `url(${useImage})`;
     updateCanvasBackground(useImage);
 };

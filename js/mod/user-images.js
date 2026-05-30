@@ -188,7 +188,7 @@ function setImagesRec(objJson) {
  * @param {string[]} arrBuiltin 
  * @returns {string}
  */
-export function getCurrentImageUrl(arrBuiltin) {
+export async function getCurrentImageUrl(arrBuiltin) {
     const { choice, arr } = getImagesRec();
     if (choice == "random") {
         // Don't include videos:
@@ -201,6 +201,13 @@ export function getCurrentImageUrl(arrBuiltin) {
         self.crypto.getRandomValues(a);
         const idx1 = a[0] % arrChoices.length;
         return arrChoices[idx1];
+    }
+    if (choice == "users") {
+        console.log({ modLocalFileReader });
+        const b = await modLocalFileReader.getSavedFileBlob(keyBackground)
+        // debugger;
+        // modLocalFileReader
+        return b;
     }
     return choice;
 }
@@ -332,20 +339,23 @@ export async function dialogImages(arrBuiltin, applyImage) {
                 border: 1px solid red;
                 `;
             eltOwnPreview.classList.add("image-preview");
-            // const blobSaved = await modLocalFileReader.getSavedFileBlob(keyBackground);
-            // eltOwnPreview.style.backgroundImage = `url("${blobSaved}")`;
+            (async () => {
+                const blobSaved = await modLocalFileReader.getSavedFileBlob(keyBackground);
+                eltOwnPreview.style.backgroundImage = `url("${blobSaved}")`;
+            })();
 
 
             const btnSelectBackground = mkElt("button", undefined, "Select");
+            btnSelectBackground.style.marginLeft = "30px";
             btnSelectBackground.addEventListener("click", async evt => {
                 evt.stopPropagation();
                 const eltBrowsePreview = mkElt("div");
                 eltBrowsePreview.classList.add("image-preview");
                 eltBrowsePreview.style = `
-            border: 1px solid red;
-            height: 100px;
-            width: 100px;
-        `;
+                    border: 1px solid red;
+                    height: 100px;
+                    width: 100px;
+                    `;
                 let blobPreview;
                 let blobUrl;
 
