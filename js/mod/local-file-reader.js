@@ -66,6 +66,7 @@ function makeFilePickerOptions(mediaTypes, title) {
 }
 
 /**
+ * Select file, return true if done, otherwise return false.
  *
  * @param {string} savedName
  * @param {string} mediaTypes - comma-separated, like: image/*,video/mp4
@@ -79,13 +80,17 @@ export async function selectAndSaveFile(savedName, mediaTypes, title) {
 }
 
 /**
+ * Select file, return true if done, otherwise return false.
+ * 
  * @param {string} savedName
  * @param {object} pickerOptions
  * @returns {Promise<boolean>}
  */
 export async function selectAndSaveFileAdvanced(savedName, pickerOptions) {
-    const fileHandle = await selectFile(pickerOptions);
+    const fileHandle = await selectFileAdvanced(pickerOptions);
+    if (!fileHandle) return false;
     await saveFileHandle(savedName, fileHandle);
+    return true;
 }
 
 /**
