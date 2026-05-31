@@ -216,8 +216,10 @@ export async function dialogSound() {
                 if (isLastBell) return;
             }
             const target = evt.target;
-            const lbl = target.closest("label.label-bell");
-            const rad = lbl.querySelector("input[type=radio]");
+            // const lbl = target.closest("label.label-bell");
+            const div = target.closest("div.label-bell");
+            // const rad = lbl.querySelector("input[type=radio]");
+            const rad = div.querySelector("input[type=radio]");
             const showName = lbl.firstElementChild.nextSibling.textContent;
             let bellName = rad.value;
             if (bellName == "same") {

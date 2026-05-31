@@ -250,3 +250,168 @@ export function snackbar(bdy, sec) {
 }
 
 setTimeout(() => { snackbar("Hi, welcome!", 3) }, 500);
+
+
+
+class MdcInput extends HTMLElement {
+    #internalValue = '';
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.renderShell();
+    }
+
+    static get observedAttributes() {
+        return ['label', 'type', 'value'];
+    }
+
+    get inputElement() {
+        return this.shadowRoot.querySelector('.mdc-text-field__input');
+    }
+
+    set label( /** @type {string} */ val) {
+        this.setAttribute('label', val);
+    }
+
+    get value() {
+        return this.inputElement ? this.inputElement.value : this.#internalValue;
+    }
+
+    set value(val) {
+        this.#internalValue = val;
+        const input = this.inputElement;
+        if (input) {
+            input.value = val;
+            this.toggleValueClass(input);
+        }
+    }
+
+    connectedCallback() {
+        if (this.hasAttribute('value')) {
+            this.value = this.getAttribute('value');
+        }
+        this.setupListeners();
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (oldValue === newValue) return;
+
+        if (name === 'value') {
+            this.value = newValue;
+            return;
+        }
+
+        const input = this.inputElement;
+        const labelText = this.shadowRoot.querySelector('.mdc-floating-label');
+
+        if (name === 'label' && labelText) labelText.textContent = newValue;
+        if (name === 'type' && input) input.type = newValue;
+    }
+
+    toggleValueClass(input) {
+        if (input && input.value && input.value.trim() !== "") {
+            input.classList.add('has-value');
+        } else if (input) {
+            input.classList.remove('has-value');
+        }
+    }
+
+    setupListeners() {
+        const input = this.inputElement;
+        if (!input) return;
+
+        input.addEventListener('blur', () => this.toggleValueClass(input));
+        input.addEventListener('input', () => {
+            this.#internalValue = input.value;
+            this.toggleValueClass(input);
+            this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+        });
+    }
+
+    renderShell() {
+        this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: inline-block;
+          width: 100%;
+          max-width: 300px;
+          --primary-color: #6200ee;
+          --text-color: #333;
+          --bg-color: #f5f5f5;
+          --border-color: rgba(0, 0, 0, 0.42);
+        }
+
+        .mdc-text-field {
+          position: relative;
+          display: flex;
+          width: 100%;
+          height: 56px;
+          background-color: var(--bg-color);
+          border-top-left-radius: 4px;
+          border-top-right-radius: 4px;
+          box-sizing: border-box;
+          cursor: text;
+        }
+
+        .mdc-text-field__input {
+          width: 100%;
+          border: none;
+          border-bottom: 1px solid var(--border-color);
+          background: transparent;
+          padding: 20px 16px 6px;
+          font-size: 16px;
+          color: var(--text-color);
+          outline: none;
+          box-sizing: border-box;
+        }
+
+        .mdc-floating-label {
+          position: absolute;
+          left: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: rgba(0, 0, 0, 0.6);
+          font-size: 16px;
+          transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+          pointer-events: none;
+          transform-origin: left top;
+        }
+
+        .mdc-line-ripple {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 2px;
+          background-color: var(--primary-color);
+          transform: scaleX(0);
+          transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Modern Parent Selection Logic via :has() */
+        .mdc-text-field:has(.mdc-text-field__input:focus) .mdc-floating-label,
+        .mdc-text-field:has(.mdc-text-field__input.has-value) .mdc-floating-label {
+          transform: translateY(-100%) scale(0.75);
+          color: var(--primary-color);
+        }
+
+        .mdc-text-field:has(.mdc-text-field__input.has-value):not(:has(.mdc-text-field__input:focus)) .mdc-floating-label {
+          color: rgba(0, 0, 0, 0.6);
+        }
+
+        .mdc-text-field:has(.mdc-text-field__input:focus) .mdc-line-ripple {
+          transform: scaleX(1);
+        }
+      </style>
+
+      <label class="mdc-text-field">
+        <input type="text" class="mdc-text-field__input">
+        <span class="mdc-floating-label"></span>
+        <div class="mdc-line-ripple"></div>
+      </label>
+    `;
+    }
+}
+
+customElements.define('mdc-input', MdcInput);

@@ -351,7 +351,7 @@ function isAndroidWebView() {
 // let thisIsNetworkTrouble;
 window["alertError"] = alertError;
 function alertError(msg, e) {
-    console.log("alertError", msg, e);
+    console.log("%c============= alertError:\n", "color:red;font-size:30px;", msg, e);
     console.log("e.thisIsNetWorkTrouble", e.thisIsNetworkTrouble);
     if (e.reason) console.log("e.reason.thisIsNetWorkTrouble", e.reason.thisIsNetworkTrouble);
 
@@ -864,43 +864,9 @@ function mkJsonType(obj) {
 */
 
 async function popupDialog(title, body, severity) {
-    // const hasDialog = Object.getOwnPropertyNames(window).includes("HTMLDialogElement");
-    // Use dialog as fallback
-    const useDialog = true; // typeof Popup !== "function";
     let styleDia = "max-width:90vw; max-height:80vh; overflow:auto; color:black; ";
     switch (severity) {
         case "error":
-            /*
-            // No longer used, PWA runs separated
-            {
-                (async () => {
-                    try {
-                        const btnUpdate = mkElt("button", undefined, "Update now");
-                        const styleUpdate = "background:black; color:white; padding:10px; display: none;";
-                        const divUpdate = mkElt("div", { style: styleUpdate }, ["Update available ", btnUpdate]);
-                        body.insertBefore(divUpdate, body.firstElementChild)
-                        btnUpdate.addEventListener("click", errorHandlerAsyncEvent(async () => {
-                            modPwa.updateNow();
-                        }));
-                        // if (modPwa.hasUpdate())
-                        if (modPwa.isShowingUpdatePrompt()) {
-                            console.log("?????? isShowingUpdatePrompt");
-                            window.onbeforeunload = null;
-                            setTimeout(() => divUpdate.style.display = "block", 100);
-                        } else {
-                            window.addEventListener("pwa-update-available", () => {
-                                console.log("?????? pwa-update-available");
-                                window.onbeforeunload = null;
-                                divUpdate.style.display = "block";
-                            });
-                        }
-                    } catch (err) {
-                        console.error(err);
-                        debugger; // eslint-disable-line no-debugger
-                    }
-                })();
-            }
-            */
             styleDia += "background:yellow; border:2px solid red;";
             break;
         case "warning":
@@ -912,38 +878,27 @@ async function popupDialog(title, body, severity) {
         default:
             styleDia += "background:red; border:2px solid yellow;";
     }
-    if (!useDialog) {
-        styleDia += " position:fixed; left:10px; top:10px; padding:1rem; ";
-    }
     const styleArt = "";
     const styleBtn = "background:orange; color:black; border-radius: 4px; border: none; padding: 8px;";
     await thePromiseDOMready;
-    if (useDialog) {
-        const closeBtn = mkElt("button", { style: styleBtn }, "CLOSE");
-        // FIXME: the native dialog is broken 2020-07-15
-        closeBtn.addEventListener("click", () => {
-            // dialog.close();
-            document.body.removeChild(dialog);
-            window.onbeforeunload = null;
-        });
-        const dialogTag = useDialog ? "dialog" : "section";
-        const dialog = mkElt(dialogTag, { style: styleDia },
-            mkElt("div", { style: styleArt }, [
-                mkElt("h1", undefined, title),
-                // mkElt("div", undefined, body),
-                body,
-                mkElt("div", undefined, ["", closeBtn]),
-            ]));
-        dialog.classList.add("error-popup");
-        document.body.appendChild(dialog);
-        // @ts-ignore
-        dialog.showModal();
-    } else {
-        throw Error("useDialog should be true");
-        // body.style = styleDia;
-        // body.style.position = "static";
-        // new Popup(title, body, undefined, true, undefined, "max-width: min(90vw, 800px);").show();
-    }
+    const closeBtn = mkElt("button", { style: styleBtn }, "CLOSE");
+    // FIXME: the native dialog is broken 2020-07-15
+    closeBtn.addEventListener("click", () => {
+        // dialog.close();
+        document.body.removeChild(dialog);
+        window.onbeforeunload = null;
+    });
+    const dialog = mkElt("dialog", { style: styleDia },
+        mkElt("div", { style: styleArt }, [
+            mkElt("h1", undefined, title),
+            // mkElt("div", undefined, body),
+            body,
+            mkElt("div", undefined, ["", closeBtn]),
+        ]));
+    dialog.classList.add("error-popup");
+    document.body.appendChild(dialog);
+    // @ts-ignore
+    dialog.showModal();
 }
 
 // const a = 1 / b; console.log("a", a)
@@ -5145,18 +5100,18 @@ let wakeLock = null;
  * @throws {Error} If the wake lock request fails
  */
 export async function requestWakeLock() {
-  try {
-    wakeLock = await navigator.wakeLock.request("screen");
-    console.log("Wake Lock acquired");
+    try {
+        wakeLock = await navigator.wakeLock.request("screen");
+        console.log("Wake Lock acquired");
 
-    wakeLock.addEventListener("release", () => {
-      console.log("Wake Lock was released by the system");
-      wakeLock = null;
-    });
-  } catch (err) {
-    console.error(`Wake Lock request failed: ${err.name}, ${err.message}`);
-    throw err;
-  }
+        wakeLock.addEventListener("release", () => {
+            console.log("Wake Lock was released by the system");
+            wakeLock = null;
+        });
+    } catch (err) {
+        console.error(`Wake Lock request failed: ${err.name}, ${err.message}`);
+        throw err;
+    }
 }
 
 /**
@@ -5166,17 +5121,17 @@ export async function requestWakeLock() {
  * @returns {Promise<void>} Resolves when the wake lock is released or if none was active
  */
 export async function releaseWakeLock() {
-  if (wakeLock === null) {
-    console.log("No wake lock to release");
-    return;
-  }
+    if (wakeLock === null) {
+        console.log("No wake lock to release");
+        return;
+    }
 
-  try {
-    await wakeLock.release();
-    console.log("Wake Lock released manually");
-    wakeLock = null;
-  } catch (err) {
-    console.error("Error releasing wake lock:", err);
-    throw err;
-  }
+    try {
+        await wakeLock.release();
+        console.log("Wake Lock released manually");
+        wakeLock = null;
+    } catch (err) {
+        console.error("Error releasing wake lock:", err);
+        throw err;
+    }
 }

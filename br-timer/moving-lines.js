@@ -1263,8 +1263,13 @@ async function dialogPattern() {
                     `;
             bdy.appendChild(divName);
         } else {
-            inpName = modMdc.mkMDCtextFieldInput();
-            const tfName = modMdc.mkMDCtextFieldOutlined("Pattern name", inpName);
+            const mdcInput = mkElt("mdc-input");
+            console.log(mdcInput);
+            debugger;
+            // inpName = modMdc.mkMDCtextFieldInput();
+            // const tfName = modMdc.mkMDCtextFieldOutlined("Pattern name", inpName);
+            inpName = mdcInput.inputElement;
+            const tfName = mdcInput;
 
             const arrNames = getAllPatternNames();
             const checkInpName = () => {
@@ -1376,6 +1381,8 @@ async function dialogPattern() {
             saveButton = btn;
             saveButton.disabled = true;
         };
+
+        /*
         const dlg = modMdc.mkMDCdialogConfirm(bdy, "Save", true, funResult, funOkButton);
         let closeResult;
         function closeDialogViaButton(hasResult) {
@@ -1387,6 +1394,17 @@ async function dialogPattern() {
             saveButton.click();
         }
         const res = await dlg;
+        */
+        let res;
+        try {
+            debugger;
+            res = await modBasicUI.showDialogConfirm(bdy);
+            debugger;
+        } catch (err) {
+            console.error(err);
+            debugger;
+        }
+        debugger;
         if (res != false || closeResult) {
             if (!closeResult) {
                 const yourPns = settingYourPatt.value;
@@ -2583,7 +2601,7 @@ async function setupControls(controlscontainer) {
         divNWcard.style.padding = "10px";
 
         // const btnClearData = modMdc.mkMDCbutton("Reset", "raised");
-        const btnClearData = mkElt("button", {class:"button-raised"}, "Reset");
+        const btnClearData = mkElt("button", { class: "button-raised" }, "Reset");
         btnClearData.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
             const bdy = TSmkElt("div", undefined, [
                 TSmkElt("h2", undefined, "Clear all your choices"),
