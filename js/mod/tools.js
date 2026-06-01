@@ -1442,7 +1442,7 @@ export async function fetchReTLD() {
  */
 export async function copyTextToClipboard(txt, noSnackbar) {
     const addSnackbar = noSnackbar == undefined ? true : !noSnackbar;
-    const modMdc = await importFc4i("util-mdc");
+    // const oldmodMdc = await importFc4i("util-mdc");
     try {
         await navigator.clipboard.writeText(txt);
         if (addSnackbar) modBasicUI.snackbar('Copied to clipboard');
@@ -1488,8 +1488,8 @@ async function showInfoPermissions(txtWhich) {
         ]),
         pLink
     ]);
-    const modMdc = await importFc4i("util-mdc");
-    // modMdc.mkMDCdialogAlert(body);
+    // const oldmodMdc = await importFc4i("util-mdc");
+    // oldmodMdc.mkMDCdialogAlert(body);
     modBasicUI.showDialog(body);
 }
 
@@ -2908,8 +2908,8 @@ async function show4bugLogs() {
         h2,
         divDebug
     ]);
-    const modMdc = await importFc4i("util-mdc");
-    // modMdc.mkMDCdialogAlert(body);
+    // const oldmodMdc = await importFc4i("util-mdc");
+    // oldmodMdc.mkMDCdialogAlert(body);
     modBasicUI.showDialog(body);
 }
 

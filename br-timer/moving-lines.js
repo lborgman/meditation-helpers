@@ -612,7 +612,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
         divResult,
         detExplainSpeed
     ]);
-    body.classList.add("colored-dialog");
+    // body.classList.add("colored-dialog");
     body.style.height = "80vh";
 
     /*
@@ -711,7 +711,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
     });
 
 
-    modMdc.mkMDCdialogAlert(body, "Close");
+    modBasicUI.showDialogConfirm(body);
 
     function collectFeedback() {
         const userSignals = body.querySelectorAll("input[type=radio]:checked");
@@ -1187,7 +1187,7 @@ async function dialogPattern() {
         ]);
     NEWdetPattList.style = styleDetPattList;
 
-    const bdy = TSmkElt("div", { class: "colored-dialog" }, [
+    const bdy = mkElt("div", undefined, [
         TSmkElt("h2", undefined, "Breathing patterns"),
         mkElt("p", { style: "margin-top:-10px;" }, [
             "Read more about ",
@@ -1204,7 +1204,7 @@ async function dialogPattern() {
     builtinPn.forEach(pn => { addPn(pn); });
 
     OLDdivPattList.appendChild(TSmkElt("h3", undefined, "1 Your Own:"));
-    // const btnAddPatt = modMdc.mkMDCbutton("Add", "raised");
+    // const btnAddPatt = oldmodMdc.mkMDCbutton("Add", "raised");
     const btnAddPatt = mkElt("button", undefined, "Add");
     const divBtnAddPatt = TSmkElt("div", undefined, btnAddPatt);
     divBtnAddPatt.style.marginTop = "-20px";
@@ -1215,7 +1215,7 @@ async function dialogPattern() {
     async function dialogYourPatt(existingPattName) {
         const action = existingPattName ? "Edit" : "Add";
         const bdy = TSmkElt("div", undefined, TSmkElt("h2", undefined, `${action} your own pattern`));
-        bdy.classList.add("colored-dialog");
+        // bdy.classList.add("colored-dialog");
         let inpName, yourPatt;
         if (existingPattName) {
             yourPatt = getPatternByName(existingPattName);
@@ -1239,7 +1239,8 @@ async function dialogPattern() {
             const iconDelete = modIcons.mkGIcon("delete_forever");
             const btnDelete = modBasicUI.mkIconButton(iconDelete, "Delete");
             btnDelete.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
-                const ans = await modMdc.mkMDCdialogConfirm(`Delete pattern ${existingPattName}?`);
+                // const ans = await oldmodMdc.mkMDCdialogConfirm(`Delete pattern ${existingPattName}?`);
+                const ans = await modBasicUI.showDialogConfirm(`Delete pattern ${existingPattName}?`);
                 if (ans) {
                     const yourPatts = settingYourPatt.value;
                     delete yourPatts[existingPattName];
@@ -1265,9 +1266,11 @@ async function dialogPattern() {
         } else {
             const mdcInput = mkElt("mdc-input");
             console.log(mdcInput);
-            debugger;
-            // inpName = modMdc.mkMDCtextFieldInput();
-            // const tfName = modMdc.mkMDCtextFieldOutlined("Pattern name", inpName);
+            // debugger;
+            mdcInput.label = "Pattern name";
+            mdcInput.setAttribute("variant", "outlined");
+            // inpName = oldmodMdc.mkMDCtextFieldInput();
+            // const tfName = oldmodMdc.mkMDCtextFieldOutlined("Pattern name", inpName);
             inpName = mdcInput.inputElement;
             const tfName = mdcInput;
 
@@ -1374,49 +1377,27 @@ async function dialogPattern() {
         });
 
 
-        const funResult = () => {
-            return "this si the result";
-        };
-        const funOkButton = (btn) => {
-            saveButton = btn;
-            saveButton.disabled = true;
-        };
 
-        /*
-        const dlg = modMdc.mkMDCdialogConfirm(bdy, "Save", true, funResult, funOkButton);
-        let closeResult;
-        function closeDialogViaButton(hasResult) {
-            // eslint-disable-next-line no-debugger
-            debugger;
-            closeResult = hasResult;
-            // dlg.mdc.close();
-            saveButton.disabled = false;
-            saveButton.click();
-        }
-        const res = await dlg;
-        */
         let res;
+        const funOkButton = (btn) => { saveButton = btn; }
         try {
-            debugger;
-            res = await modBasicUI.showDialogConfirm(bdy);
+            // debugger;
+            res = await modBasicUI.showDialogConfirm(bdy, "Save", undefined, funOkButton);
             debugger;
         } catch (err) {
             console.error(err);
             debugger;
         }
         debugger;
-        if (res != false || closeResult) {
-            if (!closeResult) {
-                const yourPns = settingYourPatt.value;
-                const yourPattName = existingPattName || inpName.value.trim();
-                const patt = getYourPatt();
-                yourPns[yourPattName] = {};
-                yourPns[yourPattName].patt = patt;
-                settingYourPatt.value = yourPns;
-                settingPattern.value = yourPattName;
-                // modMdc.mkMDCsnackbar(`Switching to new pattern ${yourPattName}`);
-                modBasicUI.snackbar(`Switching to new pattern ${yourPattName}`);
-            }
+        if (res == true) {
+            const yourPns = settingYourPatt.value;
+            const yourPattName = existingPattName || inpName.value.trim();
+            const patt = getYourPatt();
+            yourPns[yourPattName] = {};
+            yourPns[yourPattName].patt = patt;
+            settingYourPatt.value = yourPns;
+            settingPattern.value = yourPattName;
+            modBasicUI.snackbar(`Switching to new pattern ${yourPattName}`);
 
             refreshYourList();
         }
@@ -1502,7 +1483,7 @@ async function dialogPattern() {
             divList.appendChild(lbl);
         } else {
             const iconEdit = modIcons.mkGIcon("edit");
-            // const btnEdit = modMdc.mkMDCiconButton(iconEdit);
+            // const btnEdit = oldmodMdc.mkMDCiconButton(iconEdit);
             const btnEdit = modBasicUI.mkIconButton(iconEdit);
             btnEdit.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
                 dialogYourPatt(pn);
@@ -2391,7 +2372,7 @@ async function setupControls(controlscontainer) {
         eltMsg.style.backgroundColor = "red";
         eltMsg.style.color = "yellow";
         eltMsg.style.padding = "4px";
-        // modMdc.mkMDCsnackbar(eltMsg);
+        // oldmodMdc.mkMDCsnackbar(eltMsg);
         modBasicUI.snackbar(eltMsg);
     }
     settingNumPatts = new OurLocalSetting("num-patts", 1.5);
@@ -2400,7 +2381,7 @@ async function setupControls(controlscontainer) {
     // debugger;
 
     const iconStart = modIcons.mkGIcon("play_arrow");
-    // const btnStart = modMdc.mkMDCiconButton(iconStart, "Start");
+    // const btnStart = oldmodMdc.mkMDCiconButton(iconStart, "Start");
     const btnStart = modBasicUI.mkIconButton(iconStart, "Start");
     btnStart.title = "Start";
     btnStart.id = "start-button";
@@ -2415,7 +2396,7 @@ async function setupControls(controlscontainer) {
 
 
     const iconReplay = modIcons.mkGIcon("stop");
-    // const btnReplay = modMdc.mkMDCiconButton(iconReplay, "Stop");
+    // const btnReplay = oldmodMdc.mkMDCiconButton(iconReplay, "Stop");
     const btnReplay = modBasicUI.mkIconButton(iconReplay, "Stop");
     btnReplay.title = "Stop";
     btnReplay.addEventListener("click", evt => {
@@ -2447,7 +2428,7 @@ async function setupControls(controlscontainer) {
         TSmkElt("div", { id: "current-progress" }));
     const divChangeTime = (() => {
         const iconLess = modIcons.mkGIcon("expand_circle_down");
-        // const btnLess = modMdc.mkMDCiconButton(iconLess, "Shorter");
+        // const btnLess = oldmodMdc.mkMDCiconButton(iconLess, "Shorter");
         const btnLess = modBasicUI.mkIconButton(iconLess, "Shorter");
         btnLess.title = "Shorter";
         btnLess.addEventListener("click", evt => {
@@ -2463,7 +2444,7 @@ async function setupControls(controlscontainer) {
         const iconMore = modIcons.mkGIcon("expand_circle_down");
         iconMore.style.transform = "rotate(180deg)";
 
-        // const btnMore = modMdc.mkMDCiconButton(iconMore, "Longer");
+        // const btnMore = oldmodMdc.mkMDCiconButton(iconMore, "Longer");
         const btnMore = modBasicUI.mkIconButton(iconMore, "Longer");
         btnMore.title = "Longer";
         btnMore.addEventListener("click", evt => {
@@ -2490,7 +2471,7 @@ async function setupControls(controlscontainer) {
     })();
 
     const iconSettings = modIcons.mkGIcon("video_settings");
-    // const btnSettings = modMdc.mkMDCiconButton(iconSettings, "Start");
+    // const btnSettings = oldmodMdc.mkMDCiconButton(iconSettings, "Start");
     const btnSettings = modBasicUI.mkIconButton(iconSettings, "Start");
     btnSettings.title = "- Debug help";
     btnSettings.style.color = "blueviolet";
@@ -2536,9 +2517,9 @@ async function setupControls(controlscontainer) {
                     gap: 10px;
                 `;
 
-        const inpNumPatts = modMdc.mkMDCtextFieldInput(undefined, "number");
+        const inpNumPatts = oldmodMdc.mkMDCtextFieldInput(undefined, "number");
         settingNumPatts.bindToInput(inpNumPatts);
-        const tfNumPatts = modMdc.mkMDCtextFieldOutlined("Show num patts", inpNumPatts);
+        const tfNumPatts = oldmodMdc.mkMDCtextFieldOutlined("Show num patts", inpNumPatts);
         const divNumPatts = TSmkElt("div", undefined, tfNumPatts);
 
 
@@ -2600,18 +2581,18 @@ async function setupControls(controlscontainer) {
         divNWcard.style.backgroundColor = "white";
         divNWcard.style.padding = "10px";
 
-        // const btnClearData = modMdc.mkMDCbutton("Reset", "raised");
+        // const btnClearData = oldmodMdc.mkMDCbutton("Reset", "raised");
         const btnClearData = mkElt("button", { class: "button-raised" }, "Reset");
         btnClearData.addEventListener("click", TSDEFerrorHandlerAsyncEvent(async evt => {
             const bdy = TSmkElt("div", undefined, [
                 TSmkElt("h2", undefined, "Clear all your choices"),
                 TSmkElt("p", undefined, "Reset everything to default values"),
             ]);
-            // const ans = await modMdc.mkMDCdialogConfirm(bdy);
+            // const ans = await oldmodMdc.mkMDCdialogConfirm(bdy);
             const ans = await modBasicUI.showDialogConfirm(bdy);
             debugger;
             if (ans) {
-                // modMdc.mkMDCsnackbar("Clearing all your choices...");
+                // oldmodMdc.mkMDCsnackbar("Clearing all your choices...");
                 Object.keys(localStorage).forEach(k => {
                     // OurLocalSetting
                     if (k.startsWith(STORING_PREFIX)) {
@@ -2698,11 +2679,11 @@ async function setupControls(controlscontainer) {
 
         divDebug.appendChild(divAudioCard);
 
-        const bdy = TSmkElt("div", { class: "colored-dialog" }, [
+        const bdy = mkElt("div", undefined, [
             TSmkElt("h2", undefined, "Play settings"),
             divColumn,
         ]);
-        // await modMdc.mkMDCdialogConfirm(bdy, "Close", null);
+        // await oldmodMdc.mkMDCdialogConfirm(bdy, "Close", null);
         await modBasicUI.showDialog(bdy);
         debugger;
         initCurrentPattern();
@@ -2712,7 +2693,7 @@ async function setupControls(controlscontainer) {
     // mkMDCfab(eltIcon, title, mini, extendTitle)
     const icoPatternSpa = modIcons.mkGIcon("spa");
     icoPatternSpa.style.color = "greenyellow";
-    // const fabPattern = modMdc.mkMDCfab(icoPatternSpa, "Choose breathing pattern", true);
+    // const fabPattern = oldmodMdc.mkMDCfab(icoPatternSpa, "Choose breathing pattern", true);
     const fabPattern = modBasicUI.mkFabButton(icoPatternSpa, "Choose breathing pattern", true);
     fabPattern.addEventListener("click", evt => {
         if (isRunningFun()) { return; }
@@ -2723,7 +2704,7 @@ async function setupControls(controlscontainer) {
 
     const icoImages = modIcons.mkGIcon("image_search");
     icoImages.style.color = "greenyellow";
-    // const fabImages = modMdc.mkMDCfab(icoImages, "Choose background", true);
+    // const fabImages = oldmodMdc.mkMDCfab(icoImages, "Choose background", true);
     const fabImages = modBasicUI.mkFabButton(icoImages, "Choose background", true);
     fabImages.addEventListener("click", async evt => {
         evt.stopPropagation();
@@ -2736,7 +2717,7 @@ async function setupControls(controlscontainer) {
 
     const icoSound = modIcons.mkGIcon("notification_sound");
     icoSound.style.color = "pink";
-    // const fabSound = modMdc.mkMDCfab(icoSound, "Choose background", true);
+    // const fabSound = oldmodMdc.mkMDCfab(icoSound, "Choose background", true);
     const fabSound = modBasicUI.mkFabButton(icoSound, "Choose background", true);
     fabSound.addEventListener("click", async evt => {
         evt.stopPropagation();
@@ -2934,7 +2915,7 @@ export async function setupThings() {
     setCanvasBackgroundToCurrent();
 }
 async function addInfoButton(container) {
-    // const modMdc = await importFc4i("util-mdc");
+    // const oldmodMdc = await importFc4i("util-mdc");
     const iconInfo = modIcons.mkGIcon("info");
     iconInfo.style.fontSize = "2.5rem";
     iconInfo.style.color = "mediumslateblue";
@@ -2944,7 +2925,7 @@ async function addInfoButton(container) {
     // const urlAbout = new URL("../about.html", location);
     const urlAbout = new URL("../index.html", location.href);
     aInfo.href = urlAbout.href;
-    // const btnInfo = modMdc.mkMDCiconButton(aInfo, "Info");
+    // const btnInfo = oldmodMdc.mkMDCiconButton(aInfo, "Info");
     const btnInfo = modBasicUI.mkFabButton(aInfo, "Info");
     // @ts-ignore style
     btnInfo.style = `
@@ -2987,7 +2968,7 @@ async function dialogAndroidVKinfo() {
     const IDexplainVKbug = "explain-android-vk-bug";
     if (document.getElementById(IDexplainVKbug)) return;
     // @ts-ignore import
-    // const modMdc = await import("util-mdc");
+    // const oldmodMdc = await import("util-mdc");
     const linkIssue = "https://issues.chromium.org/issues/347967487";
     const aIssue = TSmkElt("a", { href: linkIssue }, "chromium issue 347967487");
     const divExplain = TSmkElt("div", undefined, [
@@ -3018,12 +2999,12 @@ async function setup4Android(container) {
         isAndroid = true; // FIX-ME:
     }
     if (isAndroid == false) return;
-    // const modMdc = await TSDEFimport("util-mdc");
-    // const modMdc = await importFc4i("util-mdc");
+    // const oldmodMdc = await TSDEFimport("util-mdc");
+    // const oldmodMdc = await importFc4i("util-mdc");
     const iconAndroid = modIcons.mkGIcon("android");
     iconAndroid.style.fontSize = "2.5rem";
     iconAndroid.style.color = "#3DDC84";
-    // const btnAndroidVKinfo = modMdc.mkMDCiconButton(iconAndroid, "Android virtual keyboard bug");
+    // const btnAndroidVKinfo = oldmodMdc.mkMDCiconButton(iconAndroid, "Android virtual keyboard bug");
     const btnAndroidVKinfo = modBasicUI.mkIconButton(iconAndroid, "Android virtual keyboard bug");
     btnAndroidVKinfo.id = idVKbutton;
     btnAndroidVKinfo.addEventListener("click", evt => {
@@ -3083,7 +3064,7 @@ async function addTestSoundButton(container) {
     const iconSound = modIcons.mkGIcon("flutter_dash");
     iconSound.style.fontSize = "2.5rem";
     iconSound.style.color = "red";
-    // const btnTestSound = modMdc.mkMDCiconButton(iconSound, "Test sounds");
+    // const btnTestSound = oldmodMdc.mkMDCiconButton(iconSound, "Test sounds");
     const btnTestSound = modBasicUI.mkIconButton(iconSound, "Test sounds");
     btnTestSound.addEventListener("click", evt => { dialogTestSounds(); });
     // @ts-ignore style

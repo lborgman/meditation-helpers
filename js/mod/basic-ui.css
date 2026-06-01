@@ -161,8 +161,8 @@ dialog {
 
 dialog>div {
     padding: 20px;
-    outline: 1px dotted blue;
-    border: 2px dotted red;
+    /* outline: 1px dotted blue; */
+    /* border: 2px dotted red; */
 }
 
 dialog::backdrop {

@@ -165,7 +165,7 @@ export async function dialogSound() {
 
     // debugger;
     // dialogImages
-    // const modMdc = await importFc4i("util-mdc");
+    // const oldmodMdc = await importFc4i("util-mdc");
     const iconSound = modIcons.mkGIcon("notification_sound");
 
     const soundRec = await getSoundRec();
@@ -440,8 +440,8 @@ export async function dialogSound() {
         mkElt("h2", undefined, ["Bell Sounds ", iconSound]),
         divBells,
     ]);
-    body.classList.add("colored-dialog");
-    // modMdc.mkMDCdialogAlert(body, "close");
+    // body.classList.add("colored-dialog");
+    // oldmodMdc.mkMDCdialogAlert(body, "close");
     showDialog(body);
     function showDialog(body) {
         const dlg = mkElt("dialog", undefined, body);

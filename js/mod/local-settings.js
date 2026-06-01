@@ -193,8 +193,12 @@ export class LocalSetting {
     #set_stored_itemValue(val) {
         const tofVal = typeof val;
         if (tofVal !== this.#tofDef) {
-            if (this.#tofDef != "range") {
-                throw Error(`#set_itemValue, ${this.#key}: typeof val==${tofVal}, expected ${this.#tofDef}`);
+            if (tofVal == "object") {
+                if (this.#tofDef != "Json") {
+                    throw Error(`#set_stored_itemValue: tofVal == "object", #tofDef == "${this.#tofDef}"`);
+                }
+            } else if (this.#tofDef != "range") {
+                throw Error(`#set_stored_itemValue, ${this.#key}: typeof val==${tofVal}, expected ${this.#tofDef}`);
             }
             // debugger;
         }

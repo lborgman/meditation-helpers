@@ -56,7 +56,7 @@ const keyBackground = "background-image-or-video";
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 
 const modTools = await importFc4i("toolsJs");
-// const modMdc = await importFc4i("util-mdc");
+// const oldmodMdc = await importFc4i("util-mdc");
 const modIcons = await importFc4i("google-icons");
 
 // https://stackoverflow.com/questions/5845238/javascript-generate-transparent-1x1-pixel-in-dataurl-format
@@ -110,7 +110,7 @@ export function dialogReason() {
             you are welcome to give it to me!)
         `),
     ]);
-    // modMdc.mkMDCdialogAlert(bdy);
+    // oldmodMdc.mkMDCdialogAlert(bdy);
     modBasicUI.showDialog(bdy);
 }
 const KEY = "external-images";
@@ -409,7 +409,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
         let eltHandle;
         if (!isBuiltin) {
             // 2 Your Own
-            // const btnDelete = modMdc.mkMDCiconButton(iconDelete, "Delete");
+            // const btnDelete = oldmodMdc.mkMDCiconButton(iconDelete, "Delete");
             debugger;
             // eltHandle = btnDelete;
             // eltHandle = mkElt("span", undefined, "Your image");
@@ -454,7 +454,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
     const divRandomUrl = mkElt("div", undefined, mkImgChoice("random"));
 
     const divYourBg = mkElt("div", undefined, mkImgChoice("users"));
-    const bdy = mkElt("div", { class: "extimg-colored-dialog" }, [
+    const bdy = mkElt("div", undefined, [
         mkElt("h2", undefined, "Background Images"),
         // btnCopyright,
         divRandomUrl,
@@ -490,7 +490,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
     };
     // mkMDCdialogConfirm(body, titleOk, titleCancel, funCheckSave, tellMeOkButton) {
     // mkMDCdialogAlert(body, titleClose) {
-    // modMdc.mkMDCdialogAlert(bdy, "Close");
+    // oldmodMdc.mkMDCdialogAlert(bdy, "Close");
 
     modBasicUI.showDialog(bdy);
 }
