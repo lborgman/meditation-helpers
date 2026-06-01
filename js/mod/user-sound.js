@@ -200,14 +200,7 @@ export async function dialogSound() {
 
         const icon = modIcons.mkGIcon("play_arrow");
         const btn = mkElt("button", undefined, icon);
-        btn.style = `
-            display: flex;
-            flex-wrap: wrap;
-            align-content: center;
-            border: none;
-            border-radius: 8px;
-            background-color: red;
-        `;
+        btn.classList.add("test-play-sound");
         btn.addEventListener("click", async evt => {
             evt.stopPropagation();
             if (lastBell) {
@@ -216,9 +209,7 @@ export async function dialogSound() {
                 if (isLastBell) return;
             }
             const target = evt.target;
-            // const lbl = target.closest("label.label-bell");
             const div = target.closest("div.label-bell");
-            // const rad = lbl.querySelector("input[type=radio]");
             const rad = div.querySelector("input[type=radio]");
             const showName = lbl.firstElementChild.nextSibling.textContent;
             let bellName = rad.value;
@@ -387,24 +378,64 @@ export async function dialogSound() {
     ]);
     await addFileBells(divInhaleBells, true, currentBells.inhale);
     const btnUserChoice = mkElt("button", undefined, "Select");
-    btnUserChoice.addEventListener("click", evt => {
+    btnUserChoice.addEventListener("click", async evt => {
         evt.stopPropagation();
-        debugger;
+        const icon = modIcons.mkGIcon("play_arrow");
+        const btnTest = mkElt("button", undefined, icon);
+        btnTest.classList.add("test-play-sound");
+        const divTest = mkElt("div", undefined, ["Play selected file: ", btnTest]);
+        divTest.inert = true;
+
+        let gotHandle;
         const btnGetFile = mkElt("button", undefined, "Select audio file");
         btnGetFile.addEventListener("click", async evt => {
             evt.stopPropagation();
-            const gotIt = await modLocalFileReader.selectAndSaveFile(keyUserInhale, "audio", "Select sound file for inhale");
-            console.log({ gotIt });
+            // const gotIt = await modLocalFileReader.selectAndSaveFile(keyUserInhale, "audio", "Select sound file for inhale");
+            gotHandle = await modLocalFileReader.selectFile("audio", "Select sound file for inhale");
+            console.log({ gotHandle });
+            if (gotHandle) {
+                if (!(gotHandle instanceof File)) {
+                    debugger;
+                }
+                divTest.inert = false;
+            } else {
+                divTest.inert = true;
+            }
         });
+        btnTest.addEventListener("click", async evt => {
+            evt.stopPropagation();
+            console.log({ gotHandle });
+            debugger;
+            // alert("not implemented yet");
+            const modVizVol = await importFc4i("viz-volume")
+            const urlBell = URL.createObjectURL(gotHandle);
+            modVizVol.showViz({
+                sound: {
+                    soundName: "Test selected sound file",
+                    soundSource: urlBell,
+                }
+            });
+        });
+        const divBtns = mkElt("div", undefined, [
+            btnGetFile,
+            // btnTest,
+            divTest,
+        ]);
+        divBtns.style = `
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        `;
         const bdy = mkElt("div", undefined, [
             mkElt("h2", undefined, "Your sound: inhale"),
-            btnGetFile,
-            "keyUserInhale",
+            divBtns
+            // "keyUserInhale",
         ]);
-        const dlg = mkElt("dialog", undefined, bdy);
-        modBasicUI.addXclose(dlg);
-        document.documentElement.appendChild(dlg);
-        dlg.showModal();
+        const ans = await modBasicUI.showDialogConfirm(bdy);
+        if (ans) {
+            debugger;
+            alert("not implemented yet§");
+        }
     });
     // const eltUserChoice = mkElt("span", { style: "color:red" }, [ "Your choice", btnUserChoice ]);
     const eltUserBell2 = mkRadBell("Your sound", keyUserInhale, true, undefined);

@@ -96,7 +96,7 @@ export async function selectAndSaveFileAdvanced(savedName, pickerOptions) {
 /**
  * @param {string} mediaTypes - comma-separated, like: image/*,video/mp4
  * @param {string} [title]
- * @returns 
+ * @returns {Promise<FileSystemHandle|undefined>}
  */
 export async function selectFile(mediaTypes, title) {
     const pickerOptions = makeFilePickerOptions(mediaTypes, title);
@@ -104,7 +104,7 @@ export async function selectFile(mediaTypes, title) {
 }
 /**
  * @param {object} pickerOptions
- * @returns {Promise<boolean|undefined>}
+ * @returns {Promise<FileSystemHandle|undefined>}
  */
 export async function selectFileAdvanced(pickerOptions) {
     try {
