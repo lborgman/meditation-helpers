@@ -2042,6 +2042,8 @@ async function setCanvasBackgroundToCurrent() {
     const modExtImages = await importFc4i("user-images");
     modExtImages.setStoringPrefix(STORING_PREFIX);
     useImage = await modExtImages.getCurrentImageUrl(myGooglePhotos) || useImage;
+    // Something wrong with data?
+    if (!useImage) return;
     // eltCanvas.style.backgroundImage = `url(${useImage})`;
     updateCanvasBackground(useImage);
 };

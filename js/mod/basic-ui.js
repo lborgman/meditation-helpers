@@ -949,3 +949,48 @@ class MdcInput extends HTMLElement {
 }
 
 customElements.define('mdc-input', MdcInput);
+
+
+/**
+ * 
+ * @param {string} variableName 
+ * @param {string} className 
+ * @returns {boolean}
+ */
+export function isCssVariableDefined(variableName, className) {
+    // Ensure the variable name starts with '--'
+    const formattedVar = variableName.startsWith('--') ? variableName : `--${variableName}`;
+
+    const testElem = document.createElement('div');
+    if (className) {
+        testElem.className = className;
+    }
+
+    // Isolate the element completely out of the document flow
+    testElem.style.position = 'fixed';
+    testElem.style.top = '-9999px';
+    testElem.style.visibility = 'hidden';
+
+    document.body.appendChild(testElem);
+
+    // Read the computed value of the variable
+    const value = window.getComputedStyle(testElem).getPropertyValue(formattedVar).trim();
+
+    document.body.removeChild(testElem);
+
+    // If the variable doesn't exist, the browser returns an empty string
+    return value !== '';
+}
+
+// Example 1: Check if a global variable exists on a class
+// console.log(isCssVariableDefined('--theme-color', 'my-custom-class'));
+
+// Example 2: Check if a global variable exists on the root/body level
+// console.log(isCssVariableDefined('--main-bg-color')); 
+
+// Instant, zero-overhead check for global theme variables
+/*
+const isDefined = window.getComputedStyle(document.documentElement)
+                        .getPropertyValue('--my-variable')
+                        .trim() !== '';
+*/
