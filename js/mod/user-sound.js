@@ -18,8 +18,8 @@ const modIcons = await importFc4i("google-icons");
 const modBasicUI = await importFc4i("basic-ui");
 
 const modLocalFileReader = await importFc4i("local-file-reader");
-const keyUserExhale = "user-exhale-sound";
-const keyUserInhale = "user-inhale-sound";
+const keyUserExhale = "user-exhale";
+const keyUserInhale = "user-inhale";
 async function getUserInhaleSound() {
     // FIX-ME: When to release the blob??
     const savedFileBlob = await modLocalFileReader.getSavedFileBlob(keyUserInhale);
@@ -237,6 +237,18 @@ export async function dialogSound() {
                 });
                 return;
             }
+            if (bellName.startsWith("user-")) {
+                const blobBell = await modLocalFileReader.getSavedFileBlob(bellName);
+                const urlBell = URL.createObjectURL(blobBell);
+                modVizVol.showViz({
+                    sound: {
+                        soundName: showName,
+                        soundSource: urlBell,
+                    }
+                });
+                return;
+            }
+
             btn.classList.add("test-sound-playing");
             lastBell = await modBells.strikeBellById(bellName, !isInhale, { stopAtSec: 8 });
             lastBell.btn = btn;
@@ -376,12 +388,18 @@ export async function dialogSound() {
     await addFileBells(divInhaleBells, true, currentBells.inhale);
     const btnUserChoice = mkElt("button", undefined, "Select");
     btnUserChoice.addEventListener("click", evt => {
-        evt.stopImmediatePropagation();
-        // const xClose = mkXclose();
+        evt.stopPropagation();
+        debugger;
+        const btnGetFile = mkElt("button", undefined, "Select audio file");
+        btnGetFile.addEventListener("click", async evt => {
+            evt.stopPropagation();
+            const gotIt = await modLocalFileReader.selectAndSaveFile(keyUserInhale, "audio", "Select sound file for inhale");
+            console.log({ gotIt });
+        });
         const bdy = mkElt("div", undefined, [
             mkElt("h2", undefined, "Your sound: inhale"),
-            "hej",
-            // xClose
+            btnGetFile,
+            "keyUserInhale",
         ]);
         const dlg = mkElt("dialog", undefined, bdy);
         modBasicUI.addXclose(dlg);
@@ -389,11 +407,10 @@ export async function dialogSound() {
         dlg.showModal();
     });
     // const eltUserChoice = mkElt("span", { style: "color:red" }, [ "Your choice", btnUserChoice ]);
-    const eltUserBell2 = mkRadBell("Your sound", "user-inhale", true, undefined);
-    // debugger;
-    // eltUserBell2.insertBefore(btnUserChoice, eltUserBell2.lastElementChild);
+    const eltUserBell2 = mkRadBell("Your sound", keyUserInhale, true, undefined);
     const btnTestUserInhale = eltUserBell2.lastElementChild;
-    btnTestUserInhale.inert = true;
+    const blob = modLocalFileReader.getSavedFileBlob(keyUserInhale);
+    btnTestUserInhale.inert = blob == null;
     const eltUserChoice = mkElt("div", undefined, [
         btnTestUserInhale,
         btnUserChoice,
@@ -406,6 +423,7 @@ export async function dialogSound() {
     // eltUserChoice.appendChild(btnTestUserInhale);
     eltUserBell2.appendChild(eltUserChoice);
     eltUserBell2.id = "div-user-inhale";
+    eltUserBell2.classList.add("label-bell");
 
     eltUserBell2.firstElementChild.inert = true;
 
