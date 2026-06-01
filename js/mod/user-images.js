@@ -381,11 +381,17 @@ export async function dialogImages(arrBuiltin, applyImage) {
                 ]);
                 const ans = await modBasicUI.showDialogConfirm(body);
                 if (!ans) return;
+
                 // @ts-ignore
                 eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
 
                 // const ourBlobUrl = eltBrowsePreview.style.back
                 modLocalFileReader.saveFileHandle(keyBackground, blobUrl);
+
+                const divUsers = btnSelectBackground.closest("div");
+                const rad = divUsers.querySelector("input[type=radio]");
+                rad.checked = true;
+
             });
 
 
