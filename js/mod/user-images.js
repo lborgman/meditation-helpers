@@ -12,8 +12,25 @@ const importFc4i = window["importFc4i"];
 
 const modBasicUI = await importFc4i("basic-ui");
 const modLocalFileReader = await importFc4i("local-file-reader");
-// debugger;
-const keyBackground = "background-image-or-video";
+
+let keyUserBackground = "";
+/**
+ * @param {string} key 
+ */
+export function setKeyUserBackground(key) {
+    const tofKey = typeof key;
+    if (tofKey != "string") throw Error(`setKeyUserBackground: key must be string, "${tofKey}"`);
+    keyUserBackground = key;
+}
+
+export async function applyUserBackground(elt) {
+    const blobSaved = await modLocalFileReader.getSavedFileBlob(keyUserBackground);
+    if (!blobSaved) {
+        elt.style.background = "red";
+        return;
+    }
+    elt.style.backgroundImage = `url("${blobSaved}")`;
+}
 
 // javascript module for linking external images.
 // The user provides the links which I guess will avoid copyright problems.
@@ -203,10 +220,12 @@ export async function getCurrentImageUrl(arrBuiltin) {
         return arrChoices[idx1];
     }
     if (choice == "users") {
-        console.log({ modLocalFileReader });
-        const b = await modLocalFileReader.getSavedFileBlob(keyBackground)
-        // debugger;
-        // modLocalFileReader
+        if (keyUserBackground == ""){
+            console.error("keyUserBackground has not been set")
+            debugger;
+            return "";
+        }
+        const b = await modLocalFileReader.getSavedFileBlob(keyUserBackground)
         return b;
     }
     return choice;
@@ -255,12 +274,11 @@ export async function dialogImages(arrBuiltin, applyImage) {
             evt.stopPropagation();
             console.log({ modLocalFileReader });
 
-            // await modLocalFileReader.selectAndSaveFile(keyBackground, "image,video");
-            // const blob = await modLocalFileReader.getSavedFileBlob(keyBackground);
             blobPreview = await modLocalFileReader.selectFile("image,video");
 
-            blobUrl = URL.createObjectURL(blobPreview);
-            eltBrowsePreview.style.backgroundImage = `url("${blobUrl}")`;
+            // blobUrl = URL.createObjectURL(blobPreview);
+            // eltBrowsePreview.style.backgroundImage = `url("${blobUrl}")`;
+            applyUserBackground(eltBrowsePreview);
         });
         const body = mkElt("div", undefined, [
             mkElt("h2", undefined, "Select background"),
@@ -273,16 +291,16 @@ export async function dialogImages(arrBuiltin, applyImage) {
         const ans = await modBasicUI.showDialogConfirm(body);
         if (!ans) return;
         // @ts-ignore
-        eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
-
-        // const ourBlobUrl = eltBrowsePreview.style.back
-        modLocalFileReader.saveFileHandle(keyBackground, blobUrl);
+        await modLocalFileReader.saveFileHandle(keyUserBackground, blobUrl);
+        // eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
+        applyUserBackground(eltOwnPreview);
     })
 
 
     const styleUrlAlt = `
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         gap: 10px;
     `;
 
@@ -290,6 +308,10 @@ export async function dialogImages(arrBuiltin, applyImage) {
     divBuiltinUrls.style = styleUrlAlt;
 
     function mkImgChoice(url, isBuiltin) {
+        if (keyUserBackground == "") {
+            debugger;
+            throw Error("setKeyUserBackground not set");
+        }
         let urlPreview = url;
         if (url.startsWith("https://lh3.googleusercontent.com")) {
             // eslint-disable-next-line no-debugger
@@ -309,13 +331,21 @@ export async function dialogImages(arrBuiltin, applyImage) {
             eltVideo.preload = "metadata";
             eltBg = eltVideo;
         } else {
-            const eltImg = mkElt("img");
+            // const eltImg = mkElt("img");
+            const eltImg = mkElt("span");
+            eltImg.classList.add("image-preview");
+            eltImg.style.backgroundImage= `url(${urlPreview})`;
+            eltImg.style.display = "inline-block";
+            eltImg.style.width = "70px";
+            eltImg.style.height = "70px";
+            eltImg.style.outline = "0.5px solid cyan";
+            eltImg.style.borderRadius = "3px";
             eltBg = eltImg;
         }
-        eltBg.src = urlPreview;
-        eltBg.style.width = "100%";
+        // eltBg.src = urlPreview;
+        // eltBg.style.width = "100%";
         const eltImgContainer = mkElt("span", undefined, eltBg);
-        eltImgContainer.style = `
+        eltImgContainer.NOstyle = `
             width: 30%;
             display: inline-block;
             NOaspect-ratio: 1 / 1;
@@ -340,8 +370,13 @@ export async function dialogImages(arrBuiltin, applyImage) {
                 `;
             eltOwnPreview.classList.add("image-preview");
             (async () => {
-                const blobSaved = await modLocalFileReader.getSavedFileBlob(keyBackground);
-                eltOwnPreview.style.backgroundImage = `url("${blobSaved}")`;
+                if (keyUserBackground == "") {
+                    eltOwnPreview.style.background = "red";
+                    return;
+                }
+                // const blobSaved = await modLocalFileReader.getSavedFileBlob(keyUserBackground);
+                // eltOwnPreview.style.backgroundImage = `url("${blobSaved}")`;
+                applyUserBackground(eltOwnPreview);
             })();
 
 
@@ -364,9 +399,9 @@ export async function dialogImages(arrBuiltin, applyImage) {
                     evt.stopPropagation();
                     console.log({ modLocalFileReader });
 
-                    // await modLocalFileReader.selectAndSaveFile(keyBackground, "image,video");
-                    // const blob = await modLocalFileReader.getSavedFileBlob(keyBackground);
-                    blobPreview = await modLocalFileReader.selectFile("image,video");
+                    // blobPreview = await modLocalFileReader.selectFile("image,video");
+                    const handle = await modLocalFileReader.selectFile("image,video");
+                    blobPreview = await handle.getFile();
 
                     blobUrl = URL.createObjectURL(blobPreview);
                     eltBrowsePreview.style.backgroundImage = `url("${blobUrl}")`;
@@ -382,11 +417,11 @@ export async function dialogImages(arrBuiltin, applyImage) {
                 const ans = await modBasicUI.showDialogConfirm(body);
                 if (!ans) return;
 
-                // @ts-ignore
-                eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
+                // ts-ignore
+                // eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
 
-                // const ourBlobUrl = eltBrowsePreview.style.back
-                modLocalFileReader.saveFileHandle(keyBackground, blobUrl);
+                await modLocalFileReader.saveFileHandle(keyUserBackground, blobUrl);
+                applyUserBackground(eltOwnPreview);
 
                 const divUsers = btnSelectBackground.closest("div");
                 const rad = divUsers.querySelector("input[type=radio]");
@@ -431,8 +466,9 @@ export async function dialogImages(arrBuiltin, applyImage) {
         }
         const lblImg = mkElt("label", undefined, [radImg, eltImgContainer, eltHandle, tellVideo]);
         lblImg.style = `
-                display: flex;
-                gap: 10px;
+                display: inline-flex;
+                gap: 0px;
+                NOoutline: 1px solid gray;
             `;
         return mkElt("div", undefined, [lblImg]);
     }
@@ -474,6 +510,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
         mkElt("h3", undefined, "Built in:"),
         divBuiltinUrls,
     ]);
+    bdy.style.width = "90vw";
     bdy.addEventListener("change", evt => {
         const target = evt.target;
         const val = target.value;
@@ -498,5 +535,5 @@ export async function dialogImages(arrBuiltin, applyImage) {
     // mkMDCdialogAlert(body, titleClose) {
     // oldmodMdc.mkMDCdialogAlert(bdy, "Close");
 
-    modBasicUI.showDialog(bdy);
+    modBasicUI.showDialog(bdy, undefined, undefined, "wide-dialog");
 }

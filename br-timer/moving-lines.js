@@ -11,7 +11,7 @@ const mkElt = window["mkElt"];
 const importFc4i = window["importFc4i"];
 
 const modBasicUI = await importFc4i("basic-ui");
-const modLocalFileReader = await importFc4i("local-file-reader");
+// const modLocalFileReader = await importFc4i("local-file-reader");
 const usersInhaleSound = "inhale-sound";
 const usersExhaleSound = "inhale-sound";
 
@@ -1128,8 +1128,15 @@ function mkPattString(patt) {
     return eltPatt;
 }
 
+async function getModUserImages() {
+    const mod = await importFc4i("user-images");
+    mod.setKeyUserBackground("key-ml-bg");
+    return mod;
+}
 async function dialogImages() {
-    const modExtImages = await importFc4i("user-images");
+    // const modExtImages = await importFc4i("user-images");
+    const modExtImages = await getModUserImages();
+    modExtImages.setKeyUserBackground("ml-user-bg");
     modExtImages.setStoringPrefix(STORING_PREFIX);
     modExtImages.dialogImages(myGooglePhotos, setCanvasBackgroundToCurrent);
 }
@@ -2039,11 +2046,11 @@ function pattY2canvasY(pattY) {
 
 
 async function setCanvasBackgroundToCurrent() {
-    const modExtImages = await importFc4i("user-images");
+    // const modExtImages = await importFc4i("user-images");
+    const modExtImages = await getModUserImages();
     modExtImages.setStoringPrefix(STORING_PREFIX);
     useImage = await modExtImages.getCurrentImageUrl(myGooglePhotos) || useImage;
     // Something wrong with data?
-    if (!useImage) return;
     // eltCanvas.style.backgroundImage = `url(${useImage})`;
     updateCanvasBackground(useImage);
 };
@@ -2060,10 +2067,8 @@ async function updateCanvasBackground(useImageOrVideo) {
     /** @type {HTMLVideoElement} */
     let eltVideo;
     let videoH, videoW;
-    debugger;
-    if (!useImageOrVideo) {
-        debugger;
-    } else if (useImageOrVideo.startsWith("V")) {
+    // debugger;
+    if (useImageOrVideo && useImageOrVideo.startsWith("V")) {
         // eltVideo = TSmkElt("video");
         eltVideo = document.createElement("video");
         eltVideo.muted = true;

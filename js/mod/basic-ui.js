@@ -106,9 +106,10 @@ export function mkIconButton(icon, title) {
  * @param {HTMLDivElement} bdy 
  * @param {function|undefined} [retValFun]
  * @param {undefined|HTMLButtonElement[]} [buttons]
+ * @param {string} [dialogClass]
  * @returns {Promise<any>}
  */
-export async function showDialog(bdy, valFun, buttons) {
+export async function showDialog(bdy, valFun, buttons, dialogClass) {
     if (valFun != undefined) {
         if (typeof valFun !== 'function') {
             debugger;
@@ -125,6 +126,7 @@ export async function showDialog(bdy, valFun, buttons) {
     }
     if (typeof bdy == "string") { bdy = mkElt("div", undefined, bdy); }
     const dlg = mkElt("dialog", undefined, bdy);
+    if (dialogClass) dlg.classList.add(dialogClass);
     dlg.addEventListener("close", evt => { console.log("%%%%% dlg close"); });
     dlg.addEventListener("cancel", evt => { console.log("%%%%% dlg cancel"); });
     if (buttons) {

@@ -156,7 +156,11 @@ dialog {
     border-radius: 8px;
     padding: 0;
     background-color: palegoldenrod;
-    max-width: calc(min(400px, 90vW));
+    max-width: calc(min(400px, 90vw));
+}
+
+dialog.wide-dialog {
+    max-width: calc(90vw + 16px);
 }
 
 dialog>div {
@@ -265,8 +269,8 @@ dialog#snackbar[open] {
 }
 
 .image-preview {
-    background: gray;
-    background-size: cover;
+    background: black;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
 }
