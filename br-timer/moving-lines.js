@@ -2060,7 +2060,10 @@ async function updateCanvasBackground(useImageOrVideo) {
     /** @type {HTMLVideoElement} */
     let eltVideo;
     let videoH, videoW;
-    if (useImageOrVideo.startsWith("V")) {
+    debugger;
+    if (!useImageOrVideo) {
+        debugger;
+    } else if (useImageOrVideo.startsWith("V")) {
         // eltVideo = TSmkElt("video");
         eltVideo = document.createElement("video");
         eltVideo.muted = true;
