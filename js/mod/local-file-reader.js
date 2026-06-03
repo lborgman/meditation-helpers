@@ -140,7 +140,23 @@ export async function saveFileHandle(fileName, fileHandle) {
     });
 }
 
+/**
+ * @param {string} savedName 
+ * @returns {Promise<File|null>}
+ */
 export async function getSavedFileBlob(savedName) {
+    const handle = await getSavedFileHandle(savedName);
+    if (!handle) return null;
+    console.warn("%cgetSavedFileBlob: before getFile", "font-size:30px;", handle);
+    const blob = await handle.getFile();
+    console.log("getSavedFileBlob", blob)
+    return blob;
+}
+/**
+ * @param {string} savedName 
+ * @returns {Promise<FileSystemHandle>}
+ */
+export async function getSavedFileHandle(savedName) {
     const db = await getOurDatabase();
     return new Promise((resolve, reject) => {
         const tx = db.transaction('handles', 'readonly');
@@ -155,12 +171,16 @@ export async function getSavedFileBlob(savedName) {
             }
             try {
                 // If you saved a FileSystemHandle, you call .getFile() when READING it back out
+                /*
                 if (typeof result.getFile === 'function') {
                     const file = await result.getFile();
                     resolve(file);
                 } else {
                     resolve(result); // Fallback if it was saved as a standard Blob/File
                 }
+                */
+                console.log("getSavedFileHandle", result);
+                resolve(result);
             } catch (e) {
                 reject(e);
             }

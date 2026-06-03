@@ -29,7 +29,9 @@ export async function applyUserBackground(elt) {
         elt.style.background = "red";
         return;
     }
+    const urlBlob = URL.createObjectURL(blobSaved);
     elt.style.backgroundImage = `url("${blobSaved}")`;
+    revoke(urlBlob);
 }
 
 // javascript module for linking external images.
@@ -203,7 +205,7 @@ function setImagesRec(objJson) {
 /**
  * 
  * @param {string[]} arrBuiltin 
- * @returns {string}
+ * @returns {Promise<string>}
  */
 export async function getCurrentImageUrl(arrBuiltin) {
     const { choice, arr } = getImagesRec();
@@ -220,7 +222,7 @@ export async function getCurrentImageUrl(arrBuiltin) {
         return arrChoices[idx1];
     }
     if (choice == "users") {
-        if (keyUserBackground == ""){
+        if (keyUserBackground == "") {
             console.error("keyUserBackground has not been set")
             debugger;
             return "";
@@ -272,12 +274,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
         const btnBrowse = mkElt("button", undefined, "Browse");
         btnBrowse.addEventListener("click", async evt => {
             evt.stopPropagation();
-            console.log({ modLocalFileReader });
-
             blobPreview = await modLocalFileReader.selectFile("image,video");
-
-            // blobUrl = URL.createObjectURL(blobPreview);
-            // eltBrowsePreview.style.backgroundImage = `url("${blobUrl}")`;
             applyUserBackground(eltBrowsePreview);
         });
         const body = mkElt("div", undefined, [
@@ -294,7 +291,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
         await modLocalFileReader.saveFileHandle(keyUserBackground, blobUrl);
         // eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
         applyUserBackground(eltOwnPreview);
-    })
+    });
 
 
     const styleUrlAlt = `
@@ -334,7 +331,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
             // const eltImg = mkElt("img");
             const eltImg = mkElt("span");
             eltImg.classList.add("image-preview");
-            eltImg.style.backgroundImage= `url(${urlPreview})`;
+            eltImg.style.backgroundImage = `url(${urlPreview})`;
             eltImg.style.display = "inline-block";
             eltImg.style.width = "70px";
             eltImg.style.height = "70px";
@@ -361,90 +358,82 @@ export async function dialogImages(arrBuiltin, applyImage) {
             return mkElt("div", undefined, [lblRandom]);
         }
         if (url == "users") {
-            // 2 Your
-            const eltOwnPreview = mkElt("div", { id: "own-preview" });
-            eltOwnPreview.style = `
-                width: 100px;
-                height: 100px;
-                border: 1px solid red;
+            return mkImgChoiceUser();
+            function mkImgChoiceUser() {
+                // 2 Your
+                const eltOwnPreview = mkElt("div", { id: "own-preview" });
+                eltOwnPreview.style = `
+                    width: 100px;
+                    height: 100px;
+                    border: 1px solid red;
                 `;
-            eltOwnPreview.classList.add("image-preview");
-            (async () => {
-                if (keyUserBackground == "") {
-                    eltOwnPreview.style.background = "red";
-                    return;
-                }
-                // const blobSaved = await modLocalFileReader.getSavedFileBlob(keyUserBackground);
-                // eltOwnPreview.style.backgroundImage = `url("${blobSaved}")`;
-                applyUserBackground(eltOwnPreview);
-            })();
+                eltOwnPreview.classList.add("image-preview");
+                (async () => {
+                    if (keyUserBackground == "") {
+                        eltOwnPreview.style.background = "red";
+                        return;
+                    }
+                    applyUserBackground(eltOwnPreview);
+                })();
 
 
-            const btnSelectBackground = mkElt("button", undefined, "Select");
-            btnSelectBackground.style.marginLeft = "30px";
-            btnSelectBackground.addEventListener("click", async evt => {
-                evt.stopPropagation();
-                const eltBrowsePreview = mkElt("div");
-                eltBrowsePreview.classList.add("image-preview");
-                eltBrowsePreview.style = `
+                const btnSelectBackground = mkElt("button", undefined, "Select");
+                btnSelectBackground.style.marginLeft = "30px";
+                btnSelectBackground.addEventListener("click", async evt => {
+                    evt.stopPropagation();
+                    const eltBrowsePreview = mkElt("div");
+                    eltBrowsePreview.classList.add("image-preview");
+                    eltBrowsePreview.style = `
                     border: 1px solid red;
                     height: 100px;
                     width: 100px;
                     `;
-                let blobPreview;
-                let blobUrl;
 
-                const btnBrowse = mkElt("button", undefined, "Browse");
-                btnBrowse.addEventListener("click", async evt => {
-                    evt.stopPropagation();
-                    console.log({ modLocalFileReader });
+                    const btnBrowse = mkElt("button", undefined, "Browse");
+                    let handle;
+                    btnBrowse.addEventListener("click", async evt => {
+                        evt.stopPropagation();
+                        console.log({ modLocalFileReader });
 
-                    // blobPreview = await modLocalFileReader.selectFile("image,video");
-                    const handle = await modLocalFileReader.selectFile("image,video");
-                    blobPreview = await handle.getFile();
-
-                    blobUrl = URL.createObjectURL(blobPreview);
-                    eltBrowsePreview.style.backgroundImage = `url("${blobUrl}")`;
-                });
-                const body = mkElt("div", undefined, [
-                    mkElt("h2", undefined, "Select background"),
-                    mkElt("p", undefined, `
+                        handle = await modLocalFileReader.selectFile("image,video");
+                        console.log("%cbefore getFile", "font-size:30px;", handle);
+                        const blobPreview = await handle.getFile();
+                        const blobUrl = URL.createObjectURL(blobPreview);
+                        eltBrowsePreview.style.backgroundImage = `url("${blobUrl}")`;
+                        revoke(blobUrl);
+                    });
+                    const body = mkElt("div", undefined, [
+                        mkElt("h2", undefined, "Select background"),
+                        mkElt("p", undefined, `
                 You can select an image or video from your device.
                 `),
-                    btnBrowse,
-                    eltBrowsePreview
+                        btnBrowse,
+                        eltBrowsePreview
+                    ]);
+                    const ans = await modBasicUI.showDialogConfirm(body);
+                    if (!ans) return;
+
+                    await modLocalFileReader.saveFileHandle(keyUserBackground, handle);
+                    applyUserBackground(eltOwnPreview);
+
+                    const divUsers = btnSelectBackground.closest("div");
+                    const rad = divUsers.querySelector("input[type=radio]");
+                    rad.checked = true;
+                });
+
+                const lblUsers = mkElt("label", undefined, [
+                    radImg,
+                    eltOwnPreview,
                 ]);
-                const ans = await modBasicUI.showDialogConfirm(body);
-                if (!ans) return;
-
-                // ts-ignore
-                // eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
-
-                await modLocalFileReader.saveFileHandle(keyUserBackground, blobUrl);
-                applyUserBackground(eltOwnPreview);
-
-                const divUsers = btnSelectBackground.closest("div");
-                const rad = divUsers.querySelector("input[type=radio]");
-                rad.checked = true;
-
-            });
-
-
-            const lblUsers = mkElt("label", undefined, [
-                radImg,
-                eltOwnPreview,
-            ]);
-            lblUsers.style = `
+                lblUsers.style = `
                 display: flex;
                 gap: 5px;
                 margin-top: 10px;
             `;
-            return mkElt("div", undefined, [
-                btnSelectBackground,
-                lblUsers,
-            ]);
-
+                return mkElt("div", undefined, [btnSelectBackground, lblUsers,]);
+            }
         }
+
         const checked = url == oldObj.choice;
         if (checked) { radImg.checked = true; }
         let eltHandle;
@@ -531,9 +520,19 @@ export async function dialogImages(arrBuiltin, applyImage) {
         return newObj.choice;
         // return "not ready";
     };
-    // mkMDCdialogConfirm(body, titleOk, titleCancel, funCheckSave, tellMeOkButton) {
-    // mkMDCdialogAlert(body, titleClose) {
-    // oldmodMdc.mkMDCdialogAlert(bdy, "Close");
 
     modBasicUI.showDialog(bdy, undefined, undefined, "wide-dialog");
+}
+function revoke(blobUrl) {
+    const img = new Image();
+    img.addEventListener("load", () => {
+        console.log("REVOKE before raf");
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                URL.revokeObjectURL(blobUrl);
+                console.log("REVOKE after");
+            }, 0);
+        });
+    });
+    img.src = blobUrl;
 }
