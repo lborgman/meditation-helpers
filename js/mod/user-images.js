@@ -400,7 +400,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
                         const blobPreview = await handle.getFile();
                         const blobUrl = URL.createObjectURL(blobPreview);
                         eltBrowsePreview.style.backgroundImage = `url("${blobUrl}")`;
-                        revoke(blobUrl);
+                        // revoke(blobUrl);
                     });
                     const body = mkElt("div", undefined, [
                         mkElt("h2", undefined, "Select background"),
