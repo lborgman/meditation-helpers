@@ -31,7 +31,7 @@ export async function applyUserBackground(elt) {
     }
     const urlBlob = URL.createObjectURL(blobSaved);
     elt.style.backgroundImage = `url("${blobSaved}")`;
-    revoke(urlBlob);
+    // revoke(urlBlob); // FIX-ME:
 }
 
 // javascript module for linking external images.
@@ -377,7 +377,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
                 })();
 
 
-                const btnSelectBackground = mkElt("button", undefined, "Select");
+                const btnSelectBackground = mkElt("button", undefined, "Select File");
                 btnSelectBackground.style.marginLeft = "30px";
                 btnSelectBackground.addEventListener("click", async evt => {
                     evt.stopPropagation();

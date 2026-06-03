@@ -49,7 +49,8 @@ export async function selectAndSaveFile(savedName, mediaTypes, title) {
 export async function selectAndSaveFileAdvanced(savedName, pickerOptions) {
     const fileHandle = await selectFileAdvanced(pickerOptions);
     if (!fileHandle) return false; // User cancelled
-    await saveFileHandle(savedName, fileHandle);
+    // await saveFileHandle(savedName, fileHandle);
+    await saveToOpfs(savedName, fileHandle);
     return true;
 }
 
@@ -67,9 +68,10 @@ export async function selectFileAdvanced(pickerOptions) {
         // @ts-ignore
         const [handle] = await window.showOpenFilePicker(pickerOptions);
         if (!handle) throw Error("SelectAndSaveFile: !handle");
+        // const blob = await handle.getFile();
+        // console.log({ blob });
+        // debugger;
 
-        // NOTE: We return the HANDLE itself to save into IndexedDB, 
-        // NOT handle.getFile() which grabs the heavy file data.
         return handle;
     } catch (err) {
         /*
@@ -94,7 +96,7 @@ export async function selectFileAdvanced(pickerOptions) {
  * @param {number} dbVersion
  * @returns {Promise<IDBDatabase>}
  */
-async function getDatabase(dbName, dbVersion) {
+async function getDatabaseIDB(dbName, dbVersion) {
     if (dbInstance) return dbInstance;
 
     return new Promise((resolve, reject) => {
@@ -128,6 +130,8 @@ async function getDatabase(dbName, dbVersion) {
 }
 
 export async function saveFileHandle(fileName, fileHandle) {
+    await saveToOpfs(fileName, fileHandle);
+    return;
     const db = await getOurDatabase();
     return new Promise((resolve, reject) => {
         const tx = db.transaction('handles', 'readwrite');
@@ -142,9 +146,11 @@ export async function saveFileHandle(fileName, fileHandle) {
 
 /**
  * @param {string} savedName 
- * @returns {Promise<File|null>}
+ * @returns {Promise<Blob|null>}
  */
 export async function getSavedFileBlob(savedName) {
+    const b = await getBlobFromOPFS(savedName);
+    return b;
     const handle = await getSavedFileHandle(savedName);
     if (!handle) return null;
     console.warn("%cgetSavedFileBlob: before getFile", "font-size:30px;", handle);
@@ -191,4 +197,74 @@ export async function getSavedFileHandle(savedName) {
 
 async function getOurDatabase() {
     return getDatabase('FileHandlesDB', 8);
+}
+
+/**
+ * 
+ * @param {string} fileName 
+ * @param {FileSystemHandle} handle 
+ */
+async function saveToOpfs(fileName, handle) {
+
+    /*
+    // 1. Fire the modern file picker
+    const [handle] = await window.showOpenFilePicker();
+    */
+
+    // 2. Extract the file blob and metadata
+    const file = await handle.getFile();
+
+    // 3. Since webkitRelativePath is guaranteed to be "", 
+    // you can safely save directly to the OPFS root using just the file name.
+    const root = await navigator.storage.getDirectory();
+    const opfsFileHandle = await root.getFileHandle(fileName, { create: true });
+
+    const writable = await opfsFileHandle.createWritable();
+    await writable.write(file);
+    await writable.close();
+}
+
+/**
+ * Fetches an image file from OPFS and creates a temporary Object URL.
+ * @param {string} fileName - The name of the file inside OPFS
+ * @returns {Promise<string>} The temporary blob:// URL
+ */
+async function getBlobUrlFromOPFS(fileName) {
+    const root = await navigator.storage.getDirectory();
+
+    // 1. Get the private handle for the file
+    const fileHandle = await root.getFileHandle(fileName);
+
+    // 2. Unpack it into a standard Web File/Blob object
+    const fileBlob = await fileHandle.getFile();
+
+    // 3. Generate the temporary URL pointing to these cached bytes
+    return URL.createObjectURL(fileBlob);
+}
+/**
+ * 
+ * @param {string} fileName 
+ * @returns {Promise<Blob|undefined>}
+ */
+async function getBlobFromOPFS(fileName) {
+    const root = await navigator.storage.getDirectory();
+
+    // 1. Get the private handle for the file
+    let fileHandle;
+    try {
+        fileHandle = await root.getFileHandle(fileName);
+    } catch (err) {
+        if (!(err instanceof Error)) throw Error("err is not Error");
+        if (err.name == "NotFoundError") {
+            return undefined;
+        }
+        console.error(err);
+        debugger;
+        throw Error;
+    }
+
+    // 2. Unpack it into a standard Web File/Blob object
+    const fileBlob = await fileHandle.getFile();
+
+    return fileBlob;
 }
