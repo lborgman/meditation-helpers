@@ -149,7 +149,7 @@ export async function getSavedFileBlob(savedName) {
     if (!handle) return null;
     console.warn("%cgetSavedFileBlob: before getFile", "font-size:30px;", handle);
     const blob = await handle.getFile();
-    console.log("getSavedFileBlob", blob)
+    console.log("%cgetSavedFileBlob after", "font-size:18px;", blob);
     return blob;
 }
 /**
