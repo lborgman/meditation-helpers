@@ -2054,8 +2054,8 @@ async function setCanvasBackgroundToCurrent() {
         url = URL.createObjectURL(useImage);
         // FIX-ME: revoke
         const img = new Image();
-        img.addEventListener("load", evt => {
-            updateCanvasBackground(url);
+        img.addEventListener("load", async evt => {
+            await updateCanvasBackground(url);
             URL.revokeObjectURL(url);
         });
         img.src = url;
