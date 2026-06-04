@@ -260,6 +260,12 @@ async function getBlobFromOPFS(fileName) {
 
     // 2. Unpack it into a standard Web File/Blob object
     const fileBlob = await fileHandle.getFile();
+    const blobStart = fileBlob.slice(0, 4096);
+    const textStart = await blobStart.text();
+    if (textStart.indexOf("<svg ") > -1) {
+        const typedBlob = new Blob([fileBlob], { type: "image/svg+xml" });
+        return typedBlob;
+    }
 
     return fileBlob;
 }
