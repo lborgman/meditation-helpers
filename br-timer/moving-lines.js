@@ -2058,6 +2058,7 @@ async function setCanvasBackgroundToCurrent() {
             updateCanvasBackground(url);
             URL.revokeObjectURL(url);
         });
+        img.src = url;
         return;
     }
     updateCanvasBackground(url);
