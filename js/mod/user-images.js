@@ -30,8 +30,16 @@ export async function applyUserBackground(elt) {
         return;
     }
     const urlBlob = URL.createObjectURL(blobSaved);
-    elt.style.backgroundImage = `url("${blobSaved}")`;
+    const urlIsValid2 = await modLocalFileReader.isObjectUrlValid(urlBlob);
+    console.warn({ urlIsValid2 });
+    // debugger;
+    elt.style.backgroundImage = `url("${urlBlob}")`;
     // revoke(urlBlob); // FIX-ME:
+    const urlIsValid = await modLocalFileReader.isObjectUrlValid(urlBlob);
+    console.warn({ urlIsValid });
+    if (!urlIsValid) {
+        debugger;
+    }
 }
 
 // javascript module for linking external images.
@@ -396,7 +404,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
                         console.log({ modLocalFileReader });
 
                         handle = await modLocalFileReader.selectFile("image,video");
-                        console.log("%cbefore getFile", "font-size:30px;", handle);
+                        // console.log("%cbefore getFile", "font-size:30px;", handle);
                         const blobPreview = await handle.getFile();
                         const blobUrl = URL.createObjectURL(blobPreview);
                         eltBrowsePreview.style.backgroundImage = `url("${blobUrl}")`;
@@ -526,11 +534,11 @@ export async function dialogImages(arrBuiltin, applyImage) {
 function revoke(blobUrl) {
     const img = new Image();
     img.addEventListener("load", () => {
-        console.log("REVOKE before raf");
+        console.log("%sREVOKE before raf", "font-size:30px;");
         requestAnimationFrame(() => {
             setTimeout(() => {
                 URL.revokeObjectURL(blobUrl);
-                console.log("REVOKE after");
+                console.log("%cREVOKE after", "font-size:30px;");
             }, 0);
         });
     });

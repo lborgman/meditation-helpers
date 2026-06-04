@@ -268,3 +268,31 @@ async function getBlobFromOPFS(fileName) {
 
     return fileBlob;
 }
+
+/**
+ * Safely checks if an Object URL is active without throwing security errors.
+ * @param {string} url - The blob:// URL to test
+ * @returns {Promise<boolean>} True if valid, false if revoked or blocked
+ */
+export async function isObjectUrlValid(url) {
+    if (!url || !url.startsWith('blob:')) {
+        debugger;
+        return false;
+    }
+
+    try {
+        // 1. MUST use 'GET' instead of 'HEAD' for Blobs
+        // 2. 'cors' ensures we don't trip over origin mismatches
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors'
+        });
+
+        return response.ok;
+    } catch (error) {
+        // If it catches an error, the URL is either revoked 
+        // OR a strict Content Security Policy is blocking fetch() from blobs.
+        console.warn("Blob validation fetch failed:", error.message);
+        return false;
+    }
+}
