@@ -2053,6 +2053,12 @@ async function setCanvasBackgroundToCurrent() {
     if (useImage instanceof Blob) {
         url = URL.createObjectURL(useImage);
         // FIX-ME: revoke
+        const img = new Image();
+        img.addEventListener("load", evt => {
+            updateCanvasBackground(url);
+            URL.revokeObjectURL(url);
+        });
+        return;
     }
     updateCanvasBackground(url);
 };
