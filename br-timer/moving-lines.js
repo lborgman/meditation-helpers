@@ -2049,9 +2049,12 @@ async function setCanvasBackgroundToCurrent() {
     const modExtImages = await getModUserImages();
     modExtImages.setStoringPrefix(STORING_PREFIX);
     useImage = await modExtImages.getCurrentImageUrl(myGooglePhotos) || useImage;
-    // Something wrong with data?
-    // eltCanvas.style.backgroundImage = `url(${useImage})`;
-    updateCanvasBackground(useImage);
+    let url = useImage;
+    if (useImage instanceof File) {
+        url = URL.createObjectURL(useImage);
+        // FIX-ME: revoke
+    }
+    updateCanvasBackground(url);
 };
 
 let usedImageOrVideo;
