@@ -1134,9 +1134,8 @@ async function getModUserImages() {
     return mod;
 }
 async function dialogImages() {
-    // const modExtImages = await importFc4i("user-images");
     const modExtImages = await getModUserImages();
-    modExtImages.setKeyUserBackground("ml-user-bg");
+    // modExtImages.setKeyUserBackground("ml-user-bg");
     modExtImages.setStoringPrefix(STORING_PREFIX);
     modExtImages.dialogImages(myGooglePhotos, setCanvasBackgroundToCurrent);
 }
