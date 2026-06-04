@@ -2051,14 +2051,15 @@ async function setCanvasBackgroundToCurrent() {
     useImage = await modExtImages.getCurrentImageUrl(myGooglePhotos) || useImage;
     let url = useImage;
     if (useImage instanceof Blob) {
-        url = URL.createObjectURL(useImage);
+        const urlObj = URL.createObjectURL(useImage);
         // FIX-ME: revoke
         const img = new Image();
         img.addEventListener("load", async evt => {
-            await updateCanvasBackground(url);
-            URL.revokeObjectURL(url);
+            await updateCanvasBackground(urlObj);
+            // URL.revokeObjectURL(urlObj);
+            modExtImages.revoke(urlObj);
         });
-        img.src = url;
+        img.src = urlObj;
         return;
     }
     updateCanvasBackground(url);

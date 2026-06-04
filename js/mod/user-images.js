@@ -531,7 +531,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
 
     modBasicUI.showDialog(bdy, undefined, undefined, "wide-dialog");
 }
-function revoke(blobUrl) {
+export function revoke(blobUrl) {
     const img = new Image();
     img.addEventListener("load", () => {
         console.log("%sREVOKE before raf", "font-size:30px;");
