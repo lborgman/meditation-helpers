@@ -2109,7 +2109,7 @@ async function updateCanvasBackground(useImageOrVideo) {
             debugger;
             eltBg = eltVideo;
             eltBg.style.width = "100%";
-            showIt();
+            await showIt();
         } else {
             eltBg = TSmkElt("div");
             eltBg.style.width = "100%";
@@ -2118,7 +2118,7 @@ async function updateCanvasBackground(useImageOrVideo) {
             eltBg.style.backgroundSize = "cover";
             eltBg.style.backgroundRepeat = "no-repeat";
             eltBg.style.backgroundImage = `url(${useImageOrVideo})`;
-            showIt();
+            await showIt();
         }
     } else {
         // @ts-ignore undefined
