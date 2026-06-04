@@ -205,17 +205,8 @@ async function getOurDatabase() {
  * @param {FileSystemHandle} handle 
  */
 async function saveToOpfs(fileName, handle) {
-
-    /*
-    // 1. Fire the modern file picker
-    const [handle] = await window.showOpenFilePicker();
-    */
-
-    // 2. Extract the file blob and metadata
     const file = await handle.getFile();
 
-    // 3. Since webkitRelativePath is guaranteed to be "", 
-    // you can safely save directly to the OPFS root using just the file name.
     const root = await navigator.storage.getDirectory();
     const opfsFileHandle = await root.getFileHandle(fileName, { create: true });
 
@@ -230,6 +221,7 @@ async function saveToOpfs(fileName, handle) {
  * @returns {Promise<string>} The temporary blob:// URL
  */
 async function getBlobUrlFromOPFS(fileName) {
+    /*
     const root = await navigator.storage.getDirectory();
 
     // 1. Get the private handle for the file
@@ -237,6 +229,9 @@ async function getBlobUrlFromOPFS(fileName) {
 
     // 2. Unpack it into a standard Web File/Blob object
     const fileBlob = await fileHandle.getFile();
+    */
+
+    const fileBlob = await getBlobFromOPFS(fileName);
 
     // 3. Generate the temporary URL pointing to these cached bytes
     return URL.createObjectURL(fileBlob);
