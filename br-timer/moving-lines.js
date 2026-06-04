@@ -2050,7 +2050,7 @@ async function setCanvasBackgroundToCurrent() {
     modExtImages.setStoringPrefix(STORING_PREFIX);
     useImage = await modExtImages.getCurrentImageUrl(myGooglePhotos) || useImage;
     let url = useImage;
-    if (useImage instanceof File) {
+    if (useImage instanceof Blob) {
         url = URL.createObjectURL(useImage);
         // FIX-ME: revoke
     }
