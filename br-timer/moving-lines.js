@@ -158,12 +158,14 @@ function seconds2pattX(seconds) {
 
 
 
-const ctxAudio = new AudioContext();
+// const ctxAudio = new AudioContext();
 
 
 // if (location.href != "http://localhost:8080/temptest/test-moving-lines.html") throw Error("run http-server . in firebase-r10m1h");
 // if (location.href != "http://localhost:8080/br-timer/moving-lines.html") throw Error("run http-server . in firebase-r10m1h");
-
+const modImgs = await importFc4i("some-img-links");
+const myPhotos = modImgs.getImgLinks();
+/*
 const myGooglePhotos = [
     "https://lh3.googleusercontent.com/tooP6STn0Vpx-OcgxZ3iYqjmduc94Pm7Ly_hEyt9KxfGVTXJ9rRPaKNorZAPQQHVus_O-Q6PY6lp3yGWGr2JRO1YLkbHJMYZF8FrCnjaMBG1heO79dRfxLcOq2ZYxRd1njYQRyftoiFPK3NtydLJpyvW31SjW5CEINMzrJmki2tAPjwTc2qEnIHlMn4AuIbh8lNayB6aNMKcBq2Eo0wWrLe3RW8gl4BLt17RFUR9rmslTzwU5zYZS9-EzEpQifPdOwCVx0ErGvjspkTxAr3AHesavYGMI57rRB2edLYldfbAd0wzcHp1bF0sfoCTWJflk9BiLB1PiiXeNqBfZfZaRrQL7m0-GC_KpGJBGIRcd2PIU4wSLqwLB7mVneTf5D4iwSYguUGm0-W53oenvy913ENxhGPyqoKUrq8wPfmHdfsAmanpRniuWRONobDmwhY0p7hny-7_fDtp3bbrxIyQi0nqz76i6hD2oqXtoz0lPTD0QZ5p_wyWd2G91f2Y00Yosl7of1T2ZYv59u15mxHKoOuHjI5OHPR4DlqIKP4VlEjwFDjXxrVP4Pv8OlOBCk4pyn2iupz1S1FE1sf0gUgtyGEzS1yxIYmXkGPjk7j7JlV9LPw9EExAiO-QczFJ1ruI56XXmvRfZ5vYjetJcizvsZS8txF-Idykit5zL6vmlpfHpQonHtaN60LwWet77w_HCocnkYVQiwajBFtIbb9mhrpTfA=w1236-h927-no",
     "https://lh3.googleusercontent.com/gAH_eGp9vNWx_pWu9uISKJttTVsYS72hm8sOTM3QeeelSHvBGmDWfzAA3nJeRalO-4hwyCGbD6NSnXxLHHVJUaXl2x6bVRUXa__sa3PWM7QZYnIYJVpX8b8ClcwgACNcqMVWvvluNEp0ANe5ML-29t0WDkGpmIOv0VcfYiuamM3dhmuD_bqeWQZ4fElXjIAhB8dynjqwufXreFkWO8ij-IOEkLKL82FDGcl0FsDoryvDokRDRPkGlLY_-tMmTg-Oh-8EKVclfAY_lh9j7Z1pUWW33CCix0GW-lHbuAtNu0xFFHeVvR_GjpOMQIvDvivSY7Cw-LW28OznNDThnfO0lSUjEH4hxg00HMJwuWgq7J33bjLUrHpIRyz1UhgcfguxE3iu45CvLHPGsjV13s6qvAb44eFWElbdI2zTLx5txsbiM_jGVNVP3jo_JiI8mouS7B8bHjP5sCx-mTmFIOroVPlYfKq7Z59nw3Swu6OmgztRTQGg4d7EuBwx-vU9nIW30aHYFWFYXceBg-w8LIavh6VTcJCQxti3C-BUQe3HtRmrv9iJrKnQuPJxnMs1d-nxD0hqCiSx6OWQcAnQvwhJsd6VL-Q28YqrHfFNcAjG50mUl7U97gKfoWRe-faoSrJH0pnZ_2--IOkXe51tpgR0Vr9ugYBBRO3lAAFNZiec6zQfJ4lusjTQqTv84xnL95kN2sCO8o8UJPzpvBNH1R2fD5WgQw=w696-h927-no",
@@ -190,6 +192,7 @@ const myGooglePhotos = [
     "https://lh3.googleusercontent.com/fzNVAa0PgwMsDBEL_rLAoDDsmzzNqE0Uy1eXw4W3Qzvq2EYti7FxEYBLa5Y45vREbWqx90VtYw_2rxnbAtvKZOC8szRFM_cQr5NHJyH79Qtor_D4Uli9h62_JYhW_I9-kIkMjrqOpIooKMT_I3hlLbIaxf0RxVNUsdQQjkAghcDgvYFOcXTrNLM3KnRYRZOOsEGaq5Oj-lllabjz6FuK7ftX2XZT0pQlzHeN_wAy5SWDcYecO55UldtX8hvVzFbU-oo-ru_jZ3Owq2IJ0NhITKHpBg9EaGsl5RJczMpKtVrIX9d8d0cnyVWyqA7oRHREmPRmaq-JYQGWVeB8YmHZ8HhHCJcocvbFtDEcctCqY5adPvs8sOvw0-EFkNoY2gtryIw1kLkdUofzRUsVcCdgW8EBTmvepUWkx3ydi5PppyuHtxwk2LZHte3MvGU3YzMhRT3GfuzGrtx2TnOOQz6cfC4i_NCa9XHefECYzt0wZr7LoPjWu5Iz5HhJRh_ghv-JGOByt_FgplEfxArEntzseSvFi99-T7lC1kEcCDD_xTLQMN3Pckv7Vb8Ev1xKVSmeqHOiKG4W0YYdEU3BAIBTDYTnacmMsGxPK_FhsvCLFnhBVl2tTXxtMRix25r-cb0bkt7TRV_9O-z9IEXFMuDOGIUdekDceAoX=w1236-h927-no",
     "https://lh3.googleusercontent.com/sHYUlSEkv8AiBD09xK4hVo0qQr3SQ7VK-sBHBKP7GnRGeq0WoAUD1bRbIuG0-l4IIKSZlMg6hTeeHomdz9bUinzXg92SZ293L7dfiOcdAA7L6cJ1PQ2EZvq1ao6thpT_XAZkx_6sxl0jUf5SiSj1UC0XYLARpOjT8eAjH6iBYO5z0bNHMThBMyiRAH4Q0GNFGIzr0_uQPQKGl9pAAZzoI79Jb18zYJSMNKSrD9QYJ2QNt21G2ndNcRmZmqp6F_O6ZVxjFUrnPVF8ng2AQU9z65j9xwsBSTq6nWjT0bfFUII_dFKlRd93NhdLJ58f9Nyhggj8Ra60GQliJ1_1-SHJGbpmyF-JPWJJuyXAGdEmNSpK5LlgJNbR5JC32VysFkClYkbj_WLuG1I2cC40SsFW-7lI9Av9ELdImrSQX-BWEFF6Ht4V1RWYDh_IvwsdZFM7BwCoSsDoM008xmR7G_0kaAqauGXXfRd5Pmq7LLiTND3LItK2kG6wBIulMQ0v3MVLMk6RfuMFScYDTeM_U3tTU1rCKbHQkobHaFoeexXmTm5RwHTJDfOXKsERy-MOUd7bwUOM6WWdyop0dhSkCSZKoahE3h4zqplAuHi-7x1g0DrcUbLR-UQ7VehJxQyb_Rpw6jAlMS5vG7zm7npyvlSwO3Qci7jfrbhz=w1236-h927-no",
 ];
+*/
 
 /*
 The window.requestAnimationFrame() method tells the browser you wish to perform an animation.
@@ -248,7 +251,7 @@ function setStateRunning(on) {
 let eltCanvas;
 let ctxCanvas;
 let eltFilter;
-let useImage;
+// let useImage;
 // let modLocalSettings;
 // let ourLocalSetting;
 let settingDawnFilter;
@@ -1131,13 +1134,12 @@ function mkPattString(patt) {
 async function getModUserImages() {
     const mod = await importFc4i("user-images");
     mod.setKeyUserBackground("key-ml-bg");
+    mod.setStoringPrefix(STORING_PREFIX);
     return mod;
 }
 async function dialogImages() {
-    const modExtImages = await getModUserImages();
-    // modExtImages.setKeyUserBackground("ml-user-bg");
-    modExtImages.setStoringPrefix(STORING_PREFIX);
-    modExtImages.dialogImages(myGooglePhotos, setCanvasBackgroundToCurrent);
+    const mod = await getModUserImages();
+    mod.dialogImages(myPhotos, setCanvasBackgroundToSelectedImage);
 }
 async function dialogPattern() {
     const OLDdivPattList = TSmkElt("div");
@@ -2044,25 +2046,28 @@ function pattY2canvasY(pattY) {
 
 
 
-async function setCanvasBackgroundToCurrent() {
-    // const modExtImages = await importFc4i("user-images");
-    const modExtImages = await getModUserImages();
-    modExtImages.setStoringPrefix(STORING_PREFIX);
-    useImage = await modExtImages.getCurrentImageUrl(myGooglePhotos) || useImage;
-    let url = useImage;
-    if (useImage instanceof Blob) {
-        const urlObj = URL.createObjectURL(useImage);
-        // FIX-ME: revoke
-        const img = new Image();
-        img.addEventListener("load", async evt => {
-            await updateCanvasBackground(urlObj);
-            // URL.revokeObjectURL(urlObj);
-            modExtImages.revoke(urlObj);
-        });
-        img.src = urlObj;
-        return;
+async function setCanvasBackgroundToSelectedImage() {
+    setBackgroundToSelected(updateCanvasBackground);
+    /**
+     * @param {Function} updateTheBackground
+     * @returns
+     */
+    async function setBackgroundToSelected(updateTheBackground) {
+        const modUserImages = await getModUserImages();
+        const urlOrBlob = await modUserImages.getCurrentImageUrl(myPhotos);
+        if (urlOrBlob instanceof Blob) {
+            const urlObj = URL.createObjectURL(urlOrBlob);
+            // FIX-ME: revoke
+            const img = new Image();
+            img.addEventListener("load", async evt => {
+                await updateTheBackground(urlObj);
+                modUserImages.revoke(urlObj);
+            });
+            img.src = urlObj;
+        } else {
+            updateTheBackground(urlOrBlob);
+        }
     }
-    updateCanvasBackground(url);
 };
 
 let usedImageOrVideo;
@@ -2347,7 +2352,6 @@ function setupCanvas(container) {
 
     // useImage = myGooglePhotos[0];
 
-    // setCanvasBackgroundToCurrent();
     ctxCanvas = eltCanvas.getContext("2d");
 }
 
@@ -2932,7 +2936,7 @@ export async function setupThings() {
     }
     const debounceAfterResize = TSDEFdebounce(afterResize);
     addEventListener("resize", evt => { debounceAfterResize(); });
-    setCanvasBackgroundToCurrent();
+    setCanvasBackgroundToSelectedImage();
 }
 async function addInfoButton(container) {
     // const oldmodMdc = await importFc4i("util-mdc");

@@ -20,6 +20,14 @@ let keyUserBackground = "";
 export function setKeyUserBackground(key) {
     const tofKey = typeof key;
     if (tofKey != "string") throw Error(`setKeyUserBackground: key must be string, "${tofKey}"`);
+    if (keyUserBackground.length > 0) {
+        if (keyUserBackground != key) {
+            const msg = `Attempt to change keyUserBackground: old=="${keyUserBackground}", new=="${key}"`;
+            console.error(msg);
+            debugger;
+            throw Error(msg);
+        }
+    }
     keyUserBackground = key;
 }
 
@@ -153,7 +161,7 @@ export function setStoringPrefix(prefix) {
     if (tofPrefix != "string") throw Error(`setStoringPrefix, arg not string: ${tofPrefix}`);
     if (storingPrefix != undefined) {
         if (storingPrefix != prefix) {
-            throw Error(`setStoringPrefix new: ${prefix}, old: ${storingPrefix}`);
+            throw Error(`setStoringPrefix: new=="${prefix}", old=="${storingPrefix}"`);
         }
     }
     storingPrefix = prefix;
@@ -244,16 +252,16 @@ export async function getCurrentImageUrl(arrBuiltin) {
 /**
  * 
  * @param {string[]} arrBuiltin 
- * @param {Function} applyImage 
+ * @param {Function} funApplyImage 
  */
-export async function dialogImages(arrBuiltin, applyImage) {
+export async function dialogImages(arrBuiltin, funApplyImage) {
     /**
      * 
      * @param {ImagesRec} obj 
      */
     function setAndApplyImagesRec(obj) {
         setImagesRec(obj);
-        applyImage();
+        funApplyImage();
     }
     // const debounceSetImagesRec = modTools.debounce(setImagesRec, 1000);
     const debounceSetImagesRec = modTools.debounce(setAndApplyImagesRec, 1000);
@@ -286,7 +294,7 @@ export async function dialogImages(arrBuiltin, applyImage) {
             applyUserBackground(eltBrowsePreview);
         });
         const body = mkElt("div", undefined, [
-            mkElt("h2", undefined, "Select background"),
+            mkElt("h2", undefined, "A: Select background"),
             mkElt("p", undefined, `
                 You can select an image or video from your device.
                 `),
@@ -392,9 +400,11 @@ export async function dialogImages(arrBuiltin, applyImage) {
                     const eltBrowsePreview = mkElt("div");
                     eltBrowsePreview.classList.add("image-preview");
                     eltBrowsePreview.style = `
-                    border: 1px solid red;
-                    height: 100px;
-                    width: 100px;
+                        background: gray;
+                        margin-top: 10px;
+                        border: 1px solid red;
+                        height: 100px;
+                        width: 100px;
                     `;
 
                     const btnBrowse = mkElt("button", undefined, "Browse");
@@ -411,10 +421,8 @@ export async function dialogImages(arrBuiltin, applyImage) {
                         // revoke(blobUrl);
                     });
                     const body = mkElt("div", undefined, [
-                        mkElt("h2", undefined, "Select background"),
-                        mkElt("p", undefined, `
-                You can select an image or video from your device.
-                `),
+                        mkElt("h2", undefined, "B: Select background file"),
+                        mkElt("p", undefined, `You can select an image or video from your device.`),
                         btnBrowse,
                         eltBrowsePreview
                     ]);

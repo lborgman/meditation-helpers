@@ -241,8 +241,8 @@ export async function dialogSound() {
             }
 
             btn.classList.add("test-sound-playing");
-            lastBell = await modBells.strikeBellById(bellName, !isInhale, { stopAtSec: 8 });
-            lastBell.btn = btn;
+            // lastBell = await modBells.strikeBellById(bellName, !isInhale, { stopAtSec: 8 });
+            // lastBell.btn = btn;
             console.log({ lastBell });
             setTimeout(() => {
                 if (!lastBell) return;

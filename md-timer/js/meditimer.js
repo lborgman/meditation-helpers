@@ -23,9 +23,19 @@ modIcons.requestIcon("download_for_offline");
 /** @type {IDBDatabase|null} */ let dbInstance = null;
 
 const STORING_PREFIX = "MEDITIM-";
-const modImages = await importFc4i("user-images");
-// modSound.setStoringPrefix(STORING_PREFIX);
-modImages.setStoringPrefix(STORING_PREFIX);
+
+const modImgs = await importFc4i("some-img-links");
+const myPhotos = modImgs.getImgLinks();
+async function getModUserImages() {
+    const mod = await importFc4i("user-images");
+    mod.setKeyUserBackground("key-ml-bg");
+    mod.setStoringPrefix(STORING_PREFIX);
+    return mod;
+}
+async function dialogImages() {
+    const mod = await getModUserImages();
+    mod.dialogImages(myPhotos, setCanvasBackgroundToCurrent);
+}
 
 const modLocalSettings = await importFc4i("local-settings");
 class OurLocalSetting extends modLocalSettings.LocalSetting {
