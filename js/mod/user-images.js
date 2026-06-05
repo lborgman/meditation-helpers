@@ -400,7 +400,7 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
                     const eltBrowsePreview = mkElt("div");
                     eltBrowsePreview.classList.add("image-preview");
                     eltBrowsePreview.style = `
-                        background: gray;
+                        background-color: gray;
                         margin-top: 10px;
                         border: 1px solid red;
                         height: 100px;
