@@ -779,7 +779,7 @@ const funEaseInOut = mkEaseInOut(0, 1, 0, secEaseInOut);
         flex-direction: column;
         gap: 10px;
         margin-left: 10px;
-        background: white;
+        background-color: white;
         padding: 1rem;
         border-radius: 0.5rem;
     `;
@@ -1045,7 +1045,7 @@ async function dialogSettings() {
             ]));
     eltBgImage.style = `
             padding: 10px;
-            background: white;
+            background-color: white;
             border - radius: 8px;
             `;
 
@@ -1101,7 +1101,7 @@ async function dialogSettings() {
     eltBad.style = `
             display: none;
             color: blue;
-            background: lightblue;
+            background-color: lightblue;
             border: 2px solid;
             border - radius: 8px;
             padding: 1rem;
@@ -1210,7 +1210,7 @@ async function dialogSettings() {
         );
     eltAlarms.style = `
             padding: 10px;
-            background: white;
+            background-color: white;
             border - radius: 8px;
             `;
 

@@ -1078,7 +1078,7 @@ function mkPattString(patt) {
         const btnClose = mkElt("button", undefined, "X");
         btnClose.classList.add("var-pattern-button");
         btnClose.style = `
-            background: transparent;
+            background-color: transparent;
             border: none;
         `;
 
@@ -2881,7 +2881,7 @@ async function setupControls(controlscontainer) {
                 outline: 1px solid #111;
                 border-radius: 20px;
                 min-height: 40px;
-                background: black;
+                background-color: black;
                 padding: 0 15px 0 7px;
             `;
     divControlImage.id = "div-control-image";
@@ -2918,7 +2918,6 @@ export async function setupThings() {
                 max-width: 100%;
                 max-width: calc(100% - 40px);
                 aspect-ratio: 1.0 / 1.4;
-                NObackground: gray;
                 margin: 20px auto;
                 opacity: 0;
                 transition: opacity 0.5s;

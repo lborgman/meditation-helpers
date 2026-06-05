@@ -518,7 +518,7 @@ function alertRealError(msg, e) {
     const divSubmit = (() => {
         if (theGitHubIssuesURL) {
             const styleBtn = [
-                "background:orange",
+                "background-color:orange",
                 "color:black",
                 "border-radius: 4px",
                 "border: none; padding: 8px",
@@ -594,7 +594,7 @@ function alertRealError(msg, e) {
         "overflow:auto",
         "white-space:pre-wrap",
         "user-select:all",
-        "background:#fffc",
+        "background-color:#fffc",
         "padding: 4px",
         "overflow-wrap: anywhere",
     ].join("; ");
@@ -867,19 +867,19 @@ async function popupDialog(title, body, severity) {
     let styleDia = "max-width:90vw; max-height:80vh; overflow:auto; color:black; ";
     switch (severity) {
         case "error":
-            styleDia += "background:yellow; border:2px solid red;";
+            styleDia += "background-color:yellow; border:2px solid red;";
             break;
         case "warning":
-            styleDia += "background:yellow; border:2px solid green;";
+            styleDia += "background-color:yellow; border:2px solid green;";
             break;
         case "info":
-            styleDia += "background:white; border:2px solid blue;";
+            styleDia += "background-color:white; border:2px solid blue;";
             break;
         default:
-            styleDia += "background:red; border:2px solid yellow;";
+            styleDia += "background-color:red; border:2px solid yellow;";
     }
     const styleArt = "";
-    const styleBtn = "background:orange; color:black; border-radius: 4px; border: none; padding: 8px;";
+    const styleBtn = "background-color:orange; color:black; border-radius: 4px; border: none; padding: 8px;";
     await thePromiseDOMready;
     const closeBtn = mkElt("button", { style: styleBtn }, "CLOSE");
     // FIXME: the native dialog is broken 2020-07-15
@@ -2258,7 +2258,6 @@ async function testString2searchTokens() {
         const resTest = string2searchTokens(strTested)
         if (!resTest) {
             console.log("%cCould not get tokens", "background:red; color:yellow;");
-            // debugger; // eslint-disable-line no-debugger
             return;
         }
         const arrTest = resTest;
@@ -3561,7 +3560,7 @@ export async function dialogUnblockerAPIkey(unblockData) {
     btnClipboard.style = `
         padding: 4px;
         border-radius: 8px;
-        background: greenyellow;
+        background-color: greenyellow;
         cursor: pointer;
     `;
     const eltClipboard = mkElt("p", undefined, [

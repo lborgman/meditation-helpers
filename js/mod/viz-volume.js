@@ -649,7 +649,7 @@ export function showViz(
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
-            background: #1a1a1a;
+            background-color: #1a1a1a;
             color: #fff;
         }
 
@@ -659,7 +659,7 @@ export function showViz(
         }
 
         div.viz-vol .visualization-container {
-            background: #000;
+            background-color: #000;
             border: 2px solid #333;
             border-radius: 8px;
             padding: 20px;
@@ -672,7 +672,7 @@ export function showViz(
             width: 100%;
             height: 300px;
             max-height: 60px;
-            background: #000;
+            background-color: #000;
             cursor: pointer;
         }
 
@@ -680,7 +680,7 @@ export function showViz(
             position: relative;
             margin-top: 10px;
             height: 30px;
-            background: #111;
+            background-color: #111;
             border-radius: 4px;
         }
 
@@ -689,7 +689,7 @@ export function showViz(
             bottom: 15px;
             width: 1px;
             height: 10px;
-            background: #888;
+            background-color: #888;
             transform: translateX(-50%);
         }
 
@@ -707,7 +707,7 @@ export function showViz(
             top: 0;
             width: 2px;
             height: 100%;
-            background: #ff6b6b;
+            background-color: #ff6b6b;
             pointer-events: none;
             z-index: 10;
             box-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
@@ -720,7 +720,7 @@ export function showViz(
             font-family: monospace;
             font-size: 14px;
             color: #4CAF50;
-            background: #111;
+            background-color: #111;
             padding: 8px 12px;
             border-radius: 4px;
         }
@@ -737,7 +737,7 @@ export function showViz(
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
-            background: #4CAF50;
+            background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
@@ -745,19 +745,19 @@ export function showViz(
         }
 
         div.viz-vol button:hover:not(:disabled) {
-            background: #45a049;
+            background-color: #45a049;
             transform: translateY(-1px);
         }
 
         div.viz-vol button:disabled {
-            background: #666;
+            background-color: #666;
             cursor: not-allowed;
             opacity: 0.6;
         }
 
         div.viz-vol input[type="file"] {
             padding: 10px;
-            background: #333;
+            background-color: #333;
             color: white;
             border: 1px solid #666;
             border-radius: 5px;
@@ -765,13 +765,13 @@ export function showViz(
         }
 
         div.viz-vol input[type="file"]:hover {
-            background: #444;
+            background-color: #444;
         }
 
         div.viz-vol .info {
             margin: 10px 0;
             padding: 10px;
-            background: #333;
+            background-color: #333;
             border-radius: 5px;
             font-family: monospace;
         }
@@ -785,7 +785,7 @@ export function showViz(
             width: 100%;
             height: 6px;
             -webkit-appearance: none;
-            background: #333;
+            background-color: #333;
             border-radius: 3px;
             outline: none;
         }
@@ -799,7 +799,7 @@ export function showViz(
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: #4CAF50;
+            background-color: #4CAF50;
             cursor: pointer;
         }
 
@@ -807,7 +807,7 @@ export function showViz(
             display: flex;
             align-items: center;
             gap: 10px;
-            background: #333;
+            background-color: #333;
             padding: 5px 15px;
             border-radius: 5px;
         }
@@ -817,11 +817,11 @@ export function showViz(
         }
 
         div.viz-vol .demo-button {
-            background: #2196F3;
+            background-color: #2196F3;
         }
 
         div.viz-vol .demo-button:hover:not(:disabled) {
-            background: #0b7dda;
+            background-color: #0b7dda;
         }
 
 
