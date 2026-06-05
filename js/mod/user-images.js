@@ -374,6 +374,9 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
             return mkElt("div", undefined, [lblRandom]);
         }
         if (url == "users") {
+            if ("users" == oldObj.choice) {
+                radImg.checked = true;
+            }
             return mkImgChoiceUser();
             function mkImgChoiceUser() {
                 // 2 Your
