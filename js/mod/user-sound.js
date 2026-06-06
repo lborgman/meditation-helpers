@@ -45,12 +45,13 @@ async function getFirstBell() {
     const grp = fileBellGroups[grpName];
     const urlInternal = `../../ext/sounds/${grp.urlInternal}/out/index-files.mjs`;
     const mod = await import(urlInternal);
-    console.log(mod);
+    // console.log(mod);
     const files = mod.files();
     const file0 = files[0]
     // debugger;
     return mod.myUrl(file0);
 }
+/*
 try {
     const first = await getFirstBell();
     console.log({ first });
@@ -59,6 +60,7 @@ try {
     console.log({ err });
     debugger;
 }
+*/
 
 /**
  *

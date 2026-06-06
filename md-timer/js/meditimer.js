@@ -34,7 +34,8 @@ async function getModUserImages() {
 }
 async function dialogImages() {
     const mod = await getModUserImages();
-    mod.dialogImages(myPhotos, setCanvasBackgroundToCurrent);
+    // mod.dialogImages(myPhotos, setCanvasBackgroundToCurrent);
+    mod.dialogImages(myPhotos, setBackgroundImage);
 }
 
 const modLocalSettings = await importFc4i("local-settings");
@@ -1231,6 +1232,8 @@ async function dialogSettings() {
     btnMy.addEventListener("click", async evt => {
         evt.stopPropagation();
         dlg.close();
+        dialogImages();
+        return;
         // const newBg = await modLocalFileReader.selectAndSaveFile(bgFileName, pickerOptions);
         const newBg = await modLocalFileReader.selectAndSaveFile(bgFileName, "image");
         if (newBg) {

@@ -315,7 +315,7 @@ async function getWebBrowserInfo() {
     }
 
     const env = await detectEnvironment();
-    console.log("env", env);
+    // console.log("env", env);
     return env;
 }
 export const promWebBrowserInfo = getWebBrowserInfo();
@@ -5121,7 +5121,7 @@ export async function requestWakeLock() {
  */
 export async function releaseWakeLock() {
     if (wakeLock === null) {
-        console.log("No wake lock to release");
+        // console.warn("No wake lock to release");
         return;
     }
 

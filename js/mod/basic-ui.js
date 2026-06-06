@@ -13,49 +13,49 @@ const mkElt = window["mkElt"];
  * @returns {HTMLButtonElement}
  */
 export function mkXclose(funClose) {
-    const xClose = mkElt("button", { class: "x-close" }, "✖");
-    xClose.addEventListener("click", evt => {
-        evt.stopPropagation();
-        // debugger;
-        if (funClose) {
-            funClose();
-            return;
-        }
-        (xClose.closest("dialog"))?.close();
-    });
-    return xClose;
+  const xClose = mkElt("button", { class: "x-close" }, "✖");
+  xClose.addEventListener("click", evt => {
+    evt.stopPropagation();
+    // debugger;
+    if (funClose) {
+      funClose();
+      return;
+    }
+    (xClose.closest("dialog"))?.close();
+  });
+  return xClose;
 }
 export function addXclose(dialog) {
-    const btnClose = dialog.querySelector("button[class=x-close]");
-    if (btnClose) { return; }
-    dialog.appendChild(mkXclose());
+  const btnClose = dialog.querySelector("button[class=x-close]");
+  if (btnClose) { return; }
+  dialog.appendChild(mkXclose());
 }
 
 document.documentElement.addEventListener("click", evt => {
-    // evt.stopPropagation();
-    // evt.preventDefault();
-    // debugger;
-    // NOTE: first child element must covers the whole <dialog>
-    const dialog = evt.target;
-    // if (dialog?.tagName == "DIALOG") {
-    if (dialog instanceof HTMLDialogElement) {
+  // evt.stopPropagation();
+  // evt.preventDefault();
+  // debugger;
+  // NOTE: first child element must covers the whole <dialog>
+  const dialog = evt.target;
+  // if (dialog?.tagName == "DIALOG") {
+  if (dialog instanceof HTMLDialogElement) {
 
-        const rect = dialog.getBoundingClientRect();
-        const scrollbarWidth = dialog.offsetWidth - dialog.clientWidth;
-        const xFromRight = rect.right - evt.clientX;
+    const rect = dialog.getBoundingClientRect();
+    const scrollbarWidth = dialog.offsetWidth - dialog.clientWidth;
+    const xFromRight = rect.right - evt.clientX;
 
-        // Ignore if click is in scrollbar area
-        if (xFromRight <= scrollbarWidth && xFromRight > 0) {
-            return;
-        }
-
-        evt.stopPropagation();
-        evt.preventDefault();
-        closeDialog(dialog);
+    // Ignore if click is in scrollbar area
+    if (xFromRight <= scrollbarWidth && xFromRight > 0) {
+      return;
     }
-    // const currentTarget = evt.currentTarget;
-    // const onDialog = dialog == currentTarget;
-    // if (onDialog) dialog.close();
+
+    evt.stopPropagation();
+    evt.preventDefault();
+    closeDialog(dialog);
+  }
+  // const currentTarget = evt.currentTarget;
+  // const onDialog = dialog == currentTarget;
+  // if (onDialog) dialog.close();
 });
 
 /**
@@ -63,12 +63,12 @@ document.documentElement.addEventListener("click", evt => {
  * @param {HTMLDialogElement} dialog 
  */
 function closeDialog(dialog) {
-    console.log("closeDialog", dialog);
-    dialog.close();
-    if (!dialog.classList.contains("html-dialog")) {
-        console.log("closeDialog remove");
-        dialog.remove();
-    }
+  console.log("closeDialog", dialog);
+  dialog.close();
+  if (!dialog.classList.contains("html-dialog")) {
+    console.log("closeDialog remove");
+    dialog.remove();
+  }
 }
 
 
@@ -79,13 +79,13 @@ function closeDialog(dialog) {
  * @returns {HTMLButtonElement}
  */
 export function mkFabButton(icon, title, small) {
-    const btn = mkElt("button", undefined, icon);
-    btn.classList.add("fab-button");
-    btn.title = title;
-    if (small) {
-        btn.classList.add("fab-button-small");
-    }
-    return btn;
+  const btn = mkElt("button", undefined, icon);
+  btn.classList.add("fab-button");
+  btn.title = title;
+  if (small) {
+    btn.classList.add("fab-button-small");
+  }
+  return btn;
 }
 
 /**
@@ -95,10 +95,10 @@ export function mkFabButton(icon, title, small) {
  * @returns {HTMLButtonElement}
  */
 export function mkIconButton(icon, title) {
-    const btn = mkElt("button", undefined, icon);
-    btn.classList.add("icon-button");
-    btn.title = title;
-    return btn;
+  const btn = mkElt("button", undefined, icon);
+  btn.classList.add("icon-button");
+  btn.title = title;
+  return btn;
 }
 
 /**
@@ -110,54 +110,54 @@ export function mkIconButton(icon, title) {
  * @returns {Promise<any>}
  */
 export async function showDialog(bdy, valFun, buttons, dialogClass) {
-    if (valFun != undefined) {
-        if (typeof valFun !== 'function') {
-            debugger;
-            throw new Error('Parameter "valFun" must be a function');
-        }
-        if (valFun.constructor.name !== 'AsyncFunction') {
-            debugger;
-            throw new Error('Function "valFun" must be async');
-        }
-        if (valFun.length !== 0) {
-            debugger;
-            throw new Error('Async function "valFun" must take 0 parameters');
-        }
+  if (valFun != undefined) {
+    if (typeof valFun !== 'function') {
+      debugger;
+      throw new Error('Parameter "valFun" must be a function');
     }
-    if (typeof bdy == "string") { bdy = mkElt("div", undefined, bdy); }
-    const dlg = mkElt("dialog", undefined, bdy);
-    if (dialogClass) dlg.classList.add(dialogClass);
-    dlg.addEventListener("close", evt => { console.log("%%%%% dlg close"); });
-    dlg.addEventListener("cancel", evt => { console.log("%%%%% dlg cancel"); });
-    if (buttons) {
-        let myButtons = buttons;
-        if (!Array.isArray(myButtons)) { myButtons = [buttons]; }
-        const eltButtons = mkElt("div", { class: "dialog-buttons" });
-        myButtons.forEach(b => {
-            if (!(b instanceof HTMLButtonElement)) {
-                debugger;
-                throw Error("showDialog: buttons must only contain <button>");
-            }
-            eltButtons.appendChild(b);
-        });
-        dlg.appendChild(eltButtons);
+    if (valFun.constructor.name !== 'AsyncFunction') {
+      debugger;
+      throw new Error('Function "valFun" must be async');
     }
-    addXclose(dlg);
-    document.documentElement.appendChild(dlg);
-    dlg.showModal();
-
-    if (!valFun) return;
-    const promClose = new Promise(resolve => {
-        dlg.addEventListener("close", evt => { resolve("close"); });
-    });
-    // debugger;
-    // const ans = await valFun();
-    const ans = await Promise.race([valFun(), promClose]);
-    const tofAns = typeof ans;
-    if (tofAns != "boolean" && ans != "close") {
+    if (valFun.length !== 0) {
+      debugger;
+      throw new Error('Async function "valFun" must take 0 parameters');
+    }
+  }
+  if (typeof bdy == "string") { bdy = mkElt("div", undefined, bdy); }
+  const dlg = mkElt("dialog", undefined, bdy);
+  if (dialogClass) dlg.classList.add(dialogClass);
+  dlg.addEventListener("close", evt => { console.log("%%%%% dlg close"); });
+  dlg.addEventListener("cancel", evt => { console.log("%%%%% dlg cancel"); });
+  if (buttons) {
+    let myButtons = buttons;
+    if (!Array.isArray(myButtons)) { myButtons = [buttons]; }
+    const eltButtons = mkElt("div", { class: "dialog-buttons" });
+    myButtons.forEach(b => {
+      if (!(b instanceof HTMLButtonElement)) {
         debugger;
-    }
-    return ans;
+        throw Error("showDialog: buttons must only contain <button>");
+      }
+      eltButtons.appendChild(b);
+    });
+    dlg.appendChild(eltButtons);
+  }
+  addXclose(dlg);
+  document.documentElement.appendChild(dlg);
+  dlg.showModal();
+
+  if (!valFun) return;
+  const promClose = new Promise(resolve => {
+    dlg.addEventListener("close", evt => { resolve("close"); });
+  });
+  // debugger;
+  // const ans = await valFun();
+  const ans = await Promise.race([valFun(), promClose]);
+  const tofAns = typeof ans;
+  if (tofAns != "boolean" && ans != "close") {
+    debugger;
+  }
+  return ans;
 }
 /**
  * 
@@ -166,40 +166,40 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
  * @param {string} [cancel]
  */
 export async function showDialogConfirm(bdy, ok, cancel, funOkButton) {
-    ok = ok || "OK";
-    cancel = cancel || "Cancel";
-    const btnTrue = mkElt("button", { class: "button-ok" }, ok);
-    if (funOkButton) { funOkButton(btnTrue); }
-    const btnFalse = mkElt("button", undefined, cancel);
-    const funAns = async () => {
-        return await new Promise(resolve => {
-            btnTrue.addEventListener("click", evt => {
-                resolve(true);
-                closeMyDialog(btnTrue);
-            });
-            btnFalse.addEventListener("click", evt => {
-                resolve(false);
-                closeMyDialog(btnFalse);
-            });
-        });
-    }
-    const ans = await showDialog(bdy, funAns, [btnTrue, btnFalse]);
-    if (ans == "close") {
-        // Return false on close event
-        return false;
-    }
-    const tofAns = typeof ans;
-    if (tofAns != "boolean") {
-        const msg = `showDialogConfirm: typeof ans == "${tofAns}`;
-        console.error(msg);
-        debugger;
-        throw Error(msg);
-    }
-    return ans;
+  ok = ok || "OK";
+  cancel = cancel || "Cancel";
+  const btnTrue = mkElt("button", { class: "button-ok" }, ok);
+  if (funOkButton) { funOkButton(btnTrue); }
+  const btnFalse = mkElt("button", undefined, cancel);
+  const funAns = async () => {
+    return await new Promise(resolve => {
+      btnTrue.addEventListener("click", evt => {
+        resolve(true);
+        closeMyDialog(btnTrue);
+      });
+      btnFalse.addEventListener("click", evt => {
+        resolve(false);
+        closeMyDialog(btnFalse);
+      });
+    });
+  }
+  const ans = await showDialog(bdy, funAns, [btnTrue, btnFalse]);
+  if (ans == "close") {
+    // Return false on close event
+    return false;
+  }
+  const tofAns = typeof ans;
+  if (tofAns != "boolean") {
+    const msg = `showDialogConfirm: typeof ans == "${tofAns}`;
+    console.error(msg);
+    debugger;
+    throw Error(msg);
+  }
+  return ans;
 }
 export function closeMyDialog(elt) {
-    const dlg = elt.closest("dialog");
-    dlg.close();
+  const dlg = elt.closest("dialog");
+  dlg.close();
 }
 
 
@@ -207,61 +207,73 @@ export function closeMyDialog(elt) {
 let tmrSnackbar = null;
 
 export function snackbar(bdy, sec) {
-    // Default to 10 seconds if not provided or if 0 is passed mistakenly
-    sec = sec === undefined ? 10 : sec;
+  createSnackbarDiv(bdy, sec);
+  return;
+  // Default to 10 seconds if not provided or if 0 is passed mistakenly
+  sec = sec === undefined ? 10 : sec;
 
-    /** @type {HTMLDialogElement|null} */
-    let dlg = document.getElementById("snackbar");
+  /** @type {HTMLDialogElement|null} */
+  let dlg = document.getElementById("snackbar");
 
-    if (dlg) {
-        if (!(dlg instanceof HTMLDialogElement)) {
-            const msg = "!(dlg instanceof HTMLDialogElement)";
-            console.error(msg, dlg);
-            throw Error(msg);
-        }
-        // Close it immediately if it's already open from a previous call
-        if (dlg.open) {
-            dlg.close();
-        }
+  if (dlg) {
+    if (!(dlg instanceof HTMLDialogElement)) {
+      const msg = "!(dlg instanceof HTMLDialogElement)";
+      console.error(msg, dlg);
+      throw Error(msg);
     }
-
-    // 1. Clear any existing active timer to prevent premature closing
-    if (tmrSnackbar) {
-        clearTimeout(tmrSnackbar);
+    // Close it immediately if it's already open from a previous call
+    if (dlg.open) {
+      dlg.close();
     }
+  }
 
-    // 2. Create the element if it doesn't exist
-    if (!dlg) {
-        dlg = /** @type {HTMLDialogElement} */ (mkElt("dialog", undefined, bdy));
-        dlg.id = "snackbar";
-        document.body.appendChild(dlg); // Typically better to append to body than documentElement
+  // 1. Clear any existing active timer to prevent premature closing
+  if (tmrSnackbar) {
+    clearTimeout(tmrSnackbar);
+  }
+
+  // 2. Create the element if it doesn't exist
+  if (!dlg) {
+    dlg = /** @type {HTMLDialogElement} */ (mkElt("dialog", undefined, bdy));
+    dlg.id = "snackbar";
+    // dlg.style.zIndex = "99999";
+    // document.body.appendChild(dlg); // Typically better to append to body than documentElement
+
+    // FIX-ME: last...
+    const lastModal = document.querySelector("dialog:modal");
+    const parent = lastModal || document.documentElement;
+    // document.documentElement.appendChild(dlg); // Typically better to append to body than documentElement
+    parent.appendChild(dlg); // Typically better to append to body than documentElement
+  }
+
+  // 3. Update content safely
+  dlg.textContent = "";
+  if (typeof bdy === "string") {
+    dlg.textContent = bdy;
+  } else {
+    dlg.append(bdy);
+  }
+
+  // 4. Show the dialog (Use showModal() if you want backdrop/centering, otherwise show())
+  if (!dlg.open) {
+    // dlg.showModal();
+    dlg.show();
+    console.log("snackbar: After dlg.show()")
+  }
+
+  // 5. Save the timeout reference to our module-level variable!
+  tmrSnackbar = setTimeout(() => {
+    console.log("Timer fired, closing dialog...", { sec, dlg });
+    try {
+      if (dlg && dlg.open) {
+        dlg.close();
+        dlg.remove();
+      }
+    } catch (err) {
+      console.error("Error closing dialog:", err);
     }
-
-    // 3. Update content safely
-    dlg.textContent = "";
-    if (typeof bdy === "string") {
-        dlg.textContent = bdy;
-    } else {
-        dlg.append(bdy);
-    }
-
-    // 4. Show the dialog (Use showModal() if you want backdrop/centering, otherwise show())
-    if (!dlg.open) {
-        dlg.show();
-    }
-
-    // 5. Save the timeout reference to our module-level variable!
-    tmrSnackbar = setTimeout(() => {
-        console.log("Timer fired, closing dialog...", { sec, dlg });
-        try {
-            if (dlg && dlg.open) {
-                dlg.close();
-            }
-        } catch (err) {
-            console.error("Error closing dialog:", err);
-        }
-        tmrSnackbar = null; // Reset tracker after running
-    }, sec * 1000);
+    tmrSnackbar = null; // Reset tracker after running
+  }, sec * 1000);
 }
 
 setTimeout(() => { snackbar("Hi, welcome!", 3) }, 500);
@@ -274,110 +286,110 @@ setTimeout(() => { snackbar("Hi, welcome!", 3) }, 500);
 // (Made by Gemini from a prompt in an incognito tab.)
 
 class MdcInput extends HTMLElement {
-    #internalValue = '';
+  #internalValue = '';
 
-    constructor() {
-        super();
-        this.attachShadow({ mode: 'open' });
-        this.renderShell();
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.renderShell();
+  }
+
+  static get observedAttributes() {
+    return ['label', 'type', 'value', 'required', 'pattern', 'variant'];
+  }
+
+  // Exposes the underlying native HTMLInputElement.
+  get inputElement() {
+    return this.shadowRoot.querySelector('.mdc-text-field__input');
+  }
+
+  // Gets or sets the live value of the input field.
+  get value() {
+    return this.inputElement ? this.inputElement.value : this.#internalValue;
+  }
+
+  set value(val) {
+    this.#internalValue = val;
+    const input = this.inputElement;
+    if (input) {
+      input.value = val;
+    }
+  }
+
+  // Gets or sets the floating label display text.
+  get label() {
+    return this.getAttribute('label') || '';
+  }
+
+  set label(/** @type {string} */ val) {
+    this.setAttribute('label', val);
+  }
+
+  // Gets or sets the component's custom error styling state.
+  get error() {
+    return this.inputElement ? this.inputElement.classList.contains('has-error') : false;
+  }
+
+  set error(val) {
+    const input = this.inputElement;
+    if (input) {
+      if (val) {
+        input.classList.add('has-error');
+      } else {
+        input.classList.remove('has-error');
+      }
+    }
+  }
+
+  connectedCallback() {
+    if (this.hasAttribute('value')) {
+      this.value = this.getAttribute('value');
     }
 
-    static get observedAttributes() {
-        return ['label', 'type', 'value', 'required', 'pattern', 'variant'];
+    // Sync the initial text content for the label tag safely
+    const labelText = this.shadowRoot.querySelector('.mdc-floating-label');
+    if (labelText) {
+      labelText.textContent = this.getAttribute('label') || '';
     }
 
-    // Exposes the underlying native HTMLInputElement.
-    get inputElement() {
-        return this.shadowRoot.querySelector('.mdc-text-field__input');
+    this.setupListeners();
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) return;
+
+    if (name === 'value') {
+      this.value = newValue;
+      return;
     }
 
-    // Gets or sets the live value of the input field.
-    get value() {
-        return this.inputElement ? this.inputElement.value : this.#internalValue;
+    const input = this.inputElement;
+    const labelText = this.shadowRoot.querySelector('.mdc-floating-label');
+
+    if (name === 'label' && labelText) labelText.textContent = newValue;
+    if (name === 'type' && input) input.type = newValue;
+
+    if (name === 'required' && input) {
+      this.hasAttribute('required') ? input.setAttribute('required', '') : input.removeAttribute('required');
     }
-
-    set value(val) {
-        this.#internalValue = val;
-        const input = this.inputElement;
-        if (input) {
-            input.value = val;
-        }
+    if (name === 'pattern' && input) {
+      input.setAttribute('pattern', newValue);
     }
+  }
 
-    // Gets or sets the floating label display text.
-    get label() {
-        return this.getAttribute('label') || '';
-    }
+  setupListeners() {
+    const input = this.inputElement;
+    if (!input) return;
 
-    set label(/** @type {string} */ val) {
-        this.setAttribute('label', val);
-    }
+    input.addEventListener('input', () => {
+      this.#internalValue = input.value;
+      // Dispatch standard input event so developers can listen directly to <mdc-input>
+      this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+    });
+  }
 
-    // Gets or sets the component's custom error styling state.
-    get error() {
-        return this.inputElement ? this.inputElement.classList.contains('has-error') : false;
-    }
-
-    set error(val) {
-        const input = this.inputElement;
-        if (input) {
-            if (val) {
-                input.classList.add('has-error');
-            } else {
-                input.classList.remove('has-error');
-            }
-        }
-    }
-
-    connectedCallback() {
-        if (this.hasAttribute('value')) {
-            this.value = this.getAttribute('value');
-        }
-
-        // Sync the initial text content for the label tag safely
-        const labelText = this.shadowRoot.querySelector('.mdc-floating-label');
-        if (labelText) {
-            labelText.textContent = this.getAttribute('label') || '';
-        }
-
-        this.setupListeners();
-    }
-
-    attributeChangedCallback(name, oldValue, newValue) {
-        if (oldValue === newValue) return;
-
-        if (name === 'value') {
-            this.value = newValue;
-            return;
-        }
-
-        const input = this.inputElement;
-        const labelText = this.shadowRoot.querySelector('.mdc-floating-label');
-
-        if (name === 'label' && labelText) labelText.textContent = newValue;
-        if (name === 'type' && input) input.type = newValue;
-
-        if (name === 'required' && input) {
-            this.hasAttribute('required') ? input.setAttribute('required', '') : input.removeAttribute('required');
-        }
-        if (name === 'pattern' && input) {
-            input.setAttribute('pattern', newValue);
-        }
-    }
-
-    setupListeners() {
-        const input = this.inputElement;
-        if (!input) return;
-
-        input.addEventListener('input', () => {
-            this.#internalValue = input.value;
-            // Dispatch standard input event so developers can listen directly to <mdc-input>
-            this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
-        });
-    }
-
-    renderShell() {
-        this.shadowRoot.innerHTML = `
+  renderShell() {
+    this.shadowRoot.innerHTML = `
       <style>
         :host {
           display: inline-block;
@@ -527,7 +539,7 @@ class MdcInput extends HTMLElement {
         <div class="mdc-line-ripple"></div>
       </label>
     `;
-    }
+  }
 }
 
 customElements.define('mdc-input', MdcInput);
@@ -540,28 +552,28 @@ customElements.define('mdc-input', MdcInput);
  * @returns {boolean}
  */
 export function isCssVariableDefined(variableName, className) {
-    // Ensure the variable name starts with '--'
-    const formattedVar = variableName.startsWith('--') ? variableName : `--${variableName}`;
+  // Ensure the variable name starts with '--'
+  const formattedVar = variableName.startsWith('--') ? variableName : `--${variableName}`;
 
-    const testElem = document.createElement('div');
-    if (className) {
-        testElem.className = className;
-    }
+  const testElem = document.createElement('div');
+  if (className) {
+    testElem.className = className;
+  }
 
-    // Isolate the element completely out of the document flow
-    testElem.style.position = 'fixed';
-    testElem.style.top = '-9999px';
-    testElem.style.visibility = 'hidden';
+  // Isolate the element completely out of the document flow
+  testElem.style.position = 'fixed';
+  testElem.style.top = '-9999px';
+  testElem.style.visibility = 'hidden';
 
-    document.body.appendChild(testElem);
+  document.body.appendChild(testElem);
 
-    // Read the computed value of the variable
-    const value = window.getComputedStyle(testElem).getPropertyValue(formattedVar).trim();
+  // Read the computed value of the variable
+  const value = window.getComputedStyle(testElem).getPropertyValue(formattedVar).trim();
 
-    document.body.removeChild(testElem);
+  document.body.removeChild(testElem);
 
-    // If the variable doesn't exist, the browser returns an empty string
-    return value !== '';
+  // If the variable doesn't exist, the browser returns an empty string
+  return value !== '';
 }
 
 // Example 1: Check if a global variable exists on a class
@@ -576,3 +588,118 @@ const isDefined = window.getComputedStyle(document.documentElement)
                         .getPropertyValue('--my-variable')
                         .trim() !== '';
 */
+
+// function createSnackbar(message, duration = 4000, hasButton = false, position = 'bottom-left') {
+function OLDcreateSnackbarDiv(message, duration = 4, hasButton = false) {
+
+  const snackbar = document.createElement('div');
+  snackbar.id = "snackbar";
+
+  snackbar.textContent = "";
+  snackbar.append(message);
+
+  const dismiss = () => {
+    snackbar.hidePopover();
+    snackbar.remove();
+  };
+  setTimeout(dismiss, duration * 1000);
+
+
+  if (hasButton) {
+    const button = document.createElement('button');
+    button.textContent = 'Close';
+    button.onclick = dismiss;
+    snackbar.appendChild(button);
+  }
+
+  snackbar.popover = 'manual';
+  snackbar.setAttribute('aria-live', 'polite');
+
+  snackbar.style.display = 'flex';
+  snackbar.style.justifyContent = "space-between";
+
+  document.body.appendChild(snackbar);
+
+  snackbar.showPopover();
+
+}
+
+/**
+ * Creates and displays a non-modal snackbar notification using the HTML Popover API.
+ * This guarantees the snackbar stays in the Top Layer above open modal dialogs.
+ *
+ * @param {string|Node} message - The message text or DOM element to display.
+ * @param {number} [duration=4] - Visibility duration in seconds before auto-dismissing.
+ * @param {boolean} [hasButton=false] - Whether to display an explicit dismiss button.
+ * @param {Object} [coords={}] - Custom CSS layout overrides (e.g., top, bottom, left, right, width).
+ * @param {string} [coords.top] - CSS top coordinate.
+ * @param {string} [coords.bottom] - CSS bottom coordinate.
+ * @param {string} [coords.left] - CSS left coordinate.
+ * @param {string} [coords.right] - CSS right coordinate.
+ * @param {string} [coords.width] - CSS width constraint.
+ */
+function createSnackbarDiv(message, duration = 4, hasButton = false, coords = {}) {
+  // Validate conflicting coordinate properties
+  if (coords.top !== undefined && coords.bottom !== undefined) {
+    console.warn("Snackbar Conflict: Both 'top' and 'bottom' provided. 'top' will take priority.");
+  }
+  if (coords.left !== undefined && coords.right !== undefined) {
+    console.warn("Snackbar Conflict: Both 'left' and 'right' provided. 'left' will take priority.");
+  }
+
+  const snackbar = document.createElement('div');
+  snackbar.id = "snackbar";
+
+  snackbar.textContent = "";
+  snackbar.append(message);
+
+  const dismiss = () => {
+    snackbar.style.opacity = '0';
+    snackbar.addEventListener('transitionend', () => {
+      snackbar.hidePopover();
+      snackbar.remove();
+    }, { once: true });
+  };
+  
+  setTimeout(dismiss, duration * 1000);
+
+  if (hasButton) {
+    const button = document.createElement('button');
+    button.textContent = 'Close';
+    button.onclick = dismiss;
+    snackbar.appendChild(button);
+  }
+
+  snackbar.popover = 'manual';
+  snackbar.setAttribute('aria-live', 'polite');
+  snackbar.style.display = 'flex';
+  snackbar.style.justifyContent = "space-between";
+
+  // Assign requested positioning rules
+  Object.assign(snackbar.style, coords);
+
+  // Fallback defaults to clear browser center-locking mechanisms
+  if (coords.top !== undefined) {
+    snackbar.style.bottom = 'auto';
+  } else if (coords.bottom !== undefined) {
+    snackbar.style.top = 'auto';
+  }
+
+  if (coords.left !== undefined) {
+    snackbar.style.right = 'auto';
+  } else if (coords.right !== undefined) {
+    snackbar.style.left = 'auto';
+  }
+
+  // Setup opacity animation baseline
+  snackbar.style.opacity = '0';
+  snackbar.style.transition = 'opacity 0.2s ease-out';
+
+  document.body.appendChild(snackbar);
+  snackbar.showPopover();
+
+  // Kick off entry transition
+  requestAnimationFrame(() => {
+    snackbar.style.opacity = '1';
+  });
+}

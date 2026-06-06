@@ -263,8 +263,7 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
         setImagesRec(obj);
         funApplyImage();
     }
-    // const debounceSetImagesRec = modTools.debounce(setImagesRec, 1000);
-    const debounceSetImagesRec = modTools.debounce(setAndApplyImagesRec, 1000);
+    const debounceSetAndApplyImagesRec = modTools.debounce(setAndApplyImagesRec, 1000);
     const oldObj = getImagesRec();
 
     const iconCopyright = modIcons.mkGIcon("copyright");
@@ -525,7 +524,7 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
         const obj = getImagesRec();
         console.log("bdy change", evt, target, val, obj);
         obj.choice = val;
-        debounceSetImagesRec(obj);
+        debounceSetAndApplyImagesRec(obj);
     })
 
     /** * @param {boolean} doSave * @returns {string} */
@@ -545,7 +544,7 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
 export function revoke(blobUrl) {
     const img = new Image();
     img.addEventListener("load", () => {
-        console.log("%sREVOKE before raf", "font-size:30px;");
+        console.log("%cREVOKE before raf", "font-size:30px;");
         requestAnimationFrame(() => {
             setTimeout(() => {
                 URL.revokeObjectURL(blobUrl);
@@ -554,4 +553,24 @@ export function revoke(blobUrl) {
         });
     });
     img.src = blobUrl;
+}
+
+
+export async function setBackgroundToSelected(updateTheBackground) {
+    // const modUserImages = await getModUserImages();
+    const modImgs = await importFc4i("some-img-links");
+    const myPhotos = modImgs.getImgLinks();
+    const urlOrBlob = await getCurrentImageUrl(myPhotos);
+    if (urlOrBlob instanceof Blob) {
+        const urlObj = URL.createObjectURL(urlOrBlob);
+        // FIX-ME: revoke
+        const img = new Image();
+        img.addEventListener("load", async evt => {
+            await updateTheBackground(urlObj);
+            revoke(urlObj);
+        });
+        img.src = urlObj;
+    } else {
+        updateTheBackground(urlOrBlob);
+    }
 }

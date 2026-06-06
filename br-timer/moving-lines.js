@@ -1139,7 +1139,7 @@ async function getModUserImages() {
 }
 async function dialogImages() {
     const mod = await getModUserImages();
-    mod.dialogImages(myPhotos, setCanvasBackgroundToSelectedImage);
+    mod.dialogImages(myPhotos, setCanvasBackgroundToSelectedImageAndNotify);
 }
 async function dialogPattern() {
     const OLDdivPattList = TSmkElt("div");
@@ -2047,12 +2047,13 @@ function pattY2canvasY(pattY) {
 
 
 async function setCanvasBackgroundToSelectedImage() {
-    setBackgroundToSelected(updateCanvasBackground);
+    const mod = await getModUserImages();
+    mod.setBackgroundToSelected(updateCanvasBackground);
     /**
      * @param {Function} updateTheBackground
      * @returns
      */
-    async function setBackgroundToSelected(updateTheBackground) {
+    async function OLDsetBackgroundToSelected(updateTheBackground) {
         const modUserImages = await getModUserImages();
         const urlOrBlob = await modUserImages.getCurrentImageUrl(myPhotos);
         if (urlOrBlob instanceof Blob) {
@@ -2069,6 +2070,11 @@ async function setCanvasBackgroundToSelectedImage() {
         }
     }
 };
+async function setCanvasBackgroundToSelectedImageAndNotify() {
+    modBasicUI.snackbar("Background image changed");
+    await setCanvasBackgroundToSelectedImage();
+    // debugger;
+};
 
 let usedImageOrVideo;
 /**
@@ -2076,7 +2082,7 @@ let usedImageOrVideo;
  * @param {string} useImageOrVideo 
  */
 async function updateCanvasBackground(useImageOrVideo) {
-    console.log({ useImageOrVideo });
+    // console.log({ useImageOrVideo });
     // FIX-ME: Check loaded (both video and img)
 
     /** @type {HTMLVideoElement} */
