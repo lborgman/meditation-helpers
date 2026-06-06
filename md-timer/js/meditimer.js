@@ -11,6 +11,8 @@ const mkElt = window["mkElt"];
 // @ts-ignore
 const importFc4i = window["importFc4i"];
 
+const modBasicUI = await importFc4i("basic-ui");
+
 const modLocalFileReader = await importFc4i("local-file-reader");
 const bgFileName = "savedBg";
 
@@ -35,7 +37,7 @@ async function getModUserImages() {
 async function dialogImages() {
     const mod = await getModUserImages();
     // mod.dialogImages(myPhotos, setCanvasBackgroundToCurrent);
-    mod.dialogImages(myPhotos, setBackgroundImage);
+    mod.dialogImages(myPhotos, setBackgroundImageToSelectedAndNotify);
 }
 
 const modLocalSettings = await importFc4i("local-settings");
@@ -157,7 +159,7 @@ async function loadAudio() {
 }
 
 
-async function setExternalBackground() {
+async function OLDsetExternalBackground() {
     // console.log("---- setExternalBackground");
     const modPubImages = await import("public-images")
     const ourImages = modPubImages.ourImages;
@@ -938,38 +940,6 @@ function pickImage() {
     });
 }
 
-/**
- * 
- * @param {HTMLElement} el 
- * @param {string} url 
- * @param {number} retries 
- * @param {number} delay 
- */
-function setBackgroundImageWithRetry(el, url, retries = 0, delay = 1000) {
-    // resolve
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-
-        img.onload = () => {
-            el.style.backgroundImage = `url(${url})`;
-            resolve(true);
-        };
-
-        img.onerror = () => {
-            if (retries > 0) {
-                console.warn(`Failed, retrying... (${retries} left)`);
-                setTimeout(() => {
-                    setBackgroundImageWithRetry(el, url, retries - 1, delay * 2); // exponential backoff
-                }, delay);
-            } else {
-                console.error('Gave up loading:', url);
-                resolve(false);
-            }
-        };
-
-        img.src = url;
-    });
-}
 
 
 // /** * @param {boolean} useMy */
@@ -979,9 +949,7 @@ function setBackgroundImageWithRetry(el, url, retries = 0, delay = 1000) {
 // --- On page load, restore previous file ---
 async function restoreUsersOwnBg() {
     // console.log("++++++ restoreUsersOwnBg");
-    // if (!getUseMyBackground()) return false;
     if (!settingUseMyBg.valueB) return false;
-    // const savedFileBlob = await getSavedFileBlob();
     const savedFileBlob = await modLocalFileReader.getSavedFileBlob(bgFileName);
     if (!savedFileBlob) return false;
     const url = URL.createObjectURL(savedFileBlob);
@@ -990,14 +958,28 @@ async function restoreUsersOwnBg() {
 }
 
 // --- Background ---
-setBackgroundImage();
-async function setBackgroundImage() {
+// setBackgroundImage();
+setBackgroundImageToSelected();
+async function setBackgroundImageToSelectedAndNotify() {
+    modBasicUI.snackbar("Background image changed");
+    setBackgroundImageToSelected();
+}
+async function setBackgroundImageToSelected() {
+    const mod = await getModUserImages();
+    mod.setBackgroundToSelected(updateCanvasBackground);
+}
+function updateCanvasBackground(url) {
+    document.documentElement.style.backgroundImage = `url(${url})`;
+}
+/*
+async function OLDsetBackgroundImage() {
     const restoreBg = await restoreUsersOwnBg();
     // console.log("---------setBackgroundImage", { restoreBg });
     if (!restoreBg) {
         setExternalBackground();
     }
 }
+*/
 
 async function dialogSettings() {
     const btnMy = mkElt("button", undefined, "Select");

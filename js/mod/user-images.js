@@ -574,3 +574,37 @@ export async function setBackgroundToSelected(updateTheBackground) {
         updateTheBackground(urlOrBlob);
     }
 }
+
+
+/**
+ * 
+ * @param {HTMLElement} el 
+ * @param {string} url 
+ * @param {number} retries 
+ * @param {number} delay 
+ */
+function setBackgroundImageWithRetry(el, url, retries = 0, delay = 1000) {
+    // resolve
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+
+        img.onload = () => {
+            el.style.backgroundImage = `url(${url})`;
+            resolve(true);
+        };
+
+        img.onerror = () => {
+            if (retries > 0) {
+                console.warn(`Failed, retrying... (${retries} left)`);
+                setTimeout(() => {
+                    setBackgroundImageWithRetry(el, url, retries - 1, delay * 2); // exponential backoff
+                }, delay);
+            } else {
+                console.error('Gave up loading:', url);
+                resolve(false);
+            }
+        };
+
+        img.src = url;
+    });
+}
