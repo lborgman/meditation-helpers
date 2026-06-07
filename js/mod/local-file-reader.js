@@ -304,3 +304,42 @@ export async function isObjectUrlValid(url) {
         return false;
     }
 }
+
+
+/**
+ * Developer script to reset OPFS data
+ * (Please run on Chrome devtools console)
+ */
+export async function resetOPFS() {
+    if ('storage' in navigator && 'getDirectory' in navigator.storage) {
+        const root = await navigator.storage.getDirectory();
+        for await (const entry of root.values()) {
+            console.log(`Remove: ${entry.name} (${entry.kind})`);
+            await entry.remove();
+        }
+        console.log('OPFS has been reset');
+    } else {
+        console.log('OPFS is not supported in this browser');
+    }
+}
+
+export async function listDirectoryContents(directoryHandle, depth) {
+    depth = depth || 1;
+    directoryHandle = directoryHandle || await navigator.storage.getDirectory();
+    const entries = await directoryHandle.values();
+
+    for await (const entry of entries) {
+        // Add proper indentation based on the depth
+        const indentation = '    '.repeat(depth);
+
+        if (entry.kind === 'directory') {
+            // If it's a directory, log its name 
+            // and recursively list its contents
+            console.log(`${indentation}${entry.name}/`);
+            await listDirectoryContents(entry, depth + 1);
+        } else {
+            // If it's a file, log its name
+            console.log(`${indentation}${entry.name}`);
+        }
+    }
+}
