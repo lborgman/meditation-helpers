@@ -205,6 +205,13 @@ async function getOurDatabase() {
  * @param {FileSystemHandle} handle 
  */
 async function saveToOpfs(fileName, handle) {
+    if (!handle) {
+        // Bug hunting:
+        const msg = `!handle`;
+        console.error(msg);
+        debugger;
+        throw Error(msg);
+    }
     const file = await handle.getFile();
 
     const root = await navigator.storage.getDirectory();

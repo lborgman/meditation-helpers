@@ -125,7 +125,7 @@ export async function getSoundRec() {
     if (!strJson) {
         const first = await getFirstBell();
         const [firstBell] = first.split(";;");
-        debugger;
+        // debugger;
         objJson = { inhale: `f:${firstBell}`, exhale: "same" }
         // return null;
         // objJson = { inhale: `s:${syntBells[0]}`, exhale: "same" }
@@ -388,6 +388,7 @@ export async function dialogSound() {
         const divTest = mkElt("div", undefined, ["Play selected file: ", btnTest]);
         divTest.inert = true;
 
+        /** @type {FileSystemHandle|null} */
         let gotHandle;
         const btnGetFile = mkElt("button", undefined, "Select audio file");
         btnGetFile.addEventListener("click", async evt => {
@@ -396,7 +397,7 @@ export async function dialogSound() {
             gotHandle = await modLocalFileReader.selectFile("audio", "Select sound file for inhale");
             console.log({ gotHandle });
             if (gotHandle) {
-                if (!(gotHandle instanceof File)) {
+                if (!(gotHandle instanceof FileSystemHandle)) {
                     debugger;
                 }
                 divTest.inert = false;
@@ -408,9 +409,12 @@ export async function dialogSound() {
             evt.stopPropagation();
             console.log({ gotHandle });
             debugger;
+            if (gotHandle == null) throw Error("gotHandle is null");
             // alert("not implemented yet");
             const modVizVol = await importFc4i("viz-volume")
-            const urlBell = URL.createObjectURL(gotHandle);
+            // const urlBell = URL.createObjectURL(gotHandle);
+            const file = await gotHandle.getFile();           // Returns a File (which is a Blob)
+            const urlBell = URL.createObjectURL(file);
             modVizVol.showViz({
                 sound: {
                     soundName: "Test selected sound file",

@@ -41,6 +41,7 @@ export async function applyUserBackground(elt) {
     const urlIsValid2 = await modLocalFileReader.isObjectUrlValid(urlBlob);
     console.warn({ urlIsValid2 });
     // debugger;
+    console.log("setting urlBlob");
     elt.style.backgroundImage = `url("${urlBlob}")`;
     // revoke(urlBlob); // FIX-ME:
     const urlIsValid = await modLocalFileReader.isObjectUrlValid(urlBlob);
@@ -319,23 +320,23 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
     const divBuiltinUrls = mkElt("div");
     divBuiltinUrls.style = styleUrlAlt;
 
-    function mkImgChoice(url, isBuiltin) {
+    function mkImgChoice(urlOrName, isBuiltin) {
         if (keyUserBackground == "") {
             debugger;
             throw Error("setKeyUserBackground not set");
         }
-        let urlPreview = url;
-        if (url.startsWith("https://lh3.googleusercontent.com")) {
+        let urlToUse = urlOrName;
+        if (urlOrName.startsWith("https://lh3.googleusercontent.com")) {
             // eslint-disable-next-line no-debugger
-            if (Array.from(url.matchAll("=")).length != 1) { debugger; }
-            const lastEq = url.lastIndexOf("=");
+            if (Array.from(urlOrName.matchAll("=")).length != 1) { debugger; }
+            const lastEq = urlOrName.lastIndexOf("=");
             // Resize to max 200 w/h, works 2024-04-09
-            urlPreview = url.slice(0, lastEq) + "=s200"; // 20 kB
+            urlToUse = urlOrName.slice(0, lastEq) + "=s200"; // 20 kB
         }
         let eltBg;
-        const isVideoChoice = url.startsWith("V");
+        const isVideoChoice = urlOrName.startsWith("V");
         if (isVideoChoice) {
-            urlPreview = url.slice(1);
+            urlToUse = urlOrName.slice(1);
             const eltVideo = mkElt("video");
             eltVideo.loop = false;
             eltVideo.autoplay = false;
@@ -346,12 +347,30 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
             // const eltImg = mkElt("img");
             const eltImg = mkElt("span");
             eltImg.classList.add("image-preview");
-            eltImg.style.backgroundImage = `url(${urlPreview})`;
             eltImg.style.display = "inline-block";
             eltImg.style.width = "70px";
             eltImg.style.height = "70px";
             eltImg.style.outline = "0.5px solid cyan";
             eltImg.style.borderRadius = "3px";
+
+            // eltImg.style.backgroundImage = `url(${urlPreview})`;
+            // setBackgroundImageWithRetry(el, url, retries = 0, delay = 1000)
+            if (urlToUse.startsWith("https://")) {
+                setBackgroundImageWithRetry(eltImg, urlToUse);
+            } else {
+                switch (urlOrName) {
+                    case "random":
+                        // debugger;
+                        // eltImg.style.display = "none";
+                        break;
+                    case "users":
+                        // debugger;
+                        // eltImg.style.backgroundColor = "red";
+                        break;
+                    default:
+                        debugger;
+                }
+            }
             eltBg = eltImg;
         }
         // eltBg.src = urlPreview;
@@ -361,18 +380,18 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
             width: 30%;
             display: inline-block;
             NOaspect-ratio: 1 / 1;
-            NObackground-image: url(${urlPreview});
+            NObackground-image: url(${urlToUse});
             background-size: cover;
             background-repeat: no-repeat;
         `;
-        const radImg = mkElt("input", { type: "radio", name: "img", value: url });
-        if (url == "random") {
+        const radImg = mkElt("input", { type: "radio", name: "img", value: urlOrName });
+        if (urlOrName == "random") {
             const eltRandomInfo = "random";
             if (oldObj.choice == "random") radImg.checked = true;
             const lblRandom = mkElt("label", undefined, [radImg, eltRandomInfo]);
             return mkElt("div", undefined, [lblRandom]);
         }
-        if (url == "users") {
+        if (urlOrName == "users") {
             if ("users" == oldObj.choice) {
                 radImg.checked = true;
             }
@@ -380,11 +399,12 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
             function mkImgChoiceUser() {
                 // 2 Your
                 const eltOwnPreview = mkElt("div", { id: "own-preview" });
-                eltOwnPreview.style = `
-                    width: 100px;
-                    height: 100px;
-                    border: 1px solid red;
-                `;
+                eltOwnPreview.style.width = "100px";
+                eltOwnPreview.style.height = "100px";
+                // eltOwnPreview.style.border="1px solid red";
+                eltOwnPreview.style.border = "3px solid cyan";
+                eltOwnPreview.style.borderRadius = "5px";
+                eltOwnPreview.style.backgroundColor = "transparent";
                 eltOwnPreview.classList.add("image-preview");
                 (async () => {
                     if (keyUserBackground == "") {
@@ -437,6 +457,9 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
                     const divUsers = btnSelectBackground.closest("div");
                     const rad = divUsers.querySelector("input[type=radio]");
                     rad.checked = true;
+                    // applyUserBackground()
+                    // funApplyImage();
+                    setTimeout(funApplyImage, 100);
                 });
 
                 const lblUsers = mkElt("label", undefined, [
@@ -452,7 +475,7 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
             }
         }
 
-        const checked = url == oldObj.choice;
+        const checked = urlOrName == oldObj.choice;
         if (checked) { radImg.checked = true; }
         let eltHandle;
         if (!isBuiltin) {
@@ -482,7 +505,7 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
 
     const recOld = getImagesRec();
     const numBuiltIn = arrBuiltin ? arrBuiltin.length : 0;
-    if (recOld.length + numBuiltIn == 0) {
+    if (recOld.arr.length + numBuiltIn == 0) {
         divOldUrls.textContent = "No images.";
     } else {
         let checked = false;
@@ -504,7 +527,7 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
 
     const divYourBg = mkElt("div", undefined, mkImgChoice("users"));
     const bdy = mkElt("div", undefined, [
-        mkElt("h2", undefined, "Background Images"),
+        mkElt("h2", undefined, "Background Image"),
         // btnCopyright,
         divRandomUrl,
         mkElt("div", undefined, [
@@ -544,7 +567,7 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
 export function revoke(blobUrl) {
     const img = new Image();
     img.addEventListener("load", () => {
-        console.log("%cREVOKE before raf", "font-size:30px;");
+        console.warn("%cREVOKE before raf", "font-size:30px;");
         requestAnimationFrame(() => {
             setTimeout(() => {
                 URL.revokeObjectURL(blobUrl);
@@ -584,6 +607,12 @@ export async function setBackgroundToSelected(updateTheBackground) {
  * @param {number} delay 
  */
 function setBackgroundImageWithRetry(el, url, retries = 0, delay = 1000) {
+    if (!url.startsWith("https://")) {
+        const msg = `Not a link: ${url}`;
+        console.error(msg);
+        debugger;
+        throw Error(msg);
+    }
     // resolve
     return new Promise((resolve, reject) => {
         const img = new Image();
