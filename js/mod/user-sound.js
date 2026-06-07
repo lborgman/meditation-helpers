@@ -105,7 +105,7 @@ function checkSoundRec(objJson) {
         throw Error(`Expected "${expectedNames}", found "${keyNames}"`);
     }
     const checkVal = (val) => {
-        if (!(val.startsWith("s:") || val.startsWith("f:"))) {
+        if (!(val.startsWith("s:") || val.startsWith("f:") || val.startsWith("user-"))) {
             debugger;
             throw Error(`val == "${val}, does not start with i: or f:`);
         }
@@ -232,6 +232,14 @@ export async function dialogSound() {
             }
             if (bellName.startsWith("user-")) {
                 const blobBell = await modLocalFileReader.getSavedFileBlob(bellName);
+                if (!blobBell) {
+                    const b = mkElt("div", undefined, [
+                        mkElt("h2", undefined, "No sound choosen"),
+                        mkElt("div", undefined, "You have not choosen your sound for this yet")
+                    ]);
+                    modBasicUI.showDialog(b);
+                    return;
+                }
                 const urlBell = URL.createObjectURL(blobBell);
                 modVizVol.showViz({
                     sound: {
@@ -410,9 +418,7 @@ export async function dialogSound() {
             console.log({ gotHandle });
             debugger;
             if (gotHandle == null) throw Error("gotHandle is null");
-            // alert("not implemented yet");
             const modVizVol = await importFc4i("viz-volume")
-            // const urlBell = URL.createObjectURL(gotHandle);
             const file = await gotHandle.getFile();           // Returns a File (which is a Blob)
             const urlBell = URL.createObjectURL(file);
             modVizVol.showViz({
@@ -440,7 +446,8 @@ export async function dialogSound() {
         const ans = await modBasicUI.showDialogConfirm(bdy);
         if (ans) {
             debugger;
-            alert("not implemented yet§");
+            if (!gotHandle) throw Error(`gotHandle is "${gotHandle}"`);
+            modLocalFileReader.saveFileHandleAsBlob(keyUserInhale, gotHandle);
         }
     });
     // const eltUserChoice = mkElt("span", { style: "color:red" }, [ "Your choice", btnUserChoice ]);
@@ -462,7 +469,10 @@ export async function dialogSound() {
     eltUserBell2.id = "div-user-inhale";
     eltUserBell2.classList.add("label-bell");
 
-    eltUserBell2.firstElementChild.inert = true;
+    // eltUserBell2.firstElementChild.inert = true;
+    if (!await modLocalFileReader.fileExistsInOPFS(keyUserInhale)) {
+        eltUserBell2.firstElementChild.inert = true;
+    }
 
     divInhaleBells.appendChild(eltUserBell2);
     // addSyntBells(divInhaleBells, true, currentBells.inhale);

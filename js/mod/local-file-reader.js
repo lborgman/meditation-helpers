@@ -49,7 +49,6 @@ export async function selectAndSaveFile(savedName, mediaTypes, title) {
 export async function selectAndSaveFileAdvanced(savedName, pickerOptions) {
     const fileHandle = await selectFileAdvanced(pickerOptions);
     if (!fileHandle) return false; // User cancelled
-    // await saveFileHandle(savedName, fileHandle);
     await saveToOpfs(savedName, fileHandle);
     return true;
 }
@@ -129,70 +128,22 @@ async function getDatabaseIDB(dbName, dbVersion) {
     });
 }
 
-export async function saveFileHandle(fileName, fileHandle) {
+/**
+ * 
+ * @param {string} fileName 
+ * @param {FileSystemFileHandle} fileHandle 
+ */
+export async function saveFileHandleAsBlob(fileName, fileHandle) {
     await saveToOpfs(fileName, fileHandle);
-    return;
-    const db = await getOurDatabase();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction('handles', 'readwrite');
-        const store = tx.objectStore('handles');
-        const putRequest = store.put(fileHandle, fileName);
-
-        putRequest.onerror = () => reject(putRequest.error);
-        tx.oncomplete = () => resolve(true);
-        tx.onerror = () => reject(tx.error);
-    });
 }
 
 /**
  * @param {string} savedName 
- * @returns {Promise<Blob|null>}
+ * @returns {Promise<Blob|undefined>}
  */
 export async function getSavedFileBlob(savedName) {
     const b = await getBlobFromOPFS(savedName);
     return b;
-    const handle = await getSavedFileHandle(savedName);
-    if (!handle) return null;
-    console.warn("%cgetSavedFileBlob: before getFile", "font-size:30px;", handle);
-    const blob = await handle.getFile();
-    console.log("%cgetSavedFileBlob after", "font-size:18px;", blob);
-    return blob;
-}
-/**
- * @param {string} savedName 
- * @returns {Promise<FileSystemHandle>}
- */
-export async function getSavedFileHandle(savedName) {
-    const db = await getOurDatabase();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction('handles', 'readonly');
-        const store = tx.objectStore('handles');
-        const getRequest = store.get(savedName);
-
-        getRequest.onsuccess = async () => {
-            const result = getRequest.result;
-            if (!result) {
-                resolve(null);
-                return;
-            }
-            try {
-                // If you saved a FileSystemHandle, you call .getFile() when READING it back out
-                /*
-                if (typeof result.getFile === 'function') {
-                    const file = await result.getFile();
-                    resolve(file);
-                } else {
-                    resolve(result); // Fallback if it was saved as a standard Blob/File
-                }
-                */
-                console.log("getSavedFileHandle", result);
-                resolve(result);
-            } catch (e) {
-                reject(e);
-            }
-        };
-        getRequest.onerror = () => reject(getRequest.error);
-    });
 }
 
 async function getOurDatabase() {
@@ -200,7 +151,6 @@ async function getOurDatabase() {
 }
 
 /**
- * 
  * @param {string} fileName 
  * @param {FileSystemHandle} handle 
  */
@@ -244,11 +194,42 @@ async function getBlobUrlFromOPFS(fileName) {
     return URL.createObjectURL(fileBlob);
 }
 /**
+ * @param {string} fileName
+ * @returns {Promise<FileSystemHandle|undefined}
+ */
+async function getHandleFromOPFS(fileName) {
+    const root = await navigator.storage.getDirectory();
+
+    // 1. Get the private handle for the file
+    try {
+        const fileHandle = await root.getFileHandle(fileName);
+        return fileHandle;
+    } catch (err) {
+        if (!(err instanceof Error)) throw Error("err is not Error");
+        if (err.name == "NotFoundError") {
+            return undefined;
+        }
+        console.error(err);
+        debugger;
+        throw Error;
+    }
+}
+
+/**
  * 
+ * @param {string} fileName 
+ * @returns {Promise<boolean>}
+ */
+export async function fileExistsInOPFS(fileName) {
+    const fileHandle = await getHandleFromOPFS(fileName);
+    return fileHandle != undefined;
+}
+/**
  * @param {string} fileName 
  * @returns {Promise<Blob|undefined>}
  */
 async function getBlobFromOPFS(fileName) {
+    /*
     const root = await navigator.storage.getDirectory();
 
     // 1. Get the private handle for the file
@@ -264,6 +245,9 @@ async function getBlobFromOPFS(fileName) {
         debugger;
         throw Error;
     }
+    */
+    const fileHandle = await getHandleFromOPFS(fileName);
+    if (!fileHandle) return undefined;
 
     // 2. Unpack it into a standard Web File/Blob object
     const fileBlob = await fileHandle.getFile();

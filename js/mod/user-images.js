@@ -304,7 +304,7 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
         const ans = await modBasicUI.showDialogConfirm(body);
         if (!ans) return;
         // @ts-ignore
-        await modLocalFileReader.saveFileHandle(keyUserBackground, blobUrl);
+        await modLocalFileReader.saveFileHandleAsBlob(keyUserBackground, blobUrl);
         // eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
         applyUserBackground(eltOwnPreview);
     });
@@ -451,7 +451,7 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
                     const ans = await modBasicUI.showDialogConfirm(body);
                     if (!ans) return;
 
-                    await modLocalFileReader.saveFileHandle(keyUserBackground, handle);
+                    await modLocalFileReader.saveFileHandleAsBlob(keyUserBackground, handle);
                     applyUserBackground(eltOwnPreview);
 
                     const divUsers = btnSelectBackground.closest("div");
