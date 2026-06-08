@@ -12,7 +12,7 @@ const importFc4i = window["importFc4i"];
 
 /** @type {string} */
 let storingPrefix;
-const KEY = "user-sound";
+const KEY_user_sound = "user-sound";
 
 const modIcons = await importFc4i("google-icons");
 const modBasicUI = await importFc4i("basic-ui");
@@ -20,12 +20,11 @@ const modBasicUI = await importFc4i("basic-ui");
 const modLocalFileReader = await importFc4i("local-file-reader");
 const keyUserExhale = "user-exhale";
 const keyUserInhale = "user-inhale";
-async function getUserInhaleSound() {
+export async function getUserInhaleSoundObjectUrl() {
     // FIX-ME: When to release the blob??
     const savedFileBlob = await modLocalFileReader.getSavedFileBlob(keyUserInhale);
     if (!savedFileBlob) return "";
     const url = URL.createObjectURL(savedFileBlob);
-    // document.documentElement.style.backgroundImage = `url(${url})`;
     return url;
 }
 
@@ -120,7 +119,7 @@ function checkSoundRec(objJson) {
  */
 export async function getSoundRec() {
     checkStoringPrefix();
-    const strJson = localStorage.getItem(storingPrefix + KEY);
+    const strJson = localStorage.getItem(storingPrefix + KEY_user_sound);
     let objJson;
     if (!strJson) {
         const first = await getFirstBell();
@@ -143,7 +142,7 @@ function setSoundRec(objJson) {
     checkSoundRec(objJson);
     checkStoringPrefix();
     const strJson = JSON.stringify(objJson);
-    localStorage.setItem(storingPrefix + KEY, strJson);
+    localStorage.setItem(storingPrefix + KEY_user_sound, strJson);
 }
 
 

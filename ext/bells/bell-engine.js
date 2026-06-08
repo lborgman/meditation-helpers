@@ -730,7 +730,12 @@ export function strikeBellById(fullBellId, isExhale, opts = {}) {
     case "f":
       return strikeFileBell();
       break;
+    case "b":
+      // debugger;
+      return strikeFileBell();
+      break;
     default:
+      debugger;
       throw Error(`Bad bell type spec: "${typeSpec}"`);
   }
   function strikeSyntBell() {

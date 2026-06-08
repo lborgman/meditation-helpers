@@ -877,25 +877,58 @@ const modUserSounds = await importFc4i("user-sound");
 // const inhale = modBells.createInternalSyntheticBell(modBells.BELLS[0]);
 // const exhale = modBells.createInternalSyntheticBell(modBells.BELLS[0], { pitchShift: 0.92 });
 
-/** @type {string} */ let inhaleId;
-/** @type {string} */ let exhaleId;
-async function getInhaleAndExhale() {
+let currentSoundRec;
+async function getCurrentSoundRec() {
+    currentSoundRec = { ... await modUserSounds.getSoundRec() };
+    // debugger;
+    if (currentSoundRec.inhale == "user-inhale") {
+        currentSoundRec.inhaleObjectUrl = await modUserSounds.getUserInhaleSoundObjectUrl();
+    }
+}
+function revokeUserSounds() {
+    const inhaleObjectUrl = currentSoundRec.inhaleObjectUrl;
+    if (inhaleObjectUrl) URL.revokeObjectURL(inhaleObjectUrl);
+    const exhaleObjectUrl = currentSoundRec.exhaleObjectUrl;
+    if (exhaleObjectUrl) URL.revokeObjectURL(exhaleObjectUrl);
+}
+
+/** @type {string} * / // let inhaleId;
+/** @type {string|undefined} * / // let inhaleObjectUrl;
+/** @type {string} * / // let exhaleId;
+/*
+async function OLDgetInhaleAndExhale() {
     const rec = await modUserSounds.getSoundRec();
     inhaleId = rec.inhale;
+    inhaleObjectUrl = undefined;
+    if (inhaleId == "user-inhale") {
+        debugger;
+        inhaleObjectUrl = await modUserSounds.getUserInhaleSoundObjectUrl();
+    }
     exhaleId = rec.exhale;
 }
+*/
 // getInhaleAndExhale(); // FIX-ME:
 
 /** * @param {number} seconds */
 const playInhale = (seconds) => {
     if (typeof seconds != "number") debugger;
-    modBells.strikeBellById(inhaleId, false, { stopAtSec: seconds });
+    // debugger;
+    let ourBellId = currentSoundRec.inhale;
+    if (ourBellId == "user-inhale") {
+        ourBellId = "b:" + currentSoundRec.inhaleObjectUrl;
+        // debugger;
+    }
+    modBells.strikeBellById(ourBellId, false, { stopAtSec: seconds });
 }
 /** * @param {number} seconds */
 const playExhale = (seconds) => {
     if (typeof seconds != "number") debugger;
-    const bellId = exhaleId == "same" ? inhaleId : exhaleId;
-    modBells.strikeBellById(bellId, true, { stopAtSec: seconds });  // bell out → 6 s exhale
+    const bellId = currentSoundRec.exhale == "same" ? currentSoundRec.inhale : currentSoundRec.exhale;
+    let fullBellId = bellId;
+    // if (fullBellId == currentSoundRec.exhale) {
+    //     fullBellId = currentSoundRec[exhaleId]
+    // }
+    modBells.strikeBellById(fullBellId, true, { stopAtSec: seconds });  // bell out → 6 s exhale
 }
 
 /** * @param {string} txtTop */
@@ -2416,8 +2449,9 @@ async function setupControls(controlscontainer) {
     btnStart.title = "Start";
     btnStart.id = "start-button";
     btnStart.addEventListener("click", evt => {
+        getCurrentSoundRec();
         getSecondsPattsDuration();
-        getInhaleAndExhale();
+        // getInhaleAndExhale();
         setStateRunning(true);
         numRedraw = 0;
         msStart = msDocument();
