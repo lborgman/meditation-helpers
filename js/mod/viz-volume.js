@@ -5,6 +5,28 @@ if (document.currentScript) { throw "viz-volume.js is not loaded as module"; }
 
 // Originally from deepseek
 
+
+loadMyCss();
+function loadMyCss() {
+    // Inside your ES module (e.g., myModule.js)
+    const loadCSS = (href, id) => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.id = id;
+        document.head.appendChild(link);
+    };
+
+    // Extract the module filename (e.g., "myModule.js" -> "myModule")
+    const moduleName = import.meta.url.split('/').pop().replace('.js', '');
+    const id = `${moduleName}-styles`;
+    if (document.getElementById(id)) return;  // Already loaded
+
+    // Load the CSS file with the same name as the module
+    const href = new URL(`./${moduleName}.css`, import.meta.url).href;
+    loadCSS(href, id);
+}
+
 // Audio state
 let audioContext = null;
 let audioBuffer = null;
@@ -640,214 +662,6 @@ export function showViz(
     // const { soundSource, soundName } = sound;
     // debugger;
 
-    const idStyle = "viz-volume-style";
-    const oldStyle = document.getElementById(idStyle);
-    if (!oldStyle) {
-        const eltStyle = document.createElement("style");
-        eltStyle.textContent = `
-        NObody {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #1a1a1a;
-            color: #fff;
-        }
-
-        .viz-vol {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        div.viz-vol .visualization-container {
-            background-color: #000;
-            border: 2px solid #333;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            position: relative;
-        }
-
-        div.viz-vol canvas#waveformCanvas {
-            display: block;
-            width: 100%;
-            height: 300px;
-            max-height: 60px;
-            background-color: #000;
-            cursor: pointer;
-        }
-
-        div.viz-vol .time-axis {
-            position: relative;
-            margin-top: 10px;
-            height: 30px;
-            background-color: #111;
-            border-radius: 4px;
-        }
-
-        div.viz-vol .time-marker-line {
-            position: absolute;
-            bottom: 15px;
-            width: 1px;
-            height: 10px;
-            background-color: #888;
-            transform: translateX(-50%);
-        }
-
-        div.viz-vol .time-marker {
-            position: absolute;
-            bottom: 0;
-            transform: translateX(-50%);
-            font-size: 12px;
-            color: #888;
-            font-family: monospace;
-        }
-
-        div.viz-vol .playhead {
-            position: absolute;
-            top: 0;
-            width: 2px;
-            height: 100%;
-            background-color: #ff6b6b;
-            pointer-events: none;
-            z-index: 10;
-            box-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
-        }
-
-        div.viz-vol .time-display {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            font-family: monospace;
-            font-size: 14px;
-            color: #4CAF50;
-            background-color: #111;
-            padding: 8px 12px;
-            border-radius: 4px;
-        }
-
-        div.viz-vol .controls {
-            margin: 20px 0;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        div.viz-vol button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            transition: all 0.2s;
-        }
-
-        div.viz-vol button:hover:not(:disabled) {
-            background-color: #45a049;
-            transform: translateY(-1px);
-        }
-
-        div.viz-vol button:disabled {
-            background-color: #666;
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-
-        div.viz-vol input[type="file"] {
-            padding: 10px;
-            background-color: #333;
-            color: white;
-            border: 1px solid #666;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        div.viz-vol input[type="file"]:hover {
-            background-color: #444;
-        }
-
-        div.viz-vol .info {
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #333;
-            border-radius: 5px;
-            font-family: monospace;
-        }
-
-        div.viz-vol .seek-bar {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        div.viz-vol input[type="range"] {
-            width: 100%;
-            height: 6px;
-            -webkit-appearance: none;
-            background-color: #333;
-            border-radius: 3px;
-            outline: none;
-        }
-
-        div.viz-vol input[type="range"]:focus {
-            outline: none;
-        }
-
-        div.viz-vol input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background-color: #4CAF50;
-            cursor: pointer;
-        }
-
-        div.viz-vol .volume-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background-color: #333;
-            padding: 5px 15px;
-            border-radius: 5px;
-        }
-
-        div.viz-vol .volume-control input {
-            width: 100px;
-        }
-
-        div.viz-vol .demo-button {
-            background-color: #2196F3;
-        }
-
-        div.viz-vol .demo-button:hover:not(:disabled) {
-            background-color: #0b7dda;
-        }
-
-
-        dialog#dialog-viz-volume::backdrop {
-            background-color: #000C;
-        }
-
-        div.viz-vol #div-close {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: -10px;
-            margin-top: -15px;
-            margin-right: -15px;
-        }
-
-        div.viz-vol #close-button {
-            background-color: transparent;
-            color: black;
-        }
-        div.viz-vol #close-button:hover {
-            background-color: red;
-        }
-
-        `;
-        document.head.appendChild(eltStyle);
-    }
     // Setup DOM elements
     const divOuterContainer = document.createElement("div");
     divOuterContainer.innerHTML = `
@@ -918,14 +732,12 @@ export function showViz(
     } else {
         const eltDialog = document.createElement("dialog");
         eltDialog.id = "dialog-viz-volume";
-        eltDialog.style = `
-            aspect-ratio: 1.6 / 1;
-            max-width: 80vw;
-            max-height : 60vh;
-            min-width: 300px;
-            min-height: 250px;
-            outline: 3px dotted red;
-        `;
+        eltDialog.style.aspectRatio = "1.6 / 1";
+        eltDialog.style.maxWidth = "80vw";
+        eltDialog.style.maxHeight = "60vh";
+        eltDialog.style.minWidth = "300px";
+        eltDialog.style.minHeight = "250px";
+        // eltDialog.style.outline 3px dotted red;
         eltDialog.appendChild(divOuterContainer);
         document.body.appendChild(eltDialog);
         eltDialog.showModal();
