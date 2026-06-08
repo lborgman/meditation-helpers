@@ -170,6 +170,9 @@ div.viz-vol .demo-button:hover:not(:disabled) {
 }
 
 
+dialog#dialog-viz-volume {
+    min-width: 80vw;
+}
 dialog#dialog-viz-volume::backdrop {
     background-color: #000C;
 }

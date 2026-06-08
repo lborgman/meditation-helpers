@@ -656,7 +656,7 @@ export function showViz(
         throw Error(`Unknown parameters: ${arrRest}`);
     }
     if (!sound) {
-        console.rror("Object parameter sound missing");
+        console.error("Object parameter sound missing");
         throw Error("Object parameter sound missing");
     }
     // const { soundSource, soundName } = sound;
@@ -666,7 +666,10 @@ export function showViz(
     const divOuterContainer = document.createElement("div");
     divOuterContainer.innerHTML = `
     <div class="viz-vol">
+        <!--
         <div id="div-close"><button id="close-button">X</button></div>
+        <button class="x-close">✖</button>
+        -->
         <h1 style="display:none;">🎵 Sound Amplitude Visualization with Time Display</h1>
 
         <div class="controls">
@@ -726,19 +729,16 @@ export function showViz(
 
     const useDialog = !!!eltParent;
     console.log({ useDialog });
+    const btnClose = mkElt("button", {class:"x-close"}, "✖")
     // document.body.appendChild(divOuterContainer);
     if (!useDialog) {
         eltParent.appendChild(divOuterContainer);
     } else {
         const eltDialog = document.createElement("dialog");
         eltDialog.id = "dialog-viz-volume";
-        eltDialog.style.aspectRatio = "1.6 / 1";
-        eltDialog.style.maxWidth = "80vw";
-        eltDialog.style.maxHeight = "60vh";
-        eltDialog.style.minWidth = "300px";
-        eltDialog.style.minHeight = "250px";
-        // eltDialog.style.outline 3px dotted red;
+
         eltDialog.appendChild(divOuterContainer);
+        eltDialog.appendChild(btnClose);
         document.body.appendChild(eltDialog);
         eltDialog.showModal();
     }
@@ -746,8 +746,9 @@ export function showViz(
 
     // Get DOM elements
     // const btnClose = document.getElementById("close-button");
-    const btnClose = /** @type {HTMLButtonElement} */ (divOuterContainer.querySelector("#close-button"));
-    btnClose?.addEventListener("click", evt => {
+    // const btnClose = /** @type {HTMLButtonElement} */ (divOuterContainer.querySelector("#close-button"));
+    // const btnClose = /** @type {HTMLButtonElement} */ (divOuterContainer.querySelector("button.x-close"));
+    btnClose.addEventListener("click", evt => {
         evt.stopImmediatePropagation();
         // alert("close");
         stopAudio();
