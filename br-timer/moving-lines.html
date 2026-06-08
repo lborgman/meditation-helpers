@@ -151,6 +151,14 @@
         }
 
         #elt-filter {
+            /* eltFilter.style.width="100%"; */
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            bottom: 0px;
+            right: 0px;
+            border-radius: 10px;
+            /* eltFilter.style.height="100px"; */
             opacity: 0;
         }
 
@@ -432,6 +440,36 @@
             .elt-speed {
                 font-weight: bold;
             }
+        }
+
+        #elt-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            border-radius: 10px;
+        }
+
+        #container-4-canvas {
+            position: relative;
+            background-color: darkgoldenrod;
+            border-radius: 10px;
+            width: 100%;
+            background-size: cover;
+            background-position: center;
+            max-height: calc(-200px + 100vh);
+        }
+
+        #elt-filter-color {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            /* width: inherit; */
+            /* height: inherit; */
+            border-radius: inherit;
         }
     </style>
 </head>

@@ -1718,11 +1718,13 @@ function tellInitialState() {
 }
 
 const setCanvasSizes = () => {
-    const bcrCanvas = eltCanvas.parentElement.getBoundingClientRect();
-    eltCanvas.width = bcrCanvas.width;
-    eltCanvas.height = bcrCanvas.height;
-    eltFilter.style.height = `${bcrCanvas.height}px`;
-    currentPointRadius = TSFIXcanvasY(pattY2canvasY(TSFIXpattY(0)) / 30);
+    setTimeout(() => {
+            const bcrCanvas = eltCanvas.parentElement.getBoundingClientRect();
+            eltCanvas.width = bcrCanvas.width;
+            eltCanvas.height = bcrCanvas.height;
+            // eltFilter.style.height = `${bcrCanvas.height}px`;
+            currentPointRadius = TSFIXcanvasY(pattY2canvasY(TSFIXpattY(0)) / 30);
+    }, 10)
 }
 
 /** @type {TSmilliSeconds} */
@@ -2304,7 +2306,8 @@ function animateLines() {
 function setupCanvas(container) {
     const container4canvas = TSmkElt("div");
     container4canvas.id = "container-4-canvas";
-    // @ts-ignore style
+    // ts-ignore style
+    /*
     container4canvas.style = `
                 position: relative;
                 background-color: darkgoldenrod;
@@ -2314,17 +2317,21 @@ function setupCanvas(container) {
                 background-position: center;
                 max-height: calc(-200px + 100vh);
             `;
+    */
     container.appendChild(container4canvas);
 
     eltCanvas = document.createElement("canvas");
     eltCanvas.id = "elt-canvas";
-    // @ts-ignore style
+    /*
     eltCanvas.style = `
                 position: absolute;
                 top: 0;
                 left: 0;
+                bottom: 0;
+                right: 0;
                 border-radius: 10px;
             `;
+    */
 
     const eltFilterFilter = TSmkElt("div");
     eltFilterFilter.id = "elt-filter-filter";
@@ -2334,21 +2341,25 @@ function setupCanvas(container) {
 
     const eltFilterColor = TSmkElt("div");
     eltFilterColor.id = "elt-filter-color";
+    /*
     eltFilterColor.style.position = "absolute";
     eltFilterColor.style.top = "0";
     eltFilterColor.style.left = "0";
     eltFilterColor.style.width = "inherit";
     eltFilterColor.style.height = "inherit";
     eltFilterColor.style.borderRadius = "inherit";
+    */
 
     eltFilter = TSmkElt("div", undefined, [eltFilterColor, eltFilterFilter]);
     eltFilter.id = "elt-filter";
+    /*
     eltFilter.style.width = "100%";
     eltFilter.style.position = "absolute";
     eltFilter.style.top = "0";
     eltFilter.style.left = "0";
     eltFilter.style.borderRadius = "10px";
     eltFilter.style.height = "100px";
+    */
 
     const filters = [];
     filters.push("brightness(0.6)");
