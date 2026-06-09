@@ -33,7 +33,7 @@ const { urlIcons, urlAppName, linkSymbolCss } = await (async () => {
         debugger;
     }
     // console.log({ arrSymbolsCss });
-    logDebug("arrSymbolsCss:", arrSymbolsCss );
+    logDebug("arrSymbolsCss:", arrSymbolsCss);
     const linkSymbolCss = /** @type {HTMLLinkElement} */ (arrSymbolsCss[0]);
     // const hrefSymbolsCss = arrSymbolsCss[0].href;
     const hrefSymbolsCss = linkSymbolCss.href;
@@ -313,13 +313,15 @@ async function getIconMap() {
     try {
         response = await fetch(iconMapUrl);
     } catch (error) {
-        console.error("Failed to fetch codepoints:", error);
-        debugger;
+        console.error("%cFailed to fetch codepoints:", "font-size:30px;color:red;", error);
+        // debugger;
     }
     if (response == undefined || !response.ok) {
-        debugger;
+        // debugger;
+        console.error("%cCould not fetch codepoints", "font-size:25px;color:red;", { response });
         throw Error("Could not fetch codepoints");
     }
+    console.log("%cGot codepoints", "font-size:30px;color:green;");
     const text = await response.text();
 
     // Split by lines and reduce into an object

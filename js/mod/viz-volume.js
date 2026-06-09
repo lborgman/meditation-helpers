@@ -80,7 +80,7 @@ function updateTimeDisplay(currentTime) {
 
         if (elements.playhead && elements.canvas) {
             const x = (currentTime / audioBuffer.duration) * elements.canvas.width;
-            elements.playhead.style.left = `${x}px`;
+            // elements.playhead.style.left = `${x}px`;
         }
     }
 }
@@ -203,6 +203,7 @@ function drawStaticWaveform() {
  * Draw playhead on canvas
  */
 function drawPlayheadOnCanvas() {
+    return;
     if (!audioBuffer || !elements.ctx || !elements.canvas) return;
 
     const x = (currentPlaybackTime / audioBuffer.duration) * elements.canvas.width;
@@ -232,7 +233,8 @@ function redrawStaticWithPosition() {
  * Real-time visualization (keeps static waveform + adds amplitude overlay)
  */
 function drawRealTimeVisualization() {
-    if (!analyserNode || !isPlaying || !elements.ctx || !elements.canvas) return;
+    // if (!analyserNode || !isPlaying || !elements.ctx || !elements.canvas) return;
+    if (!analyserNode || !elements.ctx || !elements.canvas) return;
 
     // Draw static waveform + amplitude overlay + playhead
     if (waveformImageData) {
@@ -285,6 +287,8 @@ function drawRealTimeVisualization() {
             elements.ctx.font = 'bold 12px monospace';
             elements.ctx.fillStyle = '#ff6b6b';
             elements.ctx.fillText(formatTime(currentPlaybackTime), playheadX + 5, 20);
+            /*
+            */
         }
     }
 
@@ -770,44 +774,21 @@ export function showViz(
       But I believe it will work in practice since this is only
       used in the dialog (or div container).
     */
-    // elements.playBtn = document.getElementById('playBtn');
     elements.playBtn = divOuterContainer.querySelector("#playBtn");
-
-    // elements.pauseBtn = document.getElementById('pauseBtn');
     elements.pauseBtn = divOuterContainer.querySelector("#pauseBtn");
-
-    // elements.stopBtn = document.getElementById('stopBtn');
     elements.stopBtn = divOuterContainer.querySelector("#stopBtn");
-
-    // elements.seekSlider = document.getElementById('seekSlider');
     elements.seekSlider = divOuterContainer.querySelector("#seekSlider");
-
-    // elements.volumeSlider = document.getElementById('volumeSlider');
     elements.volumeSlider = divOuterContainer.querySelector("#volumeSlider");
-
-    // elements.audioFileInput = document.getElementById('audioFile');
     elements.audioFileInput = divOuterContainer.querySelector("#audioFile");
-
-    // elements.demoBtn = document.getElementById('demoBtn');
     elements.demoBtn = divOuterContainer.querySelector("#demoBtn");
-
-    // elements.infoDiv = document.getElementById('info');
     elements.infoDiv = divOuterContainer.querySelector("#info");
-
-    // elements.currentTimeSpan = document.getElementById('currentTime');
     elements.currentTimeSpan = divOuterContainer.querySelector("#currentTime");
-
-    // elements.totalDurationSpan = document.getElementById('totalDuration');
     elements.totalDurationSpan = divOuterContainer.querySelector("#totalDuration");
-
-    // elements.sampleRateSpan = document.getElementById('sampleRate');
     elements.sampleRateSpan = divOuterContainer.querySelector("#sampleRate");
-
-    // elements.timeAxisDiv = document.getElementById('timeAxis');
     elements.timeAxisDiv = divOuterContainer.querySelector("#timeAxis");
 
-    // elements.playhead = document.getElementById('playhead');
-    elements.playhead = divOuterContainer.querySelector("#playhead");
+    // FIX-ME:
+    // elements.playhead = divOuterContainer.querySelector("#playhead");
 
 
     // Add event listeners
