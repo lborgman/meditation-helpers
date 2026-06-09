@@ -714,7 +714,7 @@ async function feedbackDialog(patternName, varPart, secondsPattsDuration) {
     });
 
 
-    modBasicUI.showDialogConfirm(body);
+    setTimeout(() => { modBasicUI.showDialogConfirm(body); }, 3 * 1000);
 
     function collectFeedback() {
         const userSignals = body.querySelectorAll("input[type=radio]:checked");

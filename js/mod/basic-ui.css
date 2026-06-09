@@ -150,6 +150,7 @@ label:has(input[type=checkbox]) {
 }
 
 
+
 dialog {
     position: relative;
     border: 1px solid gray;
@@ -157,7 +158,31 @@ dialog {
     padding: 0;
     background-color: palegoldenrod;
     max-width: calc(min(400px, 90vw));
+    opacity: 0;
+    transition-property: opacity, display, overlay;
+    transition-duration: 2s;
+    transition-behavior: allow-discrete;
+    /* transition-delay: 2s; */
 }
+
+dialog[open] {
+    opacity: 1;
+}
+
+/* Starting styles for entering */
+@starting-style {
+    dialog[open] {
+        opacity: 0;
+    }
+}
+
+/* CRITICAL: Change transition ONLY when closing */
+dialog:not([open]) {
+    transition-duration: 0.4s !important;
+}
+
+
+
 
 dialog.wide-dialog {
     max-width: calc(90vw + 16px);
@@ -170,10 +195,30 @@ dialog>div {
 }
 
 dialog::backdrop {
-    background-color: #9996;
+    background-color: transparent;
+    backdrop-filter: blur(0px);
+    transition-property: background-color, backdrop-filter;
+    transition-duration: 2s;
+}
+
+dialog[open]::backdrop {
     background-color: #0008;
     backdrop-filter: blur(2px);
 }
+
+@starting-style {
+    dialog[open]::backdrop {
+        background-color: transparent;
+        backdrop-filter: blur(0px);
+    }
+}
+/* CRITICAL: Change transition ONLY when closing */
+dialog:not([open])::backdrop {
+    transition-duration: 0.4s !important;
+}
+
+
+
 
 .dialog-buttons {
     display: flex;
