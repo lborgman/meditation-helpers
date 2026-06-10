@@ -129,6 +129,7 @@ const cacheImportFc4i = new Map();
         "user-images": "../js/mod/user-images.js",
         "some-img-links": "../js/some-img-links.js",
 
+        "canvas-fontsize": "../js/mod/canvas-fontsize.js",
         // "flashcards": "./src/js/mod/flashcards.js",
         // "idb-common": "./js/mod/idb-common.js",
         // "images": "./js/mod/images.js",

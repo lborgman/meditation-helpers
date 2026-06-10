@@ -5,6 +5,12 @@ if (document.currentScript) { throw "viz-volume.js is not loaded as module"; }
 
 // Originally from deepseek
 
+// @ts-ignore
+const mkElt = window["mkElt"];
+// @ts-ignore
+const importFc4i = window["importFc4i"];
+const modCanvasFontSize = await importFc4i("canvas-fontsize");
+console.log({ modCanvasFontSize });
 
 loadMyCss();
 function loadMyCss() {
@@ -215,7 +221,8 @@ function drawPlayheadOnCanvas() {
     elements.ctx.lineTo(x, elements.canvas.height);
     elements.ctx.stroke();
 
-    elements.ctx.font = 'bold 12px monospace';
+    // elements.ctx.font = 'bold 12px monospace';
+    elements.ctx.font = cssFont('bold 2rem monospace');
     elements.ctx.fillStyle = '#ff6b6b';
     elements.ctx.fillText(formatTime(currentPlaybackTime), x + 5, 20);
 }
@@ -744,7 +751,7 @@ export function showViz(
         eltDialog.appendChild(divOuterContainer);
         eltDialog.appendChild(btnClose);
         document.body.appendChild(eltDialog);
-        setTimeout(updateFontScaleScaleFactorForOurCanvas, 1000);
+        setTimeout(updateFontSizeFactorsForOurCanvas, 1000);
         eltDialog.showModal();
     }
 
@@ -876,16 +883,14 @@ async function playFirstNSeconds(audioContext, mySound, nSeconds) {
 
 
 
-let canvasScaleFactorPx = 1;
-let canvasScaleFactorRem = 1;
-// function toCanvasFontSizePx(FontSizeInCSSpx) { return `${FontSizeInCSSpx * canvasScaleFactorPx}px`; }
-// function toCanvasFontSizeRem(FontSizeInCSSrem) { return `${FontSizeInCSSrem * canvasScaleFactorPx}px`; }
+// let canvasScaleFactorPx = 1;
+// let canvasScaleFactorRem = 1;
 /**
  * Use CSS px/rem size.
  * @param {string} fontString 
  * @returns {string}
  */
-function cssFont(fontString) {
+function OLDcssFont(fontString) {
     // Regular expression captures the number (Group 1) and the unit (Group 2)
     // It targets tokens ending explicitly with 'px' or 'rem'
     const sizeRegex = /([\d.]+)(px|rem)\b/;
@@ -905,10 +910,22 @@ function cssFont(fontString) {
     });
 }
 
-function updateFontScaleScaleFactorForOurCanvas() {
+function updateFontSizeFactorsForOurCanvas() {
+    modCanvasFontSize.updateFontSizeFactors(elements.canvas);
+}
+/**
+ * @param {string} fontString 
+ * @returns {string}
+ */
+function cssFont(fontString) {
+    return modCanvasFontSize.cssFont(fontString, elements.canvas);
+}
+/*
+function OLDupdateFontScaleScaleFactorForOurCanvas() {
     updateFontScaleScaleFactor(elements.canvas);
 }
-function updateFontScaleScaleFactor(canvas) {
+
+function OLDupdateFontScaleScaleFactor(canvas) {
     // const canvas = elements.canvas;
     const rect = canvas.getBoundingClientRect();
 
@@ -922,7 +939,7 @@ function updateFontScaleScaleFactor(canvas) {
         logCanvasHiddenReason(canvas, rect);
     }
 }
-function logCanvasHiddenReason(canvas, rect) {
+function OLDlogCanvasHiddenReason(canvas, rect) {
     // Uses standard groupCollapsed to keep the main console view clean
     console.groupCollapsed("⚠️ Canvas Scale Calculation Skipped: Width is 0");
 
@@ -964,3 +981,4 @@ function logCanvasHiddenReason(canvas, rect) {
 
     console.groupEnd(); // Correctly close the console group block
 }
+*/
