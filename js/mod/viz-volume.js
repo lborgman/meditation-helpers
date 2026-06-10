@@ -530,6 +530,9 @@ async function loadAudioFile(file) {
         drawNoPlayheadOnCanvas();
         drawTimeMarkers();
 
+        updateFontSizeFactorsForOurCanvas();
+        drawPlayheadTime(0);
+
         if (elements.playBtn) elements.playBtn.disabled = false;
         if (elements.stopBtn) elements.stopBtn.disabled = false;
         if (elements.seekSlider) elements.seekSlider.disabled = false;
@@ -852,8 +855,6 @@ export function showViz(
     }
 
     console.log('Audio Visualizer initialized successfully');
-    updateFontSizeFactorsForOurCanvas();
-    drawPlayheadX(0);
 }
 
 /*
