@@ -21,6 +21,12 @@ const wmScaleFactors = new WeakMap();
  * @returns {string}
  */
 export function cssFont(fontString, eltCanvas) {
+    if (!wmScaleFactors.has(eltCanvas)) {
+        const msg = "cssFont: updateFontSizeFactors(eltCanvas) has not been called";
+        console.error(msg, { eltCanvas });
+        debugger;
+        throw Error(msg);
+    }
     // Regular expression captures the number (Group 1) and the unit (Group 2)
     // It targets tokens ending explicitly with 'px' or 'rem'
     const sizeRegex = /([\d.]+)(px|rem)\b/;

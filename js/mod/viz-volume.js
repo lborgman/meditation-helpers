@@ -208,7 +208,7 @@ function drawStaticWaveform() {
 /**
  * Draw playhead on canvas
  */
-function drawPlayheadOnCanvas() {
+function drawNoPlayheadOnCanvas() {
     return;
     if (!audioBuffer || !elements.ctx || !elements.canvas) return;
 
@@ -232,9 +232,29 @@ function drawPlayheadOnCanvas() {
  */
 function redrawStaticWithPosition() {
     drawStaticWaveform();
-    drawPlayheadOnCanvas();
+    drawNoPlayheadOnCanvas();
     drawTimeMarkers();
 }
+function drawPlayheadTime(currentPlaybackTime) {
+    const playheadX = (currentPlaybackTime / audioBuffer.duration) * elements.canvas.width;
+    drawPlayheadX(playheadX);
+}
+function drawPlayheadX(playheadX) {
+    // const color = '#ff6b6b';
+    const color = "red";
+    // const color = "yellow";
+    elements.ctx.beginPath();
+    elements.ctx.strokeStyle = color;
+    elements.ctx.lineWidth = 3;
+    elements.ctx.moveTo(playheadX, 0);
+    elements.ctx.lineTo(playheadX, elements.canvas.height);
+    elements.ctx.stroke();
+
+    elements.ctx.font = cssFont("bold 2rem monospace");
+    elements.ctx.fillStyle = color;
+    elements.ctx.fillText(formatTime(currentPlaybackTime), playheadX + 5, 30);
+}
+
 
 /**
  * Real-time visualization (keeps static waveform + adds amplitude overlay)
@@ -283,19 +303,10 @@ function drawRealTimeVisualization() {
             updateTimeDisplay(currentPlaybackTime);
 
             // Draw playhead
-            const playheadX = (currentPlaybackTime / audioBuffer.duration) * elements.canvas.width;
-            elements.ctx.beginPath();
-            elements.ctx.strokeStyle = '#ff6b6b';
-            elements.ctx.lineWidth = 3;
-            elements.ctx.moveTo(playheadX, 0);
-            elements.ctx.lineTo(playheadX, elements.canvas.height);
-            elements.ctx.stroke();
+            // const playheadX = (currentPlaybackTime / audioBuffer.duration) * elements.canvas.width;
+            // drawPlayheadX(playheadX);
+            drawPlayheadTime(currentPlaybackTime);
 
-            elements.ctx.font = cssFont("bold 2rem monospace");
-            elements.ctx.fillStyle = '#ff6b6b';
-            elements.ctx.fillText(formatTime(currentPlaybackTime), playheadX + 5, 30);
-            /*
-            */
         }
     }
 
@@ -516,7 +527,7 @@ async function loadAudioFile(file) {
         updateTimeDisplay(0);
 
         drawStaticWaveform();
-        drawPlayheadOnCanvas();
+        drawNoPlayheadOnCanvas();
         drawTimeMarkers();
 
         if (elements.playBtn) elements.playBtn.disabled = false;
@@ -593,7 +604,7 @@ async function loadDemoAudio() {
         updateTimeDisplay(0);
 
         drawStaticWaveform();
-        drawPlayheadOnCanvas();
+        drawNoPlayheadOnCanvas();
         drawTimeMarkers();
 
         if (elements.playBtn) elements.playBtn.disabled = false;
@@ -645,7 +656,7 @@ function resizeCanvas() {
     elements.canvas.height = elements.canvas.clientHeight;
     if (audioBuffer) {
         drawStaticWaveform();
-        drawPlayheadOnCanvas();
+        drawNoPlayheadOnCanvas();
         drawTimeMarkers();
     }
 }
@@ -841,6 +852,8 @@ export function showViz(
     }
 
     console.log('Audio Visualizer initialized successfully');
+    updateFontSizeFactorsForOurCanvas();
+    drawPlayheadX(0);
 }
 
 /*
@@ -885,32 +898,6 @@ async function playFirstNSeconds(audioContext, mySound, nSeconds) {
 
 
 
-// let canvasScaleFactorPx = 1;
-// let canvasScaleFactorRem = 1;
-/**
- * Use CSS px/rem size.
- * @param {string} fontString 
- * @returns {string}
- */
-function OLDcssFont(fontString) {
-    // Regular expression captures the number (Group 1) and the unit (Group 2)
-    // It targets tokens ending explicitly with 'px' or 'rem'
-    const sizeRegex = /([\d.]+)(px|rem)\b/;
-
-    return fontString.replace(sizeRegex, (match, value, unit) => {
-        const numericSize = parseFloat(value);
-        let finalSizePx = 0;
-
-        if (unit === 'rem') {
-            finalSizePx = numericSize * canvasScaleFactorRem;
-        } else {
-            finalSizePx = numericSize * canvasScaleFactorPx;
-        }
-
-        // Return the modified segment back to the shorthand string
-        return `${Math.round(finalSizePx)}px`;
-    });
-}
 
 function updateFontSizeFactorsForOurCanvas() {
     modCanvasFontSize.updateFontSizeFactors(elements.canvas);
@@ -922,65 +909,3 @@ function updateFontSizeFactorsForOurCanvas() {
 function cssFont(fontString) {
     return modCanvasFontSize.cssFont(fontString, elements.canvas);
 }
-/*
-function OLDupdateFontScaleScaleFactorForOurCanvas() {
-    updateFontScaleScaleFactor(elements.canvas);
-}
-
-function OLDupdateFontScaleScaleFactor(canvas) {
-    // const canvas = elements.canvas;
-    const rect = canvas.getBoundingClientRect();
-
-    if (rect.width > 0) {
-        canvasScaleFactorPx = canvas.width / rect.width;
-        // Fetch the live document root font size (rem base value)
-        const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-        // Calculate the relative rem layout scaling multiplier
-        canvasScaleFactorRem = canvasScaleFactorPx * rootFontSize;
-    } else {
-        logCanvasHiddenReason(canvas, rect);
-    }
-}
-function OLDlogCanvasHiddenReason(canvas, rect) {
-    // Uses standard groupCollapsed to keep the main console view clean
-    console.groupCollapsed("⚠️ Canvas Scale Calculation Skipped: Width is 0");
-
-    const styles = window.getComputedStyle(canvas);
-
-    // Comprehensive diagnostic payload object
-    const diagnostics = {
-        domStatus: {
-            isConnected: canvas.isConnected,               // False if completely detached
-            hasParent: !!canvas.parentElement,
-            offsetParent: canvas.offsetParent              // Null if hidden or fixed
-        },
-        computedStyles: {
-            display: styles.display,
-            visibility: styles.visibility,
-            widthStyle: styles.width,
-            heightStyle: styles.height,
-            boxSizing: styles.boxSizing
-        },
-        geometry: {
-            rectWidth: rect.width,
-            rectHeight: rect.height,
-            internalWidth: canvas.width
-        }
-    };
-
-    console.warn("Detailed Element Diagnostics:", diagnostics);
-
-    // Provide actionable, logical conclusions
-    if (!diagnostics.domStatus.isConnected) {
-        console.error("Conclusion: The canvas element is not mounted in the active DOM tree.");
-    } else if (diagnostics.computedStyles.display === 'none') {
-        console.error("Conclusion: The canvas has 'display: none' active directly or via a parent.");
-    } else if (diagnostics.computedStyles.visibility === 'hidden' || diagnostics.computedStyles.visibility === 'collapse') {
-        console.error("Conclusion: The element is rendered but explicitly hidden via CSS visibility rules.");
-    } else if (rect.width === 0 && canvas.isConnected) {
-        console.error("Conclusion: The element is active but has collapsed to 0px (likely a flexbox, grid, or 0-height parent container issue).");
-    }
-
-    console.groupEnd(); // Correctly close the console group block
-}
-*/
