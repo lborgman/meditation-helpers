@@ -670,6 +670,16 @@ export function showViz(
         console.error("Object parameter sound missing");
         throw Error("Object parameter sound missing");
     }
+    const {
+        soundName = "Unknown sound",
+        soundSource = null
+    } = sound;
+    if (soundSource == null) {
+        console.log({ soundSource });
+        debugger;
+        throw Error(`soundSource == null`);
+    }
+
     // const { soundSource, soundName } = sound;
     // debugger;
 
@@ -680,8 +690,9 @@ export function showViz(
         <!--
         <div id="div-close"><button id="close-button">X</button></div>
         <button class="x-close">✖</button>
+        <h2 style="display:none;">🎵 Sound Amplitude Visualization with Time Display</h2>
         -->
-        <h1 style="display:none;">🎵 Sound Amplitude Visualization with Time Display</h1>
+        <h2>🎵 ${soundName}</h2>
 
         <div class="controls">
             <input type="file" id="audioFile" accept="audio/*">
@@ -721,15 +732,6 @@ export function showViz(
         if (!inpAudio) throw Error(`Could not find #audioFile`);
         inpAudio.style.display = "none";
         // debugger;
-        const {
-            soundName = null,
-            soundSource = null
-        } = sound;
-        if (soundSource == null) {
-            console.log({ soundSource });
-            debugger;
-            throw Error(`soundSource == null`);
-        }
         if (typeof soundSource == "string") {
             // loadAudioFromUrl(url, filename = 'audio.mp3')
             loadAudioFromUrl(soundSource);
