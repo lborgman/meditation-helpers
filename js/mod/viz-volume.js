@@ -364,9 +364,12 @@ async function playAudio() {
 
     if (audioContext && audioContext.state === 'suspended') {
         await audioContext.resume();
+        if (elements.playBtn) elements.playBtn.disabled = true;
+        if (elements.pauseBtn) elements.pauseBtn.disabled = false;
+        return;
     }
 
-    if (sourceNode && isPlaying) return;
+    // if (sourceNode && isPlaying) return;
 
     if (sourceNode) {
         try {
@@ -395,6 +398,10 @@ async function playAudio() {
  */
 function pauseAudio() {
     if (!sourceNode || !isPlaying || !audioContext) return;
+    audioContext.suspend();
+    if (elements.playBtn) elements.playBtn.disabled = false;
+    if (elements.pauseBtn) elements.pauseBtn.disabled = true;
+    return;
 
     currentPlaybackTime = audioContext.currentTime - startTime;
     sourceNode.stop();
@@ -412,6 +419,7 @@ function pauseAudio() {
     if (elements.pauseBtn) elements.pauseBtn.disabled = true;
 
     updateTimeDisplay(currentPlaybackTime);
+    seekTo(currentPlaybackTime);
     if (elements.infoDiv) {
         elements.infoDiv.textContent = `⏸ Paused at ${formatTime(currentPlaybackTime)}`;
     }
@@ -429,7 +437,8 @@ function stopAudio() {
     }
 
     isPlaying = false;
-    currentPlaybackTime = 0;
+    // currentPlaybackTime = 0;
+    seekTo(0);
 
     if (animationId) {
         cancelAnimationFrame(animationId);
@@ -583,71 +592,6 @@ async function loadAudioFromUrl(url, filename = 'audio.mp3') {
         console.error('Error loading audio:', error);
     }
 }
-/**
- * Load demo audio (generate a sine wave for testing)
- */
-async function loadDemoAudio() {
-    if (elements.infoDiv) {
-        elements.infoDiv.textContent = `🎵 Generating demo sine wave...`;
-    }
-
-    try {
-        if (!audioContext) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        // Create a 3-second sine wave sweep from 220Hz to 880Hz
-        const duration = 3;
-        const sampleRate = audioContext.sampleRate;
-        const numSamples = duration * sampleRate;
-
-        // Create audio buffer
-        audioBuffer = audioContext.createBuffer(2, numSamples, sampleRate);
-
-        for (let channel = 0; channel < 2; channel++) {
-            const channelData = audioBuffer.getChannelData(channel);
-
-            for (let i = 0; i < numSamples; i++) {
-                const t = i / sampleRate;
-                // Frequency sweep from 220Hz to 880Hz
-                const frequency = 220 + (t / duration) * 660;
-                // Amplitude envelope (fade in and out)
-                const envelope = Math.sin(Math.PI * t / duration);
-                // Generate sine wave
-                const value = Math.sin(2 * Math.PI * frequency * t) * envelope * 0.5;
-                channelData[i] = value;
-            }
-        }
-
-        if (elements.sampleRateSpan) {
-            elements.sampleRateSpan.textContent = `${audioBuffer.sampleRate} Hz`;
-        }
-        if (elements.totalDurationSpan) {
-            elements.totalDurationSpan.textContent = formatTime(audioBuffer.duration);
-        }
-        currentPlaybackTime = 0;
-        updateTimeDisplay(0);
-
-        drawStaticWaveform();
-        drawNoPlayheadOnCanvas();
-        drawTimeMarkers();
-
-        if (elements.playBtn) elements.playBtn.disabled = false;
-        if (elements.stopBtn) elements.stopBtn.disabled = false;
-        if (elements.seekSlider) elements.seekSlider.disabled = false;
-        if (elements.playhead) elements.playhead.style.display = 'block';
-
-        if (elements.infoDiv) {
-            elements.infoDiv.textContent = `✅ Demo sine wave loaded (220Hz → 880Hz sweep, 3 seconds) | Click on waveform to seek`;
-        }
-
-    } catch (error) {
-        console.error('Error creating demo audio:', error);
-        if (elements.infoDiv) {
-            elements.infoDiv.textContent = `❌ Error creating demo audio: ${error.message}`;
-        }
-    }
-}
 
 /**
  * Handle file input change
@@ -732,7 +676,6 @@ export function showViz(
 
         <div class="controls">
             <input type="file" id="audioFile" accept="audio/*">
-            <button id="demoBtn" class="demo-button" style="display:none;">🎵 Load Demo Sound</button>
             <button id="playBtn" disabled>▶</button>
             <button id="pauseBtn" disabled>⏸</button>
             <button id="stopBtn" disabled>⏹</button>
@@ -842,7 +785,6 @@ export function showViz(
     elements.seekSlider = divOuterContainer.querySelector("#seekSlider");
     elements.volumeSlider = divOuterContainer.querySelector("#volumeSlider");
     elements.audioFileInput = divOuterContainer.querySelector("#audioFile");
-    elements.demoBtn = divOuterContainer.querySelector("#demoBtn");
     elements.infoDiv = divOuterContainer.querySelector("#info");
     elements.currentTimeSpan = divOuterContainer.querySelector("#currentTime");
     elements.totalDurationSpan = divOuterContainer.querySelector("#totalDuration");
@@ -856,9 +798,6 @@ export function showViz(
     // Add event listeners
     if (elements.audioFileInput) {
         elements.audioFileInput.addEventListener('change', handleFileChange);
-    }
-    if (elements.demoBtn) {
-        elements.demoBtn.addEventListener('click', loadDemoAudio);
     }
     if (elements.playBtn) {
         elements.playBtn.addEventListener('click', playAudio);
@@ -889,7 +828,8 @@ export function showViz(
     drawTimeMarkers();
 
     if (elements.infoDiv) {
-        elements.infoDiv.textContent = '💡 Ready! Load an audio file or click "Load Demo Sound" to test. Click on the waveform to seek.';
+        // debugger;
+        elements.infoDiv.textContent = '💡 Ready! Load an audio file. Click on the waveform to seek.';
     }
 
     console.log('Audio Visualizer initialized successfully');
