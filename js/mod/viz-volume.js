@@ -165,6 +165,23 @@ function getNiceInterval(rawInterval) {
 ////////////////////////////////
 //#endregion
 
+function syncCanvasSize() {
+    const container = document.getElementById("canvasContainer");
+    if (!container) {
+        throw Error("Did not find canvasContainer");
+    }
+    const rect = container.getBoundingClientRect();
+
+    container.querySelectorAll("canvas").forEach(canvas => {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        canvas.style.width = rect.width + "px";
+        canvas.style.height = rect.height + "px";
+    })
+
+    // Note: Resizing a canvas automatically wipes its contents.
+    // Re-draw your elements here if this runs after initialization!
+}
 /**
  * Draw static waveform (the original picture of the sound)
  */
@@ -233,7 +250,7 @@ function drawNoPlayheadOnCanvas() {
 function redrawStaticWithPosition() {
     drawStaticWaveform();
     drawNoPlayheadOnCanvas();
-    drawTimeMarkers();
+    // drawTimeMarkers();
 }
 function drawPlayheadTime(currentPlaybackTime) {
     const playheadX = (currentPlaybackTime / audioBuffer.duration) * elements.canvas.width;
@@ -243,16 +260,18 @@ function drawPlayheadX(playheadX) {
     // const color = '#ff6b6b';
     const color = "red";
     // const color = "yellow";
-    elements.ctx.beginPath();
-    elements.ctx.strokeStyle = color;
-    elements.ctx.lineWidth = 3;
-    elements.ctx.moveTo(playheadX, 0);
-    elements.ctx.lineTo(playheadX, elements.canvas.height);
-    elements.ctx.stroke();
+    const ctxFg = elements.ctxFg;
+    ctxFg.clearRect(0, 0, elements.canvasFg.width, elements.canvasFg.height);
+    ctxFg.beginPath();
+    ctxFg.strokeStyle = color;
+    ctxFg.lineWidth = 3;
+    ctxFg.moveTo(playheadX, 0);
+    ctxFg.lineTo(playheadX, elements.canvas.height);
+    ctxFg.stroke();
 
-    elements.ctx.font = cssFont("bold 2rem monospace");
-    elements.ctx.fillStyle = color;
-    elements.ctx.fillText(formatTime(currentPlaybackTime), playheadX + 5, 30);
+    ctxFg.font = cssFont("bold 2rem monospace");
+    ctxFg.fillStyle = color;
+    ctxFg.fillText(formatTime(currentPlaybackTime), playheadX + 5, 30);
 }
 
 
@@ -464,6 +483,7 @@ function seekTo(position) {
 
     currentPlaybackTime = Math.max(0, Math.min(position, audioBuffer.duration));
     updateTimeDisplay(currentPlaybackTime);
+    drawPlayheadTime(currentPlaybackTime);
 
     redrawStaticWithPosition();
 
@@ -476,9 +496,11 @@ function seekTo(position) {
  * Handle canvas click for seeking
  */
 function handleCanvasClick(event) {
-    if (!audioBuffer || !elements.canvas) return;
+    event.stopPropagation();
+    const canvas = event.target;
+    if (!audioBuffer) return;
 
-    const rect = elements.canvas.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const percent = Math.max(0, Math.min(1, x / rect.width));
     const seekTime = percent * audioBuffer.duration;
@@ -724,7 +746,12 @@ export function showViz(
         </div>
 
         <div class="visualization-container">
+
+            <div id="canvasContainer">
             <canvas id="waveformCanvas"></canvas>
+            <canvas id="playheadCanvas"></canvas>
+            </div>
+
             <div class="time-axis" id="timeAxis"></div>
             <div class="playhead" id="playhead" style="display: none;"></div>
         </div>
@@ -747,8 +774,7 @@ export function showViz(
         inpAudio.style.display = "none";
         // debugger;
         if (typeof soundSource == "string") {
-            // loadAudioFromUrl(url, filename = 'audio.mp3')
-            loadAudioFromUrl(soundSource);
+            // loadAudioFromUrl(soundSource);
         } else {
             debugger;
         }
@@ -767,7 +793,11 @@ export function showViz(
         eltDialog.appendChild(divOuterContainer);
         eltDialog.appendChild(btnClose);
         document.body.appendChild(eltDialog);
-        setTimeout(updateFontSizeFactorsForOurCanvas, 1000);
+        setTimeout(() => {
+            updateFontSizeFactorsForOurCanvas();
+            syncCanvasSize();
+            loadAudioFromUrl(soundSource);
+        }, 500);
         eltDialog.showModal();
     }
 
@@ -791,6 +821,14 @@ export function showViz(
         return;
     }
     elements.ctx = elements.canvas.getContext('2d');
+
+    elements.canvasFg = divOuterContainer.querySelector("#playheadCanvas");
+    if (!elements.canvasFg) {
+        console.error('Canvas element not found');
+        return;
+    }
+    elements.ctxFg = elements.canvasFg.getContext('2d');
+
 
     /*
       Note that divOuterContainer.querySelector("#id") is not
@@ -837,8 +875,8 @@ export function showViz(
     if (elements.volumeSlider) {
         elements.volumeSlider.addEventListener('input', updateVolume);
     }
-    if (elements.canvas) {
-        elements.canvas.addEventListener('click', handleCanvasClick);
+    if (elements.canvasFg) {
+        elements.canvasFg.addEventListener('click', handleCanvasClick);
     }
 
     // Handle window resize
