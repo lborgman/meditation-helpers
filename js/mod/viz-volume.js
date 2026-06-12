@@ -39,7 +39,7 @@ let audioBuffer = null;
 let sourceNode = null;
 let analyserNode = null;
 let gainNode = null;
-let animationId = null;
+/** @type {number | undefined} */ let animationId;
 let isPlaying = false;
 let currentPlaybackTime = 0;
 let startTime = 0;
@@ -84,8 +84,8 @@ function updateTimeDisplay(currentTime) {
         const percent = (currentTime / audioBuffer.duration) * 100;
         elements.seekSlider.value = percent;
 
-        if (elements.playhead && elements.canvas) {
-            const x = (currentTime / audioBuffer.duration) * elements.canvas.width;
+        if (elements.playhead && elements.canvasBg) {
+            const x = (currentTime / audioBuffer.duration) * elements.canvasBg.width;
             // elements.playhead.style.left = `${x}px`;
         }
     }
@@ -186,17 +186,17 @@ function syncCanvasSize() {
  * Draw static waveform (the original picture of the sound)
  */
 function drawStaticWaveform() {
-    if (!audioBuffer || !elements.ctx || !elements.canvas) return;
+    if (!audioBuffer || !elements.ctxBg || !elements.canvasBg) return;
 
     const channelData = audioBuffer.getChannelData(0);
-    const step = Math.ceil(channelData.length / elements.canvas.width);
+    const step = Math.ceil(channelData.length / elements.canvasBg.width);
 
-    elements.ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
-    elements.ctx.beginPath();
-    elements.ctx.strokeStyle = '#4CAF50';
-    elements.ctx.lineWidth = 2;
+    elements.ctxBg.clearRect(0, 0, elements.canvasBg.width, elements.canvasBg.height);
+    elements.ctxBg.beginPath();
+    elements.ctxBg.strokeStyle = '#4CAF50';
+    elements.ctxBg.lineWidth = 2;
 
-    for (let i = 0; i < elements.canvas.width; i++) {
+    for (let i = 0; i < elements.canvasBg.width; i++) {
         let min = 1.0;
         let max = -1.0;
 
@@ -209,17 +209,17 @@ function drawStaticWaveform() {
             }
         }
 
-        const y1 = ((min + 1) / 2) * elements.canvas.height;
-        const y2 = ((max + 1) / 2) * elements.canvas.height;
+        const y1 = ((min + 1) / 2) * elements.canvasBg.height;
+        const y2 = ((max + 1) / 2) * elements.canvasBg.height;
 
-        elements.ctx.beginPath();
-        elements.ctx.moveTo(i, y1);
-        elements.ctx.lineTo(i, y2);
-        elements.ctx.stroke();
+        elements.ctxBg.beginPath();
+        elements.ctxBg.moveTo(i, y1);
+        elements.ctxBg.lineTo(i, y2);
+        elements.ctxBg.stroke();
     }
 
     // Store the static waveform as image data
-    waveformImageData = elements.ctx.getImageData(0, 0, elements.canvas.width, elements.canvas.height);
+    waveformImageData = elements.ctxBg.getImageData(0, 0, elements.canvasBg.width, elements.canvasBg.height);
 }
 
 /**
@@ -227,33 +227,34 @@ function drawStaticWaveform() {
  */
 function drawNoPlayheadOnCanvas() {
     return;
-    if (!audioBuffer || !elements.ctx || !elements.canvas) return;
+    if (!audioBuffer || !elements.ctxBg || !elements.canvasBg) return;
 
-    const x = (currentPlaybackTime / audioBuffer.duration) * elements.canvas.width;
+    const x = (currentPlaybackTime / audioBuffer.duration) * elements.canvasBg.width;
 
-    elements.ctx.beginPath();
-    elements.ctx.strokeStyle = '#ff6b6b';
-    elements.ctx.lineWidth = 3;
-    elements.ctx.moveTo(x, 0);
-    elements.ctx.lineTo(x, elements.canvas.height);
-    elements.ctx.stroke();
+    elements.ctxBg.beginPath();
+    elements.ctxBg.strokeStyle = '#ff6b6b';
+    elements.ctxBg.lineWidth = 3;
+    elements.ctxBg.moveTo(x, 0);
+    elements.ctxBg.lineTo(x, elements.canvasBg.height);
+    elements.ctxBg.stroke();
 
-    // elements.ctx.font = 'bold 12px monospace';
-    elements.ctx.font = cssFont('bold 2rem monospace');
-    elements.ctx.fillStyle = '#ff6b6b';
-    elements.ctx.fillText(formatTime(currentPlaybackTime), x + 5, 20);
+    // elements.ctxBg.font = 'bold 12px monospace';
+    elements.ctxBg.font = cssFont('bold 2rem monospace');
+    elements.ctxBg.fillStyle = '#ff6b6b';
+    elements.ctxBg.fillText(formatTime(currentPlaybackTime), x + 5, 20);
 }
 
 /**
  * Full redraw for non-playing state
  */
 function redrawStaticWithPosition() {
-    drawStaticWaveform();
-    drawNoPlayheadOnCanvas();
+    // drawStaticWaveform();
+    // drawNoPlayheadOnCanvas();
     // drawTimeMarkers();
 }
+let metricsPlayhead;
 function drawPlayheadTime(currentPlaybackTime) {
-    const playheadX = (currentPlaybackTime / audioBuffer.duration) * elements.canvas.width;
+    const playheadX = (currentPlaybackTime / audioBuffer.duration) * elements.canvasBg.width;
     drawPlayheadX(playheadX);
 }
 function drawPlayheadX(playheadX) {
@@ -265,14 +266,22 @@ function drawPlayheadX(playheadX) {
     ctxFg.clearRect(0, 0, elements.canvasFg.width, elements.canvasFg.height);
     ctxFg.beginPath();
     ctxFg.strokeStyle = color;
-    ctxFg.lineWidth = 3;
-    ctxFg.moveTo(playheadX, 0);
-    ctxFg.lineTo(playheadX, elements.canvas.height);
+    const lw = 3;
+    ctxFg.lineWidth = lw;
+    ctxFg.moveTo(playheadX + lw / 2, 0);
+    ctxFg.lineTo(playheadX + lw / 2, elements.canvasBg.height);
     ctxFg.stroke();
 
-    ctxFg.font = cssFont('bold 1.5rem "Courier New", monospace');
+    ctxFg.font = cssFont('bold 1.2rem "Courier New", monospace');
     ctxFg.fillStyle = color;
-    ctxFg.fillText(formatTime(currentPlaybackTime), playheadX + 5, 30);
+    const text = formatTime(currentPlaybackTime);
+    if (!metricsPlayhead) {
+        metricsPlayhead = ctxFg.measureText(text)
+    }
+    // const playheadWidth = metricsPlayhead.actualBoundingBoxLeft + metricsPlayhead.actualBoundingBoxRight;
+    const playheadHeight = metricsPlayhead.actualBoundingBoxAscent + metricsPlayhead.actualBoundingBoxDescent;
+    ctxFg.clearRect(playheadX - 5, 0, 10, playheadHeight + 8);
+    ctxFg.fillText(text, playheadX - lw / 2, playheadHeight);
 }
 
 
@@ -280,12 +289,12 @@ function drawPlayheadX(playheadX) {
  * Real-time visualization (keeps static waveform + adds amplitude overlay)
  */
 function drawRealTimeVisualization() {
-    // if (!analyserNode || !isPlaying || !elements.ctx || !elements.canvas) return;
-    if (!analyserNode || !elements.ctx || !elements.canvas) return;
+    // if (!analyserNode || !isPlaying || !elements.ctxBg || !elements.canvasBg) return;
+    if (!analyserNode || !elements.ctxBg || !elements.canvasBg) return;
 
     // Draw static waveform + amplitude overlay + playhead
     if (waveformImageData) {
-        elements.ctx.putImageData(waveformImageData, 0, 0);
+        elements.ctxBg.putImageData(waveformImageData, 0, 0);
     }
 
     // Draw real-time amplitude overlay
@@ -294,33 +303,33 @@ function drawRealTimeVisualization() {
 
     let showDisturbingWave = false;
     if (showDisturbingWave) {
-        elements.ctx.beginPath();
-        elements.ctx.strokeStyle = '#ffaa44';
-        elements.ctx.strokeStyle = 'red';
-        elements.ctx.lineWidth = 2;
-        elements.ctx.globalAlpha = 0.8;
+        elements.ctxBg.beginPath();
+        elements.ctxBg.strokeStyle = '#ffaa44';
+        elements.ctxBg.strokeStyle = 'red';
+        elements.ctxBg.lineWidth = 2;
+        elements.ctxBg.globalAlpha = 0.8;
 
-        const sliceWidth = elements.canvas.width / dataArray.length;
+        const sliceWidth = elements.canvasBg.width / dataArray.length;
         let x = 0;
 
         for (let i = 0; i < dataArray.length; i++) {
             const v = dataArray[i] / 128.0 - 1.0;
-            const y = (v * 0.5 + 0.5) * elements.canvas.height;
+            const y = (v * 0.5 + 0.5) * elements.canvasBg.height;
 
             if (i === 0) {
-                elements.ctx.moveTo(x, y);
+                elements.ctxBg.moveTo(x, y);
             } else {
-                elements.ctx.lineTo(x, y);
+                elements.ctxBg.lineTo(x, y);
             }
 
             x += sliceWidth;
         }
 
-        elements.ctx.stroke();
+        elements.ctxBg.stroke();
     }
 
 
-    elements.ctx.globalAlpha = 1.0;
+    elements.ctxBg.globalAlpha = 1.0;
 
     // Update current time
     if (sourceNode && audioContext && audioBuffer) {
@@ -329,7 +338,7 @@ function drawRealTimeVisualization() {
             updateTimeDisplay(currentPlaybackTime);
 
             // Draw playhead
-            // const playheadX = (currentPlaybackTime / audioBuffer.duration) * elements.canvas.width;
+            // const playheadX = (currentPlaybackTime / audioBuffer.duration) * elements.canvasBg.width;
             // drawPlayheadX(playheadX);
             drawPlayheadTime(currentPlaybackTime);
 
@@ -370,9 +379,10 @@ async function playAudio() {
     if (!audioBuffer) return;
 
     if (audioContext && audioContext.state === 'suspended') {
-        await audioContext.resume();
         if (elements.playBtn) elements.playBtn.disabled = true;
         if (elements.pauseBtn) elements.pauseBtn.disabled = false;
+        await audioContext.resume();
+        drawRealTimeVisualization();
         return;
     }
 
@@ -408,6 +418,7 @@ function pauseAudio() {
     audioContext.suspend();
     if (elements.playBtn) elements.playBtn.disabled = false;
     if (elements.pauseBtn) elements.pauseBtn.disabled = true;
+    cancelAnimationFrame(animationId);
     return;
 
     currentPlaybackTime = audioContext.currentTime - startTime;
@@ -416,7 +427,7 @@ function pauseAudio() {
 
     isPlaying = false;
 
-    if (animationId) {
+    if (animationId != undefined) {
         cancelAnimationFrame(animationId);
     }
 
@@ -447,9 +458,8 @@ function stopAudio() {
     // currentPlaybackTime = 0;
     seekTo(0);
 
-    if (animationId) {
-        cancelAnimationFrame(animationId);
-    }
+    cancelAnimationFrame(animationId);
+    // if (animationId) { cancelAnimationFrame(animationId); }
 
     redrawStaticWithPosition();
 
@@ -471,9 +481,8 @@ function stopAudio() {
 function stopPlayback() {
     isPlaying = false;
     currentPlaybackTime = 0;
-    if (animationId) {
-        cancelAnimationFrame(animationId);
-    }
+    cancelAnimationFrame(animationId);
+    // if (animationId) { cancelAnimationFrame(animationId); }
     redrawStaticWithPosition();
     if (elements.playBtn) elements.playBtn.disabled = false;
     if (elements.pauseBtn) elements.pauseBtn.disabled = true;
@@ -566,7 +575,7 @@ async function loadAudioFile(file) {
         updateTimeDisplay(0);
 
         drawStaticWaveform();
-        drawNoPlayheadOnCanvas();
+        // drawNoPlayheadOnCanvas();
         drawTimeMarkers();
 
         updateFontSizeFactorsForOurCanvas();
@@ -624,13 +633,13 @@ function handleSeekInput(e) {
  * Resize canvas
  */
 function resizeCanvas() {
-    if (!elements.canvas || !elements.ctx) return;
+    if (!elements.canvasBg || !elements.ctxBg) return;
 
-    const w = elements.canvas.clientWidth;
+    const w = elements.canvasBg.clientWidth;
     if (w == 0) return;
-    // elements.canvas.width = elements.canvas.clientWidth;
-    elements.canvas.width = w;
-    elements.canvas.height = elements.canvas.clientHeight;
+    // elements.canvasBg.width = elements.canvasBg.clientWidth;
+    elements.canvasBg.width = w;
+    elements.canvasBg.height = elements.canvasBg.clientHeight;
     if (audioBuffer) {
         drawStaticWaveform();
         drawNoPlayheadOnCanvas();
@@ -766,13 +775,13 @@ export function showViz(
         eltDialog.close();
     })
 
-    // elements.canvas = document.getElementById('waveformCanvas');
-    elements.canvas = divOuterContainer.querySelector("#waveformCanvas");
-    if (!elements.canvas) {
+    // elements.canvasBg = document.getElementById('waveformCanvas');
+    elements.canvasBg = divOuterContainer.querySelector("#waveformCanvas");
+    if (!elements.canvasBg) {
         console.error('Canvas element not found');
         return;
     }
-    elements.ctx = elements.canvas.getContext('2d');
+    elements.ctxBg = elements.canvasBg.getContext('2d');
 
     elements.canvasFg = divOuterContainer.querySelector("#playheadCanvas");
     if (!elements.canvasFg) {
@@ -888,12 +897,12 @@ async function playFirstNSeconds(audioContext, mySound, nSeconds) {
 
 
 function updateFontSizeFactorsForOurCanvas() {
-    modCanvasFontSize.updateFontSizeFactors(elements.canvas);
+    modCanvasFontSize.updateFontSizeFactors(elements.canvasBg);
 }
 /**
  * @param {string} fontString 
  * @returns {string}
  */
 function cssFont(fontString) {
-    return modCanvasFontSize.cssFont(fontString, elements.canvas);
+    return modCanvasFontSize.cssFont(fontString, elements.canvasBg);
 }
