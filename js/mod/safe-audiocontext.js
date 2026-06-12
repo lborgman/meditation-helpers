@@ -80,3 +80,29 @@ export class SafeAudioEngine {
 export function getActiveEngineCount() {
     return activeEngines.size;
 }
+
+
+export function patchAudioNodeLinks() {
+    // Run this hook once at the very top of your audio module
+    const nativeConnect = AudioNode.prototype.connect;
+    const nativeDisconnect = AudioNode.prototype.disconnect;
+
+    AudioNode.prototype.connect = function (destination, outputIndex, inputIndex) {
+        // Initialize a hidden connections registry on the node
+        this.__connections = this.__connections || new Set();
+        this.__connections.add(destination);
+
+        // Execute the browser's real connection logic
+        return nativeConnect.apply(this, arguments);
+    };
+
+    AudioNode.prototype.disconnect = function () {
+        // Clear out our tracking data when disconnected
+        if (this.__connections) {
+            this.__connections.clear();
+        }
+
+        // Execute the browser's real disconnection logic
+        return nativeDisconnect.apply(this, arguments);
+    };
+}

@@ -258,8 +258,9 @@ function drawPlayheadTime(currentPlaybackTime) {
 }
 function drawPlayheadX(playheadX) {
     // const color = '#ff6b6b';
-    const color = "red";
-    // const color = "yellow";
+    // const color = "red";
+    const color = "yellow";
+    // const color = "white";
     const ctxFg = elements.ctxFg;
     ctxFg.clearRect(0, 0, elements.canvasFg.width, elements.canvasFg.height);
     ctxFg.beginPath();
@@ -269,7 +270,7 @@ function drawPlayheadX(playheadX) {
     ctxFg.lineTo(playheadX, elements.canvas.height);
     ctxFg.stroke();
 
-    ctxFg.font = cssFont("bold 2rem monospace");
+    ctxFg.font = cssFont('bold 1.5rem "Courier New", monospace');
     ctxFg.fillStyle = color;
     ctxFg.fillText(formatTime(currentPlaybackTime), playheadX + 5, 30);
 }
@@ -291,28 +292,34 @@ function drawRealTimeVisualization() {
     const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
     analyserNode.getByteTimeDomainData(dataArray);
 
-    elements.ctx.beginPath();
-    elements.ctx.strokeStyle = '#ffaa44';
-    elements.ctx.lineWidth = 2;
-    elements.ctx.globalAlpha = 0.8;
+    let showDisturbingWave = false;
+    if (showDisturbingWave) {
+        elements.ctx.beginPath();
+        elements.ctx.strokeStyle = '#ffaa44';
+        elements.ctx.strokeStyle = 'red';
+        elements.ctx.lineWidth = 2;
+        elements.ctx.globalAlpha = 0.8;
 
-    const sliceWidth = elements.canvas.width / dataArray.length;
-    let x = 0;
+        const sliceWidth = elements.canvas.width / dataArray.length;
+        let x = 0;
 
-    for (let i = 0; i < dataArray.length; i++) {
-        const v = dataArray[i] / 128.0 - 1.0;
-        const y = (v * 0.5 + 0.5) * elements.canvas.height;
+        for (let i = 0; i < dataArray.length; i++) {
+            const v = dataArray[i] / 128.0 - 1.0;
+            const y = (v * 0.5 + 0.5) * elements.canvas.height;
 
-        if (i === 0) {
-            elements.ctx.moveTo(x, y);
-        } else {
-            elements.ctx.lineTo(x, y);
+            if (i === 0) {
+                elements.ctx.moveTo(x, y);
+            } else {
+                elements.ctx.lineTo(x, y);
+            }
+
+            x += sliceWidth;
         }
 
-        x += sliceWidth;
+        elements.ctx.stroke();
     }
 
-    elements.ctx.stroke();
+
     elements.ctx.globalAlpha = 1.0;
 
     // Update current time
@@ -482,23 +489,24 @@ function stopPlayback() {
  * Seek to position
  */
 function seekTo(position) {
-    if (!audioBuffer) return;
+    // if (!audioBuffer) return;
+    // console.log("seekTo:", position);
+    isPlaying = false;
 
     const wasPlaying = isPlaying;
 
-    if (wasPlaying) {
-        pauseAudio();
-    }
+    // if (wasPlaying) { pauseAudio(); }
+    pauseAudio();
+    // currentTime
 
     currentPlaybackTime = Math.max(0, Math.min(position, audioBuffer.duration));
+    console.log("seekTo:", currentPlaybackTime);
     updateTimeDisplay(currentPlaybackTime);
     drawPlayheadTime(currentPlaybackTime);
 
     redrawStaticWithPosition();
 
-    if (wasPlaying) {
-        playAudio();
-    }
+    // if (wasPlaying) { playAudio(); }
 }
 
 /**
@@ -678,7 +686,8 @@ export function showViz(
             <input type="file" id="audioFile" accept="audio/*">
             <button id="playBtn" disabled>▶</button>
             <button id="pauseBtn" disabled>⏸</button>
-            <button id="stopBtn" disabled>⏹</button>
+            <!-- <button id="stopBtn" disabled>⏹</button>️ -->
+            <button id="stopBtn" disabled>️⟲</button>
             <div class="seek-bar" style="display:none;">
                 <input type="range" id="seekSlider" min="0" max="100" value="0" disabled>
             </div>

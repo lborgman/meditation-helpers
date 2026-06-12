@@ -8,7 +8,7 @@ div.viz-vol .visualization-container {
     border: 2px solid #333;
     border-radius: 8px;
     padding: 20px;
-    margin: 20px 0;
+    margin: 10px 0;
     position: relative;
 }
 
@@ -84,7 +84,7 @@ div.viz-vol .time-display {
 }
 
 div.viz-vol .controls {
-    margin: 20px 0;
+    margin: 10px 0;
     display: flex;
     gap: 10px;
     align-items: center;
@@ -92,13 +92,20 @@ div.viz-vol .controls {
 }
 
 div.viz-vol button {
-    padding: 10px 20px;
-    font-size: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
     cursor: pointer;
     background-color: #4CAF50;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 15px;
     transition: all 0.2s;
 }
 
