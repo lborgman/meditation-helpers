@@ -35,7 +35,7 @@ function loadMyCss() {
 
 // Audio state
 let audioContext = null;
-let audioBuffer = null;
+let cachedAudioBuffer = null;
 let sourceNode = null;
 let analyserNode = null;
 let gainNode = null;
@@ -73,20 +73,16 @@ function formatTime(seconds, distMarkers = null) {
  * Update time displays and UI elements
  */
 function updateTimeDisplay(currentTime) {
-    if (!elements.currentTimeSpan) return;
-
-    elements.currentTimeSpan.textContent = formatTime(currentTime);
-    if (audioBuffer && elements.totalDurationSpan) {
-        elements.totalDurationSpan.textContent = formatTime(audioBuffer.duration);
+    if (elements.currentTimeSpan) {
+        elements.currentTimeSpan.textContent = formatTime(currentTime);
     }
-
-    if (audioBuffer && !isNaN(currentTime) && elements.seekSlider) {
-        const percent = (currentTime / audioBuffer.duration) * 100;
-        elements.seekSlider.value = percent;
-
-        if (elements.playhead && elements.canvasBg) {
-            const x = (currentTime / audioBuffer.duration) * elements.canvasBg.width;
-            // elements.playhead.style.left = `${x}px`;
+    if (cachedAudioBuffer) {
+        if (elements.totalDurationSpan) {
+            elements.totalDurationSpan.textContent = formatTime(cachedAudioBuffer.duration);
+        }
+        if (elements.seekSlider) {
+            const percent = (currentTime / cachedAudioBuffer.duration) * 100;
+            elements.seekSlider.value = percent;
         }
     }
 }
@@ -95,10 +91,12 @@ function updateTimeDisplay(currentTime) {
  * Draw time markers on the time axis
  */
 function drawTimeMarkers() {
-    if (!audioBuffer || !elements.timeAxisDiv) return;
+    // if (!cachedAudioBuffer || !elements.timeAxisDiv) return;
+    if (!cachedAudioBuffer) throw Error("cachedAudioBuffer not set up");
+    if (!(elements.timeAxisDiv instanceof HTMLDivElement)) throw Error("timeAxisDiv is not <div>");
 
     elements.timeAxisDiv.innerHTML = '';
-    const duration = audioBuffer.duration;
+    const duration = cachedAudioBuffer.duration;
     const numMarkers = Math.min(10, Math.floor(duration));
     const arrMarkers = calculateNiceMarkers(duration);
     const distMarker = arrMarkers[1];
@@ -186,12 +184,13 @@ function syncCanvasSize() {
  * Draw static waveform (the original picture of the sound)
  */
 function drawStaticWaveform() {
-    if (!audioBuffer || !elements.ctxBg || !elements.canvasBg) return;
+    if (!cachedAudioBuffer || !elements.ctxBg || !elements.canvasBg) return;
 
-    const channelData = audioBuffer.getChannelData(0);
+    const channelData = cachedAudioBuffer.getChannelData(0);
     const step = Math.ceil(channelData.length / elements.canvasBg.width);
 
-    elements.ctxBg.clearRect(0, 0, elements.canvasBg.width, elements.canvasBg.height);
+    // elements.ctxBg.clearRect(0, 0, elements.canvasBg.width, elements.canvasBg.height);
+    elements.ctxBg.reset();
     elements.ctxBg.beginPath();
     elements.ctxBg.strokeStyle = '#4CAF50';
     elements.ctxBg.lineWidth = 2;
@@ -227,9 +226,9 @@ function drawStaticWaveform() {
  */
 function drawNoPlayheadOnCanvas() {
     return;
-    if (!audioBuffer || !elements.ctxBg || !elements.canvasBg) return;
+    if (!cachedAudioBuffer || !elements.ctxBg || !elements.canvasBg) return;
 
-    const x = (currentPlaybackTime / audioBuffer.duration) * elements.canvasBg.width;
+    const x = (currentPlaybackTime / cachedAudioBuffer.duration) * elements.canvasBg.width;
 
     elements.ctxBg.beginPath();
     elements.ctxBg.strokeStyle = '#ff6b6b';
@@ -254,7 +253,7 @@ function redrawStaticWithPosition() {
 }
 let metricsPlayhead;
 function drawPlayheadTime(currentPlaybackTime) {
-    const playheadX = (currentPlaybackTime / audioBuffer.duration) * elements.canvasBg.width;
+    const playheadX = (currentPlaybackTime / cachedAudioBuffer.duration) * elements.canvasBg.width;
     drawPlayheadX(playheadX);
 }
 function drawPlayheadX(playheadX) {
@@ -290,24 +289,23 @@ function drawPlayheadX(playheadX) {
  */
 function drawRealTimeVisualization() {
     // if (!analyserNode || !isPlaying || !elements.ctxBg || !elements.canvasBg) return;
-    if (!analyserNode || !elements.ctxBg || !elements.canvasBg) return;
+    if (!elements.ctxBg || !elements.canvasBg) return;
 
     // Draw static waveform + amplitude overlay + playhead
-    if (waveformImageData) {
-        elements.ctxBg.putImageData(waveformImageData, 0, 0);
-    }
+    // if (waveformImageData) { elements.ctxBg.putImageData(waveformImageData, 0, 0); }
 
     // Draw real-time amplitude overlay
-    const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
-    analyserNode.getByteTimeDomainData(dataArray);
+    // const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+    // analyserNode.getByteTimeDomainData(dataArray);
 
+    /*
     let showDisturbingWave = false;
     if (showDisturbingWave) {
         elements.ctxBg.beginPath();
         elements.ctxBg.strokeStyle = '#ffaa44';
         elements.ctxBg.strokeStyle = 'red';
         elements.ctxBg.lineWidth = 2;
-        elements.ctxBg.globalAlpha = 0.8;
+        // elements.ctxBg.globalAlpha = 0.8;
 
         const sliceWidth = elements.canvasBg.width / dataArray.length;
         let x = 0;
@@ -327,21 +325,16 @@ function drawRealTimeVisualization() {
 
         elements.ctxBg.stroke();
     }
+    */
 
-
-    elements.ctxBg.globalAlpha = 1.0;
+    // elements.ctxBg.globalAlpha = 1.0;
 
     // Update current time
-    if (sourceNode && audioContext && audioBuffer) {
+    if (sourceNode && audioContext && cachedAudioBuffer) {
         currentPlaybackTime = audioContext.currentTime - startTime;
-        if (currentPlaybackTime >= 0 && currentPlaybackTime <= audioBuffer.duration) {
+        if (currentPlaybackTime >= 0 && currentPlaybackTime <= cachedAudioBuffer.duration) {
             updateTimeDisplay(currentPlaybackTime);
-
-            // Draw playhead
-            // const playheadX = (currentPlaybackTime / audioBuffer.duration) * elements.canvasBg.width;
-            // drawPlayheadX(playheadX);
             drawPlayheadTime(currentPlaybackTime);
-
         }
     }
 
@@ -352,23 +345,21 @@ function drawRealTimeVisualization() {
  * Setup audio nodes
  */
 function setupAudioNodes() {
-    if (!audioContext || !audioBuffer || !elements.volumeSlider) return;
+    // if (!audioContext || !cachedAudioBuffer || !elements.volumeSlider) return;
+    if (!cachedAudioBuffer) throw Error("setupAudioNodes: cachedAudioBuffer has not been created");
 
-    gainNode = audioContext.createGain();
-    gainNode.gain.value = elements.volumeSlider.value / 100;
-
-    analyserNode = audioContext.createAnalyser();
-    analyserNode.fftSize = 2048;
-    analyserNode.smoothingTimeConstant = 0.8;
+    // analyserNode = audioContext.createAnalyser();
+    // analyserNode.fftSize = 2048;
+    // analyserNode.smoothingTimeConstant = 0.8;
 
     sourceNode = audioContext.createBufferSource();
-    sourceNode.buffer = audioBuffer;
-    sourceNode.connect(analyserNode);
-    analyserNode.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    sourceNode.buffer = cachedAudioBuffer;
+    // sourceNode.connect(analyserNode);
+    // analyserNode.connect(audioContext.destination);
+    sourceNode.connect(audioContext.destination);
 
     sourceNode.onended = () => {
-        stopPlayback();
+        handlePlaybackEnded();
     };
 }
 
@@ -376,17 +367,18 @@ function setupAudioNodes() {
  * Play audio
  */
 async function playAudio() {
-    if (!audioBuffer) return;
+    if (!cachedAudioBuffer) return;
 
-    if (audioContext && audioContext.state === 'suspended') {
-        if (elements.playBtn) elements.playBtn.disabled = true;
-        if (elements.pauseBtn) elements.pauseBtn.disabled = false;
+    if (elements.playBtn) elements.playBtn.disabled = true;
+    if (elements.pauseBtn) elements.pauseBtn.disabled = false;
+    if (elements.rewindBtn) elements.rewindBtn.disabled = false;
+
+    // if (audioContext && audioContext.state === 'suspended') {
+    if (audioContext?.state === 'suspended') {
         await audioContext.resume();
         drawRealTimeVisualization();
         return;
     }
-
-    // if (sourceNode && isPlaying) return;
 
     if (sourceNode) {
         try {
@@ -401,11 +393,11 @@ async function playAudio() {
     sourceNode.start(0, currentPlaybackTime);
     isPlaying = true;
 
-    if (elements.playBtn) elements.playBtn.disabled = true;
-    if (elements.pauseBtn) elements.pauseBtn.disabled = false;
-    if (elements.stopBtn) elements.stopBtn.disabled = false;
-    if (elements.seekSlider) elements.seekSlider.disabled = false;
-    if (elements.playhead) elements.playhead.style.display = 'block';
+    // if (elements.playBtn) elements.playBtn.disabled = true;
+    // if (elements.pauseBtn) elements.pauseBtn.disabled = false;
+    // if (elements.rewindBtn) elements.rewindBtn.disabled = false;
+    // if (elements.seekSlider) elements.seekSlider.disabled = false;
+    // if (elements.playhead) elements.playhead.style.display = 'block';
 
     drawRealTimeVisualization();
 }
@@ -414,11 +406,11 @@ async function playAudio() {
  * Pause audio
  */
 function pauseAudio() {
-    if (!sourceNode || !isPlaying || !audioContext) return;
-    audioContext.suspend();
     if (elements.playBtn) elements.playBtn.disabled = false;
     if (elements.pauseBtn) elements.pauseBtn.disabled = true;
+    // if (!sourceNode || !isPlaying || !audioContext) return;
     cancelAnimationFrame(animationId);
+    audioContext.suspend();
     return;
 
     currentPlaybackTime = audioContext.currentTime - startTime;
@@ -443,6 +435,15 @@ function pauseAudio() {
     }
 }
 
+function rewindAudio() {
+    if (elements.playBtn) elements.playBtn.disabled = false;
+    if (elements.pauseBtn) elements.pauseBtn.disabled = true;
+    if (elements.rewindBtn) elements.rewindBtn.disabled = false;
+    if (elements.seekSlider) elements.seekSlider.value = 0;
+    // debugger;
+    seekTo(0);
+}
+
 /**
  * Stop audio
  */
@@ -451,8 +452,16 @@ function stopAudio() {
         try {
             sourceNode.stop();
             sourceNode.disconnect();
+            sourceNode = undefined;
         } catch (e) { }
     }
+    if (analyserNode) {
+        try {
+            analyserNode.disconnect();
+            analyserNode = null;
+        } catch (e) { }
+    }
+    return;
 
     isPlaying = false;
     // currentPlaybackTime = 0;
@@ -465,7 +474,7 @@ function stopAudio() {
 
     if (elements.playBtn) elements.playBtn.disabled = false;
     if (elements.pauseBtn) elements.pauseBtn.disabled = true;
-    if (elements.stopBtn) elements.stopBtn.disabled = false;
+    if (elements.rewindBtn) elements.rewindBtn.disabled = false;
     if (elements.seekSlider) elements.seekSlider.value = 0;
     if (elements.playhead) elements.playhead.style.left = '0px';
 
@@ -478,26 +487,38 @@ function stopAudio() {
 /**
  * Handle playback completion
  */
-function stopPlayback() {
+function handlePlaybackEnded() {
     isPlaying = false;
-    currentPlaybackTime = 0;
+    // currentPlaybackTime = 0;
     cancelAnimationFrame(animationId);
-    // if (animationId) { cancelAnimationFrame(animationId); }
-    redrawStaticWithPosition();
+    // redrawStaticWithPosition();
     if (elements.playBtn) elements.playBtn.disabled = false;
     if (elements.pauseBtn) elements.pauseBtn.disabled = true;
-    if (elements.seekSlider) elements.seekSlider.value = 0;
-    if (elements.playhead) elements.playhead.style.left = '0px';
+    // if (elements.seekSlider) elements.seekSlider.value = 0;
+    // if (elements.playhead) elements.playhead.style.left = '0px';
     updateTimeDisplay(0);
     if (elements.infoDiv) {
         elements.infoDiv.textContent = `✅ Playback completed`;
     }
 }
 
+let seekedToPos;
 /**
  * Seek to position
+ * @param {number} secPosition - position in seconds
  */
-function seekTo(position) {
+function seekTo(secPosition) {
+    cancelAnimationFrame(animationId);
+    // pauseAudio();
+    stopAudio();
+    seekedToPos = Math.max(0, Math.min(secPosition, cachedAudioBuffer.duration));
+    setTimeout(() =>
+        requestAnimationFrame(() => {
+            console.log("seekTo...", seekedToPos);
+            drawPlayheadTime(seekedToPos);
+            updateTimeDisplay(seekedToPos);
+        }), 100);
+    return;
     // if (!audioBuffer) return;
     // console.log("seekTo:", position);
     isPlaying = false;
@@ -508,7 +529,7 @@ function seekTo(position) {
     pauseAudio();
     // currentTime
 
-    currentPlaybackTime = Math.max(0, Math.min(position, audioBuffer.duration));
+    currentPlaybackTime = Math.max(0, Math.min(secPosition, cachedAudioBuffer.duration));
     console.log("seekTo:", currentPlaybackTime);
     updateTimeDisplay(currentPlaybackTime);
     drawPlayheadTime(currentPlaybackTime);
@@ -524,12 +545,12 @@ function seekTo(position) {
 function handleCanvasClick(event) {
     event.stopPropagation();
     const canvas = event.target;
-    if (!audioBuffer) return;
+    if (!cachedAudioBuffer) return;
 
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const percent = Math.max(0, Math.min(1, x / rect.width));
-    const seekTime = percent * audioBuffer.duration;
+    const seekTime = percent * cachedAudioBuffer.duration;
 
     seekTo(seekTime);
 }
@@ -558,44 +579,42 @@ async function loadAudioFile(file) {
 
     try {
         const arrayBuffer = await file.arrayBuffer();
-
-        if (!audioContext) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-        if (elements.sampleRateSpan) {
-            elements.sampleRateSpan.textContent = `${audioBuffer.sampleRate} Hz`;
-        }
-        if (elements.totalDurationSpan) {
-            elements.totalDurationSpan.textContent = formatTime(audioBuffer.duration);
-        }
-        currentPlaybackTime = 0;
-        updateTimeDisplay(0);
-
-        drawStaticWaveform();
-        // drawNoPlayheadOnCanvas();
-        drawTimeMarkers();
-
-        updateFontSizeFactorsForOurCanvas();
-        drawPlayheadTime(0);
-
-        if (elements.playBtn) elements.playBtn.disabled = false;
-        if (elements.stopBtn) elements.stopBtn.disabled = false;
-        if (elements.seekSlider) elements.seekSlider.disabled = false;
-        if (elements.playhead) elements.playhead.style.display = 'block';
-
-        if (elements.infoDiv) {
-            elements.infoDiv.textContent = `✅ Loaded: ${file.name} | Duration: ${formatTime(audioBuffer.duration)} | Sample Rate: ${audioBuffer.sampleRate} Hz | Click on waveform to seek`;
-        }
-
+        // if (!audioContext) { audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
+        audioContext = audioContext || new window.AudioContext();
+        cachedAudioBuffer = await audioContext.decodeAudioData(arrayBuffer);
     } catch (error) {
         console.error('Error loading audio:', error);
         if (elements.infoDiv) {
             elements.infoDiv.textContent = `❌ Error loading audio: ${error.message}`;
         }
     }
+}
+function loadAudioUI(file) {
+    if (elements.sampleRateSpan) {
+        elements.sampleRateSpan.textContent = `${cachedAudioBuffer.sampleRate} Hz`;
+    }
+    if (elements.totalDurationSpan) {
+        elements.totalDurationSpan.textContent = formatTime(cachedAudioBuffer.duration);
+    }
+    currentPlaybackTime = 0;
+    updateTimeDisplay(0);
+
+    drawStaticWaveform();
+    // drawNoPlayheadOnCanvas();
+    drawTimeMarkers();
+
+    updateFontSizeFactorsForOurCanvas();
+    drawPlayheadTime(0);
+
+    if (elements.playBtn) elements.playBtn.disabled = false;
+    if (elements.rewindBtn) elements.rewindBtn.disabled = false;
+    if (elements.seekSlider) elements.seekSlider.disabled = false;
+    if (elements.playhead) elements.playhead.style.display = 'block';
+
+    if (elements.infoDiv) {
+        elements.infoDiv.textContent = `✅ Loaded: ${file.name} | Duration: ${formatTime(cachedAudioBuffer.duration)} | Sample Rate: ${cachedAudioBuffer.sampleRate} Hz | Click on waveform to seek`;
+    }
+
 }
 
 // From deepseek:
@@ -604,7 +623,7 @@ async function loadAudioFromUrl(url, filename = 'audio.mp3') {
         const response = await fetch(url);
         const blob = await response.blob();
         const file = new File([blob], filename, { type: blob.type });
-        loadAudioFile(file);
+        await loadAudioFile(file);
     } catch (error) {
         console.error('Error loading audio:', error);
     }
@@ -624,8 +643,8 @@ function handleFileChange(event) {
  * Handle seek slider input
  */
 function handleSeekInput(e) {
-    if (!audioBuffer) return;
-    const seekTime = (e.target.value / 100) * audioBuffer.duration;
+    if (!cachedAudioBuffer) return;
+    const seekTime = (e.target.value / 100) * cachedAudioBuffer.duration;
     seekTo(seekTime);
 }
 
@@ -640,7 +659,7 @@ function resizeCanvas() {
     // elements.canvasBg.width = elements.canvasBg.clientWidth;
     elements.canvasBg.width = w;
     elements.canvasBg.height = elements.canvasBg.clientHeight;
-    if (audioBuffer) {
+    if (cachedAudioBuffer) {
         drawStaticWaveform();
         drawNoPlayheadOnCanvas();
         drawTimeMarkers();
@@ -695,8 +714,8 @@ export function showViz(
             <input type="file" id="audioFile" accept="audio/*">
             <button id="playBtn" disabled>▶</button>
             <button id="pauseBtn" disabled>⏸</button>
-            <!-- <button id="stopBtn" disabled>⏹</button>️ -->
-            <button id="stopBtn" disabled>️⟲</button>
+            <!-- <button id="rewindBtn" disabled>⏹</button>️ -->
+            <button id="rewindBtn" disabled>️⟲</button>
             <div class="seek-bar" style="display:none;">
                 <input type="range" id="seekSlider" min="0" max="100" value="0" disabled>
             </div>
@@ -754,10 +773,11 @@ export function showViz(
         eltDialog.appendChild(divOuterContainer);
         eltDialog.appendChild(btnClose);
         document.body.appendChild(eltDialog);
-        setTimeout(() => {
+        setTimeout(async () => {
             updateFontSizeFactorsForOurCanvas();
             syncCanvasSize();
-            loadAudioFromUrl(soundSource);
+            await loadAudioFromUrl(soundSource);
+            loadAudioUI(soundSource);
         }, 500);
         eltDialog.showModal();
     }
@@ -782,6 +802,7 @@ export function showViz(
         return;
     }
     elements.ctxBg = elements.canvasBg.getContext('2d');
+    // elements.ctxBg.globalAlpha = 0.8;
 
     elements.canvasFg = divOuterContainer.querySelector("#playheadCanvas");
     if (!elements.canvasFg) {
@@ -799,7 +820,7 @@ export function showViz(
     */
     elements.playBtn = divOuterContainer.querySelector("#playBtn");
     elements.pauseBtn = divOuterContainer.querySelector("#pauseBtn");
-    elements.stopBtn = divOuterContainer.querySelector("#stopBtn");
+    elements.rewindBtn = divOuterContainer.querySelector("#rewindBtn");
     elements.seekSlider = divOuterContainer.querySelector("#seekSlider");
     elements.volumeSlider = divOuterContainer.querySelector("#volumeSlider");
     elements.audioFileInput = divOuterContainer.querySelector("#audioFile");
@@ -817,15 +838,24 @@ export function showViz(
     if (elements.audioFileInput) {
         elements.audioFileInput.addEventListener('change', handleFileChange);
     }
-    if (elements.playBtn) {
-        elements.playBtn.addEventListener('click', playAudio);
-    }
-    if (elements.pauseBtn) {
-        elements.pauseBtn.addEventListener('click', pauseAudio);
-    }
-    if (elements.stopBtn) {
-        elements.stopBtn.addEventListener('click', stopAudio);
-    }
+    // if (elements.playBtn) {
+    elements.playBtn?.addEventListener('click', evt => {
+        evt.stopPropagation();
+        playAudio();
+    });
+    // }
+    // if (elements.pauseBtn) {
+    elements.pauseBtn?.addEventListener('click', evt => {
+        evt.stopPropagation();
+        pauseAudio();
+    });
+    // }
+    // if (elements.rewindBtn) {
+    elements.rewindBtn?.addEventListener('click', evt => {
+        evt.stopPropagation();
+        rewindAudio();
+    });
+    // }
     if (elements.seekSlider) {
         elements.seekSlider.addEventListener('input', handleSeekInput);
     }
@@ -843,7 +873,7 @@ export function showViz(
     resizeCanvas();
 
     // Initialize time axis
-    drawTimeMarkers();
+    // drawTimeMarkers();
 
     if (elements.infoDiv) {
         // debugger;
@@ -863,6 +893,7 @@ if (document.readyState === 'loading') {
 */
 
 
+/*
 // From Claude AI:
 async function captureFirstNSeconds(audioContext, sourceNode, nSeconds) {
     // 1. Create an offline context with the same sample rate
@@ -892,6 +923,7 @@ async function playFirstNSeconds(audioContext, mySound, nSeconds) {
     player.connect(audioContext.destination);
     player.start();
 }
+*/
 
 
 
