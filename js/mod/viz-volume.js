@@ -289,8 +289,9 @@ function drawPlayheadX(playheadX) {
  * Real-time visualization (keeps static waveform + adds amplitude overlay)
  */
 function drawRealTimeVisualization() {
+    if (!isPlaying) return;
     // if (!analyserNode || !isPlaying || !elements.ctxBg || !elements.canvasBg) return;
-    if (!elements.ctxBg || !elements.canvasBg) return;
+    // if (!elements.ctxBg || !elements.canvasBg) return;
 
     // Draw static waveform + amplitude overlay + playhead
     // if (waveformImageData) { elements.ctxBg.putImageData(waveformImageData, 0, 0); }
@@ -379,6 +380,7 @@ function setupAudioNodesAgain() {
  */
 async function playAudio() {
     if (!cachedAudioBuffer) throw Error("cachedAudioBuffer is not set");
+    isPlaying = true;
 
     if (elements.playBtn) elements.playBtn.disabled = true;
     if (elements.pauseBtn) elements.pauseBtn.disabled = false;
@@ -396,7 +398,6 @@ async function playAudio() {
     startTime = audioContext.currentTime - currentPlaybackTime;
     sourceNode.start(0, currentPlaybackTime);
 
-    isPlaying = true;
     drawRealTimeVisualization();
 }
 
@@ -409,6 +410,7 @@ function pauseAudio() {
     // if (!sourceNode || !isPlaying || !audioContext) return;
     cancelAnimationFrame(animationId);
     audioContext.suspend();
+    isPlaying = false;
     return;
 
     currentPlaybackTime = audioContext.currentTime - startTime;
@@ -459,9 +461,9 @@ function stopAudio() {
             analyserNode = null;
         } catch (e) { }
     }
+    isPlaying = false;
     return;
 
-    isPlaying = false;
     // currentPlaybackTime = 0;
     seekTo(0);
 
@@ -517,6 +519,8 @@ function seekTo(secPosition) {
             updateTimeDisplay(seekedToPos);
         }), 100);
     return;
+
+
     // if (!audioBuffer) return;
     // console.log("seekTo:", position);
     isPlaying = false;
