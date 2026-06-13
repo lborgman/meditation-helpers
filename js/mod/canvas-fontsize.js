@@ -54,7 +54,7 @@ export function cssFont(fontString, eltCanvas) {
  */
 export function updateFontSizeFactors(eltCanvas) {
     // FIX-ME: It looks like we do not have to call this after resize?
-    console.log("updateFontSizeFactors", eltCanvas);
+    // console.log("updateFontSizeFactors", eltCanvas);
     // const canvas = elements.canvas;
     const rect = eltCanvas.getBoundingClientRect();
 

@@ -10,7 +10,7 @@ const mkElt = window["mkElt"];
 // @ts-ignore
 const importFc4i = window["importFc4i"];
 const modCanvasFontSize = await importFc4i("canvas-fontsize");
-console.log({ modCanvasFontSize });
+// console.log({ modCanvasFontSize });
 
 loadMyCss();
 function loadMyCss() {
@@ -43,7 +43,7 @@ let gainNode = null;
 let isPlaying = false;
 let currentPlaybackTime = 0;
 let startTime = 0;
-let waveformImageData = null;
+// let waveformImageData = null;
 
 // DOM Elements
 const elements = {};
@@ -218,7 +218,8 @@ function drawStaticWaveform() {
     }
 
     // Store the static waveform as image data
-    waveformImageData = elements.ctxBg.getImageData(0, 0, elements.canvasBg.width, elements.canvasBg.height);
+    // No need to store it, it lives in canvasBg
+    // waveformImageData = elements.ctxBg.getImageData(0, 0, elements.canvasBg.width, elements.canvasBg.height);
 }
 
 /**
@@ -344,9 +345,19 @@ function drawRealTimeVisualization() {
 /**
  * Setup audio nodes
  */
-function setupAudioNodes() {
-    // if (!audioContext || !cachedAudioBuffer || !elements.volumeSlider) return;
+function setupAudioNodesAgain() {
     if (!cachedAudioBuffer) throw Error("setupAudioNodes: cachedAudioBuffer has not been created");
+
+    if (sourceNode) {
+        try {
+            sourceNode.stop();
+            sourceNode.disconnect();
+        } catch (err) {
+            console.error("sourcenode, stop/disconnect", err)
+            debugger;
+        }
+    }
+
 
     // analyserNode = audioContext.createAnalyser();
     // analyserNode.fftSize = 2048;
@@ -367,7 +378,7 @@ function setupAudioNodes() {
  * Play audio
  */
 async function playAudio() {
-    if (!cachedAudioBuffer) return;
+    if (!cachedAudioBuffer) throw Error("cachedAudioBuffer is not set");
 
     if (elements.playBtn) elements.playBtn.disabled = true;
     if (elements.pauseBtn) elements.pauseBtn.disabled = false;
@@ -380,25 +391,12 @@ async function playAudio() {
         return;
     }
 
-    if (sourceNode) {
-        try {
-            sourceNode.stop();
-            sourceNode.disconnect();
-        } catch (e) { }
-    }
-
-    setupAudioNodes();
+    setupAudioNodesAgain();
 
     startTime = audioContext.currentTime - currentPlaybackTime;
     sourceNode.start(0, currentPlaybackTime);
+
     isPlaying = true;
-
-    // if (elements.playBtn) elements.playBtn.disabled = true;
-    // if (elements.pauseBtn) elements.pauseBtn.disabled = false;
-    // if (elements.rewindBtn) elements.rewindBtn.disabled = false;
-    // if (elements.seekSlider) elements.seekSlider.disabled = false;
-    // if (elements.playhead) elements.playhead.style.display = 'block';
-
     drawRealTimeVisualization();
 }
 
@@ -761,7 +759,7 @@ export function showViz(
     }
 
     const useDialog = !!!eltParent;
-    console.log({ useDialog });
+    // console.log({ useDialog });
     const btnClose = mkElt("button", { class: "x-close" }, "✖")
     // document.body.appendChild(divOuterContainer);
     if (!useDialog) {
@@ -880,50 +878,10 @@ export function showViz(
         elements.infoDiv.textContent = '💡 Ready! Load an audio file. Click on the waveform to seek.';
     }
 
-    console.log('Audio Visualizer initialized successfully');
+    // console.log('Audio Visualizer initialized successfully');
 }
 
-/*
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
-}
-*/
 
-
-/*
-// From Claude AI:
-async function captureFirstNSeconds(audioContext, sourceNode, nSeconds) {
-    // 1. Create an offline context with the same sample rate
-    const offlineCtx = new OfflineAudioContext(
-        2,                                      // channels (stereo)
-        audioContext.sampleRate * nSeconds,     // total frames to render
-        audioContext.sampleRate
-    );
-
-    // 2. Re-create / clone your source in the offline context.
-    //    Here we assume mySound is an AudioBufferSourceNode:
-    const offlineSource = offlineCtx.createBufferSource();
-    offlineSource.buffer = sourceNode.buffer;   // re-use the same AudioBuffer
-    offlineSource.connect(offlineCtx.destination);
-    offlineSource.start(0);
-
-    // 3. Render — returns an AudioBuffer containing exactly nSeconds of audio
-    const renderedBuffer = await offlineCtx.startRendering();
-    return renderedBuffer;   // this IS the buffer with the first nSeconds
-}
-async function playFirstNSeconds(audioContext, mySound, nSeconds) {
-    const buffer = await captureFirstNSeconds(audioContext, mySound, nSeconds);
-
-    // Play the captured buffer via a new source node
-    const player = audioContext.createBufferSource();
-    player.buffer = buffer;
-    player.connect(audioContext.destination);
-    player.start();
-}
-*/
 
 
 

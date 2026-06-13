@@ -341,7 +341,7 @@ export async function dialogSound() {
             const prom = import(urlInternal);
             proms.push(prom);
             const mod = await prom;
-            console.warn({ grpName });
+            // console.warn({ grpName });
             const aGrp = mkElt("a", {
                 href: urlExternal,
                 target: "_blank"
