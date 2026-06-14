@@ -189,8 +189,8 @@ function drawStaticWaveform() {
     const channelData = cachedAudioBuffer.getChannelData(0);
     const step = Math.ceil(channelData.length / elements.canvasBg.width);
 
-    // elements.ctxBg.clearRect(0, 0, elements.canvasBg.width, elements.canvasBg.height);
-    elements.ctxBg.reset();
+    elements.ctxBg.clearRect(0, 0, elements.canvasBg.width, elements.canvasBg.height);
+    // elements.ctxBg.reset();
     elements.ctxBg.beginPath();
     elements.ctxBg.strokeStyle = '#4CAF50';
     elements.ctxBg.lineWidth = 2;
@@ -591,7 +591,12 @@ async function loadAudioFile(file) {
         }
     }
 }
-function loadAudioUI(file) {
+
+/**
+ * 
+ * @param {string} file 
+ */
+function loadAudioUI(file, soundName) {
     if (elements.sampleRateSpan) {
         elements.sampleRateSpan.textContent = `${cachedAudioBuffer.sampleRate} Hz`;
     }
@@ -614,7 +619,18 @@ function loadAudioUI(file) {
     if (elements.playhead) elements.playhead.style.display = 'block';
 
     if (elements.infoDiv) {
-        elements.infoDiv.textContent = `✅ Loaded: ${file.name} | Duration: ${formatTime(cachedAudioBuffer.duration)} | Sample Rate: ${cachedAudioBuffer.sampleRate} Hz | Click on waveform to seek`;
+        // elements.infoDiv.textContent = `✅ Loaded: ${file.name} | Duration: ${formatTime(cachedAudioBuffer.duration)} | Sample Rate: ${cachedAudioBuffer.sampleRate} Hz | Click on waveform to seek`;
+        // elements.infoDiv.textContent = `✅ Loaded: ${soundName} | Duration: ${formatTime(cachedAudioBuffer.duration)} | Sample Rate: ${cachedAudioBuffer.sampleRate} Hz | Click on waveform to seek`;
+        elements.infoDiv.textContent = "";
+        elements.infoDiv.append(
+            `✅ Loaded: ${soundName} `,
+            document.createElement("br"),
+            `Duration: ${formatTime(cachedAudioBuffer.duration)} sec`,
+            document.createElement("br"),
+            `Sample Rate: ${cachedAudioBuffer.sampleRate} Hz `,
+            document.createElement("br"),
+            "Click on waveform to seek",
+        )
     }
 
 }
@@ -744,7 +760,7 @@ export function showViz(
             <span>📊 Sample Rate: <strong id="sampleRate">-</strong></span>
         </div>
 
-        <div class="info" id="info" style="display:none;">
+        <div class="info" id="info" NOstyle="display:none;">
             💡 Ready to load audio file. Click on the waveform to seek to any position.
         </div>
     </div>
@@ -779,7 +795,7 @@ export function showViz(
             updateFontSizeFactorsForOurCanvas();
             syncCanvasSize();
             await loadAudioFromUrl(soundSource);
-            loadAudioUI(soundSource);
+            loadAudioUI(soundSource, soundName);
         }, 500);
         eltDialog.showModal();
     }
@@ -879,7 +895,7 @@ export function showViz(
 
     if (elements.infoDiv) {
         // debugger;
-        elements.infoDiv.textContent = '💡 Ready! Load an audio file. Click on the waveform to seek.';
+        elements.infoDiv.textContent = '💡 Ready! Load an audio file.';
     }
 
     // console.log('Audio Visualizer initialized successfully');
