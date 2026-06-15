@@ -34,6 +34,7 @@ class ObservedElement extends HTMLElement {
         this.appendChild(this.innerElement);
 
         // 3. Monitor sizing using native browser mechanics
+        /*
         this.observer = new ResizeObserver((entries) => {
             for (let entry of entries) {
                 // 4. Emit the event up through the DOM tree
@@ -47,6 +48,34 @@ class ObservedElement extends HTMLElement {
                     bubbles: true,   // Allows parent containers to listen to it
                     composed: true   // Bypasses Shadow DOM boundaries safely
                 }));
+            }
+        });
+        */
+        let isTicking = false;
+        this.observer = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                // Prevent layout microtask cascades from flooding the thread
+                if (isTicking) return;
+                isTicking = true;
+
+                // 2. The component schedules the repaint frame internally
+                requestAnimationFrame(() => {
+
+                    // 3. The component fires the event safely INSIDE the correct frame
+                    this.dispatchEvent(new CustomEvent('element-resize', {
+                        detail: {
+                            entry: entry,
+                            width: entry.contentRect.width,
+                            height: entry.contentRect.height,
+                            target: this.innerElement
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+
+                    // Unlock after the frame event cycle finishes executing
+                    isTicking = false;
+                });
             }
         });
 
@@ -682,7 +711,7 @@ function loadAudioUI(file, soundName) {
             document.createElement("br"),
             `Sample Rate: ${cachedAudioBuffer.sampleRate} Hz `,
             document.createElement("br"),
-            "Click on waveform to seek",
+            // "Click on waveform to seek",
         )
     }
 
@@ -723,6 +752,7 @@ function handleSeekInput(e) {
  * Resize canvas
  */
 /** @type {number|undefined} */
+/*
 let timeoutResize = undefined;
 async function resizeCanvases() {
     return new Promise((resolve) => {
@@ -739,7 +769,9 @@ async function resizeCanvases() {
         });
     })
 }
+*/
 function resizeCanvasesActual() {
+    // debugger;
     console.log("%cresizeCanvases 1", "color:green;");
     if (!elements.canvasBg || !elements.ctxBg) return;
     // console.log("resizeCanvases 2");
@@ -805,6 +837,7 @@ export async function showViz(
     divOuterContainer.addEventListener("element-resize", evt => {
         const { width, height, target } = evt.detail;
         console.log("%celement-resize", "font-size:20px;color:red;", { target, width, height }, evt.detail);
+        resizeCanvasesActual();
     });
     divOuterContainer.innerHTML = `
     <div class="viz-vol">
@@ -977,7 +1010,7 @@ export async function showViz(
     // window.addEventListener("resize", resizeCanvases);
 
     // Initialize canvas
-    await resizeCanvases();
+    // await resizeCanvases();
 
     // Initialize time axis
     // drawTimeMarkers();
