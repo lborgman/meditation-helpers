@@ -10,7 +10,11 @@ export function updateFontSizeFactors(eltCanvas) {
 
 // let canvasScaleFactorPx = 1;
 // let canvasScaleFactorRem = 1;
-const wmScaleFactors = new WeakMap();
+// const wmScaleFactors = new WeakMap();
+let wmScaleFactors = new WeakMap;
+export function deleteOldScaleFactors() {
+    // wmScaleFactors = new WeakMap();
+}
 
 /**
  * Use CSS font size in px/rem size:
@@ -23,7 +27,8 @@ const wmScaleFactors = new WeakMap();
 export function cssFont(fontString, eltCanvas) {
     if (!wmScaleFactors.has(eltCanvas)) {
         const msg = "cssFont: updateFontSizeFactors(eltCanvas) has not been called";
-        console.error(msg, { eltCanvas });
+        const hasIt = wmScaleFactors.has(eltCanvas);
+        console.error(msg, { hasIt, eltCanvas, wmScaleFactors });
         debugger;
         throw Error(msg);
     }
@@ -56,6 +61,7 @@ export function updateFontSizeFactors(eltCanvas) {
     // FIX-ME: It looks like we do not have to call this after resize?
     // console.log("updateFontSizeFactors", eltCanvas);
     // const canvas = elements.canvas;
+    wmScaleFactors.delete(eltCanvas);
     const rect = eltCanvas.getBoundingClientRect();
 
     if (rect.width > 0) {

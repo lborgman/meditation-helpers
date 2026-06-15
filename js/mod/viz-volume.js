@@ -12,6 +12,59 @@ const importFc4i = window["importFc4i"];
 const modCanvasFontSize = await importFc4i("canvas-fontsize");
 // console.log({ modCanvasFontSize });
 
+
+// From google search:
+class ObservedElement extends HTMLElement {
+    connectedCallback() {
+        const targetTag = this.getAttribute('as') || 'div';
+        this.innerElement = document.createElement(targetTag);
+        this.innerElement.style.height = "100%";
+        this.innerElement.style.width = "100%";
+
+        // 1. Move any initial child nodes or content into the actual target element
+        while (this.firstChild) {
+            this.innerElement.appendChild(this.firstChild);
+        }
+
+        // 2. Mirror structural block vs inline-block visual layouts
+        this.style.display = ['button', 'span', 'input', 'a'].includes(targetTag)
+            ? 'inline-block'
+            : 'block';
+
+        this.appendChild(this.innerElement);
+
+        // 3. Monitor sizing using native browser mechanics
+        this.observer = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                // 4. Emit the event up through the DOM tree
+                this.dispatchEvent(new CustomEvent('element-resize', {
+                    detail: {
+                        entry: entry,
+                        width: entry.contentRect.width,
+                        height: entry.contentRect.height,
+                        target: this.innerElement
+                    },
+                    bubbles: true,   // Allows parent containers to listen to it
+                    composed: true   // Bypasses Shadow DOM boundaries safely
+                }));
+            }
+        });
+
+        this.observer.observe(this.innerElement);
+    }
+
+    disconnectedCallback() {
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+    }
+}
+
+customElements.define('observed-element', ObservedElement);
+
+
+
+
 loadMyCss();
 function loadMyCss() {
     // Inside your ES module (e.g., myModule.js)
@@ -669,15 +722,45 @@ function handleSeekInput(e) {
 /**
  * Resize canvas
  */
-function resizeCanvas() {
+/** @type {number|undefined} */
+let timeoutResize = undefined;
+async function resizeCanvases() {
+    return new Promise((resolve) => {
+        if (timeoutResize) {
+            window.cancelAnimationFrame(timeoutResize);
+        }
+        // Setup the new requestAnimationFrame()
+        timeoutResize = window.requestAnimationFrame(function () {
+            // Run our scroll functions
+            // console.log('debounced');
+            timeoutResize = undefined;
+            resizeCanvasesActual();
+            resolve(true);
+        });
+    })
+}
+function resizeCanvasesActual() {
+    console.log("%cresizeCanvases 1", "color:green;");
     if (!elements.canvasBg || !elements.ctxBg) return;
+    // console.log("resizeCanvases 2");
 
-    const w = elements.canvasBg.clientWidth;
-    if (w == 0) return;
+    const container = document.getElementById("canvasContainer");
+    const rect = container?.getBoundingClientRect();
+    // const w = elements.canvasBg.clientWidth;
+    const w = rect.width;
+    const h = rect.height;
+    if (isNaN(w) || isNaN(h)) {
+        debugger;
+    }
+    // console.log("resizeCanvases 3");
     // elements.canvasBg.width = elements.canvasBg.clientWidth;
     elements.canvasBg.width = w;
-    elements.canvasBg.height = elements.canvasBg.clientHeight;
+    // elements.canvasBg.height = elements.canvasBg.clientHeight;
+    elements.canvasBg.height = h;
+    console.log("resizeCanvases 4");
+    // return;
     if (cachedAudioBuffer) {
+        console.log("%cresizeCanvases 5", "color:red;");
         drawStaticWaveform();
         drawNoPlayheadOnCanvas();
         drawTimeMarkers();
@@ -687,7 +770,7 @@ function resizeCanvas() {
 /**
  * Initialize DOM elements and event listeners
  */
-export function showViz(
+export async function showViz(
     {
         eltParent = null,
         sound = null,
@@ -719,6 +802,10 @@ export function showViz(
 
     // Setup DOM elements
     const divOuterContainer = document.createElement("div");
+    divOuterContainer.addEventListener("element-resize", evt => {
+        const { width, height, target } = evt.detail;
+        console.log("%celement-resize", "font-size:20px;color:red;", { target, width, height }, evt.detail);
+    });
     divOuterContainer.innerHTML = `
     <div class="viz-vol">
         <!--
@@ -745,10 +832,12 @@ export function showViz(
 
         <div class="visualization-container">
 
-            <div id="canvasContainer">
-            <canvas id="waveformCanvas"></canvas>
-            <canvas id="playheadCanvas"></canvas>
-            </div>
+            <!-- <div id="canvasContainer"> -->
+            <observed-element as="div" id="canvasContainer">
+                <canvas id="waveformCanvas"></canvas>
+                <canvas id="playheadCanvas"></canvas>
+            </observed-element>
+            <!-- </div> -->
 
             <div class="time-axis" id="timeAxis"></div>
             <div class="playhead" id="playhead" style="display: none;"></div>
@@ -885,10 +974,10 @@ export function showViz(
     }
 
     // Handle window resize
-    window.addEventListener('resize', resizeCanvas);
+    // window.addEventListener("resize", resizeCanvases);
 
     // Initialize canvas
-    resizeCanvas();
+    await resizeCanvases();
 
     // Initialize time axis
     // drawTimeMarkers();
@@ -907,6 +996,7 @@ export function showViz(
 
 
 function updateFontSizeFactorsForOurCanvas() {
+    // modCanvasFontSize.deleteOldScaleFactors();
     modCanvasFontSize.updateFontSizeFactors(elements.canvasBg);
 }
 /**
