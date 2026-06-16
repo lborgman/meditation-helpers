@@ -268,7 +268,7 @@ const nextColorWave = (w) => {
  */
 function drawStaticWaveform(canvasWidth) {
     canvasWidth = canvasWidth || elements.canvasBg.width;
-    console.warn("%cdrawStaticWaveform", "color:lightblue;", { canvasWidth });
+    // console.warn("%cdrawStaticWaveform", "color:lightblue;", { canvasWidth });
     // return;
     if (!cachedAudioBuffer || !elements.ctxBg || !elements.canvasBg) return;
 
@@ -279,7 +279,7 @@ function drawStaticWaveform(canvasWidth) {
     window.ctxBg = elements.ctxBg;
     // elements.ctxBg.clearRect(0, 0, elements.canvasBg.width, elements.canvasBg.height);
     elements.ctxBg.reset();
-    console.log("%cdrawStaticWaveform", "color:lightblue;", 2, { canvasWidth, step, cdLen });
+    // console.log("%cdrawStaticWaveform", "color:lightblue;", 2, { canvasWidth, step, cdLen });
     elements.ctxBg.beginPath();
     // elements.ctxBg.strokeStyle = '#4CAF50';
     elements.ctxBg.strokeStyle = nextColorWave(canvasWidth);
@@ -310,7 +310,7 @@ function drawStaticWaveform(canvasWidth) {
         elements.ctxBg.lineTo(x, y2);
         elements.ctxBg.stroke();
     }
-    console.log("%cdrawStaticWaveform", "color:lightblue;", 3);
+    // console.log("%cdrawStaticWaveform", "color:lightblue;", 3);
 
     // Store the static waveform as image data
     // No need to store it, it lives in canvasBg
@@ -743,7 +743,7 @@ async function resizeCanvases() {
 */
 function resizeCanvasesActual(w, h) {
     // debugger;
-    console.log("%cresizeCanvases 1", "color:green;", w);
+    // console.log("%cresizeCanvases 1", "color:green;", w);
     if (!elements.canvasBg || !elements.ctxBg) return;
     // console.log("resizeCanvases 2");
 
@@ -762,10 +762,10 @@ function resizeCanvasesActual(w, h) {
     // elements.canvasBg.height = elements.canvasBg.clientHeight;
     elements.canvasBg.height = h;
     elements.canvasBg.style.height = `${h}px`;
-    console.log("resizeCanvases 4");
+    // console.log("resizeCanvases 4");
     // return;
     if (cachedAudioBuffer) {
-        console.log("%cresizeCanvases 5", "color:red;");
+        // console.log("%cresizeCanvases 5", "color:red;");
         drawStaticWaveform(w);
         // drawNoPlayheadOnCanvas();
         drawTimeMarkers(w);
