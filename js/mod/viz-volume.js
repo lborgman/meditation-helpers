@@ -34,24 +34,8 @@ class ObservedElement extends HTMLElement {
         this.appendChild(this.innerElement);
 
         // 3. Monitor sizing using native browser mechanics
-        /*
-        this.observer = new ResizeObserver((entries) => {
-            for (let entry of entries) {
-                // 4. Emit the event up through the DOM tree
-                this.dispatchEvent(new CustomEvent('element-resize', {
-                    detail: {
-                        entry: entry,
-                        width: entry.contentRect.width,
-                        height: entry.contentRect.height,
-                        target: this.innerElement
-                    },
-                    bubbles: true,   // Allows parent containers to listen to it
-                    composed: true   // Bypasses Shadow DOM boundaries safely
-                }));
-            }
-        });
-        */
         let isTicking = false;
+        let renderFrameId = null;
         this.observer = new ResizeObserver((entries) => {
             for (let entry of entries) {
                 // Prevent layout microtask cascades from flooding the thread
@@ -59,7 +43,8 @@ class ObservedElement extends HTMLElement {
                 isTicking = true;
 
                 // 2. The component schedules the repaint frame internally
-                requestAnimationFrame(() => {
+                if (renderFrameId) { cancelAnimationFrame(renderFrameId); }
+                renderFrameId = requestAnimationFrame(() => {
 
                     // 3. The component fires the event safely INSIDE the correct frame
                     this.dispatchEvent(new CustomEvent('element-resize', {
@@ -262,22 +247,46 @@ function syncCanvasSize() {
     // Note: Resizing a canvas automatically wipes its contents.
     // Re-draw your elements here if this runs after initialization!
 }
+
+
+let colorWave = 0;
+const colorWaves = [
+    'red',
+    '#4CAF50',
+    'yellow',
+];
+const nextColorWave = (w) => {
+    // debugger;
+    const clrIdx = colorWave++ % colorWaves.length;
+    const clr = colorWaves[clrIdx];
+    console.log("%cnextColorWave", `color:${clr}`, { w });
+    return clr;
+}
+
 /**
  * Draw static waveform (the original picture of the sound)
  */
-function drawStaticWaveform() {
+function drawStaticWaveform(canvasWidth) {
+    canvasWidth = canvasWidth || elements.canvasBg.width;
+    console.warn("%cdrawStaticWaveform", "color:lightblue;", { canvasWidth });
+    // return;
     if (!cachedAudioBuffer || !elements.ctxBg || !elements.canvasBg) return;
 
     const channelData = cachedAudioBuffer.getChannelData(0);
-    const step = Math.ceil(channelData.length / elements.canvasBg.width);
+    const cdLen = channelData.length;
+    const step = Math.ceil(cdLen / canvasWidth);
 
-    elements.ctxBg.clearRect(0, 0, elements.canvasBg.width, elements.canvasBg.height);
-    // elements.ctxBg.reset();
+    window.ctxBg = elements.ctxBg;
+    // elements.ctxBg.clearRect(0, 0, elements.canvasBg.width, elements.canvasBg.height);
+    elements.ctxBg.reset();
+    console.log("%cdrawStaticWaveform", "color:lightblue;", 2, { canvasWidth, step, cdLen });
     elements.ctxBg.beginPath();
-    elements.ctxBg.strokeStyle = '#4CAF50';
+    // elements.ctxBg.strokeStyle = '#4CAF50';
+    elements.ctxBg.strokeStyle = nextColorWave(canvasWidth);
     elements.ctxBg.lineWidth = 2;
 
-    for (let i = 0; i < elements.canvasBg.width; i++) {
+    // for (let i = 0; i < elements.canvasBg.width; i++) {
+    for (let i = 0; i < canvasWidth; i++) {
         let min = 1.0;
         let max = -1.0;
 
@@ -292,12 +301,16 @@ function drawStaticWaveform() {
 
         const y1 = ((min + 1) / 2) * elements.canvasBg.height;
         const y2 = ((max + 1) / 2) * elements.canvasBg.height;
+        // const playheadX = (currentPlaybackTime / cachedAudioBuffer.duration) * elements.canvasBg.width;
+        // const x = (i / channelData.length) * elements.canvasBg.width * step;
+        const x = (i / channelData.length) * canvasWidth * step;
 
         elements.ctxBg.beginPath();
-        elements.ctxBg.moveTo(i, y1);
-        elements.ctxBg.lineTo(i, y2);
+        elements.ctxBg.moveTo(x, y1);
+        elements.ctxBg.lineTo(x, y2);
         elements.ctxBg.stroke();
     }
+    console.log("%cdrawStaticWaveform", "color:lightblue;", 3);
 
     // Store the static waveform as image data
     // No need to store it, it lives in canvasBg
@@ -372,56 +385,14 @@ function drawPlayheadX(playheadX) {
  */
 function drawRealTimeVisualization() {
     if (!isPlaying) return;
-    // if (!analyserNode || !isPlaying || !elements.ctxBg || !elements.canvasBg) return;
-    // if (!elements.ctxBg || !elements.canvasBg) return;
-
-    // Draw static waveform + amplitude overlay + playhead
-    // if (waveformImageData) { elements.ctxBg.putImageData(waveformImageData, 0, 0); }
-
-    // Draw real-time amplitude overlay
-    // const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
-    // analyserNode.getByteTimeDomainData(dataArray);
-
-    /*
-    let showDisturbingWave = false;
-    if (showDisturbingWave) {
-        elements.ctxBg.beginPath();
-        elements.ctxBg.strokeStyle = '#ffaa44';
-        elements.ctxBg.strokeStyle = 'red';
-        elements.ctxBg.lineWidth = 2;
-        // elements.ctxBg.globalAlpha = 0.8;
-
-        const sliceWidth = elements.canvasBg.width / dataArray.length;
-        let x = 0;
-
-        for (let i = 0; i < dataArray.length; i++) {
-            const v = dataArray[i] / 128.0 - 1.0;
-            const y = (v * 0.5 + 0.5) * elements.canvasBg.height;
-
-            if (i === 0) {
-                elements.ctxBg.moveTo(x, y);
-            } else {
-                elements.ctxBg.lineTo(x, y);
-            }
-
-            x += sliceWidth;
-        }
-
-        elements.ctxBg.stroke();
-    }
-    */
-
-    // elements.ctxBg.globalAlpha = 1.0;
-
     // Update current time
-    if (sourceNode && audioContext && cachedAudioBuffer) {
-        currentPlaybackTime = audioContext.currentTime - startTime;
-        if (currentPlaybackTime >= 0 && currentPlaybackTime <= cachedAudioBuffer.duration) {
-            updateTimeDisplay(currentPlaybackTime);
-            drawPlayheadTime(currentPlaybackTime);
-        }
+    // if (sourceNode && audioContext && cachedAudioBuffer) {
+    currentPlaybackTime = audioContext.currentTime - startTime;
+    if (currentPlaybackTime >= 0 && currentPlaybackTime <= cachedAudioBuffer.duration) {
+        updateTimeDisplay(currentPlaybackTime);
+        drawPlayheadTime(currentPlaybackTime);
     }
-
+    // }
     animationId = requestAnimationFrame(drawRealTimeVisualization);
 }
 
@@ -770,17 +741,17 @@ async function resizeCanvases() {
     })
 }
 */
-function resizeCanvasesActual() {
+function resizeCanvasesActual(w, h) {
     // debugger;
-    console.log("%cresizeCanvases 1", "color:green;");
+    console.log("%cresizeCanvases 1", "color:green;", w);
     if (!elements.canvasBg || !elements.ctxBg) return;
     // console.log("resizeCanvases 2");
 
     const container = document.getElementById("canvasContainer");
     const rect = container?.getBoundingClientRect();
     // const w = elements.canvasBg.clientWidth;
-    const w = rect.width;
-    const h = rect.height;
+    // const w = rect.width;
+    // const h = rect.height;
     if (isNaN(w) || isNaN(h)) {
         debugger;
     }
@@ -793,9 +764,9 @@ function resizeCanvasesActual() {
     // return;
     if (cachedAudioBuffer) {
         console.log("%cresizeCanvases 5", "color:red;");
-        drawStaticWaveform();
-        drawNoPlayheadOnCanvas();
-        drawTimeMarkers();
+        drawStaticWaveform(w);
+        // drawNoPlayheadOnCanvas();
+        drawTimeMarkers(w);
     }
 }
 
@@ -836,8 +807,10 @@ export async function showViz(
     const divOuterContainer = document.createElement("div");
     divOuterContainer.addEventListener("element-resize", evt => {
         const { width, height, target } = evt.detail;
-        console.log("%celement-resize", "font-size:20px;color:red;", { target, width, height }, evt.detail);
-        resizeCanvasesActual();
+        // console.log("%celement-resize", "font-size:20px;color:red;", { target, width, height }, evt.detail);
+        requestAnimationFrame(() => {
+            resizeCanvasesActual(width, height);
+        })
     });
     divOuterContainer.innerHTML = `
     <div class="viz-vol">
