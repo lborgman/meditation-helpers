@@ -758,8 +758,10 @@ function resizeCanvasesActual(w, h) {
     // console.log("resizeCanvases 3");
     // elements.canvasBg.width = elements.canvasBg.clientWidth;
     elements.canvasBg.width = w;
+    elements.canvasBg.style.width = `${w}px`;
     // elements.canvasBg.height = elements.canvasBg.clientHeight;
     elements.canvasBg.height = h;
+    elements.canvasBg.style.height = `${h}px`;
     console.log("resizeCanvases 4");
     // return;
     if (cachedAudioBuffer) {
