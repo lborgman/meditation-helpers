@@ -102,14 +102,22 @@ function loadMyCss() {
 
 // Audio state
 let audioContext = null;
+
+let startingAudioCurrentTime = 0;
+let startingAudioOffset = 0;
+function getLiveTrackPosition() {
+    if (!isPlaying) return startingAudioOffset;
+    return startingAudioOffset + (audioContext.currentTime - startingAudioCurrentTime);
+}
+
 let cachedAudioBuffer = null;
 let sourceNode = null;
 let analyserNode = null;
 let gainNode = null;
 /** @type {number | undefined} */ let animationId;
 let isPlaying = false;
-let currentPlaybackTime = 0;
-let startTime = 0;
+// let currentPlaybackTime = 0;
+// let startTime = 0;
 // let waveformImageData = null;
 
 // DOM Elements
@@ -121,7 +129,7 @@ const elements = {};
  * @param {number|null} [distMarkers=null]
  */
 function formatTime(seconds, distMarkers = null) {
-    if (isNaN(seconds) || seconds === undefined) return '0:00.00';
+    if (Number.isNaN(seconds) || seconds === undefined) return '0:00.00';
     const mins = Math.floor(seconds / 60);
     let decimals = 1;
     let padLen = 4;
@@ -317,27 +325,6 @@ function drawStaticWaveform(canvasWidth) {
     // waveformImageData = elements.ctxBg.getImageData(0, 0, elements.canvasBg.width, elements.canvasBg.height);
 }
 
-/**
- * Draw playhead on canvas
- */
-function drawNoPlayheadOnCanvas() {
-    return;
-    if (!cachedAudioBuffer || !elements.ctxBg || !elements.canvasBg) return;
-
-    const x = (currentPlaybackTime / cachedAudioBuffer.duration) * elements.canvasBg.width;
-
-    elements.ctxBg.beginPath();
-    elements.ctxBg.strokeStyle = '#ff6b6b';
-    elements.ctxBg.lineWidth = 3;
-    elements.ctxBg.moveTo(x, 0);
-    elements.ctxBg.lineTo(x, elements.canvasBg.height);
-    elements.ctxBg.stroke();
-
-    // elements.ctxBg.font = 'bold 12px monospace';
-    elements.ctxBg.font = cssFont('bold 2rem monospace');
-    elements.ctxBg.fillStyle = '#ff6b6b';
-    elements.ctxBg.fillText(formatTime(currentPlaybackTime), x + 5, 20);
-}
 
 /**
  * Full redraw for non-playing state
@@ -348,11 +335,11 @@ function redrawStaticWithPosition() {
     // drawTimeMarkers();
 }
 let metricsPlayhead;
-function drawPlayheadTime(currentPlaybackTime) {
-    const playheadX = (currentPlaybackTime / cachedAudioBuffer.duration) * elements.canvasBg.width;
-    drawPlayheadX(playheadX);
+function drawPlayheadTime(atTime) {
+    const playheadX = (atTime / cachedAudioBuffer.duration) * elements.canvasBg.width;
+    drawPlayheadX(playheadX, atTime);
 }
-function drawPlayheadX(playheadX) {
+function drawPlayheadX(playheadX, atTime) {
     // const color = '#ff6b6b';
     // const color = "red";
     const color = "yellow";
@@ -369,7 +356,8 @@ function drawPlayheadX(playheadX) {
 
     ctxFg.font = cssFont('bold 1.2rem "Courier New", monospace');
     ctxFg.fillStyle = color;
-    const text = formatTime(currentPlaybackTime);
+    // const text = formatTime(currentPlaybackTime);
+    const text = formatTime(atTime);
     if (!metricsPlayhead) {
         metricsPlayhead = ctxFg.measureText(text)
     }
@@ -383,16 +371,25 @@ function drawPlayheadX(playheadX) {
 /**
  * Real-time visualization (keeps static waveform + adds amplitude overlay)
  */
+function OLDstartRealTimeVisualization(startAt) {
+    console.log("start_realTimeVisualization:", startAt);
+    if (Number.isNaN(startAt)) {
+        debugger;
+    }
+    drawRealTimeVisualization(startAt);
+}
 function drawRealTimeVisualization() {
-    if (!isPlaying) return;
+    if (!isPlaying) {
+        // debugger;
+        console.log("draw_realTimeVisualization !isPlaying");
+        return;
+    }
     // Update current time
-    // if (sourceNode && audioContext && cachedAudioBuffer) {
-    currentPlaybackTime = audioContext.currentTime - startTime;
+    const currentPlaybackTime = getLiveTrackPosition();
     if (currentPlaybackTime >= 0 && currentPlaybackTime <= cachedAudioBuffer.duration) {
         updateTimeDisplay(currentPlaybackTime);
         drawPlayheadTime(currentPlaybackTime);
     }
-    // }
     animationId = requestAnimationFrame(drawRealTimeVisualization);
 }
 
@@ -426,6 +423,10 @@ function setupAudioNodesAgain() {
     sourceNode.onended = () => {
         handlePlaybackEnded();
     };
+    sourceNode.addEventListener("ended", () => {
+        console.log(`Audio event "ended"`);
+        handlePlaybackEnded();
+    });
 }
 
 /**
@@ -433,24 +434,20 @@ function setupAudioNodesAgain() {
  */
 async function playAudio() {
     if (!cachedAudioBuffer) throw Error("cachedAudioBuffer is not set");
+    console.log("playAudio, isPlaying = true");
     isPlaying = true;
 
     if (elements.playBtn) elements.playBtn.disabled = true;
     if (elements.pauseBtn) elements.pauseBtn.disabled = false;
     if (elements.rewindBtn) elements.rewindBtn.disabled = false;
 
-    // if (audioContext && audioContext.state === 'suspended') {
-    if (audioContext?.state === 'suspended') {
-        await audioContext.resume();
-        drawRealTimeVisualization();
-        return;
-    }
-
     setupAudioNodesAgain();
 
-    startTime = audioContext.currentTime - currentPlaybackTime;
-    sourceNode.start(0, currentPlaybackTime);
+    startingAudioCurrentTime = audioContext.currentTime;
+    startingAudioOffset = seekedToPos;
+    sourceNode.start(0, seekedToPos);
 
+    // startRealTimeVisualization(0);
     drawRealTimeVisualization();
 }
 
@@ -460,32 +457,17 @@ async function playAudio() {
 function pauseAudio() {
     if (elements.playBtn) elements.playBtn.disabled = false;
     if (elements.pauseBtn) elements.pauseBtn.disabled = true;
-    // if (!sourceNode || !isPlaying || !audioContext) return;
+
+    const sec = getLiveTrackPosition();
+    isPlaying = false;
     cancelAnimationFrame(animationId);
-    audioContext.suspend();
-    isPlaying = false;
-    return;
 
-    currentPlaybackTime = audioContext.currentTime - startTime;
-    sourceNode.stop();
-    sourceNode.disconnect();
+    // FIX-ME: Don't use suspend!
+    stopAudio();
+    // seekTo(sec);
+    seekedToPos = sec;
 
-    isPlaying = false;
-
-    if (animationId != undefined) {
-        cancelAnimationFrame(animationId);
-    }
-
-    redrawStaticWithPosition();
-
-    if (elements.playBtn) elements.playBtn.disabled = false;
-    if (elements.pauseBtn) elements.pauseBtn.disabled = true;
-
-    updateTimeDisplay(currentPlaybackTime);
-    seekTo(currentPlaybackTime);
-    if (elements.infoDiv) {
-        elements.infoDiv.textContent = `⏸ Paused at ${formatTime(currentPlaybackTime)}`;
-    }
+    console.log("pauseAudio, isPlaying = false", seekedToPos);
 }
 
 function rewindAudio() {
@@ -514,84 +496,43 @@ function stopAudio() {
             analyserNode = null;
         } catch (e) { }
     }
+    console.log("stopAudio, isPlaying = false");
     isPlaying = false;
-    return;
-
-    // currentPlaybackTime = 0;
-    seekTo(0);
-
-    cancelAnimationFrame(animationId);
-    // if (animationId) { cancelAnimationFrame(animationId); }
-
-    redrawStaticWithPosition();
-
-    if (elements.playBtn) elements.playBtn.disabled = false;
-    if (elements.pauseBtn) elements.pauseBtn.disabled = true;
-    if (elements.rewindBtn) elements.rewindBtn.disabled = false;
-    if (elements.seekSlider) elements.seekSlider.value = 0;
-    if (elements.playhead) elements.playhead.style.left = '0px';
-
-    updateTimeDisplay(0);
-    if (elements.infoDiv) {
-        elements.infoDiv.textContent = `⏹ Stopped`;
-    }
 }
 
 /**
  * Handle playback completion
  */
 function handlePlaybackEnded() {
+    console.log("handlePlaybackEnded, isPlaying = false");
     isPlaying = false;
-    // currentPlaybackTime = 0;
     cancelAnimationFrame(animationId);
-    // redrawStaticWithPosition();
     if (elements.playBtn) elements.playBtn.disabled = false;
     if (elements.pauseBtn) elements.pauseBtn.disabled = true;
-    // if (elements.seekSlider) elements.seekSlider.value = 0;
-    // if (elements.playhead) elements.playhead.style.left = '0px';
-    updateTimeDisplay(0);
     if (elements.infoDiv) {
         elements.infoDiv.textContent = `✅ Playback completed`;
     }
 }
 
-let seekedToPos;
+let seekedToPos = 0;
 /**
  * Seek to position
  * @param {number} secPosition - position in seconds
  */
 function seekTo(secPosition) {
-    cancelAnimationFrame(animationId);
-    // pauseAudio();
-    stopAudio();
     seekedToPos = Math.max(0, Math.min(secPosition, cachedAudioBuffer.duration));
+    console.log("seekTo:", { seekedToPos });
+    ///////// Audio
+    stopAudio();
+    ///////// Screen
+    cancelAnimationFrame(animationId);
     setTimeout(() =>
         requestAnimationFrame(() => {
-            console.log("seekTo...", seekedToPos);
+            console.log("seekTo setTimeout:", seekedToPos);
             drawPlayheadTime(seekedToPos);
             updateTimeDisplay(seekedToPos);
         }), 100);
     return;
-
-
-    // if (!audioBuffer) return;
-    // console.log("seekTo:", position);
-    isPlaying = false;
-
-    const wasPlaying = isPlaying;
-
-    // if (wasPlaying) { pauseAudio(); }
-    pauseAudio();
-    // currentTime
-
-    currentPlaybackTime = Math.max(0, Math.min(secPosition, cachedAudioBuffer.duration));
-    console.log("seekTo:", currentPlaybackTime);
-    updateTimeDisplay(currentPlaybackTime);
-    drawPlayheadTime(currentPlaybackTime);
-
-    redrawStaticWithPosition();
-
-    // if (wasPlaying) { playAudio(); }
 }
 
 /**
@@ -635,7 +576,14 @@ async function loadAudioFile(file) {
     try {
         const arrayBuffer = await file.arrayBuffer();
         // if (!audioContext) { audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
-        audioContext = audioContext || new window.AudioContext();
+        // audioContext = audioContext || new window.AudioContext();
+        if (!audioContext) {
+            audioContext = new window.AudioContext();
+            const audioCtx = new AudioContext();
+            audioCtx.addEventListener('statechange', () => {
+                console.log(`AudioContext state shifted to: ${audioCtx.state}`);
+            });
+        }
         cachedAudioBuffer = await audioContext.decodeAudioData(arrayBuffer);
     } catch (error) {
         console.error('Error loading audio:', error);
@@ -656,7 +604,6 @@ function loadAudioUI(file, soundName) {
     if (elements.totalDurationSpan) {
         elements.totalDurationSpan.textContent = formatTime(cachedAudioBuffer.duration);
     }
-    currentPlaybackTime = 0;
     updateTimeDisplay(0);
 
     drawStaticWaveform();
@@ -752,7 +699,7 @@ function resizeCanvasesActual(w, h) {
     // const w = elements.canvasBg.clientWidth;
     // const w = rect.width;
     // const h = rect.height;
-    if (isNaN(w) || isNaN(h)) {
+    if (Number.isNaN(w) || Number.isNaN(h)) {
         debugger;
     }
     // console.log("resizeCanvases 3");
