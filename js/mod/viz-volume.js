@@ -240,7 +240,7 @@ function getNiceInterval(rawInterval) {
 //#endregion
 
 function syncCanvasSize(w, h) {
-    console.warn("syncCanvasSize:", { w, h });
+    // console.warn("syncCanvasSize:", { w, h });
     if (Number.isNaN(w) || Number.isNaN(h)) {
         console.warn("w or h isNaN");
         debugger;
@@ -252,7 +252,7 @@ function syncCanvasSize(w, h) {
     // const rect = container.getBoundingClientRect();
 
     container.querySelectorAll("canvas").forEach(canvas => {
-        console.log("syncCanvasSize:", { canvas, w, h });
+        // console.log("syncCanvasSize:", { canvas, w, h });
         // canvas.width = rect.width;
         canvas.width = w;
         // canvas.height = rect.height;
@@ -261,7 +261,7 @@ function syncCanvasSize(w, h) {
         canvas.style.width = w + "px";
         // canvas.style.height = rect.height + "px";
         canvas.style.height = h + "px";
-        console.log("SIZED:", canvas);
+        // console.log("SIZED:", canvas);
     })
 
     // Note: Resizing a canvas automatically wipes its contents.
@@ -451,7 +451,10 @@ async function playAudio() {
     if (elements.pauseBtn) elements.pauseBtn.disabled = false;
     if (elements.rewindBtn) elements.rewindBtn.disabled = false;
 
+    const msStart = performance.now();
     setupAudioNodesAgain();
+    const msElapsed = performance.now() - msStart;
+    console.log("%csetupAudioNodesAgain, ms:", "color:yellowgreen;", msElapsed);
 
     startingAudioCurrentTime = audioContext.currentTime;
     startingAudioOffset = seekedToPos;
@@ -560,7 +563,12 @@ function handleCanvasClick(event) {
     const percent = Math.max(0, Math.min(1, x / rect.width));
     const seekTime = percent * cachedAudioBuffer.duration;
 
+    const wasPlaying = isPlaying;
+    console.log("%chandleCanvasClick", "color:red;", { wasPlaying });
     seekTo(seekTime);
+    if (wasPlaying) {
+        setTimeout(() => { playAudio(); }, 100);
+    }
 }
 
 /**
@@ -726,7 +734,7 @@ export async function showViz(
     const divOuterContainer = document.createElement("div");
     divOuterContainer.addEventListener("element-resize", evt => {
         const { width, height, target } = evt.detail;
-        console.log("%celement-resize", "font-size:20px;color:red;", { target, width, height }, evt.detail);
+        console.log("%celement-resize", "color:red;", { target, width, height });
         if (width == 0 || height == 0) {
             console.log("-- skipping 0, 0");
             return;
