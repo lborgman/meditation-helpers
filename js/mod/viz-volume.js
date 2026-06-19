@@ -116,6 +116,7 @@ let analyserNode = null;
 let gainNode = null;
 /** @type {number | undefined} */ let animationId;
 let isPlaying = false;
+let isManualStop = false;
 // let currentPlaybackTime = 0;
 // let startTime = 0;
 // let waveformImageData = null;
@@ -238,18 +239,29 @@ function getNiceInterval(rawInterval) {
 ////////////////////////////////
 //#endregion
 
-function syncCanvasSize() {
+function syncCanvasSize(w, h) {
+    console.warn("syncCanvasSize:", { w, h });
+    if (Number.isNaN(w) || Number.isNaN(h)) {
+        console.warn("w or h isNaN");
+        debugger;
+    }
     const container = document.getElementById("canvasContainer");
     if (!container) {
         throw Error("Did not find canvasContainer");
     }
-    const rect = container.getBoundingClientRect();
+    // const rect = container.getBoundingClientRect();
 
     container.querySelectorAll("canvas").forEach(canvas => {
-        canvas.width = rect.width;
-        canvas.height = rect.height;
-        canvas.style.width = rect.width + "px";
-        canvas.style.height = rect.height + "px";
+        console.log("syncCanvasSize:", { canvas, w, h });
+        // canvas.width = rect.width;
+        canvas.width = w;
+        // canvas.height = rect.height;
+        canvas.height = h;
+        // canvas.style.width = rect.width + "px";
+        canvas.style.width = w + "px";
+        // canvas.style.height = rect.height + "px";
+        canvas.style.height = h + "px";
+        console.log("SIZED:", canvas);
     })
 
     // Note: Resizing a canvas automatically wipes its contents.
@@ -267,7 +279,7 @@ const nextColorWave = (w) => {
     // debugger;
     const clrIdx = colorWave++ % colorWaves.length;
     const clr = colorWaves[clrIdx];
-    console.log("%cnextColorWave", `color:${clr}`, { w });
+    // console.log("%cnextColorWave", `color:${clr}`, { w });
     return clr;
 }
 
@@ -420,9 +432,6 @@ function setupAudioNodesAgain() {
     // analyserNode.connect(audioContext.destination);
     sourceNode.connect(audioContext.destination);
 
-    sourceNode.onended = () => {
-        handlePlaybackEnded();
-    };
     sourceNode.addEventListener("ended", () => {
         console.log(`Audio event "ended"`);
         handlePlaybackEnded();
@@ -436,6 +445,7 @@ async function playAudio() {
     if (!cachedAudioBuffer) throw Error("cachedAudioBuffer is not set");
     console.log("playAudio, isPlaying = true");
     isPlaying = true;
+    isManualStop = false;
 
     if (elements.playBtn) elements.playBtn.disabled = true;
     if (elements.pauseBtn) elements.pauseBtn.disabled = false;
@@ -485,6 +495,7 @@ function rewindAudio() {
 function stopAudio() {
     if (sourceNode) {
         try {
+            isManualStop = true;
             sourceNode.stop();
             sourceNode.disconnect();
             sourceNode = undefined;
@@ -504,13 +515,14 @@ function stopAudio() {
  * Handle playback completion
  */
 function handlePlaybackEnded() {
-    console.log("handlePlaybackEnded, isPlaying = false");
+    console.log("handle_PlaybackEnded, isPlaying = false", { isPlaying, isManualStop });
     isPlaying = false;
     cancelAnimationFrame(animationId);
     if (elements.playBtn) elements.playBtn.disabled = false;
     if (elements.pauseBtn) elements.pauseBtn.disabled = true;
     if (elements.infoDiv) {
-        elements.infoDiv.textContent = `✅ Playback completed`;
+        elements.infoDiv.textContent =
+            isManualStop ? `Playback paused` : `Playback completed`;
     }
 }
 
@@ -569,9 +581,7 @@ function updateVolume() {
 async function loadAudioFile(file) {
     if (!file) return;
 
-    if (elements.infoDiv) {
-        elements.infoDiv.textContent = `📁 Loading: ${file.name}`;
-    }
+    // if (elements.infoDiv) { elements.infoDiv.textContent = `📁 Loading: ${file.name}`; }
 
     try {
         const arrayBuffer = await file.arrayBuffer();
@@ -619,18 +629,9 @@ function loadAudioUI(file, soundName) {
     if (elements.playhead) elements.playhead.style.display = 'block';
 
     if (elements.infoDiv) {
-        // elements.infoDiv.textContent = `✅ Loaded: ${file.name} | Duration: ${formatTime(cachedAudioBuffer.duration)} | Sample Rate: ${cachedAudioBuffer.sampleRate} Hz | Click on waveform to seek`;
-        // elements.infoDiv.textContent = `✅ Loaded: ${soundName} | Duration: ${formatTime(cachedAudioBuffer.duration)} | Sample Rate: ${cachedAudioBuffer.sampleRate} Hz | Click on waveform to seek`;
-        elements.infoDiv.textContent = "";
-        elements.infoDiv.append(
-            `✅ Loaded: ${soundName} `,
-            document.createElement("br"),
-            `Duration: ${formatTime(cachedAudioBuffer.duration)} sec`,
-            document.createElement("br"),
-            `Sample Rate: ${cachedAudioBuffer.sampleRate} Hz `,
-            document.createElement("br"),
-            // "Click on waveform to seek",
-        )
+        const rate = Math.floor(cachedAudioBuffer.sampleRate / 1000);
+        // elements.infoDiv.append( `${formatTime(cachedAudioBuffer.duration)}s; ${rate}kHz`,)
+        elements.infoDiv.textContent = `${formatTime(cachedAudioBuffer.duration)}s; ${rate}kHz`;
     }
 
 }
@@ -669,52 +670,21 @@ function handleSeekInput(e) {
 /**
  * Resize canvas
  */
-/** @type {number|undefined} */
-/*
-let timeoutResize = undefined;
-async function resizeCanvases() {
-    return new Promise((resolve) => {
-        if (timeoutResize) {
-            window.cancelAnimationFrame(timeoutResize);
-        }
-        // Setup the new requestAnimationFrame()
-        timeoutResize = window.requestAnimationFrame(function () {
-            // Run our scroll functions
-            // console.log('debounced');
-            timeoutResize = undefined;
-            resizeCanvasesActual();
-            resolve(true);
-        });
-    })
-}
-*/
-function resizeCanvasesActual(w, h) {
-    // debugger;
-    // console.log("%cresizeCanvases 1", "color:green;", w);
+/* * @type {number|undefined} */
+function OLDresizeCanvasesActual(w, h) {
     if (!elements.canvasBg || !elements.ctxBg) return;
-    // console.log("resizeCanvases 2");
 
     const container = document.getElementById("canvasContainer");
     const rect = container?.getBoundingClientRect();
-    // const w = elements.canvasBg.clientWidth;
-    // const w = rect.width;
-    // const h = rect.height;
     if (Number.isNaN(w) || Number.isNaN(h)) {
         debugger;
     }
-    // console.log("resizeCanvases 3");
-    // elements.canvasBg.width = elements.canvasBg.clientWidth;
     elements.canvasBg.width = w;
     elements.canvasBg.style.width = `${w}px`;
-    // elements.canvasBg.height = elements.canvasBg.clientHeight;
     elements.canvasBg.height = h;
     elements.canvasBg.style.height = `${h}px`;
-    // console.log("resizeCanvases 4");
-    // return;
     if (cachedAudioBuffer) {
-        // console.log("%cresizeCanvases 5", "color:red;");
         drawStaticWaveform(w);
-        // drawNoPlayheadOnCanvas();
         drawTimeMarkers(w);
     }
 }
@@ -756,9 +726,16 @@ export async function showViz(
     const divOuterContainer = document.createElement("div");
     divOuterContainer.addEventListener("element-resize", evt => {
         const { width, height, target } = evt.detail;
-        // console.log("%celement-resize", "font-size:20px;color:red;", { target, width, height }, evt.detail);
+        console.log("%celement-resize", "font-size:20px;color:red;", { target, width, height }, evt.detail);
+        if (width == 0 || height == 0) {
+            console.log("-- skipping 0, 0");
+            return;
+        }
         requestAnimationFrame(() => {
-            resizeCanvasesActual(width, height);
+            // resizeCanvasesActual(width, height);
+            syncCanvasSize(width, height);
+            updateFontSizeFactorsForOurCanvas();
+            drawStaticWaveform(width);
         })
     });
     divOuterContainer.innerHTML = `
@@ -836,8 +813,8 @@ export async function showViz(
         eltDialog.appendChild(btnClose);
         document.body.appendChild(eltDialog);
         setTimeout(async () => {
-            updateFontSizeFactorsForOurCanvas();
-            syncCanvasSize();
+            // updateFontSizeFactorsForOurCanvas();
+            // syncCanvasSize();
             await loadAudioFromUrl(soundSource);
             loadAudioUI(soundSource, soundName);
         }, 500);
@@ -855,6 +832,7 @@ export async function showViz(
         stopAudio();
         const eltDialog = /** @type {HTMLDialogElement} */ (btnClose.closest("dialog"));
         eltDialog.close();
+        eltDialog.remove();
     })
 
     // elements.canvasBg = document.getElementById('waveformCanvas');
@@ -939,7 +917,7 @@ export async function showViz(
 
     if (elements.infoDiv) {
         // debugger;
-        elements.infoDiv.textContent = '💡 Ready! Load an audio file.';
+        // elements.infoDiv.textContent = '💡 Ready! Load an audio file.';
     }
 
     // console.log('Audio Visualizer initialized successfully');
