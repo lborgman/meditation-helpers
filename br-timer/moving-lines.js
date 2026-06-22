@@ -887,7 +887,6 @@ async function getCurrentSoundRec() {
     currentSoundRec = { ... await modUserSounds.getSoundRec() };
     {
         const inhale = currentSoundRec.inhale;
-        debugger;
         let blob;
         if (!inhale.startsWith("f:")) {
             blob = await modLocalFileReader.getSavedFileBlob(inhale);
@@ -2149,22 +2148,6 @@ async function setCanvasBackgroundToSelectedImage() {
      * @param {Function} updateTheBackground
      * @returns
      */
-    async function OLDsetBackgroundToSelected(updateTheBackground) {
-        const modUserImages = await getModUserImages();
-        const urlOrBlob = await modUserImages.getCurrentImageUrl(myPhotos);
-        if (urlOrBlob instanceof Blob) {
-            const urlObj = URL.createObjectURL(urlOrBlob);
-            // FIX-ME: revoke
-            const img = new Image();
-            img.addEventListener("load", async evt => {
-                await updateTheBackground(urlObj);
-                modUserImages.revoke(urlObj);
-            });
-            img.src = urlObj;
-        } else {
-            updateTheBackground(urlOrBlob);
-        }
-    }
 };
 async function setCanvasBackgroundToSelectedImageAndNotify() {
     modBasicUI.snackbar("Background image changed");
@@ -2186,7 +2169,6 @@ async function updateCanvasBackground(useImageOrVideo) {
     let videoH, videoW;
     // debugger;
     if (useImageOrVideo && useImageOrVideo.startsWith("V")) {
-        // eltVideo = TSmkElt("video");
         eltVideo = document.createElement("video");
         eltVideo.muted = true;
         eltVideo.controls = false;
@@ -2238,7 +2220,6 @@ async function updateCanvasBackground(useImageOrVideo) {
             eltBg.style.maxHeight = "100%";
             showIt();
         } else {
-            // eltBg = TSmkElt("img");
             eltBg = document.createElement("img");
             eltBg.style.maxWidth = "100%";
             eltBg.style.maxHeight = "100%";
@@ -2383,16 +2364,6 @@ function setupCanvas(container) {
 
     eltCanvas = document.createElement("canvas");
     eltCanvas.id = "elt-canvas";
-    /*
-    eltCanvas.style = `
-                position: absolute;
-                top: 0;
-                left: 0;
-                bottom: 0;
-                right: 0;
-                border-radius: 10px;
-            `;
-    */
 
     const eltFilterFilter = TSmkElt("div");
     eltFilterFilter.id = "elt-filter-filter";
@@ -2402,25 +2373,9 @@ function setupCanvas(container) {
 
     const eltFilterColor = TSmkElt("div");
     eltFilterColor.id = "elt-filter-color";
-    /*
-    eltFilterColor.style.position = "absolute";
-    eltFilterColor.style.top = "0";
-    eltFilterColor.style.left = "0";
-    eltFilterColor.style.width = "inherit";
-    eltFilterColor.style.height = "inherit";
-    eltFilterColor.style.borderRadius = "inherit";
-    */
 
     eltFilter = TSmkElt("div", undefined, [eltFilterColor, eltFilterFilter]);
     eltFilter.id = "elt-filter";
-    /*
-    eltFilter.style.width = "100%";
-    eltFilter.style.position = "absolute";
-    eltFilter.style.top = "0";
-    eltFilter.style.left = "0";
-    eltFilter.style.borderRadius = "10px";
-    eltFilter.style.height = "100px";
-    */
 
     const filters = [];
     filters.push("brightness(0.6)");
@@ -2681,13 +2636,9 @@ async function setupControls(controlscontainer) {
             inpMinOrSec, "Duration in seconds",
         ]);
         const divMinOrSec = TSmkElt("div", undefined, [
-            // TSmkElt("div", undefined, "https://issues.chromium.org/issues/40830060"),
-            // TSmkElt("div", undefined, btnCanvasBug),
             TSmkElt("div", undefined, lblMinOrSec),
         ]);
 
-        // const inpFlashPoint = TSmkElt("input", { type: "number" });
-        // settingFlashPoint.bindToInput(inpFlashPoint);
         const inpFlashPoint = settingFlashPoint.getInputElement();
         inpFlashPoint.style.width = "30px";
         const lblFlashPoint = TSmkElt("label", undefined, [
@@ -2761,7 +2712,6 @@ async function setupControls(controlscontainer) {
 
         const divDebug = TSmkElt("div", undefined, [
             TSmkElt("h3", undefined, "Debug"),
-            // divVKworkaround,
             divMinOrSec,
             divFlashPoint,
             divNWcard,
@@ -2819,7 +2769,6 @@ async function setupControls(controlscontainer) {
             TSmkElt("h2", undefined, "Play settings"),
             divColumn,
         ]);
-        // await oldmodMdc.mkMDCdialogConfirm(bdy, "Close", null);
         await modBasicUI.showDialog(bdy);
         debugger;
         initCurrentPattern();
@@ -2878,9 +2827,6 @@ async function setupControls(controlscontainer) {
                 display: inline-flex;
                 gap: 5px;
             `;
-
-
-    // debugger;
     const patternName = settingPattern.value;
     const settingSpeed = getSettingSpeed(patternName);
     const lblSpeed = mkElt("span", undefined, mkEltSpeed(settingSpeed.valueN));
@@ -2935,9 +2881,6 @@ async function setupControls(controlscontainer) {
                 align-items: center;
             `;
 
-    // const chkUseDawnFilter = TSmkElt("input", { type: "checkbox" });
-    // const chkUseDawnFilter = document.createElement("input");
-    // chkUseDawnFilter.type = "checkbox";
     settingDawnFilter = new OurLocalSetting("use-dawn-filter", false);
     if (settingDawnFilter.value) { document.documentElement.classList.add("use-dawn-filter"); }
 

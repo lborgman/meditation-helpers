@@ -1,8 +1,11 @@
+///// Made by Claude AI (with some help from me)
+
 // @ts-check
 const SAFE_AUDIOCONTEXT_VER = "0.7.0";
-console.log("here is safe-audiocontext.js");
+console.log(`here is safe-audiocontext.js ${SAFE_AUDIOCONTEXT_VER}`);
 if (document.currentScript) { throw new Error("safe-audiocontext.js must be loaded as a module"); }
 
+/** @type {AudioContext|null} */
 let _ctx = null;
 const _groups = new Map(); // name -> group
 
@@ -30,11 +33,35 @@ export async function resume() {
 }
 
 /**
- * @typedef {Object} NodeGroup
+ * @typedef {Object & {[key: string]: any}} NodeGroup
  * @property {string} name - The unique name of this group.
  * @property {function(AudioNode): AudioNode} track - Track an externally created node. Returns the node for chaining.
  * @property {function(MediaStream): void} trackMediaStream - Track a MediaStream's hardware tracks. Stops them on destroy, clearing the recording indicator.
  * @property {function(): void} destroy - Disconnect all nodes, stop all media tracks, and remove this group from the registry.
+ *
+ * — Proxied AudioContext factory methods (all track the created node automatically) —
+ * @property {function(): AnalyserNode} createAnalyser
+ * @property {function(): BiquadFilterNode} createBiquadFilter
+ * @property {function(number, number, number): AudioBuffer} createBuffer
+ * @property {function(): AudioBufferSourceNode} createBufferSource
+ * @property {function(number=): ChannelMergerNode} createChannelMerger
+ * @property {function(number=): ChannelSplitterNode} createChannelSplitter
+ * @property {function(): ConstantSourceNode} createConstantSource
+ * @property {function(): ConvolverNode} createConvolver
+ * @property {function(number=): DelayNode} createDelay
+ * @property {function(): DynamicsCompressorNode} createDynamicsCompressor
+ * @property {function(): GainNode} createGain
+ * @property {function(number[], number[]): IIRFilterNode} createIIRFilter
+ * @property {function(): OscillatorNode} createOscillator
+ * @property {function(): PannerNode} createPanner
+ * @property {function(Float32Array, Float32Array, PeriodicWaveConstraints=): PeriodicWave} createPeriodicWave
+ * @property {function(): StereoPannerNode} createStereoPanner
+ * @property {function(): WaveShaperNode} createWaveShaper
+ * @property {function(HTMLMediaElement): MediaElementAudioSourceNode} createMediaElementSource
+ * @property {function(): MediaStreamAudioDestinationNode} createMediaStreamDestination
+ * @property {function(MediaStream): MediaStreamAudioSourceNode} createMediaStreamSource
+ * @property {function(MediaStreamTrack): MediaStreamAudioSourceNode} createMediaStreamTrackSource
+ * @property {function(number=, number=, number=): ScriptProcessorNode} createScriptProcessor - @deprecated Use AudioWorklet instead.
  */
 
 /**
@@ -65,12 +92,12 @@ export function makeNodeGroup(name) {
 
         destroy() {
             for (const track of tracks) {
-                try { track.stop(); } catch (_) { }
+                try { track.stop(); } catch (_) {}
             }
             tracks.clear();
 
             for (const node of nodes) {
-                try { node.disconnect(); } catch (_) { }
+                try { node.disconnect(); } catch (_) {}
             }
             nodes.clear();
 
@@ -85,8 +112,9 @@ export function makeNodeGroup(name) {
     let proto = AudioContext.prototype;
     while (proto && proto !== EventTarget.prototype) {
         for (const key of Object.getOwnPropertyNames(proto)) {
-            if (key.startsWith('create') && typeof ctx[key] === 'function' && !(key in group)) {
-                group[key] = (...args) => group.track(ctx[key](...args));
+            const fn = /** @type {Record<string, unknown>} */ (/** @type {unknown} */ (ctx))[key];
+            if (key.startsWith('create') && typeof fn === 'function' && !(key in group)) {
+                group[key] = (...args) => group.track(/** @type {Function} */ (fn).apply(ctx, args));
             }
         }
         proto = Object.getPrototypeOf(proto);

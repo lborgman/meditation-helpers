@@ -12,9 +12,15 @@ const importFc4i = window["importFc4i"];
 const modCanvasFontSize = await importFc4i("canvas-fontsize");
 // console.log({ modCanvasFontSize });
 const modSafeAudio = await importFc4i("safe-audio");
-debugger;
+// debugger;
+
 const SAFE_SOUND_NAME = "viz-volume";
-const safeAudioGrp = modSafeAudio.makeNodeGroup(SAFE_SOUND_NAME);
+// const safeAudioGrp = modSafeAudio.makeNodeGroup(SAFE_SOUND_NAME);
+/* * @type {NodeGroup|undefined} */
+/** @type {any} */
+let safeAudioGrp;
+function makeAudioGroup() { safeAudioGrp = modSafeAudio.makeNodeGroup(SAFE_SOUND_NAME); }
+export function destroyAudioGroup() { modSafeAudio.destroyGroup(SAFE_SOUND_NAME); }
 
 
 // From google search:
@@ -834,7 +840,13 @@ export async function showViz(
             await loadAudioFromUrl(soundSource);
             loadAudioUI(soundSource, soundName);
         }, 500);
+        makeAudioGroup();
+        eltDialog.addEventListener('close', () => {
+            console.log('The dialog closed! call destroyAudioGroup()');
+            destroyAudioGroup();
+        });
         eltDialog.showModal();
+
     }
 
 
