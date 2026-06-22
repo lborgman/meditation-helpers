@@ -1,108 +1,127 @@
-// Internal module registry to track active instances app-wide
-const activeEngines = new Set();
-const MAX_CONCURRENT_ENGINES = 5; // Safe buffer below browser hardware caps
+// @ts-check
+const SAFE_AUDIOCONTEXT_VER = "0.7.0";
+console.log("here is safe-audiocontext.js");
+if (document.currentScript) { throw new Error("safe-audiocontext.js must be loaded as a module"); }
 
-export class SafeAudioEngine {
-    constructor() {
-        // 1. Guard against browser hardware limits
-        if (activeEngines.size >= MAX_CONCURRENT_ENGINES) {
-            throw new Error(`AudioEngine limit (${MAX_CONCURRENT_ENGINES}) exceeded. You must destroy an old instance before creating a new one.`);
-        }
+let _ctx = null;
+const _groups = new Map(); // name -> group
 
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        this.ctx = new AudioContextClass();
-
-        this.trackedNodes = new Set();
-        this.trackedTracks = new Set();
-
-        // Register this instance globally within the module
-        activeEngines.add(this);
-
-        // Tab closure safety net
-        this._unloadListener = () => this.destroy();
-        window.addEventListener('beforeunload', this._unloadListener);
+/**
+ * Returns the shared AudioContext, creating it if needed.
+ * Created lazily to avoid autoplay policy issues on page load.
+ * @returns {AudioContext}
+ */
+export function getContext() {
+    if (!_ctx || _ctx.state === 'closed') {
+        _ctx = new AudioContext();
+        window.addEventListener('beforeunload', destroy, { once: true });
     }
-
-    // Factory method to track and create standard nodes
-    createNode(factoryMethodName, ...args) {
-        if (!this.ctx) throw new Error("AudioEngine has been destroyed.");
-
-        const node = this.ctx[factoryMethodName](...args);
-        this.trackedNodes.add(node);
-        return node;
-    }
-
-    // Special tracker for hardware inputs like Microphones/WebRTC
-    trackMediaStream(stream) {
-        stream.getTracks().forEach(track => this.trackedTracks.add(track));
-    }
-
-    // Complete, safe destruction
-    async destroy() {
-        // Remove the window listener to prevent memory leaks
-        window.removeEventListener('beforeunload', this._unloadListener);
-
-        // Stop hardware inputs so the recording indicator turns off
-        for (const track of this.trackedTracks) {
-            try { track.stop(); } catch (e) { }
-        }
-        this.trackedTracks.clear();
-
-        // Stop and disconnect all standard nodes safely
-        for (const node of this.trackedNodes) {
-            if (typeof node.stop === 'function') {
-                try { node.stop(); } catch (e) { }
-            }
-            if (typeof node.disconnect === 'function') {
-                try { node.disconnect(); } catch (e) { }
-            }
-        }
-        this.trackedNodes.clear();
-
-        // Close the context hardware thread
-        if (this.ctx && this.ctx.state !== 'closed') {
-            try {
-                await this.ctx.close();
-            } catch (e) {
-                console.error("Failed to close AudioContext:", e);
-            }
-        }
-
-        this.ctx = null;
-
-        // Remove from global registry so a new slot opens up
-        activeEngines.delete(this);
-        console.log("Audio Engine entirely destroyed and memory slot freed.");
-    }
+    return _ctx;
 }
 
-// Helper utility export to monitor engine health across your app
-export function getActiveEngineCount() {
-    return activeEngines.size;
+/**
+ * Resumes a suspended AudioContext.
+ * Must be called inside a user gesture handler before audio will play.
+ * @returns {Promise<void>}
+ */
+export async function resume() {
+    const ctx = getContext();
+    if (ctx.state === 'suspended') await ctx.resume();
 }
 
+/**
+ * @typedef {Object} NodeGroup
+ * @property {string} name - The unique name of this group.
+ * @property {function(AudioNode): AudioNode} track - Track an externally created node. Returns the node for chaining.
+ * @property {function(MediaStream): void} trackMediaStream - Track a MediaStream's hardware tracks. Stops them on destroy, clearing the recording indicator.
+ * @property {function(): void} destroy - Disconnect all nodes, stop all media tracks, and remove this group from the registry.
+ */
 
-export function patchAudioNodeLinks() {
-    // Run this hook once at the very top of your audio module
-    const nativeConnect = AudioNode.prototype.connect;
-    const nativeDisconnect = AudioNode.prototype.disconnect;
+/**
+ * Returns the named NodeGroup, creating it if it doesn't exist yet.
+ * Any file can call makeNodeGroup('same-name') to get the same group.
+ * After group.destroy() or destroyGroup(name), calling makeNodeGroup(name)
+ * again will create a fresh group.
+ * @param {string} name - Unique name for this group.
+ * @returns {NodeGroup}
+ */
+export function makeNodeGroup(name) {
+    if (_groups.has(name)) return _groups.get(name);
 
-    AudioNode.prototype.connect = function (destination, outputIndex, inputIndex) {
-        // Initialize a hidden connections registry on the node
-        this.__connections = this.__connections || new Set();
-        this.__connections.add(destination);
+    const nodes = new Set();
+    const tracks = new Set();
 
-        // Execute the browser's real connection logic
-        return nativeConnect.apply(this, arguments);
-    };
+    const group = /** @type {NodeGroup} */ ({
+        name,
 
-    AudioNode.prototype.disconnect = function () {
-        // Clear out our tracking data when disconnected
-        if (this.__connections) {
-            this.__connections.clear();
+        track(node) {
+            nodes.add(node);
+            return node;
+        },
+
+        trackMediaStream(stream) {
+            stream.getTracks().forEach(t => tracks.add(t));
+        },
+
+        destroy() {
+            for (const track of tracks) {
+                try { track.stop(); } catch (_) { }
+            }
+            tracks.clear();
+
+            for (const node of nodes) {
+                try { node.disconnect(); } catch (_) { }
+            }
+            nodes.clear();
+
+            _groups.delete(name);
         }
+    });
 
-        // Execute the browser's real disconnection logic
-        return nativeDisconnect.apply(this, arguments);
-    };
+    // Proxy all ctx.createX() methods so callers never need to touch ctx directly.
+    // Walks the full prototype chain since most factory methods live on
+    // BaseAudioContext.prototype, not AudioContext.prototype itself.
+    const ctx = getContext();
+    let proto = AudioContext.prototype;
+    while (proto && proto !== EventTarget.prototype) {
+        for (const key of Object.getOwnPropertyNames(proto)) {
+            if (key.startsWith('create') && typeof ctx[key] === 'function' && !(key in group)) {
+                group[key] = (...args) => group.track(ctx[key](...args));
+            }
+        }
+        proto = Object.getPrototypeOf(proto);
+    }
+
+    _groups.set(name, group);
+    return group;
+}
+
+/**
+ * Destroys the named NodeGroup if it exists. No-op if the name is not found.
+ * @param {string} name - The name of the group to destroy.
+ */
+export function destroyGroup(name) {
+    const group = _groups.get(name);
+    if (group) group.destroy();
+}
+
+/**
+ * Destroys all groups, then closes the AudioContext.
+ * Called automatically on beforeunload; can also be called manually.
+ * @returns {Promise<void>}
+ */
+export async function destroy() {
+    window.removeEventListener('beforeunload', destroy);
+
+    for (const group of _groups.values()) {
+        group.destroy();
+    }
+    _groups.clear();
+
+    if (_ctx && _ctx.state !== 'closed') {
+        try { await _ctx.close(); } catch (e) {
+            console.error("safe-audiocontext: failed to close AudioContext:", e);
+        }
+    }
+    _ctx = null;
 }

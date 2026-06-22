@@ -123,6 +123,7 @@ const cacheImportFc4i = new Map();
 
         "bell-engine": "../ext/bells/bell-engine.js",
         "user-sound": "../js/mod/user-sound.js",
+        "safe-audio": "../js/mod/safe-audiocontext.js",
         "viz-volume": "../js/mod/viz-volume.js",
 
 

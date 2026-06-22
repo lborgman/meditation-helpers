@@ -11,6 +11,10 @@ const mkElt = window["mkElt"];
 const importFc4i = window["importFc4i"];
 const modCanvasFontSize = await importFc4i("canvas-fontsize");
 // console.log({ modCanvasFontSize });
+const modSafeAudio = await importFc4i("safe-audio");
+debugger;
+const SAFE_SOUND_NAME = "viz-volume";
+const safeAudioGrp = modSafeAudio.makeNodeGroup(SAFE_SOUND_NAME);
 
 
 // From google search:
@@ -426,11 +430,15 @@ function setupAudioNodesAgain() {
     // analyserNode.fftSize = 2048;
     // analyserNode.smoothingTimeConstant = 0.8;
 
-    sourceNode = audioContext.createBufferSource();
+    // sourceNode = audioContext.createBufferSource();
+    sourceNode = safeAudioGrp.createBufferSource();
+
     sourceNode.buffer = cachedAudioBuffer;
     // sourceNode.connect(analyserNode);
     // analyserNode.connect(audioContext.destination);
-    sourceNode.connect(audioContext.destination);
+
+    // sourceNode.connect(audioContext.destination);
+    sourceNode.connect(modSafeAudio.getContext().destination);
 
     sourceNode.addEventListener("ended", () => {
         console.log(`Audio event "ended"`);

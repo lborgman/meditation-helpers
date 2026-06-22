@@ -3,7 +3,7 @@ const LOCAL_FILE_READER_VER = "0.0.02";
 window["logConsoleHereIs"](`here is local-file-reader.js, module, ${LOCAL_FILE_READER_VER}`);
 if (document.currentScript) { throw "local-file-reader.js is not loaded as module"; }
 
-/** @type {IDBDatabase|null} */ let dbInstance = null;
+// /* * @type {IDBDatabase|null} */ let dbInstance = null;
 
 function makeFilePickerOptions(mediaTypes, title) {
     title = title || mediaTypes;
@@ -229,28 +229,11 @@ export async function fileExistsInOPFS(fileName) {
  * @returns {Promise<Blob|undefined>}
  */
 async function getBlobFromOPFS(fileName) {
-    /*
-    const root = await navigator.storage.getDirectory();
-
-    // 1. Get the private handle for the file
-    let fileHandle;
-    try {
-        fileHandle = await root.getFileHandle(fileName);
-    } catch (err) {
-        if (!(err instanceof Error)) throw Error("err is not Error");
-        if (err.name == "NotFoundError") {
-            return undefined;
-        }
-        console.error(err);
-        debugger;
-        throw Error;
-    }
-    */
     const fileHandle = await getHandleFromOPFS(fileName);
     if (!fileHandle) return undefined;
 
-    // 2. Unpack it into a standard Web File/Blob object
     const fileBlob = await fileHandle.getFile();
+
     const blobStart = fileBlob.slice(0, 4096);
     const textStart = await blobStart.text();
     if (textStart.indexOf("<svg ") > -1) {

@@ -118,6 +118,7 @@ function checkSoundRec(objJson) {
  * @returns {Promise<SoundRec>}
  */
 export async function getSoundRec() {
+    // debugger;
     checkStoringPrefix();
     const strJson = localStorage.getItem(storingPrefix + KEY_user_sound);
     let objJson;

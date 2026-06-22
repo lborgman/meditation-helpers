@@ -58,7 +58,7 @@ const SOURCES = {
  *   Whether this partial is active by default.
  */
 
-/**
+/* *
  * Complete spectral definition of one bell.
  *
  * @typedef {Object} BellDef
@@ -67,7 +67,7 @@ const SOURCES = {
  * @property {Partial[]} partials - Spectral components, ordered low → high frequency.
  */
 
-/**
+/* *
  * Synthetic Tibetan singing bowl definitions.
  *
  * Partial ratios follow measured singing bowl acoustics:
@@ -82,6 +82,7 @@ const SOURCES = {
  * The first entry is the reference bowl for blending.
  * @type {BellDef[]}
  */
+/*
 const BELLS = [
   {
     // Bowl 1 — warmer, more fundamental weight
@@ -117,6 +118,7 @@ export function getBellNames() {
   // sBell
   return BELLS.map(bell => bell.name);
 }
+*/
 
 // ---------------------------------------------------------------------------
 // SECTION 2 — AUDIO ENGINE
@@ -173,7 +175,7 @@ function _addOscillator(freq, gain, t60, atkSec, t0, busNode) {
   return stopAt;
 }
 
-/**
+/* *
  * Schedules a bandpass-filtered noise burst modelling the strike transient.
  * Private — called only from within strike().
  *
@@ -183,7 +185,8 @@ function _addOscillator(freq, gain, t60, atkSec, t0, busNode) {
  * @param {number}   t0         - AudioContext start time.
  * @param {GainNode} busNode    - Destination node in the audio graph.
  */
-function _addNoise(primef1, noiseAmt, masterGain, t0, busNode) {
+/*
+function OLD_addNoise(primef1, noiseAmt, masterGain, t0, busNode) {
   const actx = busNode.context;
   const bufLen = Math.ceil(actx.sampleRate * 0.08);
   const nb = actx.createBuffer(1, bufLen, actx.sampleRate);
@@ -203,6 +206,7 @@ function _addNoise(primef1, noiseAmt, masterGain, t0, busNode) {
   ns.connect(nbp); nbp.connect(ng); ng.connect(busNode);
   ns.start(t0); ns.stop(t0 + 0.09);
 }
+*/
 
 /**
  * Options passed to strikeBell().
@@ -454,7 +458,7 @@ function blendBells(entries) {
  *   Frequency multiplier (0.5–2.0). Use ~0.85–0.95 for an exhale bell.
  * @returns {Bell}
  */
-function createInternalSyntheticBell(bellDef, { pitchShift = 1.0 } = {}) {
+function OLDcreateInternalSyntheticBell(bellDef, { pitchShift = 1.0 } = {}) {
   _assertBellDef(bellDef, 'createInternalSyntheticBell');
   _assertPitchShift(pitchShift, 'createInternalSyntheticBell');
   const actx = _getActx();
@@ -693,7 +697,7 @@ function strikeBell(bell, opts = {}) {
   if (bell === null) return { stop: () => { } }; // no-op handle for silent call
   return bell._strike(opts);
 }
-const checkBELLSunique = () => {
+const OLDcheckBELLSunique = () => {
   const bellNames = BELLS.map(bell => bell.name);
   if (bellNames.length != new Set(bellNames).size) throw Error("BELL names are not unique");
 }
@@ -704,41 +708,30 @@ export function strikeBellById(fullBellId, isExhale, opts = {}) {
     debugger;
     throw Error(`typeof isExhale == "${tofIsExhale}"`);
   }
-  // if (isExhale) { opts.pitchShift = 0.7; // FIX-ME: }
-  /*
-  Octave	2
-  Semitone (Half step)	1.05946 ($\sqrt[12]{2}$)
-  Whole tone (Two semitones)	1.12246 ($\sqrt[6]{2}$)
-  Perfect Fifth	1.5
-  Perfect Fourth	1.33333
-  Major Third	1.25992
-  Minor Third	1.1892
-  */
   const optPitch = isExhale ? { pitchShift: 1 / 1.1892 } : undefined;
   const stopAtSec = opts.stopAtSec;
   const tofStopAtSec = typeof stopAtSec;
   if (tofStopAtSec != "number") throw Error(`typeof opts.stopAtSec == "${tofStopAtSec}"`);
   if (opts.stopAtSec == 0) throw Error(`opts.stopAtSec == 0`);
 
-  // const [typeSpec, bellId] = fullBellId.split(":");
   const typeSpec = fullBellId.slice(0,1);
   const bellId = fullBellId.slice(2);
   switch (typeSpec) {
-    case "s":
-      checkBELLSunique();
-      return strikeSyntBell();
     case "f":
       return strikeFileBell();
       break;
+    /*
     case "b":
-      // debugger;
+      debugger;
       return strikeFileBell();
       break;
+    */
     default:
       debugger;
       throw Error(`Bad bell type spec: "${typeSpec}"`);
   }
-  function strikeSyntBell() {
+  /*
+  function OLDstrikeSyntBell() {
     const bells = BELLS.filter(bell => bell.name == bellId);
     if (bells.length == 0) {
       // FIX-ME:
@@ -750,9 +743,13 @@ export function strikeBellById(fullBellId, isExhale, opts = {}) {
     const bell = createInternalSyntheticBell(bellDef, optPitch);
     return strikeBell(bell, opts);
   }
+  */
   async function strikeFileBell() {
     const bellDef = bellId;
+    const msStart = performance.now();
     const bell = await createExternalBellFromFile(bellDef, optPitch);
+    const msElapsed = performance.now() -msStart;
+    console.log("%cstrikeFileBell, ms:", "color:red;", msStart);
     return strikeBell(bell, opts);
   }
 }
@@ -833,4 +830,4 @@ function strikeBreath(bell, {
   return new Promise(resolve => setTimeout(resolve, phaseDuration * 1000));
 }
 export function getAudioContext() { return _getActx(); }
-export { createInternalSyntheticBell, createExternalBellFromFile, strikeBell, strikeBreath, blendBells, BELLS };
+export { createExternalBellFromFile, strikeBell, strikeBreath, blendBells };

@@ -19,6 +19,11 @@ const modIcons = await importFc4i("google-icons");
 // debugger;
 // modIcons.requestIcon("emoji_people");
 
+const modSafeAudio = await importFc4i("safe-audio");
+console.log(modSafeAudio);
+const audioMain = modSafeAudio.makeNodeGroup("main");
+// debugger;
+
 const modLocalSettings = await importFc4i("local-settings");
 class OurLocalSetting extends modLocalSettings.LocalSetting {
     /**
@@ -850,7 +855,7 @@ function clearTopText() {
     ctxCanvas.clearRect(0, 0, eltCanvas.width, size);
 }
 function topText(txtTop) {
-    soundState(txtTop);
+    // OLDsoundState(txtTop);
     if (!txtTop) return;
     ctxCanvas.strokeStyle = "yellow";
     ctxCanvas.strokeStyle = "black";
@@ -874,15 +879,71 @@ function topText(txtTop) {
 }
 const modBells = await importFc4i("bell-engine");
 const modUserSounds = await importFc4i("user-sound");
-// const inhale = modBells.createInternalSyntheticBell(modBells.BELLS[0]);
-// const exhale = modBells.createInternalSyntheticBell(modBells.BELLS[0], { pitchShift: 0.92 });
 
 let currentSoundRec;
 async function getCurrentSoundRec() {
+    debugger;
+    const modLocalFileReader = await importFc4i("local-file-reader")
     currentSoundRec = { ... await modUserSounds.getSoundRec() };
-    // debugger;
-    if (currentSoundRec.inhale == "user-inhale") {
-        currentSoundRec.inhaleObjectUrl = await modUserSounds.getUserInhaleSoundObjectUrl();
+    {
+        const inhale = currentSoundRec.inhale;
+        debugger;
+        let blob;
+        if (!inhale.startsWith("f:")) {
+            blob = await modLocalFileReader.getSavedFileBlob(inhale);
+        } else {
+            const url = inhale.slice(2);
+            try {
+                const response = await fetch(url);
+                blob = await response.blob();
+            } catch (error) {
+                const msg = `Error fetching file: ${error}`;
+                console.error(msg, error);
+                debugger;
+                throw Error(msg);
+            }
+
+        }
+        const promInhale = getAudioBufferFromFile(blob);
+        currentSoundRec.promInhaleAudioBuffer = promInhale;
+    }
+
+    async function getAudioBuffer(url) {
+        const prom = currentSoundRec.promInhaleAudioBuffer = getAudioBufferFromUrl(url);
+        return prom;
+    }
+}
+async function getAudioBufferFromUrl(url) {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const file = new File([blob], filename, { type: blob.type });
+        const audioBuffer = await getAudioBufferFromFile(file);
+        return audioBuffer;
+    } catch (error) {
+        const msg = `Error loading audio: ${error}`;
+        console.error(msg, error);
+        debugger;
+        throw Error(msg);
+    }
+}
+async function getAudioBufferFromFile(file) {
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        if (!audioContext) {
+            audioContext = new window.AudioContext();
+            const audioCtx = new AudioContext();
+            audioCtx.addEventListener('statechange', () => {
+                console.log(`AudioContext state shifted to: ${audioCtx.state}`);
+            });
+        }
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        return audioBuffer;
+    } catch (error) {
+        const msg = `Error loading audio: ${error}`;
+        console.error(msg, error);
+        debugger;
+        throw Error(msg);
     }
 }
 function revokeUserSounds() {
@@ -1719,11 +1780,11 @@ function tellInitialState() {
 
 const setCanvasSizes = () => {
     setTimeout(() => {
-            const bcrCanvas = eltCanvas.parentElement.getBoundingClientRect();
-            eltCanvas.width = bcrCanvas.width;
-            eltCanvas.height = bcrCanvas.height;
-            // eltFilter.style.height = `${bcrCanvas.height}px`;
-            currentPointRadius = TSFIXcanvasY(pattY2canvasY(TSFIXpattY(0)) / 30);
+        const bcrCanvas = eltCanvas.parentElement.getBoundingClientRect();
+        eltCanvas.width = bcrCanvas.width;
+        eltCanvas.height = bcrCanvas.height;
+        // eltFilter.style.height = `${bcrCanvas.height}px`;
+        currentPointRadius = TSFIXcanvasY(pattY2canvasY(TSFIXpattY(0)) / 30);
     }, 10)
 }
 
