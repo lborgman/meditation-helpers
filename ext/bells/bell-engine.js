@@ -555,43 +555,48 @@ async function createExternalBellFromFile(
   const actx = _getActx();
 
   // ── Fetch ─────────────────────────────────────────────────────────────────
-  let response;
-  if (urlOrResponse instanceof Response) {
-    response = urlOrResponse;
+  let audioBuf;
+  if (urlOrResponse instanceof AudioBuffer) {
+    audioBuf = urlOrResponse;
   } else {
-    try {
-      response = await fetch(urlOrResponse);
-    } catch (err) {
+    let arrayBuf;
+    let response;
+    if (urlOrResponse instanceof Response) {
+      response = urlOrResponse;
+    } else {
+      try {
+        response = await fetch(urlOrResponse);
+      } catch (err) {
+        throw new Error(
+          `createExternalBellFromFile: network error fetching "${urlOrResponse}": ${err.message}`
+        );
+      }
+    }
+
+    if (!response.ok) {
       throw new Error(
-        `createExternalBellFromFile: network error fetching "${urlOrResponse}": ${err.message}`
+        `createExternalBellFromFile: fetch failed for "${response.url}" ` +
+        `(HTTP ${response.status} ${response.statusText})`
+      );
+    }
+
+    arrayBuf = await response.arrayBuffer();
+
+    // ── Decode ────────────────────────────────────────────────────────────────
+    try {
+      audioBuf = await actx.decodeAudioData(arrayBuf);
+    } catch (err) {
+      const src = urlOrResponse instanceof Response ? response.url : urlOrResponse;
+      throw new Error(
+        `createExternalBellFromFile: could not decode "${src}" — ` +
+        `unsupported or corrupted file. ` +
+        `Supported formats: mp3, wav, ogg/vorbis, aac, flac, opus.`
       );
     }
   }
 
-  if (!response.ok) {
-    throw new Error(
-      `createExternalBellFromFile: fetch failed for "${response.url}" ` +
-      `(HTTP ${response.status} ${response.statusText})`
-    );
-  }
-
-  const arrayBuf = await response.arrayBuffer();
-
-  // ── Decode ────────────────────────────────────────────────────────────────
-  let fullBuf;
-  try {
-    fullBuf = await actx.decodeAudioData(arrayBuf);
-  } catch (err) {
-    const src = urlOrResponse instanceof Response ? response.url : urlOrResponse;
-    throw new Error(
-      `createExternalBellFromFile: could not decode "${src}" — ` +
-      `unsupported or corrupted file. ` +
-      `Supported formats: mp3, wav, ogg/vorbis, aac, flac, opus.`
-    );
-  }
-
   // ── Validate trim parameters ──────────────────────────────────────────────
-  const fileDuration = fullBuf.duration;
+  const fileDuration = audioBuf.duration;
 
   if (startOffset < 0 || startOffset >= fileDuration) {
     throw new Error(
@@ -605,15 +610,15 @@ async function createExternalBellFromFile(
 
   // ── Trim: copy excerpt into a new AudioBuffer ─────────────────────────────
   // Only the excerpt is kept in memory; the full decoded buffer is discarded.
-  const sampleRate = fullBuf.sampleRate;
+  const sampleRate = audioBuf.sampleRate;
   const startSample = Math.floor(startOffset * sampleRate);
   const trimSamples = Math.ceil(trimDuration * sampleRate);
-  const nChannels = fullBuf.numberOfChannels;
+  const nChannels = audioBuf.numberOfChannels;
 
   const trimBuf = actx.createBuffer(nChannels, trimSamples, sampleRate);
   for (let ch = 0; ch < nChannels; ch++) {
     trimBuf.copyToChannel(
-      fullBuf.getChannelData(ch).subarray(startSample, startSample + trimSamples),
+      audioBuf.getChannelData(ch).subarray(startSample, startSample + trimSamples),
       ch
     );
   }
@@ -714,22 +719,19 @@ export function strikeBellById(fullBellId, isExhale, opts = {}) {
   if (tofStopAtSec != "number") throw Error(`typeof opts.stopAtSec == "${tofStopAtSec}"`);
   if (opts.stopAtSec == 0) throw Error(`opts.stopAtSec == 0`);
 
-  const typeSpec = fullBellId.slice(0,1);
+  return strikeFileBell(fullBellId);
+  /*
+  const typeSpec = fullBellId.slice(0, 1);
   const bellId = fullBellId.slice(2);
   switch (typeSpec) {
     case "f":
       return strikeFileBell();
       break;
-    /*
-    case "b":
-      debugger;
-      return strikeFileBell();
-      break;
-    */
     default:
       debugger;
       throw Error(`Bad bell type spec: "${typeSpec}"`);
   }
+  */
   /*
   function OLDstrikeSyntBell() {
     const bells = BELLS.filter(bell => bell.name == bellId);
@@ -744,11 +746,11 @@ export function strikeBellById(fullBellId, isExhale, opts = {}) {
     return strikeBell(bell, opts);
   }
   */
-  async function strikeFileBell() {
+  async function strikeFileBell(bellId) {
     const bellDef = bellId;
     const msStart = performance.now();
     const bell = await createExternalBellFromFile(bellDef, optPitch);
-    const msElapsed = performance.now() -msStart;
+    const msElapsed = performance.now() - msStart;
     console.log("%cstrikeFileBell, ms:", "color:red;", msStart);
     return strikeBell(bell, opts);
   }

@@ -20,6 +20,12 @@ const modIcons = await importFc4i("google-icons");
 // modIcons.requestIcon("emoji_people");
 
 const modSafeAudio = await importFc4i("safe-audio");
+{
+    const audioContext = modSafeAudio.getContext();
+    audioContext.addEventListener('statechange', () => {
+        console.log(`AudioContext state shifted to: ${audioContext.state}`);
+    });
+}
 console.log(modSafeAudio);
 const audioMain = modSafeAudio.makeNodeGroup("main");
 // debugger;
@@ -882,37 +888,52 @@ const modUserSounds = await importFc4i("user-sound");
 
 let currentSoundRec;
 async function getCurrentSoundRec() {
-    debugger;
+    console.log({ audioMain });
     const modLocalFileReader = await importFc4i("local-file-reader")
     currentSoundRec = { ... await modUserSounds.getSoundRec() };
     {
-        const inhale = currentSoundRec.inhale;
-        let blob;
-        if (!inhale.startsWith("f:")) {
-            blob = await modLocalFileReader.getSavedFileBlob(inhale);
-        } else {
-            const url = inhale.slice(2);
-            try {
-                const response = await fetch(url);
-                blob = await response.blob();
-            } catch (error) {
-                const msg = `Error fetching file: ${error}`;
-                console.error(msg, error);
-                debugger;
-                throw Error(msg);
+        // const src = currentSoundRec.inhale;
+        /**
+         * 
+         * @param {string} src 
+         * @returns {Promise<object>}
+         */
+        async function promAudioBuffer(src) {
+            let blob;
+            if (!src.startsWith("f:")) {
+                blob = await modLocalFileReader.getSavedFileBlob(src);
+            } else {
+                const url = src.slice(2);
+                try {
+                    const response = await fetch(url);
+                    blob = await response.blob();
+                } catch (error) {
+                    const msg = `Error fetching file: ${error}`;
+                    console.error(msg, error);
+                    debugger;
+                    throw Error(msg);
+                }
             }
-
+            const prom = getAudioBufferFromFile(blob);
+            return prom;
         }
-        const promInhale = getAudioBufferFromFile(blob);
-        currentSoundRec.promInhaleAudioBuffer = promInhale;
+        // const promInhale = getAudioBufferFromFile(blob);
+        const srcInhale = currentSoundRec.inhale;
+        currentSoundRec.inhaleAudioBuffer = await promAudioBuffer(srcInhale);
+        const srcExhaleOrig = currentSoundRec.exhale;
+        const srcExhale= srcExhaleOrig == "same"? srcInhale: srcExhaleOrig;
+        currentSoundRec.exhaleAudioBuffer = await promAudioBuffer(srcExhale);
+        debugger;
     }
 
     async function getAudioBuffer(url) {
-        const prom = currentSoundRec.promInhaleAudioBuffer = getAudioBufferFromUrl(url);
+        const prom = currentSoundRec.inhaleAudioBuffer = getAudioBufferFromUrl(url);
         return prom;
     }
 }
 async function getAudioBufferFromUrl(url) {
+    debugger;
+    console.log("getAudioBufferFromUrl:", { audioMain });
     try {
         const response = await fetch(url);
         const blob = await response.blob();
@@ -927,15 +948,11 @@ async function getAudioBufferFromUrl(url) {
     }
 }
 async function getAudioBufferFromFile(file) {
+    // debugger;
+    console.log("getAudioBufferFromFile:", { audioMain, modSafeAudio });
     try {
         const arrayBuffer = await file.arrayBuffer();
-        if (!audioContext) {
-            audioContext = new window.AudioContext();
-            const audioCtx = new AudioContext();
-            audioCtx.addEventListener('statechange', () => {
-                console.log(`AudioContext state shifted to: ${audioCtx.state}`);
-            });
-        }
+        const audioContext = modSafeAudio.getContext();
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
         return audioBuffer;
     } catch (error) {
@@ -973,12 +990,18 @@ async function OLDgetInhaleAndExhale() {
 const playInhale = (seconds) => {
     if (typeof seconds != "number") debugger;
     // debugger;
+    /*
     let ourBellId = currentSoundRec.inhale;
     if (ourBellId == "user-inhale") {
         ourBellId = "b:" + currentSoundRec.inhaleObjectUrl;
         // debugger;
     }
-    modBells.strikeBellById(ourBellId, false, { stopAtSec: seconds });
+    */
+    const buffer = currentSoundRec.inhaleAudioBuffer;
+    // const sourceNode = audioMain.createBufferSource();
+    // sourceNode.buffer = buffer;
+    // modBells.strikeBellById(ourBellId, false, { stopAtSec: seconds });
+    modBells.strikeBellById(buffer, false, { stopAtSec: seconds });
 }
 /** * @param {number} seconds */
 const playExhale = (seconds) => {
