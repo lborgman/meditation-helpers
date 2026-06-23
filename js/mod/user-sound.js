@@ -402,119 +402,122 @@ export async function dialogSound() {
         await Promise.allSettled(proms);
     }
 
-    const styleDivBells = `
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    `;
 
     const currentBells = await getSoundRec();
-    const divInhaleBells = mkElt("div");
-    divInhaleBells.style = styleDivBells;
+    const divInhaleBells = mkElt("div", { class: "list-bells" });
     const divInhale = mkElt("p", undefined, [
         mkGroupName("Inhale"),
         divInhaleBells,
     ]);
     await addFileBells(divInhaleBells, true, currentBells.inhale);
-    const btnUserChoice = mkElt("button", undefined, "Select");
-    btnUserChoice.addEventListener("click", async evt => {
-        evt.stopPropagation();
-        const icon = modIcons.mkGIcon("play_arrow");
-        const btnTest = mkElt("button", undefined, icon);
-        btnTest.classList.add("test-play-sound");
-        const divTest = mkElt("div", undefined, ["Play selected file: ", btnTest]);
-        divTest.inert = true;
 
-        /** @type {FileSystemHandle|null} */
-        let gotHandle;
-        const btnGetFile = mkElt("button", undefined, "Select audio file");
-        btnGetFile.addEventListener("click", async evt => {
+
+    const eltUserBellInhale = await mkEltUserBell(true);
+    const eltUserBellExhale = await mkEltUserBell(false);
+
+    /**
+     * @param {boolean} forInhale 
+     * @returns {Promise<HTMLDivElement>}
+     */
+    async function mkEltUserBell(forInhale) {
+        const keyUserSound = forInhale ? keyUserInhale : keyUserExhale;
+        const eltUserBell = mkRadBell("Your own", keyUserSound, forInhale, undefined);
+        const btnTestUserSound = eltUserBell.lastElementChild;
+        const blob = modLocalFileReader.getSavedFileBlob(keyUserSound);
+        btnTestUserSound.inert = (blob == null);
+
+        const btnUserChoice = mkElt("button", undefined, "Select");
+        btnUserChoice.addEventListener("click", async evt => {
             evt.stopPropagation();
-            // const gotIt = await modLocalFileReader.selectAndSaveFile(keyUserInhale, "audio", "Select sound file for inhale");
-            gotHandle = await modLocalFileReader.selectFile("audio", "Select sound file for inhale");
-            console.log({ gotHandle });
-            if (gotHandle) {
-                if (!(gotHandle instanceof FileSystemHandle)) {
-                    debugger;
-                }
-                divTest.inert = false;
-            } else {
-                divTest.inert = true;
-            }
-        });
-        btnTest.addEventListener("click", async evt => {
-            evt.stopPropagation();
-            console.log({ gotHandle });
-            debugger;
-            if (gotHandle == null) throw Error("gotHandle is null");
-            const modVizVol = await importFc4i("viz-volume")
-            const file = await gotHandle.getFile();           // Returns a File (which is a Blob)
-            const urlBell = URL.createObjectURL(file);
-            modVizVol.showViz({
-                sound: {
-                    soundName: "Test selected sound file",
-                    soundSource: urlBell,
+            const icon = modIcons.mkGIcon("play_arrow");
+            const btnTest = mkElt("button", undefined, icon);
+            btnTest.classList.add("test-play-sound");
+            const divTest = mkElt("div", undefined, ["Play selected file: ", btnTest]);
+            divTest.inert = true;
+
+            /** @type {FileSystemHandle|null} */
+            let gotHandle;
+            const btnGetFile = mkElt("button", undefined, "Select audio file");
+            btnGetFile.addEventListener("click", async evt => {
+                evt.stopPropagation();
+                gotHandle = await modLocalFileReader.selectFile("audio", "Select sound file for inhale");
+                console.log({ gotHandle });
+                if (gotHandle) {
+                    if (!(gotHandle instanceof FileSystemHandle)) {
+                        debugger;
+                    }
+                    divTest.inert = false;
+                } else {
+                    divTest.inert = true;
                 }
             });
-        });
-        const divBtns = mkElt("div", undefined, [
-            btnGetFile,
-            // btnTest,
-            divTest,
-        ]);
-        divBtns.style = `
+            btnTest.addEventListener("click", async evt => {
+                evt.stopPropagation();
+                console.log({ gotHandle });
+                debugger;
+                if (gotHandle == null) throw Error("gotHandle is null");
+                const modVizVol = await importFc4i("viz-volume")
+                const file = await gotHandle.getFile();           // Returns a File (which is a Blob)
+                const urlBell = URL.createObjectURL(file);
+                modVizVol.showViz({
+                    sound: {
+                        soundName: "Test selected sound file",
+                        soundSource: urlBell,
+                    }
+                });
+            });
+            const divBtns = mkElt("div", undefined, [
+                btnGetFile,
+                // btnTest,
+                divTest,
+            ]);
+            divBtns.style = `
             display: flex;
             flex-direction: column;
             gap: 20px;
         `;
-        const bdy = mkElt("div", undefined, [
-            mkElt("h2", undefined, "Your own: inhale"),
-            divBtns
-            // "keyUserInhale",
+            const bdy = mkElt("div", undefined, [
+                mkElt("h2", undefined, `Your own: ${forInhale ? "Inhale" : "Exhale"}`),
+                divBtns
+            ]);
+            const ans = await modBasicUI.showDialogConfirm(bdy);
+            if (ans) {
+                debugger;
+                if (!gotHandle) throw Error(`gotHandle is "${gotHandle}"`);
+                modLocalFileReader.saveFileHandleAsBlob(keyUserSound, gotHandle);
+            }
+        });
+
+
+        const divSelectOwnSound = mkElt("div", { class: "select-own-sound" }, [
+            btnTestUserSound,
+            btnUserChoice,
         ]);
-        const ans = await modBasicUI.showDialogConfirm(bdy);
-        if (ans) {
-            debugger;
-            if (!gotHandle) throw Error(`gotHandle is "${gotHandle}"`);
-            modLocalFileReader.saveFileHandleAsBlob(keyUserInhale, gotHandle);
+
+        eltUserBell.appendChild(divSelectOwnSound);
+        eltUserBell.classList.add("label-bell");
+
+        if (!await modLocalFileReader.fileExistsInOPFS(keyUserSound)) {
+            eltUserBell.firstElementChild.inert = true;
         }
-    });
-    const eltUserBell2 = mkRadBell("Your own", keyUserInhale, true, undefined);
-    const btnTestUserInhale = eltUserBell2.lastElementChild;
-    const blob = modLocalFileReader.getSavedFileBlob(keyUserInhale);
-    btnTestUserInhale.inert = blob == null;
-    const eltUserChoice = mkElt("div", undefined, [
-        btnTestUserInhale,
-        btnUserChoice,
-    ]);
-    eltUserChoice.style = `
-        display: inline-flex;
-        gap: 10px;
-    `;
-
-    eltUserBell2.appendChild(eltUserChoice);
-    eltUserBell2.id = "div-user-inhale";
-    eltUserBell2.classList.add("label-bell");
-
-    if (!await modLocalFileReader.fileExistsInOPFS(keyUserInhale)) {
-        eltUserBell2.firstElementChild.inert = true;
+        return eltUserBell;
     }
 
-    divInhaleBells.appendChild(eltUserBell2);
+    divInhaleBells.appendChild(eltUserBellInhale);
 
 
 
     const lblSame = mkRadBell("Same (lower freq)", "same", false, currentBells?.exhale);
     lblSame.classList.add("label-bell");
-    const divExhaleBells = mkElt("div", undefined, lblSame);
-    divExhaleBells.style = styleDivBells;
+    const divExhaleBells = mkElt("div", { class: "list-bells" }, lblSame);
     const divExhale = mkElt("p", undefined, [
         mkGroupName("Exhale"),
         divExhaleBells,
     ]);
-    // await addFileBells(divExhaleBells, false, currentBells.exhale);
+
     await addFileBells(divExhaleBells, false, currentBells.exhale);
-    // addSyntBells(divExhaleBells, false, currentBells.exhale);
+    divExhaleBells.appendChild(eltUserBellExhale);
+
     const divBells = mkElt("div", undefined, [
         divInhale,
         divExhale,
