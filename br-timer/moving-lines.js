@@ -989,14 +989,6 @@ async function OLDgetInhaleAndExhale() {
 /** * @param {number} seconds */
 const playInhale = (seconds) => {
     if (typeof seconds != "number") debugger;
-    // debugger;
-    /*
-    let ourBellId = currentSoundRec.inhale;
-    if (ourBellId == "user-inhale") {
-        ourBellId = "b:" + currentSoundRec.inhaleObjectUrl;
-        // debugger;
-    }
-    */
     const buffer = currentSoundRec.inhaleAudioBuffer;
     // const sourceNode = audioMain.createBufferSource();
     // sourceNode.buffer = buffer;
@@ -1006,12 +998,8 @@ const playInhale = (seconds) => {
 /** * @param {number} seconds */
 const playExhale = (seconds) => {
     if (typeof seconds != "number") debugger;
-    const bellId = currentSoundRec.exhale == "same" ? currentSoundRec.inhale : currentSoundRec.exhale;
-    let fullBellId = bellId;
-    // if (fullBellId == currentSoundRec.exhale) {
-    //     fullBellId = currentSoundRec[exhaleId]
-    // }
-    modBells.strikeBellById(fullBellId, true, { stopAtSec: seconds });  // bell out → 6 s exhale
+    const buffer = currentSoundRec.exhaleAudioBuffer;
+    modBells.strikeBellById(buffer, true, { stopAtSec: seconds });  // bell out → 6 s exhale
 }
 
 /** * @param {string} txtTop */
