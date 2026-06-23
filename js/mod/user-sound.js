@@ -327,6 +327,34 @@ export async function dialogSound() {
      * @param {string} currentBell 
      */
 
+    const mkThanksBells = () => {
+        const groups = Object.keys(fileBellGroups);
+        const eltThanks = mkElt("div", undefined, [
+            mkElt("hr"),
+            "Thanks to these sites for the bell sounds: "
+        ]);
+        const arrA = groups.map(grpName => {
+            const grp = fileBellGroups[grpName];
+            const urlExternal = grp.urlExternal;
+            const aGrp = mkElt("a", {
+                href: urlExternal,
+                target: "_blank"
+            }, grpName);
+            return aGrp;
+        });
+        // eltThanks.appendChild(aGrp);
+        const len = arrA.length;
+        for (let i = 0; i < len; i++) {
+            const aGrp = arrA[i];
+            if (i > 0) {
+                eltThanks.append(", ");
+            }
+            eltThanks.appendChild(aGrp);
+        }
+
+        // eltThanks.appendChild(arrA.join(", "));
+        return eltThanks;
+    }
 
     /** @type {FunAddBell2UI} */
     const addFileBells = async (targetDiv, isInhale, currentBell) => {
@@ -349,6 +377,7 @@ export async function dialogSound() {
             }, grpName);
             // const eltGrpName = mkElt("div", undefined, `${grpName}:`);
             const eltGrpName = mkElt("div", undefined, ["From ", aGrp, ":"]);
+            eltGrpName.style.display = "none";
             targetDiv.appendChild(eltGrpName);
             try {
                 const soundRows = mod.files();
@@ -439,7 +468,7 @@ export async function dialogSound() {
             gap: 20px;
         `;
         const bdy = mkElt("div", undefined, [
-            mkElt("h2", undefined, "Your sound: inhale"),
+            mkElt("h2", undefined, "Your own: inhale"),
             divBtns
             // "keyUserInhale",
         ]);
@@ -450,8 +479,7 @@ export async function dialogSound() {
             modLocalFileReader.saveFileHandleAsBlob(keyUserInhale, gotHandle);
         }
     });
-    // const eltUserChoice = mkElt("span", { style: "color:red" }, [ "Your choice", btnUserChoice ]);
-    const eltUserBell2 = mkRadBell("Your sound", keyUserInhale, true, undefined);
+    const eltUserBell2 = mkRadBell("Your own", keyUserInhale, true, undefined);
     const btnTestUserInhale = eltUserBell2.lastElementChild;
     const blob = modLocalFileReader.getSavedFileBlob(keyUserInhale);
     btnTestUserInhale.inert = blob == null;
@@ -464,18 +492,16 @@ export async function dialogSound() {
         gap: 10px;
     `;
 
-    // eltUserChoice.appendChild(btnTestUserInhale);
     eltUserBell2.appendChild(eltUserChoice);
     eltUserBell2.id = "div-user-inhale";
     eltUserBell2.classList.add("label-bell");
 
-    // eltUserBell2.firstElementChild.inert = true;
     if (!await modLocalFileReader.fileExistsInOPFS(keyUserInhale)) {
         eltUserBell2.firstElementChild.inert = true;
     }
 
     divInhaleBells.appendChild(eltUserBell2);
-    // addSyntBells(divInhaleBells, true, currentBells.inhale);
+
 
 
     const lblSame = mkRadBell("Same (lower freq)", "same", false, currentBells?.exhale);
@@ -504,6 +530,7 @@ export async function dialogSound() {
     const body = mkElt("div", undefined, [
         mkElt("h2", undefined, ["Bell Sounds ", iconSound]),
         divBells,
+        mkThanksBells()
     ]);
     // body.classList.add("colored-dialog");
     // oldmodMdc.mkMDCdialogAlert(body, "close");
