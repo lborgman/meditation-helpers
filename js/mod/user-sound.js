@@ -432,8 +432,8 @@ export async function dialogSound() {
             const icon = modIcons.mkGIcon("play_arrow");
             const btnTest = mkElt("button", undefined, icon);
             btnTest.classList.add("test-play-sound");
-            const divTest = mkElt("div", undefined, ["Play selected file: ", btnTest]);
-            divTest.inert = true;
+            const divTestSound = mkElt("div", undefined, ["Play selected file: ", btnTest]);
+            divTestSound.inert = true;
 
             /** @type {FileSystemHandle|null} */
             let gotHandle;
@@ -446,9 +446,9 @@ export async function dialogSound() {
                     if (!(gotHandle instanceof FileSystemHandle)) {
                         debugger;
                     }
-                    divTest.inert = false;
+                    divTestSound.inert = false;
                 } else {
-                    divTest.inert = true;
+                    divTestSound.inert = true;
                 }
             });
             btnTest.addEventListener("click", async evt => {
@@ -466,10 +466,29 @@ export async function dialogSound() {
                     }
                 });
             });
+            const aAudioExtractor = mkElt("a", {
+                href: "https://lborgman.github.io/audio-extractor/audio-extractor.html",
+                target: "_blank"
+            }, "Audio Extractor");
+            const eltHowToGetShortSound = mkElt("details", undefined, [
+                mkElt("summary", undefined, "Short sound files!"),
+                mkElt("div", undefined, [
+                    mkElt("p", undefined, `
+                        It is best to use short sound files for the bells.
+                        10 seconds is usually enough.
+                        But where do you get such short sound files?
+                        `),
+                    mkElt("p", undefined, [
+                        "Here is a tool you can use for that: ",
+                        mkElt("div", undefined, aAudioExtractor)
+                    ]),
+                ])
+            ]);
             const divBtns = mkElt("div", undefined, [
                 btnGetFile,
                 // btnTest,
-                divTest,
+                divTestSound,
+                eltHowToGetShortSound,
             ]);
             divBtns.style = `
             display: flex;
