@@ -467,7 +467,7 @@ export async function dialogSound() {
                 });
             });
             const aAudioExtractor = mkElt("a", {
-                href: "https://lborgman.github.io/audio-extractor/audio-extractor.html",
+                href: "https://lborgman.github.io/audio-extractor/audio-extractor.html?seconds=12",
                 target: "_blank"
             }, "Audio Extractor");
             const eltHowToGetShortSound = mkElt("details", undefined, [
