@@ -3,8 +3,7 @@ const LOCAL_FILE_READER_VER = "0.0.02";
 window["logConsoleHereIs"](`here is opfs.js, module, ${LOCAL_FILE_READER_VER}`);
 if (document.currentScript) { throw "opfs.js is not loaded as module"; }
 
-// /* * @type {IDBDatabase|null} */ let dbInstance = null;
-
+// #region showOpenFilePicker
 function makeFilePickerOptions(mediaTypes, title) {
     title = title || mediaTypes;
     if (typeof title != "string") throw Error(`title must be string`);
@@ -38,19 +37,6 @@ function makeFilePickerOptions(mediaTypes, title) {
         types: [{ description: title, accept: objAccept }],
         excludeAcceptAllOption: true,
     };
-}
-
-export async function selectAndSaveFile(savedName, mediaTypes, title) {
-    if (typeof savedName != "string") throw Error(`savedName must be string`);
-    const pickerOptions = makeFilePickerOptions(mediaTypes, title);
-    return selectAndSaveFileAdvanced(savedName, pickerOptions);
-}
-
-export async function selectAndSaveFileAdvanced(savedName, pickerOptions) {
-    const fileHandle = await selectFileAdvanced(pickerOptions);
-    if (!fileHandle) return false; // User cancelled
-    await saveToOpfs(savedName, fileHandle);
-    return true;
 }
 
 export async function selectFile(mediaTypes, title) {
@@ -90,14 +76,47 @@ export async function selectFileAdvanced(pickerOptions) {
     }
 }
 
+export async function selectAndSaveFile(savedName, mediaTypes, title) {
+    if (typeof savedName != "string") throw Error(`savedName must be string`);
+    const pickerOptions = makeFilePickerOptions(mediaTypes, title);
+    return selectAndSaveFileAdvanced(savedName, pickerOptions);
+}
+
+export async function selectAndSaveFileAdvanced(savedName, pickerOptions) {
+    const fileHandle = await selectFileAdvanced(pickerOptions);
+    if (!fileHandle) return false; // User cancelled
+    // await saveToOpfs(savedName, fileHandle);
+    await saveFileSystemHandleAsBlob(savedName, fileHandle);
+    return true;
+}
+
+// #endregion
+
 
 /**
  * 
  * @param {string} fileName 
  * @param {FileSystemFileHandle} fileHandle 
  */
-export async function saveFileHandleAsBlob(fileName, fileHandle) {
-    await saveToOpfs(fileName, fileHandle);
+export async function saveFileSystemHandleAsBlob(fileName, fileHandle) {
+    // await saveToOpfs(fileName, fileHandle);
+// }
+// async function saveToOpfs(fileName, fileHandle) {
+    if (!fileHandle) {
+        // Bug hunting:
+        const msg = `!handle`;
+        console.error(msg);
+        debugger;
+        throw Error(msg);
+    }
+    const file = await fileHandle.getFile();
+
+    const root = await navigator.storage.getDirectory();
+    const opfsFileHandle = await root.getFileHandle(fileName, { create: true });
+
+    const writable = await opfsFileHandle.createWritable();
+    await writable.write(file);
+    await writable.close();
 }
 
 /**
@@ -115,27 +134,6 @@ async function getOurDatabase() {
     return getDatabase('FileHandlesDB', 8);
 }
 
-/**
- * @param {string} fileName 
- * @param {FileSystemHandle} handle 
- */
-async function saveToOpfs(fileName, handle) {
-    if (!handle) {
-        // Bug hunting:
-        const msg = `!handle`;
-        console.error(msg);
-        debugger;
-        throw Error(msg);
-    }
-    const file = await handle.getFile();
-
-    const root = await navigator.storage.getDirectory();
-    const opfsFileHandle = await root.getFileHandle(fileName, { create: true });
-
-    const writable = await opfsFileHandle.createWritable();
-    await writable.write(file);
-    await writable.close();
-}
 
 /**
  * Fetches an image file from OPFS and creates a temporary Object URL.

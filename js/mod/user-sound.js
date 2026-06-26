@@ -503,7 +503,7 @@ export async function dialogSound() {
             if (ans) {
                 debugger;
                 if (!gotHandle) throw Error(`gotHandle is "${gotHandle}"`);
-                modOpfs.saveFileHandleAsBlob(keyUserSound, gotHandle);
+                modOpfs.saveFileSystemHandleAsBlob(keyUserSound, gotHandle);
             }
         });
 
