@@ -11,7 +11,7 @@ const mkElt = window["mkElt"];
 const importFc4i = window["importFc4i"];
 
 const modBasicUI = await importFc4i("basic-ui");
-// const modLocalFileReader = await importFc4i("local-file-reader");
+// const modLocalFileReader = await importFc4i("opfs-helpers");
 const usersInhaleSound = "inhale-sound";
 const usersExhaleSound = "inhale-sound";
 
@@ -889,7 +889,7 @@ const modUserSounds = await importFc4i("user-sound");
 let currentSoundRec;
 async function getCurrentSoundRec() {
     console.log({ audioMain });
-    const modLocalFileReader = await importFc4i("local-file-reader")
+    const modLocalFileReader = await importFc4i("opfs-helpers")
     currentSoundRec = { ... await modUserSounds.getSoundRec() };
     {
         // const src = currentSoundRec.inhale;
@@ -2991,7 +2991,7 @@ export async function setupThings() {
     document.body.appendChild(sectionContainer);
     setupCanvas(sectionContainer);
     await setupControls(sectionContainer);
-    addInfoButton(sectionContainer);
+    // addInfoOtherAppsButton(sectionContainer);
     // addTestSoundButton(sectionContainer);
     setup4Android(sectionContainer);
     setCanvasSizes();
@@ -3003,7 +3003,7 @@ export async function setupThings() {
     addEventListener("resize", evt => { debounceAfterResize(); });
     setCanvasBackgroundToSelectedImage();
 }
-async function addInfoButton(container) {
+async function addInfoOtherAppsButton(container) {
     // const oldmodMdc = await importFc4i("util-mdc");
     const iconInfo = modIcons.mkGIcon("info");
     iconInfo.style.fontSize = "2.5rem";

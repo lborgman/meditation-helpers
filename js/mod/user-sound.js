@@ -17,7 +17,7 @@ const KEY_user_sound = "user-sound";
 const modIcons = await importFc4i("google-icons");
 const modBasicUI = await importFc4i("basic-ui");
 
-const modLocalFileReader = await importFc4i("local-file-reader");
+const modLocalFileReader = await importFc4i("opfs-helpers");
 const keyUserExhale = "user-exhale";
 const keyUserInhale = "user-inhale";
 export async function OLDgetUserInhaleSoundObjectUrl() {

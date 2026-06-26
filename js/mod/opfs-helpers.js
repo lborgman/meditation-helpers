@@ -1,7 +1,7 @@
 // @ts-check
 const LOCAL_FILE_READER_VER = "0.0.02";
-window["logConsoleHereIs"](`here is local-file-reader.js, module, ${LOCAL_FILE_READER_VER}`);
-if (document.currentScript) { throw "local-file-reader.js is not loaded as module"; }
+window["logConsoleHereIs"](`here is opfs-helpers.js, module, ${LOCAL_FILE_READER_VER}`);
+if (document.currentScript) { throw "opfs-helpers.js is not loaded as module"; }
 
 // /* * @type {IDBDatabase|null} */ let dbInstance = null;
 
@@ -147,6 +147,8 @@ export async function getSavedFileBlob(savedName) {
 }
 
 async function getOurDatabase() {
+    debugger;
+    throw Error("getOurDatabase called");
     return getDatabase('FileHandlesDB', 8);
 }
 

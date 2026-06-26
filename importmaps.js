@@ -137,11 +137,12 @@ const cacheImportFc4i = new Map();
         // "is-displayed": "./js/mod/is-displayed.js",
         "google-icons": "../js/mod/google-icons.js",
 
-        "local-file-reader": "../js/mod/local-file-reader.js",
         "local-settings": "../js/mod/local-settings.js",
 
         "moving-lines": "./moving-lines.js",
         "my-svg": "./js/mod/my-svg.js",
+
+        "opfs-helpers": "../js/mod/opfs-helpers.js",
 
         "sharing-params": "./src/js/mod/sharing-params.js",
         "toolsJs": "../js/mod/tools.js",

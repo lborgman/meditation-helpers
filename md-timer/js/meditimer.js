@@ -13,7 +13,7 @@ const importFc4i = window["importFc4i"];
 
 const modBasicUI = await importFc4i("basic-ui");
 
-const modLocalFileReader = await importFc4i("local-file-reader");
+const modLocalFileReader = await importFc4i("opfs-helpers");
 const bgFileName = "savedBg";
 
 const modIcons = await importFc4i("google-icons");
