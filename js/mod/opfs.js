@@ -1,7 +1,7 @@
 // @ts-check
 const LOCAL_FILE_READER_VER = "0.0.02";
-window["logConsoleHereIs"](`here is opfs-helpers.js, module, ${LOCAL_FILE_READER_VER}`);
-if (document.currentScript) { throw "opfs-helpers.js is not loaded as module"; }
+window["logConsoleHereIs"](`here is opfs.js, module, ${LOCAL_FILE_READER_VER}`);
+if (document.currentScript) { throw "opfs.js is not loaded as module"; }
 
 // /* * @type {IDBDatabase|null} */ let dbInstance = null;
 
@@ -90,43 +90,6 @@ export async function selectFileAdvanced(pickerOptions) {
     }
 }
 
-/**
- * @param {string} dbName
- * @param {number} dbVersion
- * @returns {Promise<IDBDatabase>}
- */
-async function getDatabaseIDB(dbName, dbVersion) {
-    if (dbInstance) return dbInstance;
-
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(dbName, dbVersion);
-
-        request.onupgradeneeded = (event) => {
-            // @ts-ignore
-            const db = event.target.result;
-            if (db.objectStoreNames.contains("images")) db.deleteObjectStore('images');
-            if (!db.objectStoreNames.contains("handles")) db.createObjectStore('handles');
-        };
-
-        request.onsuccess = (event) => {
-            // @ts-ignore
-            dbInstance = event.target.result;
-
-            // Handle cross-tab updates safely here so it doesn't hang!
-            dbInstance.onversionchange = () => {
-                dbInstance.close();
-                dbInstance = null;
-                console.warn("Database outdated. Closing connection.");
-            };
-            resolve(dbInstance);
-        };
-
-        request.onerror = (event) => {
-            // @ts-ignore
-            reject(event.target.error);
-        };
-    });
-}
 
 /**
  * 

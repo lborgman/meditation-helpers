@@ -17,12 +17,12 @@ const KEY_user_sound = "user-sound";
 const modIcons = await importFc4i("google-icons");
 const modBasicUI = await importFc4i("basic-ui");
 
-const modLocalFileReader = await importFc4i("opfs-helpers");
+const modOpfs = await importFc4i("opfs");
 const keyUserExhale = "user-exhale";
 const keyUserInhale = "user-inhale";
 export async function OLDgetUserInhaleSoundObjectUrl() {
     // FIX-ME: When to release the blob??
-    const savedFileBlob = await modLocalFileReader.getSavedFileBlob(keyUserInhale);
+    const savedFileBlob = await modOpfs.getSavedFileBlob(keyUserInhale);
     if (!savedFileBlob) return "";
     const url = URL.createObjectURL(savedFileBlob);
     return url;
@@ -148,8 +148,8 @@ function setSoundRec(objJson) {
 
 
 export async function dialogSound() {
-    const blobUserExhale = await modLocalFileReader.getSavedFileBlob(keyUserExhale);
-    const blobUserInhale = await modLocalFileReader.getSavedFileBlob(keyUserInhale);
+    const blobUserExhale = await modOpfs.getSavedFileBlob(keyUserExhale);
+    const blobUserInhale = await modOpfs.getSavedFileBlob(keyUserInhale);
     let hasUserExhale = false;
     let hasUserInhale = false;
     setUserExhale(!!blobUserExhale);
@@ -231,7 +231,7 @@ export async function dialogSound() {
                 return;
             }
             if (bellName.startsWith("user-")) {
-                const blobBell = await modLocalFileReader.getSavedFileBlob(bellName);
+                const blobBell = await modOpfs.getSavedFileBlob(bellName);
                 if (!blobBell) {
                     const b = mkElt("div", undefined, [
                         mkElt("h2", undefined, "No sound choosen"),
@@ -423,7 +423,7 @@ export async function dialogSound() {
         const keyUserSound = forInhale ? keyUserInhale : keyUserExhale;
         const eltUserBell = mkRadBell("Your own", keyUserSound, forInhale, undefined);
         const btnTestUserSound = eltUserBell.lastElementChild;
-        const blob = modLocalFileReader.getSavedFileBlob(keyUserSound);
+        const blob = modOpfs.getSavedFileBlob(keyUserSound);
         btnTestUserSound.inert = (blob == null);
 
         const btnUserChoice = mkElt("button", undefined, "Select");
@@ -440,7 +440,7 @@ export async function dialogSound() {
             const btnGetFile = mkElt("button", undefined, "Select audio file");
             btnGetFile.addEventListener("click", async evt => {
                 evt.stopPropagation();
-                gotHandle = await modLocalFileReader.selectFile("audio", "Select sound file for inhale");
+                gotHandle = await modOpfs.selectFile("audio", "Select sound file for inhale");
                 console.log({ gotHandle });
                 if (gotHandle) {
                     if (!(gotHandle instanceof FileSystemHandle)) {
@@ -471,15 +471,15 @@ export async function dialogSound() {
                 target: "_blank"
             }, "Audio Extractor");
             const eltHowToGetShortSound = mkElt("details", undefined, [
-                mkElt("summary", undefined, "Short sound files!"),
+                mkElt("summary", undefined, "Use short sound files!"),
                 mkElt("div", undefined, [
                     mkElt("p", undefined, `
-                        It is best to use short sound files for the bells.
-                        10 seconds is usually enough.
-                        But where do you get such short sound files?
+                        A copy of the sound file will be stored in your web browser
+                        so keep it short.
+                        12 seconds is enough.
                         `),
                     mkElt("p", undefined, [
-                        "Here is a tool you can use for that: ",
+                        "Here you can copy some seconds from any of your sound file: ",
                         mkElt("div", undefined, aAudioExtractor)
                     ]),
                 ])
@@ -503,7 +503,7 @@ export async function dialogSound() {
             if (ans) {
                 debugger;
                 if (!gotHandle) throw Error(`gotHandle is "${gotHandle}"`);
-                modLocalFileReader.saveFileHandleAsBlob(keyUserSound, gotHandle);
+                modOpfs.saveFileHandleAsBlob(keyUserSound, gotHandle);
             }
         });
 
@@ -516,7 +516,7 @@ export async function dialogSound() {
         eltUserBell.appendChild(divSelectOwnSound);
         eltUserBell.classList.add("label-bell");
 
-        if (!await modLocalFileReader.fileExistsInOPFS(keyUserSound)) {
+        if (!await modOpfs.fileExistsInOPFS(keyUserSound)) {
             eltUserBell.firstElementChild.inert = true;
         }
         return eltUserBell;

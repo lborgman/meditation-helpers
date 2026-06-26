@@ -11,7 +11,6 @@ const mkElt = window["mkElt"];
 const importFc4i = window["importFc4i"];
 
 const modBasicUI = await importFc4i("basic-ui");
-// const modLocalFileReader = await importFc4i("opfs-helpers");
 const usersInhaleSound = "inhale-sound";
 const usersExhaleSound = "inhale-sound";
 
@@ -889,7 +888,7 @@ const modUserSounds = await importFc4i("user-sound");
 let currentSoundRec;
 async function getCurrentSoundRec() {
     console.log({ audioMain });
-    const modLocalFileReader = await importFc4i("opfs-helpers")
+    const modOpfs = await importFc4i("opfs")
     currentSoundRec = { ... await modUserSounds.getSoundRec() };
     {
         // const src = currentSoundRec.inhale;
@@ -901,7 +900,7 @@ async function getCurrentSoundRec() {
         async function promAudioBuffer(src) {
             let blob;
             if (!src.startsWith("f:")) {
-                blob = await modLocalFileReader.getSavedFileBlob(src);
+                blob = await modOpfs.getSavedFileBlob(src);
             } else {
                 const url = src.slice(2);
                 try {

@@ -13,7 +13,7 @@ const importFc4i = window["importFc4i"];
 
 const modBasicUI = await importFc4i("basic-ui");
 
-const modLocalFileReader = await importFc4i("opfs-helpers");
+const modOpfs = await importFc4i("opfs");
 const bgFileName = "savedBg";
 
 const modIcons = await importFc4i("google-icons");
@@ -950,7 +950,7 @@ function pickImage() {
 async function restoreUsersOwnBg() {
     // console.log("++++++ restoreUsersOwnBg");
     if (!settingUseMyBg.valueB) return false;
-    const savedFileBlob = await modLocalFileReader.getSavedFileBlob(bgFileName);
+    const savedFileBlob = await modOpfs.getSavedFileBlob(bgFileName);
     if (!savedFileBlob) return false;
     const url = URL.createObjectURL(savedFileBlob);
     document.documentElement.style.backgroundImage = `url(${url})`;
@@ -1000,7 +1000,7 @@ async function dialogSettings() {
             align - items: center;
             `;
     // if (!await getSavedFileBlob()) {
-    if (!await modLocalFileReader.getSavedFileBlob(bgFileName)) {
+    if (!await modOpfs.getSavedFileBlob(bgFileName)) {
         lblMy.inert = true;
         settingUseMyBg.value = false;
     }
@@ -1217,7 +1217,7 @@ async function dialogSettings() {
         dialogImages();
         return;
         // const newBg = await modLocalFileReader.selectAndSaveFile(bgFileName, pickerOptions);
-        const newBg = await modLocalFileReader.selectAndSaveFile(bgFileName, "image");
+        const newBg = await modOpfs.selectAndSaveFile(bgFileName, "image");
         if (newBg) {
             // setUseMyBackground(true);
             settingUseMyBg.value = true;

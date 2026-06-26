@@ -11,7 +11,7 @@ const mkElt = window["mkElt"];
 const importFc4i = window["importFc4i"];
 
 const modBasicUI = await importFc4i("basic-ui");
-const modLocalFileReader = await importFc4i("opfs-helpers");
+const modOpfs = await importFc4i("opfs");
 
 let keyUserBackground = "";
 /**
@@ -32,19 +32,19 @@ export function setKeyUserBackground(key) {
 }
 
 export async function applyUserBackground(elt) {
-    const blobSaved = await modLocalFileReader.getSavedFileBlob(keyUserBackground);
+    const blobSaved = await modOpfs.getSavedFileBlob(keyUserBackground);
     if (!blobSaved) {
         elt.style.background = "red";
         return;
     }
     const urlBlob = URL.createObjectURL(blobSaved);
-    const urlIsValid2 = await modLocalFileReader.isObjectUrlValid(urlBlob);
+    const urlIsValid2 = await modOpfs.isObjectUrlValid(urlBlob);
     console.warn({ urlIsValid2 });
     // debugger;
     console.log("setting urlBlob");
     elt.style.backgroundImage = `url("${urlBlob}")`;
     // revoke(urlBlob); // FIX-ME:
-    const urlIsValid = await modLocalFileReader.isObjectUrlValid(urlBlob);
+    const urlIsValid = await modOpfs.isObjectUrlValid(urlBlob);
     console.warn({ urlIsValid });
     if (!urlIsValid) {
         debugger;
@@ -244,7 +244,7 @@ export async function getCurrentImageUrl(arrBuiltin) {
             debugger;
             return "";
         }
-        const b = await modLocalFileReader.getSavedFileBlob(keyUserBackground)
+        const b = await modOpfs.getSavedFileBlob(keyUserBackground)
         return b;
     }
     return choice;
@@ -290,7 +290,7 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
         const btnBrowse = mkElt("button", undefined, "Browse");
         btnBrowse.addEventListener("click", async evt => {
             evt.stopPropagation();
-            blobPreview = await modLocalFileReader.selectFile("image,video");
+            blobPreview = await modOpfs.selectFile("image,video");
             applyUserBackground(eltBrowsePreview);
         });
         const body = mkElt("div", undefined, [
@@ -304,7 +304,7 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
         const ans = await modBasicUI.showDialogConfirm(body);
         if (!ans) return;
         // @ts-ignore
-        await modLocalFileReader.saveFileHandleAsBlob(keyUserBackground, blobUrl);
+        await modOpfs.saveFileHandleAsBlob(keyUserBackground, blobUrl);
         // eltOwnPreview.style.backgroundImage = `url("${blobUrl}")`;
         applyUserBackground(eltOwnPreview);
     });
@@ -433,9 +433,9 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
                     let handle;
                     btnBrowse.addEventListener("click", async evt => {
                         evt.stopPropagation();
-                        console.log({ modLocalFileReader });
+                        console.log({ modLocalFileReader: modOpfs });
 
-                        handle = await modLocalFileReader.selectFile("image,video");
+                        handle = await modOpfs.selectFile("image,video");
                         // console.log("%cbefore getFile", "font-size:30px;", handle);
                         const blobPreview = await handle.getFile();
                         const blobUrl = URL.createObjectURL(blobPreview);
@@ -451,7 +451,7 @@ export async function dialogImages(arrBuiltin, funApplyImage) {
                     const ans = await modBasicUI.showDialogConfirm(body);
                     if (!ans) return;
 
-                    await modLocalFileReader.saveFileHandleAsBlob(keyUserBackground, handle);
+                    await modOpfs.saveFileHandleAsBlob(keyUserBackground, handle);
                     applyUserBackground(eltOwnPreview);
 
                     const divUsers = btnSelectBackground.closest("div");
